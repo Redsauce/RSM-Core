@@ -1,3 +1,0 @@
-INSERT INTO `rs_dbchanges` (`RS_ID`, `RS_PREVIOUS_VERSION`, `RS_NEW_VERSION`, `RS_EXECUTION_DATE`, `RS_COMMENTS`) 
-	VALUES 
-	(NULL, '4.7.1.3.109', '4.7.2.3.110', NOW(), 'No changes in PHP layer');
