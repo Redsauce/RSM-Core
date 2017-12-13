@@ -1,0 +1,50 @@
+
+UPDATE `rs_property_app_definitions` SET 
+`RS_NAME` = 'onlineStoreProduct.categoryIDs', `RS_TYPE` = 'identifiers'
+WHERE `RS_NAME` = 'onlineStoreProduct.categoryID';
+
+
+UPDATE `rs_property_app_definitions` SET 
+`RS_NAME` = 'onlineStoreAttribute.price'
+WHERE `RS_NAME` = 'onlineStoreAttribute.increment';
+
+CREATE TABLE `rs_property_files` (
+  `RS_ITEMTYPE_ID` int(11) NOT NULL,
+  `RS_ITEM_ID` int(11) NOT NULL,
+  `RS_NAME` varchar(255) NOT NULL,
+  `RS_SIZE` int(11) NOT NULL,
+  `RS_DATA` longblob NOT NULL,
+  `RS_PROPERTY_ID` int(11) NOT NULL,
+  `RS_CLIENT_ID` int(11) NOT NULL,
+  PRIMARY KEY (`RS_CLIENT_ID`,`RS_ITEMTYPE_ID`,`RS_ITEM_ID`,`RS_PROPERTY_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `rs_audit_trail_property_files` (
+  `RS_ITEMTYPE_ID` int(11) NOT NULL,
+  `RS_ITEM_ID` int(11) NOT NULL,
+  `RS_PROPERTY_ID` int(11) unsigned NOT NULL,
+  `RS_CLIENT_ID` int(11) NOT NULL,
+  `RS_USER_ID` int(11) NOT NULL,
+  `RS_DESCRIPTION` varchar(255) DEFAULT NULL,
+  `RS_CHANGED_DATE` datetime NOT NULL,
+  `RS_INITIAL_NAME` varchar(255) NOT NULL,
+  `RS_INITIAL_SIZE` int(11) NOT NULL,
+  `RS_INITIAL_VALUE` longblob NOT NULL,
+  `RS_FINAL_NAME` varchar(255) NOT NULL,
+  `RS_FINAL_SIZE` int(11) NOT NULL,
+  `RS_FINAL_VALUE` longblob NOT NULL,
+  PRIMARY KEY (`RS_CLIENT_ID`,`RS_ITEMTYPE_ID`,`RS_ITEM_ID`,`RS_PROPERTY_ID`,`RS_CHANGED_DATE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE `rs_property_images` 
+ADD `RS_NAME` VARCHAR( 255 ) NOT NULL AFTER `RS_ITEM_ID` ,
+ADD `RS_SIZE` INT( 11 ) NOT NULL DEFAULT '0' AFTER `RS_NAME`;
+
+ALTER TABLE `rs_audit_trail_property_images` 
+ADD `RS_INITIAL_NAME` VARCHAR( 255 ) NOT NULL AFTER `RS_CHANGED_DATE` ,
+ADD `RS_INITIAL_SIZE` INT( 11 ) NOT NULL DEFAULT '0' AFTER `RS_CHANGED_DATE` ,
+ADD `RS_FINAL_NAME` VARCHAR( 255 ) NOT NULL AFTER `RS_INITIAL_VALUE` ,
+ADD `RS_FINAL_SIZE` INT( 11 ) NOT NULL DEFAULT '0' AFTER `RS_INITIAL_VALUE`;
+
+
