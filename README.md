@@ -1,2 +1,2 @@
 # RSM-Core
-Multi-purpone management software
+Multi-purpose management software
