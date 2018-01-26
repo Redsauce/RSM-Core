@@ -20,6 +20,9 @@ $RStempPath = '{PHPtempPath}';
 // URL of the api directory
 $RSMapiURL   = '{RSMAPIURL}';
 
+// URL of the media server api
+$RSMmediaURL   = '{RSMMEDIAURL}';
+
 // File and image cache configuration
 $RSimageCache = '{RSMImageCache}';
 $RSfileCache  = '{RSMFileCache}';

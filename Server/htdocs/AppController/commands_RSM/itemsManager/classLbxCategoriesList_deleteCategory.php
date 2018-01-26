@@ -2,6 +2,7 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
+require_once "../utilities/RSMmediaManagement.php";
 
 // definitions
 $clientID = $GLOBALS['RS_POST']['clientID'];
@@ -14,7 +15,9 @@ $propertiesList = getClientCategoryProperties($categoryID, $clientID);
 // delete properties
 foreach ($propertiesList as $property) {
 	// delete values
-	RSQuery('DELETE FROM '.$propertiesTables[$property['type']].' WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);
+	if(RSQuery('DELETE FROM '.$propertiesTables[$property['type']].' WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID) && ($property['type'] == 'image' || $property['type'] == 'file')){
+		deleteMediaProperty($clientID,$property['id']);
+	}
 
 	// delete property definition
 	RSQuery('DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);

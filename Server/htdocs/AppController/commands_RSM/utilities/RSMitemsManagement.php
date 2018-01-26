@@ -4,6 +4,7 @@ require_once 'RSMidentificationFunctions.php';
 require_once 'RSMErrors.php';
 require_once 'RSMdefinitions.php';
 require_once 'RSMtokensManagement.php';
+require_once "RSMmediaManagement.php";
 
 function getPropertyIDs_usingSysName($appNames, $clientID) {
    // prepare query
@@ -276,9 +277,9 @@ function getProperties($itemTypeID, $clientID){
 
 function getImage($clientID, $propertyID, $itemID) {
     $theQuery = "
-        SELECT p.RS_DATA, p.RS_NAME
-        FROM rs_property_images as p
-        WHERE p.RS_ITEM_ID = " . $itemID . "
+            SELECT p.RS_DATA, p.RS_NAME
+            FROM rs_property_images as p
+            WHERE p.RS_ITEM_ID = " . $itemID . "
             AND p.RS_PROPERTY_ID = " . $propertyID . "
             AND p.RS_CLIENT_ID = " . $clientID;
 
@@ -288,9 +289,11 @@ function getImage($clientID, $propertyID, $itemID) {
 
 function getFile($clientID, $propertyID, $itemID) {
     $theQuery = "
-                SELECT p.RS_DATA, p.RS_NAME
-                FROM rs_property_files as p
-                WHERE p.RS_ITEM_ID = " . $itemID . " AND p.RS_PROPERTY_ID = " . $propertyID . " AND p.RS_CLIENT_ID = " . $clientID;
+            SELECT p.RS_DATA, p.RS_NAME
+            FROM rs_property_files as p
+            WHERE p.RS_ITEM_ID = " . $itemID . "
+            AND p.RS_PROPERTY_ID = " . $propertyID . "
+            AND p.RS_CLIENT_ID = " . $clientID;
 
     $result = RSQuery($theQuery);
 
@@ -1093,12 +1096,14 @@ function deleteClientProperty($propertyID, $clientID) {
 
     $propertyType = getClientPropertyType($propertyID, $clientID);
 
-    RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    if(RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($property['type'] == 'image' || $property['type'] == 'file')){
+		deleteMediaProperty($clientID,$propertyID);
+	}
     RSQuery("DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
     RSQuery("DELETE FROM rs_property_app_relations WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
     RSQuery("DELETE FROM rs_properties_groups WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
     RSQuery("DELETE FROM rs_properties_lists    WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
-        RSQuery("DELETE FROM rs_token_permissions WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    RSQuery("DELETE FROM rs_token_permissions WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
 
     if ($propertyID == getMainPropertyID($itemTypeID, $clientID)) {
         // reset main value
@@ -1842,7 +1847,12 @@ function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array()) 
     $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID);
 
     foreach ($propertiesList as $property) {
-        RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause);
+        if(RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')){
+            $itemIDs = explode(",",$ids);
+            foreach ($itemIDs as $itemID) {
+    		          deleteMediaFile($clientID,$itemID,$property['id']);
+            }
+    	}
     }
 
     $idsArr = explode(',', $ids);
@@ -2016,6 +2026,12 @@ function deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $
     }
 
     RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $itemID . " AND RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    if(RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')){
+        $itemIDs = explode(",",$ids);
+        foreach ($itemIDs as $itemID) {
+                  deleteMediaFile($clientID,$itemID,$property['id']);
+        }
+    }
 
     // We add the new item ID to the array of created itemIDs
     global $RSMupdatedItemIDs;
@@ -2110,11 +2126,22 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
     if ($propertyType == '' || !array_key_exists($propertyType,$propertiesTables)) return;
     // property type not passed... retrieve it
 
-    $result = RSQuery('SELECT ' . convertData('RS_DATA', $propertyType) . ' AS "DATA" FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
+    if ($propertyType == 'image' || $propertyType == 'file') {
+        $result = RSQuery('SELECT RS_DATA AS "DATA", RS_SIZE AS "SIZE"  FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
+    } else {
+        $result = RSQuery('SELECT ' . convertData('RS_DATA', $propertyType) . ' AS "DATA" FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
+    }
 
     if ($result && $propertyValue = $result->fetch_assoc()) {
         if ($propertyType == 'image' || $propertyType == 'file') {
-            return bin2hex($propertyValue['DATA']);
+            // Check if we need to recover file data from media server
+            $data = $propertyValue['DATA'];
+
+            // If file data is empty but the size field is > 0 then the file is in media server
+            if ($propertyValue['SIZE'] > 0 && $data = '') {
+                $data = getMediaFile($clientID,$itemID,$propertyID);
+            }
+            return bin2hex($data);
         } else {
             return $propertyValue['DATA'];
         }

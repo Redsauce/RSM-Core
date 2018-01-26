@@ -25,12 +25,14 @@ require_once "../utilities/RStools.php";
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMtokensManagement.php";
+require_once "../utilities/RSMmediaManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
 
-isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["itemID"    ]) ? $itemID     = $GLOBALS["RS_GET" ]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET" ]["propertyID"] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_GET" ]["RStoken"   ] : $RStoken = "";
+
+$clientID   = RSclientFromToken($RStoken);
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
@@ -69,9 +71,11 @@ if (count($nombres_archivo) > 0) {
 
     readfile($nombre_archivo);
 } else {
-    //file not in cache, generate new
-    $file          = getFile($clientID, $propertyID, $itemID);
-    if ($file) {
+    //file not in cache, get from media server
+    // grab URL and receive file
+    $file = getMediaFile($clientID,$itemID,$propertyID);
+
+    if (isset($file["RS_DATA"])) {
         $file_original = $file["RS_DATA"];
         $file_name     = $file["RS_NAME"];
         $extension     = pathinfo($file_name, PATHINFO_EXTENSION);
