@@ -2118,6 +2118,8 @@ function getItemPropertyValue($itemID, $propertyID, $clientID, $propertyType = '
 // Return the value of the property passed
 function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType = '', $itemTypeID = '') {
     global $propertiesTables;
+    global $enable_image_cache;
+    global $enable_file_cache;
 
     // If the itemTypeID was not passed... retrieve it
     if ($itemTypeID == '') $itemTypeID = getClientPropertyItemType($propertyID, $clientID);
@@ -2129,12 +2131,15 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
 
     if ($propertyType == 'image' || $propertyType == 'file') {
         // Check if file/image is in cache
+        $enable_cache = false;
         if ($propertyType == 'image') {
             $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
             $file_name = "img_" . $itemID;
+            $enable_cache = $enable_image_cache;
         } else {
             $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
             $file_name = "file_" . $itemID;
+            $enable_cache = $enable_file_cache;
         }
         $file_path = $directory . $file_name;
 
@@ -2149,7 +2154,7 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
             $nombres_archivo = array_values($nombres_archivo);
         }
 
-        if (count($nombres_archivo) > 0) {
+        if ($enable_cache && count($nombres_archivo) > 0) {
             // The file exists in cache, return cached file
             return bin2hex(file_get_contents($nombres_archivo[0]));
 
@@ -2167,7 +2172,7 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
                 }
 
                 // Save file/image in cache
-                saveFileCache($data, $file_path, $propertyValue['NAME'], pathinfo($propertyValue['NAME'], PATHINFO_EXTENSION));
+                if ($enable_cache) saveFileCache($data, $file_path, $propertyValue['NAME'], pathinfo($propertyValue['NAME'], PATHINFO_EXTENSION));
 
                 return bin2hex($data);
             }

@@ -44,9 +44,6 @@ isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
-$RSallowUncompressed = true;
-$enable_image_cache  = true;
-
 // Allow cross origin get svg
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
@@ -65,7 +62,8 @@ $nombres_archivo = glob($image_string . "_*");
 // Allow to request this document from JS libraries
 header('Access-Control-Allow-Origin: *');
 
-if (count($nombres_archivo) > 0) {
+if ($enable_image_cache && count($nombres_archivo) > 0) {
+    error_log("image found in cache");
     // RSError("api_getPicture: Image found in cache:" . $nombres_archivo[0]);
 
     // The image exists in cache
@@ -93,7 +91,8 @@ if (count($nombres_archivo) > 0) {
     }
     $nombres_archivo = array_values($nombres_archivo);
 
-    if (count($nombres_archivo) > 0) {
+    if ($enable_image_cache && count($nombres_archivo) > 0) {
+        error_log("base image found in cache");
         // The  base image exists in cache
         $nombre_archivo = $nombres_archivo[0];
         $parts = explode(".", basename($nombre_archivo));
@@ -109,15 +108,16 @@ if (count($nombres_archivo) > 0) {
         $imageOriginal = $image["RS_DATA"];
         $image_name     = $image["RS_NAME"];
         $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
-
+        error_log("no image found in cache");
         // If image data is empty but the size field is > 0 then the image is in media server
         if ($image["RS_SIZE"] > 0 && $imageOriginal == '') {
+            error_log("image get from media");
             $fileData = getMediaFile($clientID,$itemID,$propertyID);
             $imageOriginal = $fileData['RS_DATA'];
         }
 
         // Save in cache base image
-        saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
+        if ($enable_image_cache) saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
     }
 
     if ($imageOriginal == '') {
@@ -238,32 +238,32 @@ if (count($nombres_archivo) > 0) {
                 case "jpeg" :
                     Header("Content-type: image/jpeg");
                     echo imagejpeg($image_thumb, NULL, 90);
-                    saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
                     break;
 
                 case "jpg" :
                     Header("Content-type: image/jpeg");
                     echo imagejpeg($image_thumb, NULL, 90);
-                    saveImgCache($image_thumb, $image_string, $image_name, "jpg");
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
                     break;
 
                 case "gif" :
                     Header("Content-type: image/gif");
                     echo imagegif($image_thumb);
-                    saveImgCache($image_thumb, $image_string, $image_name, "gif");
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
                     break;
 
                 case "png" :
                     Header("Content-type: image/png");
                     echo imagepng($image_thumb);
-                    saveImgCache($image_thumb, $image_string, $image_name, "png");
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
                     break;
             }
 
         } else {
             // Return the original image
             Header("Content-type: image/" . $extension);
-            saveImgCache(imagecreatefromstring($imageOriginal), $image_string, $image_name, $extension);
+            if ($enable_image_cache) saveImgCache(imagecreatefromstring($imageOriginal), $image_string, $image_name, $extension);
             echo $imageOriginal;
         }
     }
@@ -328,36 +328,32 @@ function resizeSvg($svg_data, $w, $h) {
  * Save Image in cache directory
  */
 function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
-    global $enable_image_cache;
     global $directory;
 
-    if ($enable_image_cache) {
-        // Check if directory exists
-        if (!file_exists($directory)) {
-            if(!mkdir($directory, 0775, true)){
-                RSError("api_getPicture: Could not create directory");
-            }
+    // Check if directory exists
+    if (!file_exists($directory)) {
+        if(!mkdir($directory, 0775, true)){
+            RSError("api_getPicture: Could not create directory");
         }
+    }
 
-        switch($extension) {
-            case "jpg" :
-                return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
-            case "gif" :
-                return imagegif($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
-            case "png" :
-                imagealphablending($imageOriginal, false);
-                imagesavealpha($imageOriginal, true);
-                return imagepng($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
-            case "svg" :
-                $file = $imagePath . "_" . base64_encode($image_name) . "." . $extension;
-                $fh = fopen($file, "w");
-                fwrite($fh, $imageOriginal);
-                fclose($fh);
-                return 0;
-            default :
-                return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
-        }
-
+    switch($extension) {
+        case "jpg" :
+            return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+        case "gif" :
+            return imagegif($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+        case "png" :
+            imagealphablending($imageOriginal, false);
+            imagesavealpha($imageOriginal, true);
+            return imagepng($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+        case "svg" :
+            $file = $imagePath . "_" . base64_encode($image_name) . "." . $extension;
+            $fh = fopen($file, "w");
+            fwrite($fh, $imageOriginal);
+            fclose($fh);
+            return 0;
+        default :
+            return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
     }
 }
 ?>

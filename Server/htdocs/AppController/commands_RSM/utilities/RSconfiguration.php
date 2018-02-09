@@ -27,6 +27,10 @@ $RSMmediaURL   = '{RSMMEDIAURL}';
 $RSimageCache = '{RSMImageCache}';
 $RSfileCache  = '{RSMFileCache}';
 
+// Determine if files/images cache will be used
+$enable_image_cache  = true;
+$enable_file_cache  = true;
+
 // Protocol encryption support
 $RSblowfishKey = '{RSMBLOWFISHKEY}';
 ?>

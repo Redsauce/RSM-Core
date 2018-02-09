@@ -38,9 +38,6 @@ $clientID   = RSclientFromToken($RStoken);
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
-$RSallowUncompressed = true;
-$enable_file_cache   = true;
-
 $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
 $file_name = "img_" . $itemID;
 $file_path = $directory . $file_name;
@@ -57,7 +54,7 @@ $nombres_archivo = array_values($nombres_archivo);
 // Allow to request this document from JS libraries
 header('Access-Control-Allow-Origin: *');
 
-if (count($nombres_archivo) > 0) {
+if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     // The file exists in cache
     $nombre_archivo = $nombres_archivo[0];
@@ -87,7 +84,7 @@ if (count($nombres_archivo) > 0) {
         header("Content-type: application/" . $extension);
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         echo $file_original;
-        saveFileCache($file_original, $file_path, $file_name, $extension);
+        if ($enable_image_cache) saveFileCache($file_original, $file_path, $file_name, $extension);
     } else {
         dieWithError(500);
     }
