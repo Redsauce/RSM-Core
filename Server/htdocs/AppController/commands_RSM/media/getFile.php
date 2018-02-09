@@ -1,16 +1,16 @@
 <?php
 //****************************************//
-//api_getFile.php
+//getFile.php
 //
 //Description:
-//    returns a file from the cache or the database
+//    returns a file from the cache or media server
 //
 //params:
 //        itemID: integer: id of the item containing the file to retrieve
 //  propertyID: integer: id of the property of the item that contains the file
 //         token:  string: authentication string
 //returns:
-//    string: picture binary stream
+//    file binary stream
 //****************************************//
 
 // Clean GET data in order to avoid SQL injections
@@ -21,6 +21,7 @@ foreach ($_GET as $key => $value) {
     $GLOBALS["RS_GET"][$key] = str_replace($search, $replace, $value);
 }
 
+require_once "../utilities/RSconfiguration.php";
 require_once "../utilities/RStools.php";
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";

@@ -16,8 +16,9 @@
 //***************************************************
 
 // Database connection startup
-include_once "../utilities/RSdatabase.php";
-include_once "../utilities/RSMitemsManagement.php";
+require_once "../utilities/RSdatabase.php";
+require_once "../utilities/RSMitemsManagement.php";
+require_once "../utilities/RSMmediaManagement.php";
 
 $propertyIDstart    = $GLOBALS['RS_POST']['propertyIDstart' ];
 $propertyIDend      = $GLOBALS['RS_POST']['propertyIDend'];
@@ -58,7 +59,17 @@ if (isPropertyVisible($userID, $propertyIDstart, $clientID) && isPropertyVisible
         $result = RSQuery($theQuery);
 
         // Return true/false
-        if ($result) $results['result'] = "OK";
+        if ($result) {
+            $results['result'] = "OK";
+
+            // Check for properties in media server
+            if (($propertyTypeStart == 'image' || $propertyTypeStart == 'file') && ($propertyTypeEnd == 'image' || $propertyTypeEnd == 'file')){
+                $results = duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend);
+            }
+        } else {
+            $results['result'     ] = "NOK";
+            $results['description'] = "ERROR DUPLICATING PROPERTY";
+        }
     }
     else{
         $results['result'     ] = "NOK";

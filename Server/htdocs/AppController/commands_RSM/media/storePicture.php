@@ -25,7 +25,7 @@ if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
 $results= array();
 //file query
-$file          = getFile($clientID, $propertyID, $itemID);
+$file          = getImage($clientID, $propertyID, $itemID);
 if ($file) {
     $file_data = $file["RS_DATA"];
     $file_name = $file["RS_NAME"];
@@ -33,11 +33,11 @@ if ($file) {
         $results = setMediaFile($clientID,$itemID,$propertyID,$file_data,$file_name);
     }  else {
         $results['result'     ] = "NOK";
-        $results['description'] = "Can't upload empty file: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
+        $results['description'] = "Can't upload empty image: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
     }
 } else {
     $results['result'     ] = "NOK";
-    $results['description'] = "File not found: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
+    $results['description'] = "Image not found: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
 }
 
 return $results;

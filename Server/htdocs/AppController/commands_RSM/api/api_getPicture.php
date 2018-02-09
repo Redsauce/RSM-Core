@@ -34,6 +34,7 @@ require_once "../utilities/RStools.php";
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMtokensManagement.php";
+require_once "../utilities/RSMcacheManagement.php";
 
 isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
@@ -73,7 +74,8 @@ if (count($nombres_archivo) > 0) {
     $nombreSinExtension = $parts[0];
     $extension = $parts[1];
     $nombreSinExtension = explode("_", $nombreSinExtension);
-    $nombre_descarga = base64_decode($nombreSinExtension[5]);
+    // Original file name is in the string after the last "_" so decode it
+    $nombre_descarga = base64_decode(end($nombreSinExtension));
 
     // The file was found in the cache. Return the cached file
     header('Content-type: ' . mime_content_type($nombre_archivo));
@@ -82,10 +84,41 @@ if (count($nombres_archivo) > 0) {
     readfile($nombre_archivo);
 
 } else {
-    $image          = getImage($clientID, $propertyID, $itemID);
-    $imageOriginal = $image["RS_DATA"];
-    $image_name     = $image["RS_NAME"];
-    $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
+    //check base image in cache
+    $nombres_archivo = glob($directory . "img_" . $itemID . "_*");
+
+    //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
+    for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
+        if (preg_match("/img_\d+_.*?_.*?_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
+    }
+    $nombres_archivo = array_values($nombres_archivo);
+
+    if (count($nombres_archivo) > 0) {
+        // The  base image exists in cache
+        $nombre_archivo = $nombres_archivo[0];
+        $parts = explode(".", basename($nombre_archivo));
+        $nombreSinExtension = $parts[0];
+        $extension = $parts[1];
+        $nombreSinExtension = explode("_", $nombreSinExtension);
+        // Original file name is in the string after the last "_" so decode it
+        $image_name = base64_decode(end($nombreSinExtension));
+        $imageOriginal = file_get_contents($nombre_archivo);
+
+    } else {
+        $image          = getImage($clientID, $propertyID, $itemID);
+        $imageOriginal = $image["RS_DATA"];
+        $image_name     = $image["RS_NAME"];
+        $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
+
+        // If image data is empty but the size field is > 0 then the image is in media server
+        if ($image["RS_SIZE"] > 0 && $imageOriginal == '') {
+            $fileData = getMediaFile($clientID,$itemID,$propertyID);
+            $imageOriginal = $fileData['RS_DATA'];
+        }
+
+        // Save in cache base image
+        saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
+    }
 
     if ($imageOriginal == '') {
         dieWithError(404);

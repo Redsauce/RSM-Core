@@ -5,6 +5,7 @@ require_once 'RSMErrors.php';
 require_once 'RSMdefinitions.php';
 require_once 'RSMtokensManagement.php';
 require_once "RSMmediaManagement.php";
+require_once "RSMcacheManagement.php";
 
 function getPropertyIDs_usingSysName($appNames, $clientID) {
    // prepare query
@@ -277,7 +278,7 @@ function getProperties($itemTypeID, $clientID){
 
 function getImage($clientID, $propertyID, $itemID) {
     $theQuery = "
-            SELECT p.RS_DATA, p.RS_NAME
+            SELECT p.RS_DATA, p.RS_NAME, p.RS_SIZE
             FROM rs_property_images as p
             WHERE p.RS_ITEM_ID = " . $itemID . "
             AND p.RS_PROPERTY_ID = " . $propertyID . "
@@ -289,7 +290,7 @@ function getImage($clientID, $propertyID, $itemID) {
 
 function getFile($clientID, $propertyID, $itemID) {
     $theQuery = "
-            SELECT p.RS_DATA, p.RS_NAME
+            SELECT p.RS_DATA, p.RS_NAME, p.RS_SIZE
             FROM rs_property_files as p
             WHERE p.RS_ITEM_ID = " . $itemID . "
             AND p.RS_PROPERTY_ID = " . $propertyID . "
@@ -2127,24 +2128,58 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
     // property type not passed... retrieve it
 
     if ($propertyType == 'image' || $propertyType == 'file') {
-        $result = RSQuery('SELECT RS_DATA AS "DATA", RS_SIZE AS "SIZE"  FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
+        // Check if file/image is in cache
+        if ($propertyType == 'image') {
+            $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
+            $file_name = "img_" . $itemID;
+        } else {
+            $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
+            $file_name = "file_" . $itemID;
+        }
+        $file_path = $directory . $file_name;
+
+        //check file in cache
+        $nombres_archivo = glob($file_path . "_*");
+
+        if ($propertyType == 'image') {
+            //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
+            for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
+                if (preg_match("/img_\d+_.*?_.*?_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
+            }
+            $nombres_archivo = array_values($nombres_archivo);
+        }
+
+        if (count($nombres_archivo) > 0) {
+            // The file exists in cache, return cached file
+            return bin2hex(file_get_contents($nombres_archivo[0]));
+
+        } else {
+            $result = RSQuery('SELECT RS_DATA AS "DATA", RS_SIZE AS "SIZE", RS_NAME AS "NAME"  FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
+
+            if ($result && $propertyValue = $result->fetch_assoc()) {
+                // Check if we need to recover file data from media server
+                $data = $propertyValue['DATA'];
+
+                // If file data is empty but the size field is > 0 then the file is in media server
+                if ($propertyValue['SIZE'] > 0 && $data == '') {
+                    $fileData = getMediaFile($clientID,$itemID,$propertyID);
+                    $data = $fileData['RS_DATA'];
+                }
+
+                // Save file/image in cache
+                saveFileCache($data, $file_path, $propertyValue['NAME'], pathinfo($propertyValue['NAME'], PATHINFO_EXTENSION));
+
+                return bin2hex($data);
+            }
+        }
+
     } else {
         $result = RSQuery('SELECT ' . convertData('RS_DATA', $propertyType) . ' AS "DATA" FROM ' . $propertiesTables[$propertyType] . ' WHERE (RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID = ' . $itemID . ' AND RS_PROPERTY_ID = ' . $propertyID . ')');
-    }
 
-    if ($result && $propertyValue = $result->fetch_assoc()) {
-        if ($propertyType == 'image' || $propertyType == 'file') {
-            // Check if we need to recover file data from media server
-            $data = $propertyValue['DATA'];
-
-            // If file data is empty but the size field is > 0 then the file is in media server
-            if ($propertyValue['SIZE'] > 0 && $data = '') {
-                $data = getMediaFile($clientID,$itemID,$propertyID);
-            }
-            return bin2hex($data);
-        } else {
+        if ($result && $propertyValue = $result->fetch_assoc()) {
             return $propertyValue['DATA'];
         }
+
     }
 
     return;
