@@ -63,9 +63,6 @@ $nombres_archivo = glob($image_string . "_*");
 header('Access-Control-Allow-Origin: *');
 
 if ($enable_image_cache && count($nombres_archivo) > 0) {
-    error_log("image found in cache");
-    // RSError("api_getPicture: Image found in cache:" . $nombres_archivo[0]);
-
     // The image exists in cache
     $nombre_archivo = $nombres_archivo[0];
     $parts = explode(".", basename($nombre_archivo));
@@ -92,7 +89,6 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     $nombres_archivo = array_values($nombres_archivo);
 
     if ($enable_image_cache && count($nombres_archivo) > 0) {
-        error_log("base image found in cache");
         // The  base image exists in cache
         $nombre_archivo = $nombres_archivo[0];
         $parts = explode(".", basename($nombre_archivo));
@@ -108,10 +104,9 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         $imageOriginal = $image["RS_DATA"];
         $image_name     = $image["RS_NAME"];
         $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
-        error_log("no image found in cache");
+
         // If image data is empty but the size field is > 0 then the image is in media server
         if ($image["RS_SIZE"] > 0 && $imageOriginal == '') {
-            error_log("image get from media");
             $fileData = getMediaFile($clientID,$itemID,$propertyID);
             $imageOriginal = $fileData['RS_DATA'];
         }
