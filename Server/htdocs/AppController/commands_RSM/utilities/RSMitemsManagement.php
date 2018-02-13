@@ -1851,7 +1851,7 @@ function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array()) 
         if(RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')){
             $itemIDs = explode(",",$ids);
             foreach ($itemIDs as $itemID) {
-    		          deleteMediaFile($clientID,$itemID,$property['id']);
+                deleteMediaFile($clientID,$itemID,$property['id']);
             }
     	}
     }
@@ -2030,7 +2030,7 @@ function deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $
     if(RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')){
         $itemIDs = explode(",",$ids);
         foreach ($itemIDs as $itemID) {
-                  deleteMediaFile($clientID,$itemID,$property['id']);
+            deleteMediaFile($clientID,$itemID,$property['id']);
         }
     }
 
@@ -2120,6 +2120,8 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
     global $propertiesTables;
     global $enable_image_cache;
     global $enable_file_cache;
+    global $RSimageCache;
+    global $RSfileCache;
 
     // If the itemTypeID was not passed... retrieve it
     if ($itemTypeID == '') $itemTypeID = getClientPropertyItemType($propertyID, $clientID);

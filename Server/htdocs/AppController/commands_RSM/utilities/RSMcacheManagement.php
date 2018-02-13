@@ -4,13 +4,7 @@
  * Save file in cache directory
  */
 function saveFileCache($file_original, $path, $name, $extension) {
-    global $directory;
-
-    // Check if directory exists
-    if (!file_exists($directory)) {
-        mkdir($directory, 0775, true);
-    }
-
+    
     $file = $path . "_" . base64_encode($name) . "." . $extension;
 
     // Check folder exists or create it otherwise
