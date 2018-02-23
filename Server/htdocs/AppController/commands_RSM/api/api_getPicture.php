@@ -70,7 +70,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     $extension = $parts[1];
     $nombreSinExtension = explode("_", $nombreSinExtension);
     // Original file name is in the string after the last "_" so decode it
-    $nombre_descarga = base64_decode(end($nombreSinExtension));
+    $nombre_descarga = base64_decode(rawurldecode(end($nombreSinExtension)));
 
     // The file was found in the cache. Return the cached file
     header('Content-type: ' . mime_content_type($nombre_archivo));
@@ -96,7 +96,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         $extension = $parts[1];
         $nombreSinExtension = explode("_", $nombreSinExtension);
         // Original file name is in the string after the last "_" so decode it
-        $image_name = base64_decode(end($nombreSinExtension));
+        $image_name = base64_decode(rawurldecode(end($nombreSinExtension)));
         $imageOriginal = file_get_contents($nombre_archivo);
 
     } else {
@@ -334,21 +334,21 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
 
     switch($extension) {
         case "jpg" :
-            return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+            return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "gif" :
-            return imagegif($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+            return imagegif($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "png" :
             imagealphablending($imageOriginal, false);
             imagesavealpha($imageOriginal, true);
-            return imagepng($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+            return imagepng($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "svg" :
-            $file = $imagePath . "_" . base64_encode($image_name) . "." . $extension;
+            $file = $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension;
             $fh = fopen($file, "w");
             fwrite($fh, $imageOriginal);
             fclose($fh);
             return 0;
         default :
-            return imagejpeg($imageOriginal, $imagePath . "_" . base64_encode($image_name) . "." . $extension);
+            return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
 ?>

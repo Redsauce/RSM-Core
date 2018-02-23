@@ -63,7 +63,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     $extension = $parts[1];
     $nombreSinExtension = explode("_", $nombreSinExtension);
     // Original file name is in the string after the last "_" so decode it
-    $nombre_descarga = base64_decode(end($nombreSinExtension));
+    $nombre_descarga = base64_decode(rawurldecode(end($nombreSinExtension)));
 
     // The file was found in the cache. Return the cached file
     header('Content-type: ' . mime_content_type($nombre_archivo));

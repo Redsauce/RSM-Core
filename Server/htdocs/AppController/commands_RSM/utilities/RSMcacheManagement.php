@@ -4,8 +4,8 @@
  * Save file in cache directory
  */
 function saveFileCache($file_original, $path, $name, $extension) {
-    
-    $file = $path . "_" . base64_encode($name) . "." . $extension;
+
+    $file = $path . "_" . rawurlencode(base64_encode($name)) . "." . $extension;
 
     // Check folder exists or create it otherwise
     $dirname = dirname($file);

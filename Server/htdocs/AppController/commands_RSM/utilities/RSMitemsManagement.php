@@ -3,6 +3,7 @@ require_once 'RSMpropertiesManagement.php';
 require_once 'RSMidentificationFunctions.php';
 require_once 'RSMErrors.php';
 require_once 'RSMdefinitions.php';
+require_once "RSMfiltersManagement.php";
 require_once 'RSMtokensManagement.php';
 require_once "RSMmediaManagement.php";
 require_once "RSMcacheManagement.php";
@@ -543,7 +544,7 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
                 $oldOrder = getPropertyOrder($itemID, $propertyID, $clientID, $propertyType, $itemTypeID);
                 $newOrder = recalculateOrder($previousValue, $value, $oldOrder);
             } else {
-                $newOrder = '"' . implode(',', array_fill(0, count(explode(',', $value)), $forceOrder)) . '"';
+                $newOrder = implode(',', array_fill(0, count(explode(',', $value)), $forceOrder));
             }
 
             $theQuery = 'REPLACE INTO ' . $propertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_ORDER) VALUES (' . $clientID . ',' . $itemTypeID . ',' . $itemID . ',' . $propertyID . ',"' . $value . '","' . $newOrder . '")';
@@ -1556,7 +1557,8 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
 
     for ($i = 0; $i < count($originalItemIDs); $i++) {
         for ($j = 0; $j < $numCopies; $j++) {
-            $newItemsIDs[$originalItemIDs[$i]][$j] = $nextIDAvailable + $i + $j;
+            $newItemsIDs[$originalItemIDs[$i]][$j] = $nextIDAvailable++;
+
             // save the IDs into an array to return
             $theQuery_duplicateItem .= '(' . $itemTypeID . ',' . $newItemsIDs[$originalItemIDs[$i]][$j] . ',' . $clientID . '),';
         }
@@ -2026,12 +2028,8 @@ function deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $
         $propertyType = getClientPropertyType($propertyID, $clientID);
     }
 
-    RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $itemID . " AND RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
-    if(RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')){
-        $itemIDs = explode(",",$ids);
-        foreach ($itemIDs as $itemID) {
-            deleteMediaFile($clientID,$itemID,$property['id']);
-        }
+    if(RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $itemID . " AND RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($propertyType == 'image' || $propertyType == 'file')){
+        deleteMediaFile($clientID,$itemID,$propertyID);
     }
 
     // We add the new item ID to the array of created itemIDs
