@@ -4,4 +4,4 @@ VALUES (NULL, '6.2.0.3.149', '6.3.0.3.150', NOW(), 'Support for financial docume
 
 UPDATE rs_property_app_definitions SET RS_NAME = 'financial.documents.bookDate', RS_DESCRIPTION = 'Indicates the date in which the document was booked' WHERE rs_property_app_definitions.RS_ID = 155;
 
-INSERT INTO rs_property_app_definitions (RS_ID, RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE, RS_REFERRED_ITEMTYPE) VALUES ('198', 'financial.documents.ignoreBooked', '37', 'Allow to work with the financial document independently of the booked state', NULL, 'text', '0'); 
+REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE, RS_REFERRED_ITEMTYPE) VALUES ('198', 'financial.documents.ignoreBooked', '37', 'Allow to work with the financial document independently of the booked state', NULL, 'text', '0'); 
