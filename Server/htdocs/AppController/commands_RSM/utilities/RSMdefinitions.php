@@ -117,7 +117,6 @@ $definitions = array(
     'conceptPrice'          => 'concepts.price',
     'conceptDeduction'      => 'concepts.deduction',
     'conceptOperationID'    => 'concepts.operationID',
-    'conceptOrden'          => 'concepts.orden',
     'conceptStockItemID'    => 'concepts.stockItemID',
     'conceptPendingStockID' => 'concepts.pendingStockID',
 
@@ -248,7 +247,6 @@ $definitions = array(
     'financialDocumentsConceptProject'       => 'financial.documents.concepts.project',
     'financialDocumentsConceptStock'         => 'financial.documents.concepts.stock',
     'financialDocumentsConceptUnits'         => 'financial.documents.concepts.units',
-    'financialDocumentsConceptOrder'         => 'financial.documents.concepts.order',
 
     'provider'             => 'provider',
     'providerAddress'      => 'provider.address',

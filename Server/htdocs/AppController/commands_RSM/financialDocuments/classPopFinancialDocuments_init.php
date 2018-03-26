@@ -32,7 +32,7 @@ $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('fina
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.project'    , $clientID), 'name' => 'conceptsProjectPID'    , 'trName' => 'conceptProjectName'    );
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.stock'      , $clientID), 'name' => 'conceptsStockPID'      , 'trName' => 'conceptStockName'      );
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.units'      , $clientID), 'name' => 'conceptsUnitsPID'      , 'trName' => 'conceptUnitsName'      );
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.order'      , $clientID), 'name' => 'conceptsOrderPID'      , 'trName' => 'conceptOrderName'      );
+
 
 $documentEquiv=getClientPropertyID_RelatedWith_byName('financial.documents.equiv'      , $clientID);
 if($documentEquiv!=-1) $returnProperties[] = array('ID' => $documentEquiv, 'name' => 'equiv'            , 'trName' => 'equivName'       );

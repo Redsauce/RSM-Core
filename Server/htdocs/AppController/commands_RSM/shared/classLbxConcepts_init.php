@@ -21,7 +21,6 @@ $conceptUnitsPropertyID = getClientPropertyID_RelatedWith_byName($definitions['c
 $conceptIVAPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID);
 $conceptPricePropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID);
 $conceptDeductionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID);
-$conceptOrdenPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptOrden'], $clientID);
 $conceptStockItemPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptStockItemID'], $clientID);
 
 // get concepts properties allowed
@@ -37,7 +36,6 @@ if (in_array($conceptUnitsPropertyID, $propertiesAllowed)) { $unitsAllowed = '1'
 if (in_array($conceptIVAPropertyID, $propertiesAllowed)) { $IVAAllowed = '1'; } else { $IVAAllowed = '0'; }
 if (in_array($conceptPricePropertyID, $propertiesAllowed)) { $priceAllowed = '1'; } else { $priceAllowed = '0'; }
 if (in_array($conceptDeductionPropertyID, $propertiesAllowed)) { $deductionAllowed = '1'; } else { $deductionAllowed = '0'; }
-if (in_array($conceptOrdenPropertyID, $propertiesAllowed)) { $ordenAllowed = '1'; } else { $ordenAllowed = '0'; }
 if (in_array($conceptStockItemPropertyID, $propertiesAllowed)) { $stockItemIDAllowed = '1'; } else { $stockItemIDAllowed = '0'; }
 
 
@@ -49,7 +47,6 @@ $results[0]['units'			] = getClientPropertyName($conceptUnitsPropertyID		, $clie
 $results[0]['VAT'			] = getClientPropertyName($conceptIVAPropertyID			, $clientID).'::'.$IVAAllowed;
 $results[0]['price'			] = getClientPropertyName($conceptPricePropertyID		, $clientID).'::'.$priceAllowed;
 $results[0]['deduction'		] = getClientPropertyName($conceptDeductionPropertyID	, $clientID).'::'.$deductionAllowed;
-$results[0]['orden'			] = getClientPropertyName($conceptOrdenPropertyID		, $clientID).'::'.$ordenAllowed;
 $results[0]['stockItemID'	] = getClientPropertyName($conceptStockItemPropertyID	, $clientID).'::'.$stockItemIDAllowed;
 
 // get properties default values
@@ -59,7 +56,6 @@ $results[0]['unitsDefValue'		] = getClientPropertyDefaultValue($conceptUnitsProp
 $results[0]['VATDefValue'		] = getClientPropertyDefaultValue($conceptIVAPropertyID			, $clientID);
 $results[0]['priceDefValue'		] = getClientPropertyDefaultValue($conceptPricePropertyID		, $clientID);
 $results[0]['deductionDefValue'	] = getClientPropertyDefaultValue($conceptDeductionPropertyID	, $clientID);
-$results[0]['ordenDefValue'		] = getClientPropertyDefaultValue($conceptOrdenPropertyID		, $clientID);
 $results[0]['projectDefValue'	] = translateSingleIdentifier    ($conceptProjectPropertyID, $results[0]['projectIDDefValue'], $clientID);
 $results[0]['stockItemDefValue'	] = getClientPropertyDefaultValue($conceptStockItemPropertyID	, $clientID);
 

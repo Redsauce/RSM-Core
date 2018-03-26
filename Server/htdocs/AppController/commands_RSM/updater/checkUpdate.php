@@ -4,6 +4,7 @@ $RSUpdatingProcess = true;
 // The user and password are not included
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSvalidationFunctions.php";
+require_once "../utilities/RStools.php";
 
 isset($GLOBALS['RS_POST']['RSappName' ]) ? $RSappName  = $GLOBALS['RS_POST']['RSappName' ] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RSplatform']) ? $RSplatform = $GLOBALS['RS_POST']['RSplatform'] : dieWithError(400);
