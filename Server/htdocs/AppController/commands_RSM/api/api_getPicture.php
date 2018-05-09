@@ -126,7 +126,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     if ($extension == "svg") {
         Header("Content-type: image/svg+xml");
-        $svg_data = resizeSvg(urldecode($imageOriginal), $w, $h);
+        $svg_data = resizeSvg(urldecode($imageOriginal), $w, $h, $adj);
         saveImgCache($svg_data, $image_string, $image_name, $extension);
         echo $svg_data;
 
@@ -267,57 +267,142 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 /**
  * Resize Svg image
  */
-function resizeSvg($svg_data, $w, $h) {
+function resizeSvg($svg_data, $w, $h, $adj) {
     // No hay resize, se devuelve tal cual
     if ($w == "" && $h == "") {
         return $svg_data;
     }
 
-    // w y h definidos
-    if ($w != "" && $h != "") {
-        $dom = new DOMDocument;
-        $dom -> loadXML($svg_data);
-        foreach ($dom->getElementsByTagName('svg') as $item) {
-            $item -> setAttribute('width', $w . 'px');
-            $item -> setAttribute('height', $h . 'px');
+    $dom = new DOMDocument;
+    $dom -> loadXML($svg_data);
+
+    foreach ($dom->getElementsByTagName('svg') as $item) {
+        // Get current sizing info in svg
+        $widthActual = $item -> getAttribute('width');
+        $heightActual = $item -> getAttribute('height');
+        $viewBoxActual = $item -> getAttribute('viewBox');
+        $aspectRatioActual = $item -> getAttribute('preserveAspectRatio');
+        //set default aspect ratio if not defined
+        if($aspectRatioActual == "") $aspectRatioActual = "xMidYMid meet";
+        //get original ratio positioning, if it is none, set default value
+        $aspectRatioParts = explode(' ', $aspectRatioActual);
+        if(count($aspectRatioParts) < 2) $aspectRatioParts = array("xMidYMid","meet");
+
+        if($viewBoxActual == ""){
+            // The svg has no viewBox so can't be scaled unless we create one
+            if($widthActual != "" && $heightActual != ""){
+                // Create the viewBox
+                $item -> setAttribute('viewBox', "0 0 ".$widthActual." ".$heightActual);
+            } else {
+                // Not enough info to create a viewBox so return original image
+                return $svg_data;
+            }
+        } else {
+            $viewBoxParts = explode(' ', $viewBoxActual);
+            if($widthActual == "")
+                $widthActual = $viewBoxParts[2];
+            if($heightActual == "")
+                $heightActual = $viewBoxParts[3];
         }
-        return $dom -> saveXML();
+
+        if($adj == "s"){
+            //show all the image inside passed dimensions
+            if ($w != "" && $h != "") {
+                // w y h definidos
+                $newWidth = $w;
+                $newHeight = $h;
+            } elseif ($w != "") {
+                // Si solo hay width, calculamos el height por regla de 3
+                $newWidth = $w;
+                $newHeight = ($w * $heightActual) / $widthActual;
+            } else {
+                // Si solo hay height, calculamos el width por regla de 3
+                $newWidth = ($h * $widthActual) / $heightActual;
+                $newHeight = $h;
+            }
+        } elseif($adj == "f"){
+            //fill (at least) the passed dimensions with the image
+            if ($w != "" && $h != "") {
+                // w y h definidos
+                $scaleWidth = $w/$widthActual;
+                $scaleHeight = $h/$heightActual;
+                if ($scaleWidth > $scaleHeight) {
+                    $newWidth = $w;
+                    $newHeight = $heightActual * $scaleWidth;
+                } else {
+                    $newWidth = $widthActual * $scaleHeight;
+                    $newHeight = $h;
+                }
+            } elseif ($w != "") {
+                // Si solo hay width, calculamos el height por regla de 3
+                $newWidth = $w;
+                $newHeight = ($w * $heightActual) / $widthActual;
+            } else {
+                // Si solo hay height, calculamos el width por regla de 3
+                $newWidth = ($h * $widthActual) / $heightActual;
+                $newHeight = $h;
+            }
+        } elseif($adj == "w") {
+            //scale the image to passed width (can ignore passed height)
+            if ($w != "") {
+                // Calculamos el height por regla de 3
+                $newWidth = $w;
+                $newHeight = ($w * $heightActual) / $widthActual;
+            } else {
+                // Si no hay width no podemos escalar asi que devolvemos el original
+                return $svg_data;
+            }
+        } elseif($adj == "h"){
+            //scale the image to passed height (can ignore passed width)
+            if ($h != "") {
+                // Calculamos el width por regla de 3
+                $newWidth = ($h * $widthActual) / $heightActual;
+                $newHeight = $h;
+            } else {
+                // Si no hay height no podemos escalar asi que devolvemos el original
+                return $svg_data;
+            }
+        } elseif($adj == "d"){
+            //deform the image
+            $item -> setAttribute('preserveAspectRatio', "none");
+            if ($w != "" && $h != "") {
+                // w y h definidos
+                $newWidth = $w;
+                $newHeight = $h;
+            } elseif ($w != "") {
+                // Si solo hay width, el height es el original
+                $newWidth = $w;
+                $newHeight = $heightActual;
+            } else {
+                // Si solo hay height, el width es el original
+                $newWidth = $widthActual;
+                $newHeight = $h;
+            }
+        } elseif($adj == "c"){
+            //crop means we remove the excess of the image
+            $item -> setAttribute('preserveAspectRatio', $aspectRatioParts[0]." slice");
+            if ($w != "" && $h != "") {
+                // w y h definidos
+                $newWidth = $w;
+                $newHeight = $h;
+            } elseif ($w != "") {
+                // Si solo hay width, el height es el original
+                $newWidth = $w;
+                $newHeight = $heightActual;
+            } else {
+                // Si solo hay height, el width es el original
+                $newWidth = $widthActual;
+                $newHeight = $h;
+            }
+        }
+
+        $item -> setAttribute('width', $newWidth . 'px');
+        $item -> setAttribute('height', $newHeight . 'px');
     }
-    // Si solo hay width, calculamoes el height por regla de 3
-    if ($w != "") {
-        $dom = new DOMDocument;
-        $dom -> loadXML($svg_data);
 
-        foreach ($dom->getElementsByTagName('svg') as $item) {
-            $widthActual = $item -> getAttribute('width');
-            $heightActual = $item -> getAttribute('height');
-            $newHeight = ($w * $heightActual) / $widthActual;
-        }
-
-        foreach ($dom->getElementsByTagName('svg') as $item) {
-            $item -> setAttribute('width', $w . 'px');
-            $item -> setAttribute('height', $newHeight . 'px');
-        }
-        return $dom -> saveXML();
-    }
-    // Si solo hay height, calculamoes el width por regla de 3
-    if ($h != "") {
-        $dom = new DOMDocument;
-        $dom -> loadXML($svg_data);
-
-        foreach ($dom->getElementsByTagName('svg') as $item) {
-            $widthActual = $item -> getAttribute('width');
-            $heightActual = $item -> getAttribute('height');
-            $newWidth = ($h * $widthActual) / $heightActual;
-        }
-
-        foreach ($dom->getElementsByTagName('svg') as $item) {
-            $item -> setAttribute('width', $newWidth . 'px');
-            $item -> setAttribute('height', $h . 'px');
-        }
-        return $dom -> saveXML();
-    }
+    return $dom -> saveXML();
 }
+
 
 /**
  * Save Image in cache directory
