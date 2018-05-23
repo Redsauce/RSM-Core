@@ -383,6 +383,7 @@ $definitions = array(
     'eventActions'           => 'event.actions',
     'eventToken'             => 'event.token',
     'eventParentCategoryID'  => 'event.parentCategoryID',
+    'eventLogType'           => 'event.logType',
 
     'eventInclude'         => 'eventInclude',
     'eventIncludeActions'  => 'eventInclude.actions',
