@@ -80,7 +80,7 @@ function gzCompressFile($source, $level = 9){
 
 //For compatibility with older versions of app using 'FILESIZE:::' in compressed string
 function checkCompressionVersion($response){
-    if (substr(strrchr($GLOBALS['RS_POST']['RSbuild'], "."), 1) < 149) {
+    if (isset($GLOBALS['RS_POST']['RSbuild']) && substr(strrchr($GLOBALS['RS_POST']['RSbuild'], "."), 1) < 149) {
         return strlen($response).':::';
     } else {
         return '';
