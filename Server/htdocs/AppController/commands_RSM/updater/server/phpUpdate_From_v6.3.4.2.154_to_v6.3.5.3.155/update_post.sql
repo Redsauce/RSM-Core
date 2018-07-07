@@ -13,4 +13,4 @@ REPLACE INTO rs_lists_values_app (RS_ID, RS_VALUE, RS_LIST_APP_ID) VALUES ('45',
 REPLACE INTO rs_lists_values_app (RS_ID, RS_VALUE, RS_LIST_APP_ID) VALUES ('46', 'log.type.advanced', '15');
 
 # RS_ORDER field is 0 by default
-ALTER TABLE `rs_property_identifiers` CHANGE `RS_ORDER` `RS_ORDER` INT(11) NOT NULL DEFAULT ‘0’;
+ALTER TABLE `rs_property_identifiers` CHANGE `RS_ORDER` `RS_ORDER` INT(11) NOT NULL DEFAULT 0;
