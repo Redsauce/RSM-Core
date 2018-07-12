@@ -2228,15 +2228,15 @@ function getAuditTrail($clientID, $propertyID, $itemID) {
             while ($row = $theHistory->fetch_assoc()) {
                     // store info
                     $results[] = array(
-                            'propertyId'     => $propertyID,
+                            'propertyId'   => $propertyID,
                             'propertyType' => $propertyType,
-                            'itemID'             => $itemID,
-                            'clientID'         => $clientID,
-                            'userName'         => ($row['userName']!=""?$row['userName']:$row['token']),
-                            'description'    => $row['description' ],
-                            'changedDate'    => $row['changedDate' ],
+                            'itemID'       => $itemID,
+                            'clientID'     => $clientID,
+                            'userName'     => ($row['userName']!=""?$row['userName']:$row['token']),
+                            'description'  => $row['description' ],
+                            'changedDate'  => $row['changedDate' ],
                             'initialValue' => $row['initialValue'],
-                            'finalValue'     => $row['finalValue'    ]
+                            'finalValue'   => $row['finalValue'    ]
                     );
             }
     }
@@ -3330,11 +3330,13 @@ function reorderItems($clientID, $itemTypeID, $propertyID, $parentID, $idList, $
     if ($propertyID != 0 && $propertyID != '' ){
         $propertyType = getPropertyType($propertyID, $clientID);
     }
+
     $failedIDs = array();
 
     if ($propertyID == 0 || $propertyID == '' ){
         //reordering base itemtype in root, overwrite default order in items
-        $result=true;
+        $result = true;
+
         for($i=0;$i<count($idList)&&$result;$i++){
             //reorder the element
             $theQuery = "UPDATE `rs_items` SET `RS_ORDER` = '" . $orderList[$i] . "' WHERE `RS_CLIENT_ID` = '" . $clientID . "' AND `RS_ITEMTYPE_ID` = '" . $itemTypeID . "' AND `RS_ITEM_ID` = '" . $idList[$i] . "' LIMIT 1";
