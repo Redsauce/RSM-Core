@@ -12,9 +12,5 @@ REPLACE INTO rs_lists_values_app (RS_ID, RS_VALUE, RS_LIST_APP_ID) VALUES ('44',
 REPLACE INTO rs_lists_values_app (RS_ID, RS_VALUE, RS_LIST_APP_ID) VALUES ('45', 'log.type.basic', '15');
 REPLACE INTO rs_lists_values_app (RS_ID, RS_VALUE, RS_LIST_APP_ID) VALUES ('46', 'log.type.advanced', '15');
 
-# Delete System Property "Concepts order"
-DELETE FROM `rs_property_app_relations` WHERE `RS_PROPERTY_APP_ID`='440';
-DELETE FROM `rs_property_app_definitions` WHERE `RS_NAME`='financial.documents.concepts.order';
-
 # RS_ORDER field is 0 by default
 ALTER TABLE `rs_property_identifiers` CHANGE `RS_ORDER` `RS_ORDER` INT(11) NOT NULL DEFAULT 0;
