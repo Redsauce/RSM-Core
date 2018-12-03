@@ -20,13 +20,12 @@ if (($clientID != 0) || ($clientID != "")) {
         exit ;
     } else {
 
-        if ($personID == '0') {
+        if (($personID == '0') || ($personID == "")) {
 
             // get staff item type
             $staffItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
 
             // add new entry
-            //$personID = createNewItem($staffItemTypeID, $clientID);
             $personID = createEmptyItem($staffItemTypeID, $clientID);
 
             // update main value with the login (TODO: the main value of the items "staff" may not be
