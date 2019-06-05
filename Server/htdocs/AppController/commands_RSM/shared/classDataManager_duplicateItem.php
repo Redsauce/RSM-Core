@@ -41,6 +41,8 @@ for ($i = 0; $i < count($descendants); $i++) {
 // duplicate item
 $newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $numCopies, $descendantsForItemtype);
 
+
+
 if (!is_array($newItemIDs)) $newItemIDs = array($newItemIDs);
 
 if ($properties != '') {
@@ -56,7 +58,15 @@ if ($properties != '') {
     }
 }
 
-$results['newItemIDs'] = implode(',', $newItemIDs);
-// Return results
+
+// Return the IDs of the new elements created
+$elements = array();
+if (count($newItemIDs)==1) {
+	array_push($elements, $newItemIDs[0]);
+}else{
+	foreach ($newItemIDs as $elementID) array_push($elements, $elementID[array_keys($elementID)[0]]);
+}
+
+$results['newItemIDs'] = implode(',', $elements);
 RSReturnArrayResults($results);
 ?>
