@@ -67,7 +67,6 @@ foreach ($RSdataSplit as $RSdataRow) {
 
     // Verify all properties pertain to the same item type
     $itemTypeID = getItemTypeIDFromProperties($AllPropertiesID, $clientID);
-    error_log("******".$itemTypeID);
     if ($itemTypeID == 0) {
         $results['result'] = 'NOK';
         $results['description'] = 'PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE';
