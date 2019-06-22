@@ -1,10 +1,10 @@
 <?php
 // ************************************ //
 // Description:
-// Creates one or more items (even from different types)
+// Creates an item of the specified itemType with the associated values
 //
 // PARAMETERS:
-//  RSdata: A text with propertiesIDs and their values encrypted in base64, separated by ":". Each item separated by comma:
+//  RSdata: A text with propertiesIDs and their values with this syntax. Different items separated by comma:
 //          ID_1:base64(value_1);ID_2:base64(value_2);...;ID_N:base64(value_N) , ID_1:base64(value_1);ID_2:base64(value_2);...;ID_N:base64(value_N)
 //          Example to create two items:
 //          1077:VEVTVA==;1080:MTExLjIy;1081:MjAxOS0wNi0yMQ==,1077:VEVTVDI=;1080:MTQuMjg=;1081:MjAxOS0wNi0yMg==
@@ -58,7 +58,7 @@ foreach ($RSdataSplit as $RSdataRow) {
     }
 
     // Verify permissions to create this item.
-    if (empty($propertiesID)) {
+	if (empty($propertiesID)) {
         $results['result'] = 'NOK';
         $results['description'] = 'YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM';
         error_log('YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM');
