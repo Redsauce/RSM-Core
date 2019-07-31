@@ -1471,12 +1471,13 @@ function createEmptyItem($itemTypeID, $clientID) {
     $newID = getNextItemTypeIdentification($itemTypeID, $clientID);
 
     // In order to prevent several calls to this function from different PHPs to return the same newID
-    // for new items, we ensure that the INSERT query is successfully executed before continuing.
-    // If the query is not successfully executed, it is becaus the newID already exists in the DB
-    // so we will generate a new ID and then we will try the creation again, until we get a success
+    // for new items or that the last ID stored for the itemtype is incorrect because of item imports
+    // we ensure that the INSERT query is successfully executed before continuing.
+    // If the query is not successfully executed, it is because the newID already exists in the DB
+    // so we will calculate a new ID and then we will try the creation again, until we get a success
     // get id for new item
     while(!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')')) {
-        $newID++;
+        $newID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
     }
 
     // Update the item type with the latest ID created for the item
