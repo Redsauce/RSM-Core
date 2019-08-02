@@ -1476,7 +1476,8 @@ function createEmptyItem($itemTypeID, $clientID) {
     // If the query is not successfully executed, it is because the newID already exists in the DB
     // so we will calculate a new ID and then we will try the creation again, until we get a success
     // get id for new item
-    while(!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')')) {
+    // As we know that the query will fail eventually until a valid ID is found, we won't track query execution errors
+    while(!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
         $newID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
     }
 

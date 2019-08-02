@@ -622,7 +622,7 @@ function _predictNumberOfFields($result) {
     return 0;
 }
 
-function RSQuery($theQuery) {
+function RSQuery($theQuery, $registerError = true) {
     global $RSallowDebug;
     global $queryCount;
     global $mysqli;
@@ -644,7 +644,7 @@ function RSQuery($theQuery) {
 
     $result = $mysqli->query($theQuery);
 
-    if($result===false){
+    if($result===false && $registerError){
     RSerror("RSdatabase: failed query: $theQuery");
     }
 
