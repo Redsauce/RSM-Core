@@ -319,8 +319,8 @@ function RSReturnError($message, $code) {
 
     echo $theFile;
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
     }
 
     // Terminate PHP execution
@@ -378,7 +378,7 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -430,8 +430,8 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
         removeTmpFile($filename);
     }
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
     }
 
     mem_usage_check();
@@ -487,7 +487,7 @@ function RSReturnQueryResults($result, $compressed = true) {
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -539,8 +539,8 @@ function RSReturnQueryResults($result, $compressed = true) {
         removeTmpFile($filename);
     }
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
     }
 
     mem_usage_check();
@@ -571,7 +571,7 @@ function RSReturnArrayResults($array, $compressed = true) {
     $theFile .= "</rows>";
     $theFile .= "</RSRecordset>";
 
-    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     header("Content-type: text/xml");
 
@@ -583,8 +583,8 @@ function RSReturnArrayResults($array, $compressed = true) {
     Header('Content-Length: ' . strlen($theFile));
     echo ($theFile);
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
     }
 
     mem_usage_check();
@@ -599,7 +599,7 @@ function RSReturnFileResults($filename, $compressed = true) {
     global $RStempPath;
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -638,8 +638,8 @@ function RSReturnFileResults($filename, $compressed = true) {
         removeTmpFile($filename);
     }
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
     }
 
     mem_usage_check();
@@ -719,7 +719,7 @@ function RSError($message, $type = ""){
   $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`,`RS_TYPE`,`RS_CLIENT_ID`) VALUES (NOW(),'".
   $mysqli->real_escape_string("//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}").
   "','".$mysqli->real_escape_string(print_r($GLOBALS[$cstRS_POST],true))."','"
-  .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS[$cstRS_POST]['clientID'].")";
+  .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS[$cstRS_POST][$cstClientID].")";
 
    // Query the database
   $result = $mysqli->query($query);
