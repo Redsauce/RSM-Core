@@ -23,11 +23,9 @@ function checkType($data, $type) {
 
         case 'text' :
             return $data;
-            break;
 
         case 'longtext' :
             return $data;
-            break;
 
         case 'date' :
             if (isValidSqlDate($data)) {
@@ -35,7 +33,6 @@ function checkType($data, $type) {
             } else {
                 return '0000-00-00';
             }
-            break;
 
         case 'datetime' :
             if (isValidSqlDatetime($data)) {
@@ -43,19 +40,15 @@ function checkType($data, $type) {
             } else {
                 return '0000-00-00 00:00:00';
             }
-            break;
 
         case 'integer' :
             return intval($data);
-            break;
 
         case 'float' :
             return floatval($data);
-            break;
 
         case 'identifier' :
             return intval($data);
-            break;
 
         case 'identifiers' :
             $arr = explode(',', $data);
@@ -64,21 +57,17 @@ function checkType($data, $type) {
                     return 0;
             }
             return $data;
-            break;
 
         case 'image' :
             return '';
             // TODO: implementar
-            break;
 
         case 'file' :
             return '';
             // TODO: implementar
-            break;
 
         case 'variant' :
             return '';
-            break;
     }
 }
 
