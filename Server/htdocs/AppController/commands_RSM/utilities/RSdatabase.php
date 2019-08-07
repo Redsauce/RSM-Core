@@ -18,11 +18,13 @@ $queryCount = 0;
 // Clean POST data in order to avoid SQL injections
 $search  = array("'", "\"");
 $replace = array("&rsquo;" , "&quot;");
-foreach ($_POST as $key => $value) $GLOBALS['RS_POST'][$key] = str_replace($search, $replace, $value);
+
+foreach ($_POST as $key => $value) {
+    $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
+}
 
 require_once "RSconfiguration.php";
 require_once "RSMeventsManagement.php";
-//require_once "RSMDB.php";
 
 // Variables used to track the amount of items created / modified / deleted
 $RSMcreatedItemIDs = array();
@@ -35,12 +37,10 @@ if ($mysqli->connect_errno) {
     RSReturnError("CANNOT CONNECT TO DATABASE SERVER", -1);
 }
 
-// Connect to the MongoDB using the above settings
-//$MongoDB = new RSMDB();
-//$MongoDB->SetClient($RSmongohost);
-
 // Check database compatibility and user permisions
-if (!isset($RSUpdatingProcess)) require_once ("RSsecurityCheck.php");
+if (!isset($RSUpdatingProcess)) {
+    require_once ("RSsecurityCheck.php");
+}
 
 // If execution reaches this point, the user has permissions to work
 // against the database, and the application version is authorized
@@ -62,47 +62,53 @@ function gzCompressFile($source, $level = 9){
     $error = false;
     if ($fp_out = gzopen($dest, $mode)) {
         if ($fp_in = fopen($source,'rb')) {
-            while (!feof($fp_in))
+            while (!feof($fp_in)) {
                 gzwrite($fp_out, fread($fp_in, 1024 * 512));
+            }
+
             fclose($fp_in);
         } else {
             $error = true;
         }
         gzclose($fp_out);
+
     } else {
         $error = true;
     }
-    if ($error)
+
+    if ($error) {
         return false;
-    else
+    } else {
         return $dest;
+    }
 }
 
 //For compatibility with older versions of app using 'FILESIZE:::' in compressed string
 function checkCompressionVersion($response){
-    if (isset($GLOBALS['RS_POST']['RSbuild']) && substr(strrchr($GLOBALS['RS_POST']['RSbuild'], "."), 1) < 149) {
+    if (isset($GLOBALS[$cstRS_POST]['RSbuild']) && substr(strrchr($GLOBALS[$cstRS_POST]['RSbuild'], "."), 1) < 149) {
         return strlen($response).':::';
     } else {
         return '';
     }
 }
 
-//$lastValues=array('i'=>0,'startUsage'=>0,'startPeakUsage'=>0,'startAllocated'=>0,'startPeakallocated'=>0);
 function mem_increase_check(&$lastValues){
     global $RSallowDebug;
     if($RSallowDebug) {
-        error_log ("\n\nused memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_usage()-$lastValues["startUsage"])/1024/1024);
-        error_log ("max used memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage()-$lastValues["startPeakUsage"])/1024/1024);
-        error_log ("allocated memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_usage(true)-$lastValues["startAllocated"])/1024/1024);
-        error_log ("max allocated memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage(true)-$lastValues["startPeakallocated"])/1024/1024 . "\n");
+        error_log ("\n\nused memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_usage()         - $lastValues["startUsage"])/1024/1024);
+        error_log ("max used memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage()    - $lastValues["startPeakUsage"])/1024/1024);
+        error_log ("allocated memory increment from #"     . $lastValues["i"] . "(MiB): " . (memory_get_usage(true)     - $lastValues["startAllocated"])/1024/1024);
+        error_log ("max allocated memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage(true)- $lastValues["startPeakallocated"])/1024/1024 . "\n");
+        
         $lastValues["i"]++;
-        $lastValues["startUsage"]=memory_get_usage();
-        $lastValues["startPeakUsage"]=memory_get_peak_usage();
-        $lastValues["startAllocated"]=memory_get_usage(true);
-        $lastValues["startPeakallocated"]=memory_get_peak_usage(true);
-        error_log ("used memory at #" . $lastValues["i"] . "(MiB): " . ($lastValues["startUsage"])/1024/1024);
-        error_log ("max used memory at #" . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakUsage"])/1024/1024);
-        error_log ("allocated memory at #" . $lastValues["i"] . "(MiB): " . ($lastValues["startAllocated"])/1024/1024);
+        $lastValues["startUsage"        ] = memory_get_usage();
+        $lastValues["startPeakUsage"    ] = memory_get_peak_usage();
+        $lastValues["startAllocated"    ] = memory_get_usage(true);
+        $lastValues["startPeakallocated"] = memory_get_peak_usage(true);
+        
+        error_log ("used memory at #"          . $lastValues["i"] . "(MiB): " . ($lastValues["startUsage"        ])/1024/1024);
+        error_log ("max used memory at #"      . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakUsage"    ])/1024/1024);
+        error_log ("allocated memory at #"     . $lastValues["i"] . "(MiB): " . ($lastValues["startAllocated"    ])/1024/1024);
         error_log ("max allocated memory at #" . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakallocated"])/1024/1024 . "\n");
     }
 }
@@ -117,7 +123,7 @@ function mem_usage_check($maxMem=50){
             error_log ("Request path: //{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
             error_log ("Max used memory(MiB): " . memory_get_peak_usage()/1024/1024);
             error_log ("Max allocated memory(MiB): " . memory_get_peak_usage(true)/1024/1024);
-            error_log ("POST data: " . print_r($GLOBALS['RS_POST'],true) . "\n\n");
+            error_log ("POST data: " . print_r($GLOBALS[$cstRS_POST],true) . "\n\n");
         }
     }
 }
@@ -150,7 +156,7 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 
                 // get all ascendants matching the filter
                 $ascendantItemTypeID = getItemTypeIDFromProperties(array($filterArr[0]), $clientID);
-                $filterProperties = array( array('ID' => parsePID($filterArr[0],$clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, "UTF-8")), 'mode' => $filterArr[2]));
+                $filterProperties = array( array('ID' => parsePID($filterArr[0],$clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, $cstUTF8)), 'mode' => $filterArr[2]));
 
                 $validAscendants = getFilteredItemsIDs($ascendantItemTypeID, $clientID, $filterProperties, array());
 
@@ -164,7 +170,7 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 
                 $treePath = array();
 
-                getTreePath($clientID, $treePath, array( array('itemTypeID' => $ascendantItemTypeID,'mainPropertyID'=>$ascendantItemTypeMainPropertyID,'mainPropertyType'=>$ascendantItemTypeMainPropertyType)), $itemTypeID, $allowedItemTypes, 4);
+                getTreePath($clientID, $treePath, array( array('itemTypeID' => $ascendantItemTypeID,$cstMainPropertyID=>$ascendantItemTypeMainPropertyID,$cstMainPropertyType=>$ascendantItemTypeMainPropertyType)), $itemTypeID, $allowedItemTypes, 4);
 
                 $extFilters[] = array('ascendantItemTypeID' => $ascendantItemTypeID, 'validAscendants' => $validAscendants, 'treePath' => $treePath);
             }
@@ -179,9 +185,9 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
                 $referredItemTypeID = getClientPropertyReferredItemType($property['ID'], $clientID);
                 $mainPropertyID     = getMainPropertyID($referredItemTypeID, $clientID);
                 $mainPropertyType   = getPropertyType($mainPropertyID, $clientID);
-                $propertiesToTranslate[$propertyKey]['referredItemTypeID'] = $referredItemTypeID;
-                $propertiesToTranslate[$propertyKey]['mainPropertyID'] = $mainPropertyID;
-                $propertiesToTranslate[$propertyKey]['mainPropertyType'] = $mainPropertyType;
+                $propertiesToTranslate[$propertyKey][$cstReferredItemTypeID] = $referredItemTypeID;
+                $propertiesToTranslate[$propertyKey][$cstMainPropertyID] = $mainPropertyID;
+                $propertiesToTranslate[$propertyKey][$cstMainPropertyType] = $mainPropertyType;
             }
 
             // If property has not translated name we should replace the original, so move to another list for replacement instead of addition
@@ -193,7 +199,10 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 
         while ($row = $resource->fetch_assoc()) {
 
-            if (count($extFilters) == 0) $found = true;
+            if (count($extFilters) == 0) {
+                $found = true;
+            }
+
             foreach ($extFilters as $extFilter){
 
                 // construct IDs tree for each result
@@ -201,15 +210,19 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 
                 // search for any valid (filter matching) ascendant in generated paths
                 $found = false;
-                foreach ($extFilter['validAscendants'] as $validAscendant)
-                    foreach ($tempPaths as $element)
+                foreach ($extFilter['validAscendants'] as $validAscendant) {
+                    foreach ($tempPaths as $element) {
                         if ($element["nodeID"] == $validAscendant["ID"] && $element["nodeItemType"] == $extFilter['ascendantItemTypeID']) {
                             $found = true;
                             break 2;
                         }
+                    }
+                }
 
                 // If it doesn't have any matching ascendant for any filter don't add to file
-                if (!$found) break;
+                if (!$found) {
+                    break;
+                }
             }
 
             if ($found) {
@@ -222,12 +235,13 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
                     }
 
                     if ($decodeEntities) {
-                        $field = html_entity_decode($field, ENT_COMPAT|ENT_QUOTES, "UTF-8");
-                        $value = html_entity_decode($value, ENT_COMPAT|ENT_QUOTES, "UTF-8");
+                        $field = html_entity_decode($field, ENT_COMPAT|ENT_QUOTES, $cstUTF8);
+                        $value = html_entity_decode($value, ENT_COMPAT|ENT_QUOTES, $cstUTF8);
                     }
+
                     $writer->startElement('column');
                     $writer->writeAttribute('name', $field);
-                    $writer->writeCData(str_replace("]]>", "]]]]><![CDATA[>", $value));
+                    $writer->writeCData(str_replace("]]>", $cstCDATAseparator, $value));
                     $writer->endElement(); // </column>
                 }
 
@@ -237,12 +251,13 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
                     $value = getTranslatedValue($clientID, $propertiesToTranslate[$propertyKey], $row[$propertiesToTranslate[$propertyKey]['name']]);
 
                     if ($decodeEntities) {
-                        $field = html_entity_decode($field, ENT_COMPAT|ENT_QUOTES, "UTF-8");
-                        $value = html_entity_decode($value, ENT_COMPAT|ENT_QUOTES, "UTF-8");
+                        $field = html_entity_decode($field, ENT_COMPAT|ENT_QUOTES, $cstUTF8);
+                        $value = html_entity_decode($value, ENT_COMPAT|ENT_QUOTES, $cstUTF8);
                     }
+
                     $writer->startElement('column');
                     $writer->writeAttribute('name', $field);
-                    $writer->writeCData(str_replace("]]>", "]]]]><![CDATA[>", $value));
+                    $writer->writeCData(str_replace("]]>", $cstCDATAseparator, $value));
                     $writer->endElement(); // </column>
                 }
 
@@ -264,12 +279,12 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 // Get the translated value of passed property depending on the property type
 function getTranslatedValue($clientID, $property, $sourceValue) {
     if ($property['type'] == 'identifier') {
-        $value = getItemPropertyValue($sourceValue, $property['mainPropertyID'], $clientID, $property['mainPropertyType'], $property['referredItemTypeID']);
+        $value = getItemPropertyValue($sourceValue, $property[$cstMainPropertyID], $clientID, $property[$cstMainPropertyType], $property[$cstReferredItemTypeID]);
 
     } elseif ($property['type'] == 'identifiers') {
         // If multiidentifier value = '' the function getItemsPropertyValues would bring all rows for this property so treat this case separatedly
         if ($sourceValue != '') {
-            $values = getItemsPropertyValues($property['mainPropertyID'], $clientID, $sourceValue, $property['mainPropertyType'], $property['referredItemTypeID']);
+            $values = getItemsPropertyValues($property[$cstMainPropertyID], $clientID, $sourceValue, $property[$cstMainPropertyType], $property[$cstReferredItemTypeID]);
             $value = implode('; ', $values);
         } else {
             $value = '';
@@ -287,7 +302,7 @@ function getTranslatedValue($clientID, $property, $sourceValue) {
 }
 
 // Write the error message
-function RSReturnError($message, $code, $compressed = true) {
+function RSReturnError($message, $code) {
     $theFile = "";
     $theFile .= ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     $theFile .= ("<RSError>");
@@ -304,7 +319,9 @@ function RSReturnError($message, $code, $compressed = true) {
 
     echo $theFile;
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) checkTriggeredEvents($GLOBALS['RS_POST']['clientID']);
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    }
 
     // Terminate PHP execution
     exit ;
@@ -343,8 +360,9 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
                     foreach ($result as $row) {
                         fwrite($file, "<row>");
 
-                        foreach ($row as $field => $value)
-                            fwrite($file, "<column name=\"" . $field . "\"><![CDATA[" . str_replace("]]>", "]]]]><![CDATA[>", $value) . "]]></column>");
+                        foreach ($row as $field => $value) {
+                            fwrite($file, "<column name=\"" . $field . "\"><![CDATA[" . str_replace("]]>", $cstCDATAseparator, $value) . "]]></column>");
+                        }
 
                         fwrite($file, "</row>");
                     }
@@ -360,7 +378,7 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS['RS_POST']['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -385,8 +403,9 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
             foreach ($result as $row) {
                 $theFile .= "<row>";
 
-                foreach ($row as $field => $value)
+                foreach ($row as $field => $value) {
                     $theFile .= "<column name=\"" . $field . "\"><![CDATA[" . $value . "]]></column>";
+                }
 
                 $theFile .= "</row>";
             }
@@ -396,18 +415,24 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
         $theFile .= '</RSRecordset>';
 
         header("Content-type: text/xml");
+
         if ($compress) {
             $theFile = checkCompressionVersion($theFile).gzCompress($theFile, 9);
             Header('Content-type: application/x-gzip');
         }
+
         Header("Content-Length: " . strlen($theFile));
         echo $theFile;
     }
 
     // delete the temporary file
-    if ($filename) removeTmpFile($filename);
+    if ($filename) {
+        removeTmpFile($filename);
+    }
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) checkTriggeredEvents($GLOBALS['RS_POST']['clientID']);
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    }
 
     mem_usage_check();
 
@@ -445,8 +470,9 @@ function RSReturnQueryResults($result, $compressed = true) {
                 while ($row = $result->fetch_assoc()) {
                     fwrite($file, "<row>");
 
-                    foreach ($row as $field => $value)
-                        fwrite($file, "<column name=\"" . $field . "\"><![CDATA[" . str_replace("]]>", "]]]]><![CDATA[>", $value) . "]]></column>");
+                    foreach ($row as $field => $value) {
+                        fwrite($file, "<column name=\"" . $field . "\"><![CDATA[" . str_replace("]]>", $cstCDATAseparator, $value) . "]]></column>");
+                    }
 
                     fwrite($file, "</row>");
                 }
@@ -461,7 +487,7 @@ function RSReturnQueryResults($result, $compressed = true) {
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS['RS_POST']['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -474,8 +500,10 @@ function RSReturnQueryResults($result, $compressed = true) {
                 Header('Content-type: application/x-gzip');
             }
         }
+
         Header('Content-Length: ' . filesize($filename));
         readfile($filename);
+
     } else {
         // build response using the string concatenation; it is slower than file method if the number of results is high
         $theFile .= "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
@@ -485,8 +513,9 @@ function RSReturnQueryResults($result, $compressed = true) {
         while ($row = $result->fetch_assoc()) {
             $theFile .= "<row>";
 
-            foreach ($row as $field => $value)
+            foreach ($row as $field => $value) {
                 $theFile .= "<column name=\"" . $field . "\"><![CDATA[" . $value . "]]></column>";
+            }
 
             $theFile .= "</row>";
         }
@@ -495,18 +524,24 @@ function RSReturnQueryResults($result, $compressed = true) {
         $theFile .= "</RSRecordset>";
 
         header("Content-type: text/xml");
+
         if ($compress) {
             $theFile = checkCompressionVersion($theFile).gzCompress($theFile, 9);
             Header('Content-type: application/x-gzip');
         }
+
         Header("Content-Length: " . strlen($theFile));
         echo $theFile;
     }
 
     // delete the temporary file
-    if ($filename) removeTmpFile($filename);
+    if ($filename) {
+        removeTmpFile($filename);
+    }
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) checkTriggeredEvents($GLOBALS['RS_POST']['clientID']);
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    }
 
     mem_usage_check();
 
@@ -526,25 +561,31 @@ function RSReturnArrayResults($array, $compressed = true) {
     $theFile .= "<rows>";
     $theFile .= "<row>";
 
-    if (is_array($array))
-        foreach ($array as $name => $value)
-            $theFile .= "<column name=\"" . $name . "\"><![CDATA[" . str_replace("]]>", "]]]]><![CDATA[>", $value) . "]]></column>";
+    if (is_array($array)) {
+        foreach ($array as $name => $value) {
+            $theFile .= "<column name=\"" . $name . "\"><![CDATA[" . str_replace("]]>", $cstCDATAseparator, $value) . "]]></column>";
+        }
+    }
 
     $theFile .= "</row>";
     $theFile .= "</rows>";
     $theFile .= "</RSRecordset>";
 
-    $compress = ((isset($GLOBALS['RS_POST']['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     header("Content-type: text/xml");
+
     if ($compress) {
         $theFile = checkCompressionVersion($theFile).gzCompress($theFile, 9);
         Header('Content-type: application/x-gzip');
     }
+
     Header('Content-Length: ' . strlen($theFile));
     echo ($theFile);
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) checkTriggeredEvents($GLOBALS['RS_POST']['clientID']);
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    }
 
     mem_usage_check();
 
@@ -558,7 +599,7 @@ function RSReturnFileResults($filename, $compressed = true) {
     global $RStempPath;
 
     // Check compression required
-    $compress = ((isset($GLOBALS['RS_POST']['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST]['RSsendUncompressed']) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
@@ -573,6 +614,7 @@ function RSReturnFileResults($filename, $compressed = true) {
         }
         Header('Content-Length: ' . filesize($filename));
         readfile($filename);
+
     } else {
         // file not exists or is empty so construct and return empty result
         $theFile .= "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
@@ -586,14 +628,19 @@ function RSReturnFileResults($filename, $compressed = true) {
             $theFile = gzCompress($theFile, 9);
             Header('Content-type: application/x-gzip');
         }
+
         Header("Content-Length: " . strlen($theFile));
         echo $theFile;
     }
 
     // delete the returned file
-    if ($filename) removeTmpFile($filename);
+    if ($filename) {
+        removeTmpFile($filename);
+    }
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) checkTriggeredEvents($GLOBALS['RS_POST']['clientID']);
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        checkTriggeredEvents($GLOBALS[$cstRS_POST]['clientID']);
+    }
 
     mem_usage_check();
 
@@ -604,11 +651,15 @@ function RSReturnFileResults($filename, $compressed = true) {
 // try to predict the number of fields of an array of arrays (just considering its first ten rows)
 function _predictNumberOfFields($result) {
 
-    if (!is_array($result)) return 0;
+    if (!is_array($result)) {
+        return 0;
+    }
 
     $limit = count($result);
 
-    if ($limit > 10) $limit = 10;
+    if ($limit > 10) {
+        $limit = 10;
+    }
 
     $count = 0;
 
@@ -617,7 +668,9 @@ function _predictNumberOfFields($result) {
         $count += count($resultLine[1]);
     }
 
-    if ($i > 0) return (count($result) * round($count / $i));
+    if ($i > 0) {
+        return (count($result) * round($count / $i));
+    }
 
     return 0;
 }
@@ -633,7 +686,7 @@ function RSQuery($theQuery, $registerError = true) {
     // and the executed query statements
     $RSdebug = FALSE;
 
-    if ($RSallowDebug && isset($GLOBALS['RS_POST']['RSdebug'])) {
+    if ($RSallowDebug && isset($GLOBALS[$cstRS_POST]['RSdebug'])) {
         $RSdebug = TRUE;
 
         // The RSdebug parameter is usually only sent by POST Master
@@ -644,8 +697,8 @@ function RSQuery($theQuery, $registerError = true) {
 
     $result = $mysqli->query($theQuery);
 
-    if($result===false && $registerError){
-    RSerror("RSdatabase: failed query: $theQuery");
+    if ($result===false && $registerError) {
+        RSerror("RSdatabase: failed query: $theQuery");
     }
 
     if (($RSallowDebug && $RSdebug)) {
@@ -653,7 +706,6 @@ function RSQuery($theQuery, $registerError = true) {
         error_log ($theQuery . "\n");
         error_log ("Total queries executed: " . $queryCount . "\n\n");
         error_log ("time elapsed(seconds): " . (microtime(TRUE) - $start) . "\n\n");
-        //ob_flush();flush();
     }
 
     //return query result
@@ -666,8 +718,8 @@ function RSError($message, $type = ""){
 
   $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`,`RS_TYPE`,`RS_CLIENT_ID`) VALUES (NOW(),'".
   $mysqli->real_escape_string("//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}").
-  "','".$mysqli->real_escape_string(print_r($GLOBALS['RS_POST'],true))."','"
-  .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS['RS_POST']['clientID'].")";
+  "','".$mysqli->real_escape_string(print_r($GLOBALS[$cstRS_POST],true))."','"
+  .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS[$cstRS_POST]['clientID'].")";
 
    // Query the database
   $result = $mysqli->query($query);
@@ -685,7 +737,7 @@ function removeTmpFile($fileName, $prefix = "RSR") {
         // Cycle through all files in the directory
         foreach (glob($dir."/".$prefix."*") as $file) {
             // If file is 24 hours (86400 seconds) old then delete it
-            if(time() - filectime($file) > 86400){
+            if(time() - filectime($file) > 86400) {
                 unlink($file);
             }
         }

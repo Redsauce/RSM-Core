@@ -33,4 +33,12 @@ $enable_file_cache  = true;
 
 // Protocol encryption support
 $RSblowfishKey = '{RSMBLOWFISHKEY}';
+
+// Code constants
+$cstCDATAseparator     = ']]]]><![CDATA[>';
+$cstMainPropertyID     = 'mainPropetyID';
+$cstMainPropertyType   = 'mainPropertyType';
+$cstReferredItemTypeID = 'referredItemTypeID';
+$cstRS_POST            = 'RS_POST';
+$cstUTF8               = 'UTF-8';
 ?>
