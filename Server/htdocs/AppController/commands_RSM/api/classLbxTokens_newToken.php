@@ -53,7 +53,7 @@ function generateRandomString($length = 10) {
 
     for ($i = 0; $i < $length; $i++) {
         // We loop until the desired length is reached, adding random characters
-        $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        $randomString .= $characters[random_int(0, strlen($characters) - 1)];
     }
 
     // And return the result
