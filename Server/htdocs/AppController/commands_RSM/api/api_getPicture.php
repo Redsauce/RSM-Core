@@ -84,7 +84,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
     for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
-        if (preg_match("/img_\d+_.*?_.*?_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
+        if (preg_match("/^img_\d+_\d*_\d*_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
     }
     $nombres_archivo = array_values($nombres_archivo);
 
