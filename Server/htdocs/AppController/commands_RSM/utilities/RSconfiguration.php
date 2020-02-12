@@ -35,12 +35,12 @@ $enable_file_cache  = true;
 $RSblowfishKey = '{RSMBLOWFISHKEY}';
 
 // Code constants
-$cstCDATAseparator     = ']]]]><![CDATA[>';
-$cstSendUncompressed   = 'RSsendUncompressed';
-$cstClientID           = 'ClientID';
-$cstMainPropertyID     = 'mainPropetyID';
-$cstMainPropertyType   = 'mainPropertyType';
-$cstReferredItemTypeID = 'referredItemTypeID';
-$cstRS_POST            = 'RS_POST';
-$cstUTF8               = 'UTF-8';
+$cstCDATAseparator       = ']]]]><![CDATA[>';
+$cstRSsendUncompressed   = 'RSsendUncompressed';
+$cstClientID             = 'ClientID';
+$cstMainPropertyID       = 'mainPropetyID';
+$cstMainPropertyType     = 'mainPropertyType';
+$cstReferredItemTypeID   = 'referredItemTypeID';
+$cstRS_POST              = 'RS_POST';
+$cstUTF8                 = 'UTF-8';
 ?>

@@ -85,6 +85,8 @@ function gzCompressFile($source, $level = 9){
 
 //For compatibility with older versions of app using 'FILESIZE:::' in compressed string
 function checkCompressionVersion($response){
+	global $cstRS_POST;
+	
     if (isset($GLOBALS[$cstRS_POST]['RSbuild']) && substr(strrchr($GLOBALS[$cstRS_POST]['RSbuild'], "."), 1) < 149) {
         return strlen($response).':::';
     } else {
@@ -94,6 +96,7 @@ function checkCompressionVersion($response){
 
 function mem_increase_check(&$lastValues){
     global $RSallowDebug;
+	
     if($RSallowDebug) {
         error_log ("\n\nused memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_usage()         - $lastValues["startUsage"])/1024/1024);
         error_log ("max used memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage()    - $lastValues["startPeakUsage"])/1024/1024);
@@ -116,6 +119,8 @@ function mem_increase_check(&$lastValues){
 
 function mem_usage_check($maxMem=50){
     global $RSallowDebug;
+	global $cstRS_POST;
+	
     if($RSallowDebug) {
         $maxBytes=$maxMem*1024*1024;
         if(memory_get_peak_usage() > $maxBytes || memory_get_peak_usage(true) > $maxBytes) {
@@ -131,6 +136,11 @@ function mem_usage_check($maxMem=50){
 //save a recordset to xml file and returns file identifier
 function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array(),$extFilterRules="",$decodeEntities=false){
     global $RStempPath;
+	global $cstCDATAseparator;
+	global $cstMainPropertyID;
+	global $cstMainPropertyType;
+	global $cstReferredItemTypeID;
+	global $cstUTF8;
 
     // create a temporary file with a unique filename
     $filename = @tempnam($RStempPath, "RSR");
@@ -278,6 +288,10 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 
 // Get the translated value of passed property depending on the property type
 function getTranslatedValue($clientID, $property, $sourceValue) {
+	global $cstMainPropertyID;
+	global $cstMainPropertyType;
+	global $cstReferredItemTypeID;
+	
     if ($property['type'] == 'identifier') {
         $value = getItemPropertyValue($sourceValue, $property[$cstMainPropertyID], $clientID, $property[$cstMainPropertyType], $property[$cstReferredItemTypeID]);
 
@@ -303,6 +317,9 @@ function getTranslatedValue($clientID, $property, $sourceValue) {
 
 // Write the error message
 function RSReturnError($message, $code) {
+	global $cstClientID;
+	global $cstRS_POST;
+	
     $theFile = "";
     $theFile .= ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     $theFile .= ("<RSError>");
@@ -331,6 +348,10 @@ function RSReturnError($message, $code) {
 function RSReturnArrayQueryResults($result, $compressed = true) {
     global $RSallowUncompressed;
     global $RStempPath;
+	global $cstCDATAseparator;
+	global $cstRSsendUncompressed;
+	global $cstClientID;
+	global $cstRS_POST;
 
     // Depending of the number of items returned, it's faster working with a file than with PHP variables
     // If the number of returned fields is greater than the optimizer value, a file will be used
@@ -444,6 +465,10 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
 function RSReturnQueryResults($result, $compressed = true) {
     global $RSallowUncompressed;
     global $RStempPath;
+	global $cstCDATAseparator;
+	global $cstRSsendUncompressed;
+	global $cstClientID;
+	global $cstRS_POST;
 
     $theFile = "";
     $filename = '';
@@ -552,6 +577,10 @@ function RSReturnQueryResults($result, $compressed = true) {
 // Converts the passed database results to XML
 function RSReturnArrayResults($array, $compressed = true) {
     global $RSallowUncompressed;
+	global $cstCDATAseparator;
+	global $cstRSsendUncompressed;
+	global $cstClientID;
+	global $cstRS_POST;
 
     // this function uses to return few data and, overall, the number of concatenations is always small... so it's better using
     // the string concatenation method
@@ -597,6 +626,9 @@ function RSReturnArrayResults($array, $compressed = true) {
 function RSReturnFileResults($filename, $compressed = true) {
     global $RSallowUncompressed;
     global $RStempPath;
+	global $cstRSsendUncompressed;
+	global $cstClientID;
+	global $cstRS_POST;
 
     // Check compression required
     $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed))? FALSE : TRUE;
@@ -679,6 +711,7 @@ function RSQuery($theQuery, $registerError = true) {
     global $RSallowDebug;
     global $queryCount;
     global $mysqli;
+	global $cstRS_POST;
 
     // Look for a variable called RSdebug
     // If present, we will print in the error_log additional debug information
@@ -715,6 +748,8 @@ function RSQuery($theQuery, $registerError = true) {
 //store a new error in database
 function RSError($message, $type = ""){
   global $mysqli;
+  global $cstClientID;
+  global $cstRS_POST;
 
   $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`,`RS_TYPE`,`RS_CLIENT_ID`) VALUES (NOW(),'".
   $mysqli->real_escape_string("//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}").
