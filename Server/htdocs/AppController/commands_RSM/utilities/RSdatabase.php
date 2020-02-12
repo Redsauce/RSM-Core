@@ -9,6 +9,9 @@
 //  connection and error reporting routines.
 //***************************************************
 
+require_once "RSconfiguration.php";
+require_once "RSMeventsManagement.php";
+
 // Save the start time for debugging
 $php_start = microtime(TRUE);
 
@@ -22,9 +25,6 @@ $replace = array("&rsquo;" , "&quot;");
 foreach ($_POST as $key => $value) {
     $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
 }
-
-require_once "RSconfiguration.php";
-require_once "RSMeventsManagement.php";
 
 // Variables used to track the amount of items created / modified / deleted
 $RSMcreatedItemIDs = array();
