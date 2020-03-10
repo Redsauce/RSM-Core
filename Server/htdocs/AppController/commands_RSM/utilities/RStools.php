@@ -479,6 +479,11 @@ function dieWithError($code, $message = null) {
             header("HTTP/1.1 " . $errorString, true, 400);
             break;
 
+        case 401 :
+            $errorString = "401 Unauthorized";
+            header("HTTP/1.1 " . $errorString, true, 401);
+            break;
+
         case 403 :
             $errorString = "403 Forbidden";
             header("HTTP/1.1 " . $errorString, true, 403);
