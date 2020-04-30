@@ -62,7 +62,7 @@ foreach ($properties as $property) {
 			$results[] = array(
                 'ID'      => $property['id'],
                 'name'    => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
-                'value'   => str_replace('"', '\"', html_entity_decode($value, ENT_COMPAT, "UTF-8")),
+                'value'   => html_entity_decode($value, ENT_COMPAT, "UTF-8"),
                 'related' => getAppPropertyName_RelatedWith($property['id'], $clientID),
                 'type'    => $property['type']);
 		}
