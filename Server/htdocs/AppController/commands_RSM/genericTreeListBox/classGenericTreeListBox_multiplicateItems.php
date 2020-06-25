@@ -70,30 +70,30 @@ if ($clientID != 0 && $clientID != ""){
                     }
                 }
 
-                if($hasUnproccessedChilds == 0){
-    				//begin transaction
-    				$mysqli->begin_transaction();
-    				$resultIDs=array();
-    				foreach($itemIDs as $itemID){
-    					//duplicate Item
-    					$newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $count, $descendantsForItemtype);
+                if($hasUnproccessedChilds == 0) {
+       				//begin transaction
+       				$mysqli->begin_transaction();
+       				$resultIDs=array();
+       				foreach($itemIDs as $itemID){
+       					//duplicate Item
+       					$newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $count, $descendantsForItemtype);
 
-    					if(is_array($newItemIDs)){
-    						$resultIDs = array_merge($resultIDs, $newItemIDs);
-    					}elseif($newItemIDs > 0){
-    						$resultIDs[] = $newItemIDs;
-    					}else{
-    						//rollback transaction
-    						$mysqli->rollback();
-    						$results['result'     ] = "NOK";
-    						$results['description'] = "ERROR CREATING ITEMS";
-    					}
-    				}
+       					if (is_array($newItemIDs)) {
+       						$resultIDs = array_merge($resultIDs, $newItemIDs);
+       					} elseif ($newItemIDs > 0) {
+       						$resultIDs[] = $newItemIDs;
+       					} else {
+       						//rollback transaction
+       						$mysqli->rollback();
+       						$results['result'     ] = "NOK";
+       						$results['description'] = "ERROR CREATING ITEMS";
+       					}
+       				}
 
-    				//commit transaction
-    				$mysqli->commit();
-    				$results['itemIDs'] = implode(",",$resultIDs);
-    				$results['result' ] = 'OK';
+       				//commit transaction
+       				$mysqli->commit();
+       				$results['itemIDs'] = implode(",",$resultIDs);
+       				$results['result' ] = 'OK';
                 } else {
                     $results['result'     ] = 'NOK';
                     $results['description'] = 'RECURSIVE COPY REQUIRED';

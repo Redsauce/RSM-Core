@@ -115,6 +115,22 @@ $propertiesValues = array( array('ID' => $wsStartDatePropertyID, 'value' => $sta
 // create new worksession
 $workSessionID = createItem($clientID, $propertiesValues);
 
+// Doble check that no duplicated session was created
+// build filter properties
+$filterProperties = array();
+$filterProperties[] = array('ID' => $wsUserPropertyID     , 'value' => $user);
+$filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $startDate);
+// build return properties array
+$returnProperties = array();
+// get worksessions
+$result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
+if (count($result) > 1) {
+  // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
+  for($i=0;$i<count($result)-1;$i++){
+    deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
+  }
+}
+
 // Set worksession creation date
 setItemPropertyValue($definitions['worksessionCreationDate'], $itemTypeID, $workSessionID, $clientID, date('Y-m-d H:i:s'), $RSuserID);
 
