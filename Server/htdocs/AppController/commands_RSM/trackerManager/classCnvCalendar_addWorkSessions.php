@@ -38,7 +38,7 @@ if ($duration == "" || $duration == "0") {
 }
 
 $endDateObj = date_create($startDate);
-date_modify($endDateObj, "+" . ($duration * 60) . " minutes");
+date_modify($endDateObj, "+" . round($duration * 60) . " minutes");
 $endDate = date_format($endDateObj, 'Y-m-d H:i:s');
 
 // get worksessions item type
@@ -67,6 +67,7 @@ if (count($result) > 0) {
   //another workssesion occupies part of this worksession's time
   $results['result'] = "NOK";
   $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
+
   RSReturnArrayResults($results);
 }
 
@@ -93,15 +94,17 @@ foreach ($result as $ws) {
         //error creating time
         $results['result'] = "NOK";
         $results['description'] = "ERROR CREATING END DATETIME";
+
         RSReturnArrayResults($results);
     }
 
-    date_modify($wsEndDate, "+" . ($ws['hours'] * 60) . " minutes");
+    date_modify($wsEndDate, "+" . round($ws['hours'] * 60) . " minutes");
 
     //compare with new worksession start date
     if ($wsEndDate > $startDateObj) {
         $results['result'] = "NOK";
         $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
+
         RSReturnArrayResults($results);
     }
 }
