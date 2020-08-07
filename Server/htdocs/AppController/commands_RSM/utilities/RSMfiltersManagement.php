@@ -264,6 +264,7 @@ function array_search_ID($needle, $haystack, $field = "ID") {
 //get group level
 function getLevel($a) {
     global $groupResults;
+    $i = 0;
     while ($a != 0) {
         $a = $groupResults[array_search_ID($a, $groupResults)]['parent'];
         $i++;

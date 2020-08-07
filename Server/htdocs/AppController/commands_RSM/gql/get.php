@@ -218,7 +218,7 @@ function parseItem ($input, $linkingProperty = 0, $parentValue = 0, $rootElement
       $argParts = explode(":", $argument);
 
       // TODO complete filter after itemtype DONE
-      $filterProperties[] = array('ID' => $linkPropertyID, 'value' => trim($argParts[1]));
+      $filterProperties[] = array('ID' => trim($argParts[0]), 'value' => trim($argParts[1]));
       //$filterProperties[] = array('ID' => $linkPropertyID, 'value' => $linkValue, 'mode' => '<-IN');
    }
 

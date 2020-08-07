@@ -579,7 +579,7 @@ function updateAutomatedResultForATestCase($testCaseID, $subjectID, $roundID, $c
                     $parentCategoryID = getItemPropertyValue($parentFolderID, $categoryParentPropertyID, $clientID);
                     //print("Parent category id for testCategory $testCategory = $parentCategoryID \n\r");
                     //flush();
-                    $propertiesValues = array( array('ID' => $autResRelRoundPropertyID, 'value' => $roundID), array('ID' => $autResRelSubjectPropertyID, 'value' => $subjectID), array('ID' => $autResRelCatPropertyID, 'value' => $testCategory), array('ID' => $autResRelParentCatPropertyID, 'value' => $parentCategoryID), array('ID' => $autResRelTestCasesCountPropertyID, 'value' => $totalTc), array('ID' => $autResRelTestCasesOKPropertyID, 'value' => $totalOK), array('ID' => $autResRelTestCasesNOKPropertyID, 'value' => $totalNOK));
+                    $propertiesValues = array( array('ID' => $autResRelRoundPropertyID, 'value' => $roundID), array('ID' => $autResRelSubjectPropertyID, 'value' => $subjectID), array('ID' => $autResRelCatPropertyID, 'value' => $parentFolderID), array('ID' => $autResRelParentCatPropertyID, 'value' => $parentCategoryID), array('ID' => $autResRelTestCasesCountPropertyID, 'value' => $totalTc), array('ID' => $autResRelTestCasesOKPropertyID, 'value' => $totalOK), array('ID' => $autResRelTestCasesNOKPropertyID, 'value' => $totalNOK));
 
                 }//end if count resultRelation>0
 

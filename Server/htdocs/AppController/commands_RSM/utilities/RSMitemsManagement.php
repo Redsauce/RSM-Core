@@ -1098,7 +1098,7 @@ function deleteClientProperty($propertyID, $clientID) {
 
     $propertyType = getClientPropertyType($propertyID, $clientID);
 
-    if(RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($property['type'] == 'image' || $property['type'] == 'file')){
+    if(RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($propertyType == 'image' || $propertyType == 'file')){
 		deleteMediaProperty($clientID,$propertyID);
 	}
     RSQuery("DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);

@@ -125,7 +125,7 @@ function value_exists($value,$tableName,$colName,$clientID,$extraReqs=null) {
 	// build extra requests string
 	$extraReqs = _buildExtraRequestsString($extraReqs);
 
-	$query = RSQuery('SELECT '.$colName.' FROM '.$tableName.' WHERE RS_CLIENT_ID = '.$clientID.' AND '.$columnName.' = "'.$value.'"'.$extraReqs);
+	$query = RSQuery('SELECT '.$colName.' FROM '.$tableName.' WHERE RS_CLIENT_ID = '.$clientID.' AND '.$colName.' = "'.$value.'"'.$extraReqs);
 
 	if ($query->num_rows > 0) {
 		return true;
