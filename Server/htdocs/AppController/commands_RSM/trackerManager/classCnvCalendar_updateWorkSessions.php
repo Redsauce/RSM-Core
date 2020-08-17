@@ -33,7 +33,7 @@ if ($duration == "" || $duration == "0") {
     exit();
 }
 
-date_modify($endDateObj, "+" . ($duration * 60) . " minutes");
+date_modify($endDateObj, "+" . round($duration * 60) . " minutes");
 $endDate = date_format($endDateObj, 'Y-m-d H:i:s');
 
 // get worksessions,tasks and groups item types
@@ -97,7 +97,7 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
             exit();
         }
 
-        date_modify($wsEndDate, "+" . ($ws['hours'] * 60) . " minutes");
+        date_modify($wsEndDate, "+" . round($ws['hours'] * 60) . " minutes");
 
         //compare with new worksession start date
         if (($wsEndDate > $startDateObj) && ($ws['ID'] <> $wsID)) {
@@ -121,18 +121,18 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
     //get worksession parent task and current duration
     $oldDuration = getItemPropertyValue($wsID, $wsDurationPropertyID, $clientID);
     $wsTask = getItemPropertyValue($wsID, $wsTaskPropertyID, $clientID);
-    
+
     $wsDurationDiff = $duration - $oldDuration;
-    
+
     // get task current time
     $taskCurrentTime = getItemPropertyValue($wsTask, $taskCurrentTimePropertyID, $clientID);
 
     // update parent task current time
     setPropertyValueByID($taskCurrentTimePropertyID, $tasksItemTypeID, $wsTask, $clientID, $taskCurrentTime + $wsDurationDiff, '', $RSuserID);
-    
+
     // get task parent
     $taskGroup = getItemPropertyValue($wsTask, $taskParentPropertyID, $clientID);
-    
+
     //update all ancestor groups
     while ($taskGroup != '0') {
         // get taskGroup current time
@@ -143,26 +143,26 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
         // get taskGroup parent
         $taskGroup = getItemPropertyValue($taskGroup, $tasksGroupParentPropertyID, $clientID);
-        
+
     }
-    
+
     //update parent task dates if required
     if($updateTaskDates == 1){
         // get parent task start date and end date
         $parentStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
         $parentEndDate = getItemPropertyValue($wsTask, $tasksEndDatePropertyID, $clientID);
-        
+
         if (isBefore($startDate, $parentStartDate)) {
             // change the value into the database
             setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $startDate, '', $RSuserID);
         }
-        
+
         if (isAfter($endDate, $parentEndDate)) {
             // change the value into the database
             setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $endDate, '', $RSuserID);
         }
     }
-    
+
     // Build results array
     $results['result'] = "OK";
 
