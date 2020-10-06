@@ -142,11 +142,9 @@ $tasksItemTypeID      = getClientItemTypeID_RelatedWith_byName($definitions['tas
 $tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
 
 
-// get the sum of all worksessions related with this task and user
-
-// build filter properties to get the worksessions related with task and user
+// get the sum of all worksessions related with this task
+// build filter properties to get the worksessions related with task
 $filterPropertiesRelatedWS = array();
-$filterPropertiesRelatedWS[] = array('ID' => $wsUserPropertyID, 'value' => $user);
 $filterPropertiesRelatedWS[] = array('ID' => $wsTaskPropertyID, 'value' => $task);
 
 // build return properties array
@@ -173,9 +171,6 @@ $tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($defin
 $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
 
 //first update parent task
-// get task current time
-$taskCurrentTime = getItemPropertyValue($task, $taskCurrentTimePropertyID, $clientID);
-
 // update task current time
 setPropertyValueByID($taskCurrentTimePropertyID, $tasksItemTypeID, $task, $clientID, $sumHours, '', $RSuserID);
 
@@ -200,12 +195,12 @@ if ($updateTaskDates == 1) {
     $parentStartDate = getItemPropertyValue($task, $tasksStartDatePropertyID, $clientID);
     $parentEndDate = getItemPropertyValue($task, $tasksEndDatePropertyID, $clientID);
 
-    if (isBefore($startDate, $parentStartDate)) {
+    if ($startDate == "" || isBefore(explode(' ',trim($startDate))[0], $parentStartDate)) {
         // change the value into the database
         setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $task, $clientID, $startDate, '', $RSuserID);
     }
 
-    if (isAfter($endDate, $parentEndDate)) {
+    if ($endDate == "" || isAfter(explode(' ',trim($endDate))[0], $parentEndDate)) {
         // change the value into the database
         setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $task, $clientID, $endDate, '', $RSuserID);
     }
