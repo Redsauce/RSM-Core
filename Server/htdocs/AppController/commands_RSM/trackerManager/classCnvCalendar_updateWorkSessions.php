@@ -124,11 +124,50 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
     $wsDurationDiff = $duration - $oldDuration;
 
-    // get task current time
-    $taskCurrentTime = getItemPropertyValue($wsTask, $taskCurrentTimePropertyID, $clientID);
+    // get the sum of all worksessions related with this task
+    // build filter properties to get the worksessions related with task
+    $filterPropertiesRelatedWS = array();
+    $filterPropertiesRelatedWS[] = array('ID' => $wsTaskPropertyID, 'value' => $wsTask);
 
-    // update parent task current time
-    setPropertyValueByID($taskCurrentTimePropertyID, $tasksItemTypeID, $wsTask, $clientID, $taskCurrentTime + $wsDurationDiff, '', $RSuserID);
+    // build return properties array
+    $returnPropertiesRelatedWS = array();
+    $returnPropertiesRelatedWS[] = array('ID' => $wsDurationPropertyID,  'name' => 'hours');
+    $returnPropertiesRelatedWS[] = array('ID' => $wsStartDatePropertyID, 'name' => 'start');
+
+    // get worksessions
+    $resultRelatedWS = getFilteredItemsIDs($itemTypeID, $clientID, $filterPropertiesRelatedWS, $returnPropertiesRelatedWS, '', true);
+
+    $sumHours = 0;
+    $realStartDate = "";
+    $realEndDate   = "";
+
+    foreach ($resultRelatedWS as $RelatedWS) {
+        // Acumulate the total time
+        $sumHours = $sumHours + $RelatedWS['hours'];
+
+        //recalculate parent task dates if required
+        if ($updateTaskDates == 1) {
+            $startDate = explode(' ',trim($RelatedWS['start']))[0];
+
+            //Check if WS start date lower than stored
+            if($realStartDate == "" || isBefore($startDate, $realStartDate)){
+                $realStartDate = $startDate;
+            }
+
+            // Calculate WS end date
+            $endDateObj = date_create($RelatedWS['start']);
+            date_modify($endDateObj, "+" . round($RelatedWS['hours'] * 60) . " minutes");
+            $endDate = date_format($endDateObj, 'Y-m-d');
+
+            //Check if WS end date higher than stored
+            if($realEndDate == "" || isAfter($endDate, $realEndDate)){
+                $realEndDate = $endDate;
+            }
+        }
+    }
+
+    // update parent tasks total time
+    setPropertyValueByID($taskCurrentTimePropertyID, $tasksItemTypeID, $wsTask, $clientID, $sumHours, '', $RSuserID);
 
     // get task parent
     $taskGroup = getItemPropertyValue($wsTask, $taskParentPropertyID, $clientID);
@@ -145,22 +184,13 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
         $taskGroup = getItemPropertyValue($taskGroup, $tasksGroupParentPropertyID, $clientID);
 
     }
-
     //update parent task dates if required
-    if($updateTaskDates == 1){
-        // get parent task start date and end date
-        $parentStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
-        $parentEndDate = getItemPropertyValue($wsTask, $tasksEndDatePropertyID, $clientID);
+    if ($updateTaskDates == 1) {
+        // change the value into the database
+        setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $realStartDate, '', $RSuserID);
 
-        if (isBefore($startDate, $parentStartDate)) {
-            // change the value into the database
-            setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $startDate, '', $RSuserID);
-        }
-
-        if (isAfter($endDate, $parentEndDate)) {
-            // change the value into the database
-            setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $endDate, '', $RSuserID);
-        }
+        // change the value into the database
+        setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $wsTask, $clientID, $realEndDate, '', $RSuserID);
     }
 
     // Build results array
