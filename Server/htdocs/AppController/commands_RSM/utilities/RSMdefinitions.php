@@ -384,6 +384,7 @@ $definitions = array(
     'eventToken'             => 'event.token',
     'eventParentCategoryID'  => 'event.parentCategoryID',
     'eventLogType'           => 'event.logType',
+    'eventServerAppID'       => 'event.serverAppID',
 
     'eventInclude'         => 'eventInclude',
     'eventIncludeActions'  => 'eventInclude.actions',
