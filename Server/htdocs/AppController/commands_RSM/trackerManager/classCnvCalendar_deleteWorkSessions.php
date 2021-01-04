@@ -10,8 +10,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-$wsID = $GLOBALS['RS_POST']['workSessionID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$wsID     = $GLOBALS['RS_POST']['workSessionID'];
+$clientID = $GLOBALS['RS_POST']['clientID'     ];
 
 //new switch for updating parent dates if necessary
 $updateTaskDates = 1;
@@ -54,9 +54,18 @@ if ($wsID > 0) {
         // get worksessions
         $resultRelatedWS = getFilteredItemsIDs($worksItemTypeID, $clientID, $filterPropertiesRelatedWS, $returnPropertiesRelatedWS, '', true);
 
+        // get parent tasks related properties
+        $taskParentPropertyID            = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'          ], $clientID);
+        $taskCurrentTimePropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'       ], $clientID);
+        $tasksStartDatePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'         ], $clientID);
+        $tasksEndDatePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'           ], $clientID);
+        $tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'   ], $clientID);
+        $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+
+        // Set initial values
         $sumHours = 0;
-        $realStartDate = "";
-        $realEndDate   = "";
+        $realStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
+        $realEndDate   = getItemPropertyValue($wsTask, $tasksEndDatePropertyID,   $clientID);
 
         foreach ($resultRelatedWS as $RelatedWS) {
             // Acumulate the total time
@@ -67,7 +76,7 @@ if ($wsID > 0) {
                 $startDate = explode(' ',trim($RelatedWS['start']))[0];
 
                 //Check if WS start date lower than stored
-                if($realStartDate == "" || isBefore($startDate, $realStartDate)){
+                if($realStartDate == "" || ($realStartDate != "" && isBefore($startDate, $realStartDate))){
                     $realStartDate = $startDate;
                 }
 
@@ -77,19 +86,12 @@ if ($wsID > 0) {
                 $endDate = date_format($endDateObj, 'Y-m-d');
 
                 //Check if WS end date higher than stored
-                if($realEndDate == "" || isAfter($endDate, $realEndDate)){
+                if($realEndDate == "" || ($realStartDate != "" && isAfter($endDate, $realEndDate))){
                     $realEndDate = $endDate;
                 }
             }
         }
 
-        // update parent tasks total time
-        $taskParentPropertyID            = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'          ], $clientID);
-        $taskCurrentTimePropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'       ], $clientID);
-        $tasksStartDatePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'         ], $clientID);
-        $tasksEndDatePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'           ], $clientID);
-        $tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'   ], $clientID);
-        $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
 
         //first update parent task
         // update task current time
