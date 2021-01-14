@@ -20,6 +20,9 @@ isset($GLOBALS["RS_POST"]["numActions"     ]) ? $numActions      = $GLOBALS['RS_
 $clientID = RSclientFromToken($RStoken);
 $itemTypeID = parseITID("scheduledEvents", $clientID);
 
+$eventItemTypeID = parseITID("event", $clientID);
+$eventServerPropertyID = parsePID("event.serverAppID", $clientID);
+
 // Check if user has permissions to read properties of the item
 $propertyIDs = array("scheduledEvents.event", "scheduledEvents.parameters", "scheduledEvents.priority");
 if (!RShasTokenPermissions($RStoken, $propertyIDs, "READ")) {
@@ -33,10 +36,32 @@ if (!RShasTokenPermissions($RStoken, array("scheduledEvents.node"), "WRITE")) {
     RSReturnArrayResults($results, false);
 }
 
+// First we need to check the events allowed for current node (not assigned to a specific node or assigned to current one)
+// Construct filterProperties array
+$eventFilterProperties  = array(
+    array('ID' => $eventServerPropertyID, 'value' => "0", 'mode' => "="),
+    array('ID' => $eventServerPropertyID, 'value' => $nodeID, 'mode' => "=")
+);
+
+// Construct returnProperties array
+$eventReturnProperties = array();
+
+// Filter results
+$eventResults = array();
+$eventResults = getFilteredItemsIDs($eventItemTypeID, $clientID, $eventFilterProperties, $eventReturnProperties, '', true, '', '', 'OR');
+
+// Join list of resulting event IDs
+$allowedEventIds = array();
+
+foreach ($eventResults as $row) {
+    $allowedEventIds[] = $row['ID'];
+}
+
+// Now we get the required number of pending scheduled events based on previous conditions
 // Construct filterProperties array
 $filterProperties  = array(
-    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => "0", 'mode' => "<>"),
-    array('ID' => parsePID("scheduledEvents.node", $clientID), 'value' => "0", 'mode' => "=")
+    array('ID' => parsePID("scheduledEvents.node", $clientID), 'value' => "0", 'mode' => "="),
+    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => join(',',$allowedEventIds), 'mode' => "<-IN")
 );
 
 // Construct returnProperties array
@@ -54,11 +79,7 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 //Update retrieved actions node
 foreach ($results as $row) {
-    foreach ($row as $field => $value) {
-        if ($field == "ID") {
-            setPropertyValueByID("scheduledEvents.node", $itemTypeID, $value, $clientID, $nodeID);
-        }
-    }
+    setPropertyValueByID("scheduledEvents.node", $itemTypeID, $row['ID'], $clientID, $nodeID);
 }
 
 // And write XML Response back to the application without compression// Return results
