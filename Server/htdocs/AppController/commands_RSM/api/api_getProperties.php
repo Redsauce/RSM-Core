@@ -2,6 +2,7 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
+require_once "./api_headers.php";
 
 // Obtain the data needed by this script
 isset($GLOBALS['RS_POST']['clientID'  ]) ? $itemID     = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);

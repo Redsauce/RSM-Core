@@ -35,6 +35,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMtokensManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
+require_once "./api_headers.php";
 
 isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
@@ -43,10 +44,6 @@ isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
-
-// Allow cross origin get svg
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
 
 isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
 isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
@@ -58,9 +55,6 @@ $image_string = $directory . $image_name;
 
 //check image in cache
 $nombres_archivo = glob($image_string . "_*");
-
-// Allow to request this document from JS libraries
-header('Access-Control-Allow-Origin: *');
 
 if ($enable_image_cache && count($nombres_archivo) > 0) {
     // The image exists in cache

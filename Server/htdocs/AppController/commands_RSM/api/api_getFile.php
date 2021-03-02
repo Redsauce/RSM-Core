@@ -26,6 +26,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMtokensManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
+require_once "./api_headers.php";
 
 isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["itemID"    ]) ? $itemID     = $GLOBALS["RS_GET" ]["itemID"    ] : dieWithError(400);
@@ -41,9 +42,6 @@ $file_path = $directory . $file_name;
 
 //check file in cache
 $nombres_archivo = glob($file_path . "_*");
-
-// Allow to request this document from JS libraries
-header('Access-Control-Allow-Origin: *');
 
 if ($enable_file_cache && count($nombres_archivo) > 0) {
 
