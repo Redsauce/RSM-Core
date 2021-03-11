@@ -53,9 +53,8 @@ if ($filterRules != '') {
         }
         $filterProperties[] = array('ID' => parsePID($rule[0], $clientID), 'value' => $pValue, 'mode' => $rule[2]);
     }
-} else {
-    $filterProperties = NULL;
 }
+
 $itemTypeID = parseITID($itemTypeID,$clientID);
 if ($itemTypeID <= 0) {
     $response['result'] = "NOK";

@@ -66,10 +66,7 @@ if ($filterRules != '') {
         }
         $filterProperties[] = array('ID' => parsePID($rule[0], $clientID), 'value' => $pValue, 'mode' => $rule[2]);
     }
-} else {
-    $filterProperties = NULL;
 }
-
 
 $propertyIDs = explode(",", $pIDs);
 
