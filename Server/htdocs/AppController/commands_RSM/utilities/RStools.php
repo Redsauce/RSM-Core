@@ -59,15 +59,16 @@ function checkType($data, $type) {
             return $data;
 
         case 'image' :
-            return '';
+            return $data;
             // TODO: implementar
 
         case 'file' :
-            return '';
+            return $data;
             // TODO: implementar
 
         case 'variant' :
-            return '';
+            return $data;
+            // TODO: implementar
     }
 }
 

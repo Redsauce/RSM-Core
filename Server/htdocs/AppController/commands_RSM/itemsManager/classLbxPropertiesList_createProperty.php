@@ -24,11 +24,8 @@ isset($GLOBALS['RS_POST']['searchable'                           ]) ? $isSearcha
 $type = explode(';', $GLOBALS['RS_POST']['propertyType']);
 $newPropertyType = $type[0];
 
-if (base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']) != '') {
-	$newPropertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $newPropertyType);
-} else $newPropertyDefaultValue = '';
-
-
+// check default value match property type and set to type default value otherwise
+$newPropertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $newPropertyType);
 
 if ($clientID != '0' && $categoryID != '0') {
 	// get the item type
@@ -101,6 +98,9 @@ if ($clientID != '0' && $categoryID != '0') {
 			$itemIDs = IQ_getItemIDs($itemTypeID, $clientID);
 
 			if ($itemIDs && $itemIDs->num_rows > 0) {
+
+                // Ensure property value match the defined property type and convert to default otherwise
+                $newPropertyDefaultValue = enforcePropertyType($newPropertyDefaultValue, $clientID, $newPropertyID, $newPropertyType);
 
 				$row = $itemIDs->fetch_assoc();
 

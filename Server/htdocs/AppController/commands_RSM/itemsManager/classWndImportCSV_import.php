@@ -87,6 +87,10 @@ if (RSquery($query)) {
             if ((!$passed) && ($overwrite)) continue; // If we are overwriting we don't store the property if it has not been passed
 
             if ($passed) $value = base64_decode($propertyValues[$i][$k]);
+
+            // Ensure property value match the defined property type and convert to default otherwise
+            $value = enforcePropertyType($value, $clientID, $property['id'], $property['type']);
+
             if ($property['type'] == 'identifiers') {
                 $theQuery_insertProperties[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $property['id'] . ',"' . $value . '",' . $clientID . ', "' . implode(',', array_fill(0, count(explode(',',$value)), '0')) . '")';
             } else {

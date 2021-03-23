@@ -33,7 +33,11 @@ if ($GLOBALS['RS_POST']['clientID'] > 0)
 
 					foreach ($properties as $property) {
 						$propertyType = getPropertyType($property, $GLOBALS['RS_POST']['clientID']);
-						RSQuery("UPDATE ".$propertiesTables[$propertyType]." SET RS_DATA = '".base64_decode($GLOBALS['RS_POST']['value'])."' WHERE RS_PROPERTY_ID = ".$property." AND RS_DATA = '".$GLOBALS['RS_POST']['oldValue']."' AND RS_CLIENT_ID = ".$GLOBALS['RS_POST']['clientID']);
+
+                        // Ensure property value match the defined property type and convert to default otherwise
+                        $value = enforcePropertyType(base64_decode($GLOBALS['RS_POST']['value']), $clientID, $property, $propertyType);
+
+						RSQuery("UPDATE ".$propertiesTables[$propertyType]." SET RS_DATA = '".$value."' WHERE RS_PROPERTY_ID = ".$property." AND RS_DATA = '".$GLOBALS['RS_POST']['oldValue']."' AND RS_CLIENT_ID = ".$GLOBALS['RS_POST']['clientID']);
 					}
 				}
 				else

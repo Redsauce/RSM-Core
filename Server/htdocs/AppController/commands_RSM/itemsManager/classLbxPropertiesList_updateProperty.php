@@ -44,10 +44,8 @@ if($confirmDuplicated != '1'){
 // get property type
 $propertyType = getPropertyType($propertyID, $clientID);
 
-// check the property default value
-if (base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']) != '') {
-	$propertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $propertyType);
-} else $propertyDefaultValue = '';
+// check default value match property type and set to type default value otherwise
+$propertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $propertyType);
 
 // save the previous property default value
 $propertyPrevDefValue = getClientPropertyDefaultValue($propertyID, $clientID);

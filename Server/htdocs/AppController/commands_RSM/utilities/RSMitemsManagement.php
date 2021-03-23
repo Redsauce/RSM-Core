@@ -508,17 +508,17 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
         // Values are different, so continue updating
     if ($propertyType == 'image' || $propertyType == 'file') return -4; // files and images are not updated this way
 
+    // Ensure property value match the defined property type and convert to default otherwise
+    $value = enforcePropertyType($value, $clientID, $propertyID, $propertyType);
+
     if ($propertyType == 'identifier') {
 
         if (($itemTypeID == getClientPropertyReferredItemType($propertyID, $clientID)) && ($value == $itemID)) {
             // can't associate an item with itself (can't assign an identifier that's the same item ID)
             return -1;
         }
+
     } elseif ($propertyType == 'identifiers') {
-        if ($value == "") {
-            // Force the value to zero since a multiidentifier can't hold empty values
-            $value = "0";
-        }
 
         if (($itemTypeID == getClientPropertyReferredItemType($propertyID, $clientID)) && (in_array($itemID, explode(',', $value)))) {
             // can't associate an item with itself (the property must not contain an identifier that's the same item ID)
@@ -1945,10 +1945,9 @@ function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array()) 
 function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $propertyType, $propertyValue, $clientID) {
     global $propertiesTables, $auditTrailPropertiesTables, $RSuserID, $RStoken;
 
-    if (($propertyType == "identifiers") && ($propertyValue == "")) {
-        // Avoid the insertion of empty values as identifiers in a multi identifier property
-        $propertyValue = "0";
-    }
+    // Ensure property value match the defined property type and convert to default otherwise
+    $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
+
     if ($propertyType == 'identifiers') {
         //mmulti identifier property, generate order with same number of values
         $propertyValue = "'" . $propertyValue . "'";
@@ -1959,7 +1958,7 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
 
     } elseif (($propertyType != 'image') && ($propertyType != 'file')) {
         $propertyValue = "'" . $propertyValue . "'";
-
+error_log('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
         // Launch the insert in the propertyTables
         $result = RSQuery('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
 
