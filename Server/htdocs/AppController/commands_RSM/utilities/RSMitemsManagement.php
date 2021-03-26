@@ -1958,7 +1958,7 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
 
     } elseif (($propertyType != 'image') && ($propertyType != 'file')) {
         $propertyValue = "'" . $propertyValue . "'";
-error_log('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
+
         // Launch the insert in the propertyTables
         $result = RSQuery('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
 
