@@ -37,20 +37,20 @@ $propertiesDefaultValues = array(
 
 $propertiesValidationExpressions = array(
     'text'                        => '/.*/',
-    'longtext'                    => '/.*/',
-    'date'                        => '/\d{4}-\d{2}-\d{2}/',
+    'longtext'                    => '/.*/s',
+    'date'                        => '/\d{4}-\d{1,2}-\d{1,2}/', //TO DO switch back to '/\d{4}-\d{2}-\d{2}/' once apps are fixed
     'integer'                     => '/-?\d+/',
     'float'                       => '/-?\d+(\.\d+)?/',
-    'datetime'                    => '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/',
+    'datetime'                    => '/\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}/', //TO DO switch back to '/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/' once apps are fixed
     'identifier'                  => '/\d+/',
     'identifier2itemtype'         => '/\d+/',
     'identifier2property'         => '/\d+/',
     'identifiers'                 => '/\d+(,\d+)*/',
-    'image'                       => '/.*/',
+    'image'                       => '/.*/s',
     'password'                    => '/.*/',
-    'variant'                     => '/.*/',
+    'variant'                     => '/.*/s',
     'color'                       => '/.*/',
-    'file'                        => '/.*/'
+    'file'                        => '/.*/s'
 );
 
 $auditTrailPropertiesTables = array(
