@@ -3,7 +3,7 @@
 include "../../utilities/RSconfiguration.php";
 
 $oldVersion = "6.7.2.3.161";
-$newVersion = "6.8.1.3.162";
+$newVersion = "6.8.0.3.162";
 
 //connect to the database using the above settings
 $mysqli = new mysqli($RShost, $RSuser, $RSpassword, $RSdatabase);
