@@ -16,5 +16,4 @@ ALTER TABLE `rs_property_identifiers` CHANGE `RS_ORDER` `RS_ORDER` INT(11) NOT N
 
 # Clean rs_error_log table and make RS_ID autoincremental and primary
 TRUNCATE rs_error_log;
-ALTER TABLE `rs_error_log` ADD PRIMARY KEY(`RS_ID`);
 ALTER TABLE `rs_error_log` CHANGE `RS_ID` `RS_ID` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT;
