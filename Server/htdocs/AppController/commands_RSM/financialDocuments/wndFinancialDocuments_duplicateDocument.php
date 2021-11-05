@@ -20,7 +20,7 @@ $newDocID = duplicateItem($docITID, $docID, $clientID);
 if ($docITID == getClientItemTypeID_RelatedWith_byName($definitions['invoiceClient'], $clientID)) {
     // Clear the ID
     $invoiceIDPID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceID' ], $clientID);
-    $result = setPropertyValueByID($invoiceIDPID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
+    $result = setPropertyValueByID($invoiceIDPID, $docITID, $newDocID, $clientID, '0', '', $RSuserID);
 
     // Clear the invoice date
     $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceDate'], $clientID);
