@@ -98,7 +98,9 @@ foreach ($RSdataSplit as $RSdataRow) {
         if ((RShasTokenPermission($RStoken, $id, "CREATE")) || (isPropertyVisible($RSuserID, $id, $clientID))) {
             $propertiesID[] = $id;
             $decodedValue = base64_decode($value);
-            $values[] = array('ID' => $id, 'value' => $decodedValue);
+            $newValue = str_replace("&amp;", "&", htmlentities($decodedValue, ENT_COMPAT, "UTF-8"));
+            $newValue = str_replace("'", "&#39;", $newValue);
+            $values[] = array('ID' => $id, 'value' => str_replace("&amp;", "&", htmlentities($newValue, ENT_COMPAT, "UTF-8")));
         }
 
     }

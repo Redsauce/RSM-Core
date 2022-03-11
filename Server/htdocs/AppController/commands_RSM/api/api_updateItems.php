@@ -102,8 +102,9 @@ if ($results['result'] != 'NOK') {
                     if (!mb_check_encoding($value, "UTF-8")) {
                         dieWithError(400, "Decoded parameter is not UTF-8 valid");
                     }
-
-                    $result = setPropertyValueByID($id, $itemTypeID[$i], $item, $clientID, htmlentities($value), $propertyType);
+                    $newValue = str_replace("&amp;", "&", htmlentities($value, ENT_COMPAT, "UTF-8"));
+                    $newValue = str_replace("'", "&#39;", $newValue);
+                    $result = setPropertyValueByID($id, $itemTypeID[$i], $item, $clientID, $newValue, $propertyType);
                 }
 
                 $results['result'] = 'OK';
