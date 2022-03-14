@@ -100,7 +100,7 @@ foreach ($RSdataSplit as $RSdataRow) {
             $decodedValue = base64_decode($value);
             $newValue = str_replace("&amp;", "&", htmlentities($decodedValue, ENT_COMPAT, "UTF-8"));
             $newValue = str_replace("'", "&#39;", $newValue);
-            $values[] = array('ID' => $id, 'value' => str_replace("&amp;", "&", htmlentities($newValue, ENT_COMPAT, "UTF-8")));
+            $values[] = array('ID' => $id, 'value' => $newValue);
         }
 
     }
