@@ -60,7 +60,12 @@ if ($filterRules != '') {
         if (is_base64($rule[1])) {
             // The user is specifying a custom base64 filter value
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
-            $pValue = str_replace("'", "&#39;", $pValue);
+            
+            if (($rule[2] != "<-IN") && ($rule[2] != "IN")) {
+                // Under <-IN and IN clausules, we need a list of values separated by '
+                $pValue = str_replace("'", "&#39;", $pValue);
+            }
+            
         } else {
             // The value is not encoded in base64 so try to get a related property with the value
             $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
