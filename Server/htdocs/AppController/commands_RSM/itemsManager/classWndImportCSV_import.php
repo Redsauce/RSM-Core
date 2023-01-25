@@ -137,12 +137,15 @@ if ($trigger){
 		array_push($affectedItems, $itemTypeID . ',' . $elementID);
 	}
 
-
 	if($overwrite){
+		global $RSMsplitTriggers;
 		global $RSMupdatedItemIDs;
+		$RSMsplitTriggers = true;
 		$RSMupdatedItemIDs = $affectedItems;
 	}else{
+		global $RSMsplitTriggers;
 		global $RSMcreatedItemIDs;
+		$RSMsplitTriggers = true;
 		$RSMcreatedItemIDs = $affectedItems;
 	}
 }

@@ -9,11 +9,15 @@ function checkTriggeredEvents($clientID) {
     global $RSMcreatedItemIDs;
     global $RSMupdatedItemIDs;
     global $RSMdeletedItemIDs;
+    global $RSMsplitTriggers;
 
     $eventsHandlerToken = getGlobalVariableValue("eventsHandler.token", $clientID);
 
     // This token must be defined in the global variables in order for the triggers to be enabled
-    if ($eventsHandlerToken == "") return;
+    if ($eventsHandlerToken == "") {
+        $RSMsplitTriggers = false;
+	return;
+    }
 
     // Check if there are events associated to the items creation
     if (count($RSMcreatedItemIDs) > 0) {
@@ -26,7 +30,22 @@ function checkTriggeredEvents($clientID) {
 
         $triggerIDs = getTriggerIDs($createdItemTypeIDs, $clientID, "triggerTypeCreateItem");
 
-        if (count($triggerIDs) > 0) queueActions($RSMcreatedItemIDs, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+
+        if (count($triggerIDs) > 0) {
+
+            // When we have RSMsplitTriggers enabled, we queue an action for each item
+            if($RSMsplitTriggers == true){
+                foreach($RSMcreatedItemIDs as $oneCreatedItemID){
+                    $affectedItemID = array();
+                    array_push($affectedItemID, $oneCreatedItemID);
+                    queueActions($affectedItemID, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+                }
+            }else{
+                queueActions($RSMcreatedItemIDs, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+            }
+
+        }
+
     }
 
     // Check if there are events associated to the items update
@@ -40,7 +59,21 @@ function checkTriggeredEvents($clientID) {
 
         $triggerIDs = getTriggerIDs($updatedItemTypeIDs, $clientID, "triggerTypeUpdateItem");
 
-        if (count($triggerIDs) > 0) queueActions($RSMupdatedItemIDs, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+        if (count($triggerIDs) > 0) {
+
+            // When we have RSMsplitTriggers enabled, we queue an action for each item
+            if($RSMsplitTriggers == true){
+                foreach($RSMupdatedItemIDs as $oneUpdatedItemID){
+                    $affectedItemID = array();
+                    array_push($affectedItemID, $oneUpdatedItemID);
+                    queueActions($affectedItemID, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+		}   
+            }else{
+                queueActions($RSMupdatedItemIDs, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+            }
+
+        }
+
     }
 
     // Check if there are events associated to the items deletion
@@ -56,6 +89,8 @@ function checkTriggeredEvents($clientID) {
 
         if (count($triggerIDs) > 0) queueActions($RSMdeletedItemIDs, $triggerIDs, "itemsDeleted", $eventsHandlerToken);
     }
+    
+   $RSMsplitTriggers = false;
 
 }
 
