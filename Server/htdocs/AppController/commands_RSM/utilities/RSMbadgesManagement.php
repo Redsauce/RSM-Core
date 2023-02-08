@@ -3,24 +3,13 @@
 require_once "RSdatabase.php";
 
 // Functions in this file related with the use of badges in RSM
-// - RSUserFromBadge
-// - RScreateBadgeForUser
+// - RScountBadge
+// - RSupdateBadgeForUser
+// - generateRandomString
 // - RSgetUniqueBadge
 // - RSupdateAllBadgeUsers
-// - RSupdateAllBadgeUsers
-// - generateRandomString
 
 
-// -----------------------------
-function RSUserFromBadge($RSbadge) {
-    $theQuery = "SELECT `RS_USER_ID`, `RS_CLIENT_ID`, `RS_LOGIN` FROM `rs_users`
-                WHERE `RS_BADGE` = '" . $RSbadge . "'";
-    $result = RSQuery($theQuery);
-
-    return $result;
-}
-
-// -----------------------------
 function RScountBadge($RSbadge) {
     $results = RSQuery("SELECT COUNT('RS_BADGE') as total
                         FROM rs_users
@@ -28,7 +17,6 @@ function RScountBadge($RSbadge) {
     return $results;
 }
 
-// -----------------------------
 function RSupdateBadgeForUser($userID, $clientID) {
     $uniqueBadge = RSgetUniqueBadge();
     $results = RSQuery("UPDATE rs_users SET RS_BADGE = '".$uniqueBadge."' 
@@ -37,7 +25,6 @@ function RSupdateBadgeForUser($userID, $clientID) {
     return $results;
 }
 
-// -----------------------------
 // This function generates a random string of the given length
 function generateRandomString($length = 10) {
     // This is the list of characters allowed inside the generated string
@@ -54,7 +41,6 @@ function generateRandomString($length = 10) {
 }
 
 
-// -----------------------------
 function RSgetUniqueBadge(){
     /* ***************************************************************************************
     DESCRIPTION
@@ -67,7 +53,6 @@ function RSgetUniqueBadge(){
     badge: The badge itself, as a 32-character string (MD5 hash)
     ***************************************************************************************
     */
-
 
     // We will use this variable in order to control if the new badge exists or not
     $exists = false;
@@ -93,7 +78,6 @@ function RSgetUniqueBadge(){
 
 }
 
-// -----------------------------
 function RSupdateAllBadgeUsers(){
     $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
     $resultUsers = RSQuery($theQuery_users);
