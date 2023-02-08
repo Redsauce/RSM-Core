@@ -41,7 +41,7 @@ $mysqli->query("COMMIT");
 
 // Assign a badget for each user
 include "../../utilities/RSMbadgesManagement.php";
-//RSupdateBadgeForUser(74, 28);
+echo("Creating badges... \n\n");
 RSupdateAllBadgeUsers();
 
 // Closes the modification of the user table

@@ -2,6 +2,7 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
+require_once "../utilities/RSMbadgesManagement.php";
 
 $clientID =               $GLOBALS['RS_POST']['clientID'] ;
 $login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
@@ -36,7 +37,8 @@ if (($clientID != 0) || ($clientID != "")) {
 
         // Insert user into rs_users table
         $newID = getNextIdentification("rs_users", "RS_USER_ID", $clientID);
-        $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $personID . ')';
+        $newBadge = RSgetUniqueBadge();
+        $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID, RS_BADGE) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $personID . ',"' . $newBadge . '")';
     }
 
     // execute the query

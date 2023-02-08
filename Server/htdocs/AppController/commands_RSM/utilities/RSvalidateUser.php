@@ -13,10 +13,15 @@
 //  v1.3: ACCESS DENIED error code has been changed to -3
 //  v1.4: Includes information about new versions of the app
 //  v1.5: Uses the generic rs_users table instead of a custom one
+//  v1.6: Added a badge for each user/client
 //***************************************************//
-//Input: POST
+//Input:
+// Option 1: POST
 //    userLogin:    string: user's login
 //    userPassword: string: user's password encrypted in MD5
+//....userBadge: string user's badge
+// Option 2: POST
+//....userBadge: string user's badge
 //***************************************************//
 //Output: RSRecordset XML
 //    id:
