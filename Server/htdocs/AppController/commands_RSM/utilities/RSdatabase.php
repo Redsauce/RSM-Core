@@ -32,7 +32,7 @@ foreach ($_GET as $key => $value) {
 foreach ($_POST as $key => $value) {
     $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
 }
-
+//test
 // Variables used to track the amount of items created / modified / deleted
 $RSMcreatedItemIDs = array();
 $RSMupdatedItemIDs = array();
