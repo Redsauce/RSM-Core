@@ -3,19 +3,19 @@
 // RSM configuration file
 //***************************************************
 
-$RShost      = '{RSMhost}';
-$RSdatabase  = '{RSMdatabase}';
-$RSuser      = '{RSMlogin}';
-$RSpassword  = '{RSMpassword}';
+$RShost      = 'localhost';
+$RSdatabase  = 'localhost';
+$RSuser      = 'root';
+$RSpassword  = 'root';
 
 $RSmongohost = '{RSMmongohost}';
 // Determine in combination with POST value RSsendUncompressed=1 if response will be sent uncompressed
-$RSallowUncompressed = true;
+$RSallowUncompressed = false;
 
 // Determine in combination with POST value RSdebug = 1 if queries will be sent
-$RSallowDebug = true;
+$RSallowDebug = false;
 
-$RStempPath = '{PHPtempPath}';
+$RSimageCache = '/var/www/rsm_image_cache';
 
 // URL of the api directory
 $RSMapiURL   = '{RSMAPIURL}';
@@ -25,14 +25,14 @@ $RSMmediaURL   = '{RSMMEDIAURL}';
 
 // File and image cache configuration
 $RSimageCache = '{RSMImageCache}';
-$RSfileCache  = '{RSMFileCache}';
+$RSfileCache  = '/var/www/rsm_file_cache';
 
 // Determine if files/images cache will be used
 $enable_image_cache  = true;
 $enable_file_cache  = true;
 
 // Protocol encryption support
-$RSblowfishKey = '{RSMBLOWFISHKEY}';
+$RSblowfishKey = 'JPPQJD64YRGVCDGE';
 
 // Code constants
 $cstCDATAseparator       = ']]]]><![CDATA[>';
