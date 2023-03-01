@@ -22,6 +22,13 @@ $queryCount = 0;
 $search  = array("'", "\"");
 $replace = array("&rsquo;" , "&quot;");
 
+// TODO Adapt foreach to accept all kinds of petitions
+$requestMethod = $_SERVER['REQUEST_METHOD'];
+
+foreach ($_GET as $key => $value) {
+    $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
+}
+
 foreach ($_POST as $key => $value) {
     $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
 }
