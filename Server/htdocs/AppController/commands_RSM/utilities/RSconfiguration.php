@@ -4,7 +4,7 @@
 //***************************************************
 
 $RShost      = 'localhost';
-$RSdatabase  = 'localhost';
+$RSdatabase  = 'rsm_dev';
 $RSuser      = 'root';
 $RSpassword  = 'root';
 
