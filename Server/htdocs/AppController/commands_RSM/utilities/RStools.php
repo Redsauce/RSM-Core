@@ -522,9 +522,8 @@ function dieWithErrorJson($code, $errorText) {
 
     header('Content-Type: application/json', true, $code);
     Header("Content-Length: " . strlen($json_error));
-    echo $json_error;
     
-    die();
+    die($json_error);
 }
 
 function is_base64($s){
