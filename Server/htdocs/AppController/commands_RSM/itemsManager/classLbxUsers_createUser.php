@@ -3,13 +3,27 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbadgesManagement.php";
+require_once "../utilities/RSMbadgesManagement.php";
 
 $clientID =               $GLOBALS['RS_POST']['clientID'] ;
 $login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
 $password =               $GLOBALS['RS_POST']['password'] ;
 $personID =               $GLOBALS['RS_POST']['personID'] ;
+$badge =                  $GLOBALS['RS_POST']['badge'   ] ;
 
-//First of all, we need to check if the variable clientID does not have the value 0
+// First of all, we need to verify if the badge already exists
+$countBadges = RScountBadge($badge);
+				
+// Obtain the data from the query
+if ($countBadges) $countBadges = $countBadges->fetch_assoc();
+
+// Check if we found a badge like ours in the database
+if ($countBadges['total'] <> 0) {
+    RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "3");
+    exit;
+}
+
+//Second step, we need to check if the variable clientID does not have the value 0
 if (($clientID != 0) || ($clientID != "")) {
     //We check if the user already exists for the given client
     $theQuery_userAlreadyExists = 'SELECT RS_USER_ID FROM rs_users WHERE RS_LOGIN ="' . $login . '" AND RS_CLIENT_ID = ' . $clientID;
@@ -37,8 +51,7 @@ if (($clientID != 0) || ($clientID != "")) {
 
         // Insert user into rs_users table
         $newID = getNextIdentification("rs_users", "RS_USER_ID", $clientID);
-        $newBadge = RSgetUniqueBadge();
-        $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID, RS_BADGE) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $personID . ',"' . $newBadge . '")';
+        $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID, RS_BADGE) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $personID . ',"' . $badge . '")';
     }
 
     // execute the query
@@ -47,6 +60,7 @@ if (($clientID != 0) || ($clientID != "")) {
         $results['userID'  ] = $newID;
         $results['login'   ] = $login;
         $results['personID'] = $personID;
+        $results['badge'   ] = $badge;
     } else {
 
         $results['result'] = "NOK";
