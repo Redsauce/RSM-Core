@@ -7,6 +7,6 @@ $params = explode('/', $_GET["url"]);
 if (in_array("item", $params)) {
     require_once './item/index.php';
 } else {
-    dieWithError(400, "Endpoint not defined");
+    dieWithErrorJson(400, "Endpoint not defined");
 }
 ?>
