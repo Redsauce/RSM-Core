@@ -3,12 +3,15 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMdefinitions.php";
+require_once "../utilities/RSMbadgesManagement.php";
+
 
 $clientID = $GLOBALS['RS_POST']['clientID'];
 $userID = $GLOBALS['RS_POST']['userID'];
 $login = base64_decode($GLOBALS['RS_POST']['login']);
 $password = $GLOBALS['RS_POST']['password'];
 $personID = $GLOBALS['RS_POST']['personID'];
+$badge = $GLOBALS['RS_POST']['badge'];
 
 //First of all, we need to check if the variable clientID does not have the value 0
 if ($clientID > 0) {
@@ -43,15 +46,44 @@ if ($clientID > 0) {
 				$theQuery = "UPDATE rs_users SET RS_LOGIN = '".$login."', RS_ITEM_ID = ".$personID." WHERE RS_USER_ID = ".$userID." AND RS_CLIENT_ID = ".$clientID;
 			}
 
-			if ($result = RSQuery($theQuery)) {
+			if ($GLOBALS['RS_POST']['badgeChanged'] == "1") {
 
+				// Ask the database for badges like the new one
+				$countBadges = RScountBadge($badge);
+				
+				// Obtain the data from the query
+				if ($countBadges) $countBadges = $countBadges->fetch_assoc();
+				
+				// Check if we found a badge like ours in the database
+				if ($countBadges['total'] <> 0) {
+					
+					RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "3");
+					exit;
+				}
+
+				$theBadgeQuery = "UPDATE rs_users SET RS_BADGE = '".$badge."' WHERE RS_USER_ID = ".$userID." AND RS_CLIENT_ID = ".$clientID;
+
+				if ($badgeResult = RSQuery($theBadgeQuery)) {
+					$results['result'] = "OK";
+					$results['login'] = $login;
+					$results['personID'] = $personID;
+					$results['badge'] = $badge;
+					$results['badgeChanged'] = $GLOBALS['RS_POST']['badgeChanged'];
+				} else {
+					RSReturnError("ERROR WHILE UPDATING USER", "3");
+				}
+			}
+			
+			if ($result = RSQuery($theQuery)) {
 				$results['result'] = "OK";
 				$results['login'] = $login;
 				$results['personID'] = $personID;
+				$results['badge'] = $badge;
 				$results['passwordChanged'] = $GLOBALS['RS_POST']['passwordChanged'];
 			} else {
 				RSReturnError("ERROR WHILE UPDATING USER", "3");
 			}
+
 
 	} else {
 		RSReturnError("ERROR WHILE UPDATING USER", "3");
