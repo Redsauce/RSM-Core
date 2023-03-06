@@ -514,6 +514,19 @@ function dieWithError($code, $message = null) {
     die($errorString);
 }
 
+// Write the error message with Json format
+function dieWithErrorJson($code, $errorText) {
+    // Obtain error message as json
+    $error = array("errorMessage" => $errorText);
+    $json_error = json_encode($error);
+
+    header('Content-Type: application/json', true, $code);
+    Header("Content-Length: " . strlen($json_error));
+    echo $json_error;
+    
+    die();
+}
+
 function is_base64($s){
     // Check if there are valid base64 characters
     if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) return false;
