@@ -1,0 +1,56 @@
+tags: 
+  - Item
+summary: Gets a single item
+description: Gets a single item
+operationId: getItem
+parameters:
+  - name: itemTypeId
+    description: Id of the item Type
+    in: path
+    required: true
+    schema:
+      type: integer
+    example:
+      153
+  - name: itemId
+    description: Id of the item
+    in: path
+    required: true
+    schema:
+      type: integer
+    example:
+      25
+responses:
+  '200':
+    description: Successfully obtained item
+    content:
+      application/json:
+        schema:
+            $ref: '../schemas/item.yml'
+  '400':
+    description: Returns a "Bad request" error message
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/error.yml'
+        examples:
+          error400:
+            $ref: '../examples.yml#/error400'
+  '404':
+    description: Invalid status value
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/error.yml'
+        examples:
+          error404:
+            $ref: '../examples.yml#/error404'
+  '500':
+    description: Internal server error
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/error.yml'
+        examples:
+          error500:
+            $ref: '../examples.yml#/error500'

@@ -1,0 +1,8 @@
+get:
+  $ref: './getItem.yml'
+post:
+  $ref: './createItem.yml'
+put:
+  $ref: './updateItem.yml'
+delete:
+  $ref: './deleteItem.yml'

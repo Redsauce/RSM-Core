@@ -1,0 +1,9 @@
+error400:
+  value:
+    message: "Bad request"
+error404:
+  value:
+    message: "Not found!"
+error500:
+  value:
+    message: "Internal server error"

@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'RSM api 2.0'
+  description: Openapi definition for rsm v2 endpoints
+servers:
+    - url: http://localhost:81/RSM-Core/server/htdocs/AppController/commands_RSM/api/v2
+paths:
+  /itemType/{itemTypeId}/item/{itemId}:
+    $ref: './paths/item.yml'
+components:
+  schemas:
+    item:
+      $ref: './schemas/item.yml'
+  examples:
+    error404:
+      $ref: './examples.yml#/error404'
+    error400:
+      $ref: './examples.yml#/error400'
+    error500:
+      $ref: './examples.yml#/error500'
