@@ -1,0 +1,45 @@
+put:
+  tags: 
+    - Item
+  summary: Updates a single item
+  description: Updates a single item
+  operationId: updateItem
+  parameters:
+    - in: header
+      name: Authorization
+      description: Authorization token
+      required: true
+      schema:
+        type: string
+        example: "123456abcdef"
+    - in: path 
+      name: itemId
+      description: ID of the item to be modified.
+      required: true
+      schema:
+        type: integer
+        example: 580
+    - in: body
+      name: Item data
+      required: true
+      description: Values to be modified.
+      schema:
+        type: object
+        example: {"58": "Pepita", "59": "De los palotes"}
+  responses:
+    '200':
+      description: Successfully obtained item
+      content:
+        application/json:
+          schema:
+              $ref: '../schemas/item.yml'
+          example:
+              $ref: '../examples.yml#/updateItem'
+    '400':
+      description: Bad request"
+
+    '404':
+      description: Not found
+
+    '500':
+      description: Internal server error

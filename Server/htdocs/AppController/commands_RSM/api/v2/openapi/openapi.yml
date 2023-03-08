@@ -8,6 +8,10 @@ servers:
 paths:
   /itemType/{itemTypeId}/item/{itemId}:
     $ref: './paths/item.yml'
+  /item/{itemID}:
+    $ref: './paths/updateItem.yml'
+  /item: 
+    $ref: './paths/createItem.yml'
 components:
   schemas:
     item:

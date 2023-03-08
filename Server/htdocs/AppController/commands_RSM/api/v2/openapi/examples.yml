@@ -13,10 +13,49 @@ deleteItemMessage:
 #getItem 200 OK response
 getItem: [
     {
-        ID: "1487",
+        ID: "146",
+        related: "staff.name",
+        name: "Identificador",
+        value: "Noelia García",
+        type: "text"
+    },
+    {
+        ID: "58",
         related: "",
-        name: "English",
-        value: "Do not hesitate to contact us!",
-        type: "longtext"
+        name: "Nombre",
+        value: "Noelia",
+        type: "text"
+    },
+    {
+        ID: "59",
+        related: "",
+        name: "Apellidos",
+        value: "García Martínez",
+        type: "text"
+    }
+]
+
+#updateItem 200 OK response
+updateItem: [
+    {
+        ID: "146",
+        related: "staff.name",
+        name: "Identificador",
+        value: "Noelia García",
+        type: "text"
+    },
+    {
+        ID: "58",
+        related: "",
+        name: "Nombre",
+        value: "Pepita",
+        type: "text"
+    },
+    {
+        ID: "59",
+        related: "",
+        name: "Apellidos",
+        value: "De los palotes",
+        type: "text"
     }
 ]
