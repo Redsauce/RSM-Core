@@ -1,0 +1,36 @@
+post:
+  tags: 
+    - Item
+  summary: Create an Item
+  description: Create an item
+  operationId: createtItem
+  parameters:
+    - in: header
+      name: Authorization
+      description: Authorization token
+      required: true
+      schema:
+        type: string
+        example: "123456abcdef"
+    - in: body
+      name: Item data
+      description: New item data
+      required: true 
+      schema:
+        type: object
+        example: {"146": "Ana Lopez", "58": "Ana", "59": "Lopez"}
+  responses:
+    '200':
+      description: Item created
+      content:
+        application/json:
+          schema:
+              $ref: '../schemas/createItem.yml'
+          example:
+              $ref: '../examples.yml#/createItem'
+    '400':
+      description: Bad request
+    '404':
+      description: Not found
+    '500':
+      description: Internal server error

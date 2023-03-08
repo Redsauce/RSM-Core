@@ -1,0 +1,9 @@
+type: object
+required: 
+  - message
+  - itemId
+properties:
+  message:
+    type: string
+  itemId:
+    type: string

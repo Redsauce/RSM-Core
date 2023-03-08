@@ -59,3 +59,9 @@ updateItem: [
         type: "text"
     }
 ]
+
+# create item 200 response
+createItem: {
+    message: "Item created succesfully",
+    itemId: "600"
+}

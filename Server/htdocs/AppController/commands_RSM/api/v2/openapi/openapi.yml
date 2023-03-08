@@ -8,7 +8,9 @@ servers:
 paths:
   /itemType/{itemTypeId}/item/{itemId}:
     $ref: './paths/item.yml'
-  /item/{itemID}:
+  /{itemTypeId}/{itemId}:
+    $ref: './paths/item.yml'
+  /item/{itemId}:
     $ref: './paths/updateItem.yml'
   /item: 
     $ref: './paths/createItem.yml'
@@ -18,3 +20,5 @@ components:
       $ref: './schemas/item.yml'
     message:
       $ref: './schemas/message.yml'
+    createItem: 
+      $ref: './schemas/createItem.yml'

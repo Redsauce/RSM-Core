@@ -36,10 +36,8 @@ put:
           example:
               $ref: '../examples.yml#/updateItem'
     '400':
-      description: Bad request"
-
+      description: Bad request
     '404':
       description: Not found
-
     '500':
       description: Internal server error
