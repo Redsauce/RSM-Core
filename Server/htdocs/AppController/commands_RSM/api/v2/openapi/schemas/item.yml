@@ -1,23 +1,14 @@
-type: object
-required:
-  - ID 
-  - related
-  - name
-  - value
-  - type
-properties:
-  ID:
-    type: string
-    example: "1467"
-  related: 
-    type: string
-    example: ""
-  name: 
-    type: string
-    example: "Titulo EN"
-  value:
-    type: string
-    example: "Postman a quick guide..."
-  type:
-    type: string
-    example: "text"
+type: array
+items:
+  type: object
+  properties:
+    ID:
+      type: string
+    related:
+      type: string
+    name:
+      type: string
+    value:
+      type: string
+    type:
+      type: string

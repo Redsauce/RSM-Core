@@ -1,0 +1,42 @@
+tags: 
+  - Item
+summary: Delete an item
+description: Delete an item
+operationId: deleteItem
+parameters:
+  - in: header
+    name: Authorization
+    description: Authorization token
+    required: true
+    schema:
+    type: string
+    example: "17bg2b733c557fg1b6e7b3653g469fb"
+  - in: path 
+    name: itemTypeId
+    description: Id of the item Type
+    required: true
+    schema:
+    type: integer
+    example: 153
+  - in: path 
+    name: itemId
+    description: Id of the item
+    required: true
+    schema:
+    type: integer
+    example: 25
+responses:
+  '200':
+    description: Item deleted successfully 
+    content:
+      application/json:
+        schema:
+            $ref: '../schemas/message.yml'
+        example:
+            $ref: '../examples.yml#/deleteItemMessage'
+
+  '400':
+    description: Bad request
+
+  '500':
+    description: Internal server error

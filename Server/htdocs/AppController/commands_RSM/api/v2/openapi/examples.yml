@@ -1,9 +1,22 @@
+#Error messages
 error400:
-  value:
-    message: "Bad request"
+    error: "Bad request"
 error404:
-  value:
-    message: "Not found!"
+    error: "Not found!"
 error500:
-  value:
-    message: "Internal server error"
+    error: "Internal server error"
+  
+#deleteItem 200 OK response
+deleteItemMessage:
+    message: "Item deleted succesfully"
+
+#getItem 200 OK response
+getItem: [
+    {
+        ID: "1487",
+        related: "",
+        name: "English",
+        value: "Do not hesitate to contact us!",
+        type: "longtext"
+    }
+]
