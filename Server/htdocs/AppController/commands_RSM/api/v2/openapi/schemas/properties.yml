@@ -1,0 +1,18 @@
+
+type: object
+properties:
+  Category:
+    type: array
+    items: 
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        value: 
+          type: string
+        realValue:
+          type: string
