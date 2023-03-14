@@ -12,10 +12,12 @@ paths:
     $ref: './paths/item.yml'
   /item/{itemId}:
     $ref: './paths/updateItem.yml'
-  /item: 
+  /item : 
     $ref: './paths/createItem.yml'
   /properties/{itemTypeId}/{itemId}:
     $ref: './paths/properties.yml'
+  /items:
+    $ref: './paths/getItems.yml'
 components:
   schemas:
     item:
