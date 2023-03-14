@@ -5,7 +5,7 @@ error404:
     error: "Not found!"
 error500:
     error: "Internal server error"
-  
+
 #deleteItem 200 OK response
 deleteItemMessage:
     message: "Item deleted succesfully"
@@ -61,7 +61,40 @@ updateItem: [
 ]
 
 # create item 200 response
-createItem: {
+createItem: { 
     message: "Item created succesfully",
     itemId: "600"
 }
+
+#getProperties 200 OK response
+getProperties:
+    {
+        General:
+            [
+                {
+                    id: "0001",
+                    name: "Title",
+                    type: "text",
+                    value: "Avengers",
+                    realValue: "",
+                },
+
+                {
+                    id: "0002",
+                    name: "Image",
+                    type: "image",
+                    value: "avengers.jpg",
+                    realValue: "",
+                },
+            ],
+        Relaciones:
+            [
+                {
+                    id: "1115",
+                    name: "Post",
+                    type: "identifiers",
+                    value: "",
+                    realValue: "0",
+                },
+            ],
+    }
