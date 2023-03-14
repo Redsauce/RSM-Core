@@ -1,0 +1,36 @@
+post:
+  tags: 
+    - Items
+  summary: Create multiple Items
+  description: Create multiple Items
+  operationId: createtItems
+  parameters:
+    - in: header
+      name: Authorization
+      description: Authorization token
+      required: true
+      schema:
+        type: string
+        example: "123456abcdef"
+    - in: body
+      name: Items data
+      description: New items data
+      required: true 
+      schema:
+        type: array
+        example: [{"146": "Ana López", "58": "Ana", "59": "López Garcia"},{"146": "José Rodríguez", "58": "José", "59": "Rodríguez González"}]
+  responses:
+    '200':
+      description: Items created
+      content:
+        application/json:
+          schema:
+              type: array
+          example:
+              $ref: '../examples.yml#/createItems'
+    '400':
+      description: Bad request
+    '404':
+      description: Not found
+    '500':
+      description: Internal server error

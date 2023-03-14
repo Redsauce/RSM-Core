@@ -14,6 +14,8 @@ paths:
     $ref: './paths/updateItem.yml'
   /item: 
     $ref: './paths/createItem.yml'
+  /items: 
+    $ref: './paths/createItems.yml'
 components:
   schemas:
     item:
