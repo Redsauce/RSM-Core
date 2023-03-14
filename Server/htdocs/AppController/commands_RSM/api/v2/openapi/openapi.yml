@@ -12,7 +12,7 @@ paths:
     $ref: './paths/item.yml'
   /item/{itemId}:
     $ref: './paths/updateItem.yml'
-  /item: 
+  /item : 
     $ref: './paths/createItem.yml'
   /items: 
     $ref: './paths/createItems.yml'
@@ -24,3 +24,5 @@ components:
       $ref: './schemas/message.yml'
     createItem: 
       $ref: './schemas/createItem.yml'
+    properties: 
+      $ref: './schemas/properties.yml'

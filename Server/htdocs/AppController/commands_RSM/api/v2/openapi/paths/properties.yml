@@ -1,0 +1,49 @@
+get:
+  tags:
+    - Properties
+  summary: Get all the item properties (without values)
+  operationId: getProperties
+  parameters:
+    - in: header
+      name: Authorization
+      description: Authorization token
+      required: true
+      schema:
+        type: string
+        example: "123456abcdef"
+    - in: path
+      name: itemTypeId
+      description: Id of the item Type
+      required: true
+      schema:
+        type: integer
+        example: 8
+    - in: path
+      name: itemId
+      description: Id of the item
+      required: true
+      schema:
+        type: integer
+        example: 580
+    - in: query
+      name: sendUncompressed
+      description: Number(boolean) to define if the response will be compressed or not
+      required: false
+      schema: 
+        type: integer
+        example: 1
+  responses:
+    '200':
+      description: Successfully obtained properties
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/properties.yml'
+          example:
+            $ref: '../examples.yml#/getProperties'
+    '400':
+      description: Bad request
+    '404':
+      description: Not found
+    '500':
+      description: Internal server error    
