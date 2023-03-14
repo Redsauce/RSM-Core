@@ -1,0 +1,76 @@
+get:
+  tags: 
+    - Item
+  summary: Gets one item or more
+  description: Gets one item or more
+  operationId: getItems
+  parameters:
+    - in: header
+      name: Authorization
+      description: Authorization token
+      required: true
+      schema:
+        type: string
+        example: "123456abcdef"
+    - in: query
+      name: propertyIDs
+      description: IDs of the item's properties to retrieve. They all must belong to the same item type.
+      required: true
+      schema:
+        type: array
+        items:
+          type: integer
+        example: [319,320,321]
+    - in: query 
+      name: filterRules
+      description: Rules used to filter the results Items. First parameter is the propertyID to filter by, second is the value in Base64 (e.g. 2023-01-01), and the last one is the criteria. 
+      required: false
+      schema:
+        type: string
+        example: 321;MjAyMi0wMS0wMQ==;SAME_OR_AFTER
+    - in: query 
+      name: extFilterRules
+      description: Same as the filterRules, but with properties that do not belong to the same item type. 
+      required: false
+      schema:
+        type: string
+        example: 493;QjYxNTAzMzU1;=
+    - in: query 
+      name: filterJoining
+      description: If there are 2+ rules in filterRules or extFilterRules, defines how to join them. (AND or OR)
+      required: false
+      schema:
+        type: string
+        example: AND
+        default: AND
+    - in: query 
+      name: IDs
+      description: IDs of the specific items to retieve.
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+        example: [10932,10952,10989,10954,11018]
+    - in: query 
+      name: orderBy
+      description: propertyID that defines in which order should the results be displayed.
+      required: false
+      schema:
+        type: integer
+        example: 321
+  responses:
+    '200':
+      description: Successfully obtained items
+      content:
+        application/json:
+          example:
+            $ref: '../examples.yml#/getItems'
+    '400':
+      description: Bad request
+
+    '404':
+      description: Not found
+
+    '500':
+      description: Internal server error
