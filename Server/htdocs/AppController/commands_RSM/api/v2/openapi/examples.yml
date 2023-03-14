@@ -66,7 +66,7 @@ createItem: {
     itemId: "600"
 }
 
-
+# getItems 200 response
 getItems: [
     {
         ID: "10532",
