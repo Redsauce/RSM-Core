@@ -3,19 +3,35 @@
 require_once "RSdatabase.php";
 
 // Functions in this file related with the use of badges in RSM
-// - RScountBadge
+// - RSbadgeExist
 // - RSupdateBadgeForUser
 // - generateRandomString
 // - RSgetUniqueBadge
 // - RSupdateAllBadgeUsers
 
 
-function RScountBadge($RSbadge) {
-    $results = RSQuery("SELECT COUNT('RS_BADGE') as total
-                        FROM rs_users
-                        WHERE RS_BADGE = '" . $RSbadge . "'");
-    return $results;
+function RSbadgeExist($RSbadge, $RSclientID = null) {
+    /*
+    Optionally we can restrict the action to a single clientID.
+    */
+    
+    $query = "SELECT 'RS_BADGE'
+    FROM rs_users
+    WHERE RS_BADGE = '" . $RSbadge . "'";
+
+    if ($RSclientID != null) {
+        $query .= " AND RS_Client_ID = '$RSclientID'";
+    }
+    
+    $results = RSQuery($query);
+    if ($results->num_rows > 0){
+        return true;
+    } else {
+        return false;
+    }
+    
 }
+
 
 function RSupdateBadgeForUser($userID, $clientID) {
     $uniqueBadge = RSgetUniqueBadge();
@@ -24,6 +40,7 @@ function RSupdateBadgeForUser($userID, $clientID) {
                         RS_CLIENT_ID = " . $clientID . ";");
     return $results;
 }
+
 
 // This function generates a random string of the given length
 function generateRandomString($length = 10) {
@@ -41,10 +58,11 @@ function generateRandomString($length = 10) {
 }
 
 
-function RSgetUniqueBadge(){
+function RSgetUniqueBadge($RSclientID = null){
     /* ***************************************************************************************
     DESCRIPTION
     Create a new badge that does not exist in the list of user badges in the database.
+    Optionally we can restrict the action to a single clientID.
 
     PARAMETERS
     It does not need any parameters.
@@ -62,32 +80,35 @@ function RSgetUniqueBadge(){
         $badge = md5(generateRandomString(256));
 
         // Ask the database for badges like the new one
-        $results = RScountBadge($badge);
-
-        // Obtain the data from the query
-        if ($results) $result = $results->fetch_assoc();
-        
-        // Check if we found a badge like ours in the database
-        if ($result['total'] <> 0) $exists = true; // The badge is already stored in the database. We must generate a new one
+        $results = RSbadgeExist($badge, $RSclientID);
+        if($results == true){
+            $exists = true;
+        }
 
     } while ($exists == true);
 
     // If the execution reaches this point, the badge does not exist so we can return it
     return $badge;
 
-
 }
 
-function RSupdateAllBadgeUsers(){
+
+function RSupdateAllBadgeUsers($RSclientID = null){
+    /*
+    Optionally we can restrict the action to a single clientID.
+    */
+
     $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
+    
+    if ($RSclientID != null) {
+        $theQuery_users .= " WHERE RS_Client_ID = '$RSclientID'";
+    }
+    
     $resultUsers = RSQuery($theQuery_users);
 
     while($row=$resultUsers->fetch_assoc()){
         RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);
     }
 }
-
-
-
 
 ?>

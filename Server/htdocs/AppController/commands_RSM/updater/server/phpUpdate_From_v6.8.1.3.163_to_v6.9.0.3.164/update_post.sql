@@ -6,4 +6,5 @@ INSERT INTO rs_property_app_definitions (RS_ID, RS_NAME, RS_ITEM_TYPE_ID, RS_DES
 
 INSERT INTO rs_property_app_definitions (RS_ID, RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE, RS_REFERRED_ITEMTYPE) VALUES ('486', 'configuration.module.genericModule.ignoredProperties', '53', 'IDs of properties ignored when constructing the tree', NULL, 'text', '0') ON DUPLICATE KEY UPDATE RS_NAME='configuration.module.genericModule.ignoredProperties', RS_ITEM_TYPE_ID='53', RS_DESCRIPTION='IDs of properties ignored when constructing the tree', RS_DEFAULTVALUE=NULL, RS_TYPE='text';
 
-ALTER TABLE rs_users ADD RS_BADGE CHAR(32) CHARACTER SET utf8 COLLATE utf8_bin NULL;
+ALTER TABLE rs_users
+ADD COLUMN RS_BADGE CHAR(32) CHARACTER SET utf8 COLLATE utf8_general_ci;

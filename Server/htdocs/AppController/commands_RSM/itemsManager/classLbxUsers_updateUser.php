@@ -49,15 +49,11 @@ if ($clientID > 0) {
 			if ($GLOBALS['RS_POST']['badgeChanged'] == "1") {
 
 				// Ask the database for badges like the new one
-				$countBadges = RScountBadge($badge);
-				
-				// Obtain the data from the query
-				if ($countBadges) $countBadges = $countBadges->fetch_assoc();
+				$badgeExists = RSbadgeExist($badge, $clientID);
 				
 				// Check if we found a badge like ours in the database
-				if ($countBadges['total'] <> 0) {
-					
-					RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "3");
+				if ($badgeExists == true) {
+					RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "2");
 					exit;
 				}
 
@@ -81,16 +77,16 @@ if ($clientID > 0) {
 				$results['badge'] = $badge;
 				$results['passwordChanged'] = $GLOBALS['RS_POST']['passwordChanged'];
 			} else {
-				RSReturnError("ERROR WHILE UPDATING USER", "3");
+				RSReturnError("ERROR WHILE UPDATING USER", "4");
 			}
 
 
 	} else {
-		RSReturnError("ERROR WHILE UPDATING USER", "3");
+		RSReturnError("ERROR WHILE UPDATING USER", "5");
 	}
 
 } else {
-	RSReturnError("ERROR WHILE UPDATING USER", "3");
+	RSReturnError("ERROR WHILE UPDATING USER", "6");
 }
 
 // And write XML Response back to the application

@@ -3,7 +3,6 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbadgesManagement.php";
-require_once "../utilities/RSMbadgesManagement.php";
 
 $clientID =               $GLOBALS['RS_POST']['clientID'] ;
 $login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
@@ -12,25 +11,19 @@ $personID =               $GLOBALS['RS_POST']['personID'] ;
 $badge =                  $GLOBALS['RS_POST']['badge'   ] ;
 
 // First of all, we need to verify if the badge already exists
-$countBadges = RScountBadge($badge);
-				
-// Obtain the data from the query
-if ($countBadges) $countBadges = $countBadges->fetch_assoc();
-
-// Check if we found a badge like ours in the database
-if ($countBadges['total'] <> 0) {
+$badgeExists = RSbadgeExist($badge, $clientID);
+if($badgeExists == true){
     RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "3");
     exit;
 }
 
 //Second step, we need to check if the variable clientID does not have the value 0
-if (($clientID != 0) || ($clientID != "")) {
+if (($clientID != 0) && ($clientID != "")) {
     //We check if the user already exists for the given client
     $theQuery_userAlreadyExists = 'SELECT RS_USER_ID FROM rs_users WHERE RS_LOGIN ="' . $login . '" AND RS_CLIENT_ID = ' . $clientID;
     $result = RSQuery($theQuery_userAlreadyExists);
 
     if ($result->num_rows > 0) {
-
         RSReturnError("USER ALREADY EXISTS", "1");
         exit ;
     } else {
