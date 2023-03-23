@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} ^(.*)$
+RewriteRule ^(.*)$ $1?%1&
+RewriteRule ^items/?$ http://localhost:81/RSM-Core/server/htdocs/AppController/commands_RSM/api/v2/router.php

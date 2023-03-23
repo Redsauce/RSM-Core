@@ -1,13 +1,15 @@
 <?php
-// require_once "../utilities/RSdatabase.php";
-// require_once "../utilities/RSMitemsManagement.php";
-// require_once "../utilities/RStools.php";
-// require_once "./api_headers.php";
 
+print_r("GetItemsFile\n");
 
-getItems();
+getGivenItems();
 
-function getItems(){
+// function verifyBodyContent(){
+//     print_r("verifyBodyContent GET");
+//     print_r("\n");
+// }
 
+function getGivenItems(){
+    print_r("getGivenItems GET");
 }
 ?>
