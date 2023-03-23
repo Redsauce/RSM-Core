@@ -10,11 +10,15 @@ $password =               $GLOBALS['RS_POST']['password'] ;
 $personID =               $GLOBALS['RS_POST']['personID'] ;
 $badge =                  $GLOBALS['RS_POST']['badge'   ] ;
 
-// First of all, we need to verify if the badge already exists
-$badgeExists = RSbadgeExist($badge, $clientID);
-if($badgeExists == true){
-    RSReturnError("ERROR WHILE UPDATING USER. BADGE ALREADY EXISTS.", "3");
-    exit;
+// First of all, we need to verify if a badge is comming
+if($badge == ""){
+    $badge = RSgetUniqueBadge($clientID);
+} else {
+    $badgeExists = RSbadgeExist($badge, $clientID);
+    if($badgeExists == true){
+        RSReturnError("ERROR WHILE CREATING USER. BADGE ALREADY EXISTS.", "1");
+        exit;
+    }
 }
 
 //Second step, we need to check if the variable clientID does not have the value 0
@@ -24,7 +28,7 @@ if (($clientID != 0) && ($clientID != "")) {
     $result = RSQuery($theQuery_userAlreadyExists);
 
     if ($result->num_rows > 0) {
-        RSReturnError("USER ALREADY EXISTS", "1");
+        RSReturnError("ERROR WHILE CREATING USER.", "2");
         exit ;
     } else {
 
@@ -56,10 +60,14 @@ if (($clientID != 0) && ($clientID != "")) {
         $results['badge'   ] = $badge;
     } else {
 
-        $results['result'] = "NOK";
+        RSReturnError("ERROR WHILE CREATING USER.", "3");
+
     }
 
-} else $results['result'] = "NOK"; // Invalid clientID
+} else {
+
+    RSReturnError("ERROR WHILE CREATING USER. INVALID CLIENTID.", "4");
+}
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
