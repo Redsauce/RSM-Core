@@ -1,12 +1,30 @@
 <?php
+//***************************************************************************************
+// Description:
+//    Delete one or multiple item/s of the specified itemType with the associated values
+//
+//  REQUEST BODY (JSON):
+//  Array with object/s inside, each object must contain:
+//          typeId: ID of the itemType to delete
+//          itemIds: Array with the ID/IDs of the item/s to delete     
+//  EXAMPLE: 
+//   [{
+//			"typeId": 98,
+//			"itemIds": [12, 55]
+//		},{
+//			"typeId": 102,
+//			"itemIds": [10]
+//		}]	
+//***************************************************************************************
 
 deleteGivenItems();
-
 function deleteGivenItems()
 {
   global $RSallowDebug;
 
   verifyBodyContent();
+
+  // definitions
   $requestBody = getRequestBody();
   isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
   isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
@@ -14,8 +32,10 @@ function deleteGivenItems()
 
   $response="";
   foreach ($requestBody as $itemType) {
-    $itemTypeID = ParseITID($itemType->typeID, $clientID);
-    $itemIDs = implode(',', $itemType->itemIDs);
+    $itemTypeID = ParseITID($itemType->typeId, $clientID);
+    $itemIDs = implode(',', $itemType->itemIds);
+
+    // To delete an item, first we have to check that is has delete permissions for each of its properties  
     $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {

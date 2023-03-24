@@ -1,5 +1,22 @@
 <?php
-
+// ****************************************************************************************
+//Description:
+//  Edits one or more items of the specified itemType with the associated values
+//
+//  REQUEST BODY (JSON)
+// Array with object/s inside, each object must contain
+//          - one propertyId and its value (one or more)
+//          - id: id of of the item being updated
+//  EXAMPLE: 
+//      [{
+//          "109": "Roja"
+//          "id": "0008"
+//        },{
+//          "id":  "4001"
+//          "319": "Peter
+//          "320": "Parker"
+//        }]
+// ****************************************************************************************
 updateGivenItems();
 
 function updateGivenItems()
@@ -7,6 +24,8 @@ function updateGivenItems()
   global $RSallowDebug;
 
   verifyBodyContent();
+
+  // definitions
   $requestBody = getRequestBody();
   isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
   isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
@@ -26,6 +45,8 @@ function updateGivenItems()
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "id") {
           $id = ParsePID($propertyID, $clientID);
+
+          // Only update properties that user has WRITE permissions
 
           if (RShasTokenPermission($RStoken, $id, "WRITE") || isPropertyVisible($RSuserID, $id, $clientID)) {
             $propertyType = getPropertyType($id, $clientID);
@@ -49,7 +70,7 @@ function updateGivenItems()
                 if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter is not UTF-8 valid");
                 else returnJsonMessage(400, "");
               }
-              $parsedValue = prepareValues($propertyValue);
+              $parsedValue = replaceUtf8Characters($propertyValue);
               $result = setPropertyValueByID($id, $itemTypeID, $itemID, $clientID, $parsedValue, $propertyType);
               $response .= "[itemTypeID: ".$itemTypeID.", itemID: ".$itemID.", properyID: ".$id."],";
             }

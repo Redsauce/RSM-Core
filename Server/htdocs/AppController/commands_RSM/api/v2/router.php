@@ -1,5 +1,6 @@
 <?php
 //TODO: Make database don't require next line.
+// TODO: add comments in finished version
 $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"]; //We need this variable to exists in order for RSdatabase to work propertly.
 require_once "../../utilities/RStools.php";
 require_once "./utils/utils.php";
