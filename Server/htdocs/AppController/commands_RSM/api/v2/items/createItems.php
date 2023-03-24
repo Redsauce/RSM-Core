@@ -16,9 +16,13 @@
 //       }]
 // ****************************************************************************************
 
+
+
 createGivenItems();
 function createGivenItems()
 {
+  global $RSallowDebug;
+
   verifyBodyContent();
 
   // definitions
@@ -42,23 +46,27 @@ function createGivenItems()
     if ($newItemID != 0) {
       $newPropertiesID[] = $newItemID;
     } else {
-      $results['result'] = 'NOK';
-      $results['description'] = 'CREATE FUNCTION RETURNED AN ITEMID 0';
-      error_log('CREATE FUNCTION RETURNED AN ITEMID 0');
+      if ($RSallowDebug) returnJsonMessage(400, "CREATE FUNCTION RETURNED AN ITEMID 0");
+      else returnJsonMessage(400, "");
     }
   }
-  // TODO 
-  $results['result'] = 'OK';
-  $results['itemID'] = implode(',', $newPropertiesID);
-  print_r($results);
+  returnJsonMessage(200, "Items created successfully: ".implode(",",$newPropertiesID));
 }
 
 // Verify if body contents are the ones expected
 function verifyBodyContent()
 {
+  global $RSallowDebug;
+
   $body = getRequestBody();
-  if (!is_array($body)) dieWithError(400);
+  if (!is_array($body)) {
+    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array '[]' of JSON objects '{}'");
+    else returnJsonMessage(400, "");
+  }
   foreach ($body as $item) {
-    if (!is_object($item)) dieWithError(400);
+    if (!is_object($item)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body array elements must be JSON objects '{}'");
+      else returnJsonMessage(400, "");
+    }
   }
 }

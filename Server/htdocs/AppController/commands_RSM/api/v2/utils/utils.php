@@ -18,3 +18,13 @@ function getRequestBody()
 {
   return json_decode(file_get_contents('php://input'));
 }
+
+function returnJsonMessage($code, $message)
+{
+  $json="";
+  if ($message!="") $json = '{"message": "' . $message . '"}';
+  header('Content-Type: application/json', true, $code);
+  Header("Content-Length: " . strlen($json));
+  echo $json;
+  die();
+}

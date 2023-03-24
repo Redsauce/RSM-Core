@@ -21,6 +21,8 @@ updateGivenItems();
 
 function updateGivenItems()
 {
+  global $RSallowDebug;
+
   verifyBodyContent();
 
   // definitions
@@ -29,6 +31,7 @@ function updateGivenItems()
   isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
   isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
 
+  $response = "";
   foreach ($requestBody as $item) {
     $propertiesID = array();
     //Iterate through every propertyID of the items to check if they are incongruent
@@ -64,35 +67,47 @@ function updateGivenItems()
               }
             } else {
               if (!mb_check_encoding($propertyValue, "UTF-8")) {
-                dieWithError(400, "Decoded parameter is not UTF-8 valid");
+                if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter is not UTF-8 valid");
+                else returnJsonMessage(400, "");
               }
               $parsedValue = replaceUtf8Characters($propertyValue);
               $result = setPropertyValueByID($id, $itemTypeID, $itemID, $clientID, $parsedValue, $propertyType);
+              $response .= "[itemTypeID: ".$itemTypeID.", itemID: ".$itemID.", properyID: ".$id."],";
             }
             // Result = 0 is a successful response
             if ($result != 0) {
-              $results['result'] = "NOK";
-              $results['description'] = "CODE ERROR " . $result;
-              $results['propertyID'] = $propertyID . " (PID: " . $id . ")";
+              $response .= "[CODE ERROR ".$result.", propertyID ".$propertyID." (PID: ".$id.")],";
               continue;
             }
           }
         }
       }
     } else {
-      //TODO: RETURN JSON ERROR 'INCONGRUENT PROPERTIES FOR THIS CLIENT'
+      if ($RSallowDebug) returnJsonMessage(403, "INCONGRUENT PROPERTIES FOR THIS CLIENT");
+      else returnJsonMessage(400, "");
     }
   }
-  //TODO: Return VALID JSON 
+  returnJsonMessage(200, "Items updated: ".rtrim($response,","));
 }
 
 // Verify if body contents are the ones expected
 function verifyBodyContent()
 {
+  global $RSallowDebug;
+
   $body = getRequestBody();
-  if (!is_array($body)) dieWithError(400);
+  if (!is_array($body)) {
+    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array");
+    else returnJsonMessage(400, "");
+  }
   foreach ($body as $item) {
-    if (!is_object($item)) dieWithError(400);
-    if (!isset($item->id)) dieWithError(400);
+    if (!is_object($item)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body items must be objects '{}'");
+      else returnJsonMessage(400, "");
+  }
+    if (!isset($item->id)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body items must contain field 'id'");
+      else returnJsonMessage(400, "");
+    }
   }
 }

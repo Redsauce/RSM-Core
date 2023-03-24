@@ -8,6 +8,7 @@ require_once "../../utilities/RSdatabase.php";
 require_once "../../utilities/RSMitemsManagement.php";
 require_once "../api_headers.php";
 
+global $RSallowDebug;
 $RSallowUncompressed = true;
 
 $endpoint = explode("/v2", $_SERVER['HTTP_REFERER'])[1];
@@ -15,8 +16,8 @@ $requestMethod = explode("?", $_SERVER["REQUEST_URI"])[1];
 
 $endpoint = "/items";
 $requestMethod = $_SERVER["REQUEST_METHOD"];
-switch ($endpoint) {
 
+switch ($endpoint) {
     case '/items':
         switch ($requestMethod) {
             case 'GET':
@@ -32,7 +33,12 @@ switch ($endpoint) {
                 require_once('./items/deleteItems.php');
                 break;
             default:
-                dieWithError(400, "Bad request");
+                if ($RSallowDebug) returnJsonMessage(400, "Request method " . $requestMethod . " is not supported for endpoint " . $endpoint);
+                else returnJsonMessage(400, "");
                 break;
         }
+    default:
+        if ($RSallowDebug) returnJsonMessage(404, "Endpoint " . $endpoint . " does not exist");
+        else returnJsonMessage(400, "");
+        break;
 }
