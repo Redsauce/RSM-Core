@@ -5,7 +5,7 @@
 //
 //  REQUEST BODY (JSON)
 //  Array with object/s inside, each object must contain at least
-//          - one propertyId and its value
+//          - one propertyID and its value
 //  EXAMPLE: 
 //      [{
 //          "85": "Mesa"
@@ -15,9 +15,6 @@
 //          "46": "vose"
 //       }]
 // ****************************************************************************************
-
-
-
 createGivenItems();
 function createGivenItems()
 {
@@ -31,26 +28,37 @@ function createGivenItems()
   isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
   isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
 
-
+  $response = "[";
   foreach ($requestBody as $item) {
     $values = array();
+    $response .= '{';
     foreach ($item as $propertyID => $propertyValue) {
       // Only prepare properties where user has CREATE permission
       if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
         $values[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
-      }
+        $response .= '"'.$propertyID.'": "Permissions OK", ';
+      } else $response .= '"'.$propertyID.'": "No CREATE permissions for this property", ';
     }
 
     // Create item and verify the result creation
+    $newItemID = 0;
     if (count($values) != 0) $newItemID = createItem($clientID, $values);
     if ($newItemID != 0) {
-      $newPropertiesID[] = $newItemID;
+      $response .= '"itemID": '.$newItemID.',';
     } else {
-      if ($RSallowDebug) returnJsonMessage(400, "CREATE FUNCTION RETURNED AN ITEMID 0");
-      else returnJsonMessage(400, "");
+      $response .= '"itemID": "Not Created",';
     }
+    $response = rtrim($response,","). '},';
   }
-  returnJsonMessage(200, "Items created successfully: ".implode(",",$newPropertiesID));
+  $response = rtrim($response,","). ']';
+
+  if ($RSallowDebug and $response!="[]") {
+    header('Content-Type: application/json', true, 200);
+    Header("Content-Length: " . strlen($response));
+    echo $response;
+    die();
+  }
+  else returnJsonMessage(200, "");
 }
 
 // Verify if body contents are the ones expected
@@ -60,7 +68,7 @@ function verifyBodyContent()
 
   $body = getRequestBody();
   if (!is_array($body)) {
-    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array '[]' of JSON objects '{}'");
+    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array '[]'");
     else returnJsonMessage(400, "");
   }
   foreach ($body as $item) {

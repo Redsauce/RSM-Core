@@ -1,19 +1,19 @@
 <?php
 //***************************************************************************************
 // Description:
-//    Delete one or multiple item/s of the specified itemType with the associated values
+//    Delete one or multiple item/s of the specified typeID with the associated values
 //
 //  REQUEST BODY (JSON):
 //  Array with object/s inside, each object must contain:
-//          typeId: ID of the itemType to delete
-//          itemIds: Array with the ID/IDs of the item/s to delete     
+//          typeID: ID of the itemType to delete
+//          itemIDs: Array with the ID/IDs of the item/s to delete     
 //  EXAMPLE: 
 //   [{
-//			"typeId": 98,
-//			"itemIds": [12, 55]
+//			"typeID": 98,
+//			"itemIDs": [12, 55]
 //		},{
-//			"typeId": 102,
-//			"itemIds": [10]
+//			"typeID": 102,
+//			"itemIDs": [10]
 //		}]	
 //***************************************************************************************
 
@@ -30,25 +30,34 @@ function deleteGivenItems()
   isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
   isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
 
-  $response="";
+  $response = "[";
   foreach ($requestBody as $itemType) {
-    $itemTypeID = ParseITID($itemType->typeId, $clientID);
-    $itemIDs = implode(',', $itemType->itemIds);
+    $typeID = ParseITID($itemType->typeID, $clientID);
+    $itemIDs = implode(',', $itemType->itemIDs);
 
     // To delete an item, first we have to check that is has delete permissions for each of its properties  
-    $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
-
+    $propertiesList = getClientItemTypePropertiesId($typeID, $clientID);
+    
+    $response .= '{"typeID": '.$typeID.',';
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
       if ($itemIDs != '') {
-        deleteItems($itemTypeID, $clientID, $itemIDs);
-        $response .= "[itemTypeID: ".$itemTypeID.", itemIDs: ".$itemIDs."],";
+        deleteItems($typeID, $clientID, $itemIDs);
+        //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
+        foreach ($itemType->itemIDs as $itemID) $response .= '"'.$itemID.'": "Deleted",';
       }
     } else {
-      if ($RSallowDebug) returnJsonMessage(401, "Token: ".$RStoken." does not have permissions or properties: ".implode(",".$propertiesList)." are not visible");
-      else returnJsonMessage(400, "");
+        foreach ($itemType->itemIDs as $itemID) $response .= '"'.$itemID.'": "Not Deleted (No DELETE permissions or properties not visible)",';
     }
+    $response = rtrim($response,","). '},';
   }
-  if ($RSallowDebug) returnJsonMessage(200, "Items deleted successfully: ".rtrim($response,","));
+  $response = rtrim($response,","). ']';
+  
+  if ($RSallowDebug and $response!="[]") {
+    header('Content-Type: application/json', true, 200);
+    Header("Content-Length: " . strlen($response));
+    echo $response;
+    die();
+  }
   else returnJsonMessage(200, "");
 }
 
@@ -59,10 +68,14 @@ function verifyBodyContent()
 
   $body = getRequestBody();
   if (!is_array($body)) {
-    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array");
+    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array '[]'");
     else returnJsonMessage(400, "");
   }
   foreach ($body as $item) {
+    if (!is_object($item)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body array elements must be JSON objects '{}'");
+      else returnJsonMessage(400, "");
+    }
     if (!isset($item->typeID)) {
       if ($RSallowDebug) returnJsonMessage(400, "Request body must contain field 'typeID'");
       else returnJsonMessage(400, "");
@@ -72,7 +85,7 @@ function verifyBodyContent()
       else returnJsonMessage(400, "");
     }
     if (!is_array($item->itemIDs)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemIDs' field must be an array");
+      if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemIDs' field must be an array '[]'");
       else returnJsonMessage(400, "");
     }
   }
