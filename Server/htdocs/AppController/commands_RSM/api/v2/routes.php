@@ -9,6 +9,7 @@ require_once "../../utilities/RSMitemsManagement.php";
 require_once "../api_headers.php";
 
 $RSallowUncompressed = true;
+//TODO - CHECK IF RS ALLOW DEBUG VARIBABLE CAN BE SET HERE
 
 //ITEMS
 get('/RSM-Core/items', '/items/getItems.php');

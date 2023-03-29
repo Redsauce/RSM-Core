@@ -25,11 +25,11 @@ function updateGivenItems()
 
   verifyBodyContent();
 
-  // definitions
+  // Definitions
   $requestBody = getRequestBody();
-  isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-  isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
-  isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
+  $clientID = getClientID();
+  $RStoken =  getRStoken();
+  $RSuserID =  getRSuserID();
 
   $response = "[";
   foreach ($requestBody as $item) {
@@ -42,7 +42,7 @@ function updateGivenItems()
     $itemID = $item->itemID;
 
     if ($typeIDID != 0) {
-      $response .= '{ "typeID": '.$typeIDID.', "itemID": '.$itemID.',';
+      $response .= '{ "typeID": ' . $typeIDID . ', "itemID": ' . $itemID . ',';
 
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "itemID") {
@@ -55,7 +55,7 @@ function updateGivenItems()
               //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
             } else {
               if (!mb_check_encoding($propertyValue, "UTF-8")) {
-                if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter:".$propertyValue." is not UTF-8 valid");
+                if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
                 else returnJsonMessage(400, "");
               }
               $parsedValue = replaceUtf8Characters($propertyValue);
@@ -63,31 +63,27 @@ function updateGivenItems()
             }
             // Result = 0 is a successful response
             if ($result != 0) {
-              $response .= '"'.$propertyID.'": "Not Updated ('.$result.')",';
+              $response .= '"' . $propertyID . '": "Not Updated (' . $result . ')",';
               continue;
-            }
-            else $response .= '"'.$propertyID.'": "Updated",';
-          }
-          else {
-            $response .= '"'.$propertyID.'": "Not Updated (No WRITE permissions or property not visible)",';
+            } else $response .= '"' . $propertyID . '": "Updated",';
+          } else {
+            $response .= '"' . $propertyID . '": "Not Updated (No WRITE permissions or property not visible)",';
           }
         }
       }
-      $response = rtrim($response,","). '},';
-
+      $response = rtrim($response, ",") . '},';
     } else {
-      $response .= '{ "itemID": '.$itemID.', "error": "Not Updated (Incongruent properties)"}';
+      $response .= '{ "itemID": ' . $itemID . ', "error": "Not Updated (Incongruent properties)"}';
     }
   }
-  $response = rtrim($response,","). ']';
+  $response = rtrim($response, ",") . ']';
 
-   if ($RSallowDebug and $response!="[]") {
+  if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
     Header("Content-Length: " . strlen($response));
     echo $response;
     die();
-  } 
-  else returnJsonMessage(200, "");
+  } else returnJsonMessage(200, "");
 }
 
 // Verify if body contents are the ones expected
@@ -116,10 +112,8 @@ function verifyBodyContent()
 
     //Check that itemID field is an integer
     if (!is_int($item->itemID)) {
-        if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemID' field must be an integer");
-        else returnJsonMessage(400, "");
+      if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemID' field must be an integer");
+      else returnJsonMessage(400, "");
     }
   }
-
-  
 }

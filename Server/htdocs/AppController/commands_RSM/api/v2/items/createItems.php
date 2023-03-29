@@ -22,11 +22,11 @@ function createGivenItems()
 
   verifyBodyContent();
 
-  // definitions
+  // Definitions
   $requestBody = getRequestBody();
-  isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-  isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
-  isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
+  $clientID = getClientID();
+  $RStoken =  getRStoken();
+  $RSuserID =  getRSuserID();
 
   $response = "[";
   foreach ($requestBody as $item) {
@@ -36,29 +36,28 @@ function createGivenItems()
       // Only prepare properties where user has CREATE permission
       if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
         $values[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
-        $response .= '"'.$propertyID.'": "Permissions OK", ';
-      } else $response .= '"'.$propertyID.'": "No CREATE permissions for this property", ';
+        $response .= '"' . $propertyID . '": "Permissions OK", ';
+      } else $response .= '"' . $propertyID . '": "No CREATE permissions for this property", ';
     }
 
     // Create item and verify the result creation
     $newItemID = 0;
     if (count($values) != 0) $newItemID = createItem($clientID, $values);
     if ($newItemID != 0) {
-      $response .= '"itemID": '.$newItemID.',';
+      $response .= '"itemID": ' . $newItemID;
     } else {
-      $response .= '"itemID": "Not Created",';
+      $response .= '"itemID": "Not Created"';
     }
-    $response = rtrim($response,","). '},';
+    $response .= '},';
   }
-  $response = rtrim($response,","). ']';
+  $response = rtrim($response, ",") . ']';
 
-  if ($RSallowDebug and $response!="[]") {
+  if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
     Header("Content-Length: " . strlen($response));
     echo $response;
     die();
-  }
-  else returnJsonMessage(200, "");
+  } else returnJsonMessage(200, "");
 }
 
 // Verify if body contents are the ones expected

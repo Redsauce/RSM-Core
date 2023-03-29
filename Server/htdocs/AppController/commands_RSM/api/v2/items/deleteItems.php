@@ -24,11 +24,12 @@ function deleteGivenItems()
 
   verifyBodyContent();
 
-  // definitions
+  // Definitions
   $requestBody = getRequestBody();
-  isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-  isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
-  isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
+  $clientID = getClientID();
+  $RStoken =  getRStoken();
+  $RSuserID =  getRSuserID();
+
 
   $response = "[";
   foreach ($requestBody as $itemType) {
@@ -37,28 +38,27 @@ function deleteGivenItems()
 
     // To delete an item, first we have to check that is has delete permissions for each of its properties  
     $propertiesList = getClientItemTypePropertiesId($typeID, $clientID);
-    
-    $response .= '{"typeID": '.$typeID.',';
+
+    $response .= '{"typeID": ' . $typeID . ',';
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
       if ($itemIDs != '') {
         deleteItems($typeID, $clientID, $itemIDs);
         //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
-        foreach ($itemType->itemIDs as $itemID) $response .= '"'.$itemID.'": "Deleted",';
+        foreach ($itemType->itemIDs as $itemID) $response .= '"' . $itemID . '": "Deleted",';
       }
     } else {
-        foreach ($itemType->itemIDs as $itemID) $response .= '"'.$itemID.'": "Not Deleted (No DELETE permissions or properties not visible)",';
+      foreach ($itemType->itemIDs as $itemID) $response .= '"' . $itemID . '": "Not Deleted (No DELETE permissions or properties not visible)",';
     }
-    $response = rtrim($response,","). '},';
+    $response = rtrim($response, ",") . '},';
   }
-  $response = rtrim($response,","). ']';
-  
-  if ($RSallowDebug and $response!="[]") {
+  $response = rtrim($response, ",") . ']';
+
+  if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
     Header("Content-Length: " . strlen($response));
     echo $response;
     die();
-  }
-  else returnJsonMessage(200, "");
+  } else returnJsonMessage(200, "");
 }
 
 // Verify if body contents are the ones expected 
