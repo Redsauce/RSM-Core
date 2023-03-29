@@ -5,45 +5,109 @@
 // REQUEST BODY (JSON OBJECT):
 //  EXAMPLE 1: 
 // {
-//     "itemIds": [571],
-//     "typeId": 8
+//     "itemIDs": [571],
+//     "typeID": 8
 // }
 //  EXAMPLE 2: 
 // {
-//     "itemIds": [571, 569],
-//     "propertiesIds": [58,59],
+//     "itemIDs": [571, 569],
+//     "propertiesIDs": [58,59],
 //     "orderBy": 58,
 // }
 //  EXAMPLE 3: 
 // {
-//     "propertiesIds": [59],
+//     "propertiesIDs": [59],
 //     "filtersRules": 
 //      [
 //          {
-//              “propertyId”: 58,
+//              “propertyID”: 58,
 //              “value”: “Sergio”,
 //              “operation”: “=”
 //          }.
 //          {
-//              “propertyId”: 59,
+//              “propertyID”: 59,
 //              “value”: “Santamaria”,
 //              “operation”: “<>”
 //          }
 //      ],
-//      "filterJoining": "AND"
+//      "filterJoining": "AND",
+//      "extFilterRules": { 
+//                     "propertyID": 43,
+//                      "value": "adsdad"
+//                       "condition": "algo"       
+//              }
 // }
 //***************************************************************************************
+// TODO check why routes are not relative
+require_once "../../utilities/RSMfiltersManagement.php";
+require_once "../../utilities/RSMlistsManagement.php";
 
 getGivenItems();
-function getGivenItems()
-{
-  global $RSallowDebug;
+function getGivenItems(){
+    global $RSallowDebug;
+    // verifyBodyContent();
+    $requestBody = getRequestBody();
+    // DEFINITIONS 
+    isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken = $GLOBALS['RS_POST']['RStoken'] : dieWithError(400);
+    isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
+    isset($GLOBALS['RSuserID']) ? $RSuserID = $GLOBALS['RSuserID'] : dieWithError(400);
 
-  verifyBodyContent();
+    isset($requestBody->propertyIDs) ? $propertyIDs = $requestBody->propertyIDs : $propertyIDs = "";
+    isset($requestBody->filterRules) ? $filterRules = $requestBody->filterRules : $filterRules = "";
+    isset($requestBody->extFilterRules) ? $extFilterRules = $requestBody->extFilterRules : $extFilterRules = "";
+    isset($requestBody->itemIDs) ? $itemIDs = $requestBody->itemIDs : $itemIDs = "";
+    isset($requestBody->typeID) ? $typeID = $requestBody->typeID : $typeID = "";
 
-  
+    $translateIDs = false;
+    if (isset($requestBody->$translateIDs)) $translateIDs = true;
+
+    $filterProperties  = array();
+    // If filter rules are sent, construct array with specific names for the items
+    if ($filterRules != '') {
+        foreach ($filterRules as $rule) {
+            $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
+        }
+    }
+    // if itemtype not given, obtain and verify 
+    if (empty($typeID)) $typeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+    if ($typeID <= 0) {
+        if ($RSallowDebug) returnJsonMessage(400, "Incorrect type id");
+        else returnJsonMessage(400, "");
+    }
+
+    // // Check if user has permissions to read properties of the item, if propertyIDs not providem, obtain them
+
+    if ($propertyIDs == '') {
+        $propertyIDs = getClientItemTypePropertiesId($typeID, $clientID);
+    }
+ //   print_r($propertyIDs);
+    // construct string with the itemIDs (if) passed 
+    if ($itemIDs != '') {
+$itemIDs = implode(",", $itemIDs);
+    }
+    // ñadir un bucle y quedarse solo con las que tienenpermisos 
+    
+    // Build array with the visible propertyIds with specific format (for the other functions)
+    $visiblePropertyIDs = array();
+    foreach ($propertyIDs as $singlePropertyID) {
+        if (RShasTokenPermission($RStoken, $singlePropertyID, "READ") || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
+            $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+        }
+    }
+
+    // // to use the original functions without changing the php's, we need to transform the following data into an specific format
+    $formattedExtFilterRules = "";
+    if($extFilterRules !='') {
+        foreach($extFilterRules as $singleRule) {
+            $formattedExtFilterRules  .=  $singleRule->propertyID . ";" . base64_encode($singleRule->value).";".$singleRule->operation.',';
+        }
+        $formattedExtFilterRules = substr_replace($formattedExtFilterRules ,"",-1);
+    }
+    print_r($formattedExtFilterRules);
+    $results = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $itemIDs, "AND", 0, true, $formattedExtFilterRules, true);
+   print_r($results);
+    //And write XML Response back to the application without compression// Return results
 }
-
 // Verify if body contents are the ones expected
 function verifyBodyContent()
 {
