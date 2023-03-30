@@ -7,6 +7,19 @@
 //	diverse utility functions
 //***************************************************//
 
+// Set the Authorization token readed on the header and puts it in the $GLOBALS variable 
+function setAuthorizationTokenOnGlobals()
+{
+  //We need this variable to exists in order to make RSdatabase work propertly.
+  $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"]; 
+  if (strpos($GLOBALS['RS_POST']['RStoken'], "Basic ") !== false)   {
+      $GLOBALS['RS_POST']['RStoken'] = str_replace("Basic ","",$GLOBALS['RS_POST']['RStoken']);
+      $GLOBALS['RS_POST']['RStoken'] =  base64_decode($GLOBALS['RS_POST']['RStoken']);
+      $GLOBALS['RS_POST']['RStoken'] = str_replace("Authorization:","",$GLOBALS['RS_POST']['RStoken']);
+      $GLOBALS['RS_POST']['RStoken'] = str_replace(";","",$GLOBALS['RS_POST']['RStoken']);
+  }
+}
+
 // Replace incorrect values related to UTF-8
 function replaceUtf8Characters($propertyValue)
 {
