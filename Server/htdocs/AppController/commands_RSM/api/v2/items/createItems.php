@@ -41,12 +41,12 @@ function createGivenItems()
     }
 
     // Create item and verify the result creation
-    $newItemID = 0;
-    if (count($values) != 0) $newItemID = createItem($clientID, $values);
-    if ($newItemID != 0) {
-      $response .= '"itemID": ' . $newItemID;
+    $newID = 0;
+    if (count($values) != 0) $newID = createItem($clientID, $values);
+    if ($newID != 0) {
+      $response .= '"ID": ' . $newID;
     } else {
-      $response .= '"itemID": "Not Created"';
+      $response .= '"ID": "Not Created"';
     }
     $response .= '},';
   }

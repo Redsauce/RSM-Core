@@ -12,7 +12,7 @@ $RSallowUncompressed = true;
 //ITEMS
 get('/RSM-Core/items', '/items/getItems.php');
 post('/RSM-Core/items', '/items/createItems.php');
-put('/RSM-Core/items', '/items/updateItems.php');
+patch('/RSM-Core/items', '/items/updateItems.php');
 delete('/RSM-Core/items', '/items/deleteItems.php');
 
 //NOT FOUND

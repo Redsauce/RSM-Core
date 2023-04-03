@@ -5,12 +5,12 @@
 // REQUEST BODY (JSON OBJECT):
 //  EXAMPLE 1: 
 // {
-//     "itemIDs": [571],
+//     "IDs": [571],
 //     "typeID": 8
 // }
 //  EXAMPLE 2: 
 // {
-//     "itemIDs": [571, 569],
+//     "IDs": [571, 569],
 //     "propertiesIDs": [58,59],
 //     "orderBy": 58,
 // }
@@ -56,7 +56,7 @@ function getGivenItems()
     $propertyIDs = $requestBody->propertyIDs;
     $filterRules = $requestBody->filterRules;
     $extFilterRules = $requestBody->extFilterRules;
-    $itemIDs = $requestBody->itemIDs;
+    $IDs = $requestBody->IDs;
     $typeID = $requestBody->typeID;
 
     //translateIDs
@@ -73,8 +73,8 @@ function getGivenItems()
     //propertyIDs
     if ($propertyIDs == '') $propertyIDs = getClientItemTypePropertiesId($typeID, $clientID);
 
-    //itemIDs
-    if ($itemIDs != '') $itemIDs = implode(",", $itemIDs);
+    //IDs
+    if ($IDs != '') $IDs = implode(",", $IDs);
 
     // Build an array with the filterRules
     $filterProperties  = array();
@@ -103,15 +103,13 @@ function getGivenItems()
     }
 
     //GET THE ITEMS
-    $itemsArray = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $itemIDs, "AND", 0, true, $formattedExtFilterRules, true);
+    $itemsArray = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
 
     //Parse itemsArray into a JSON.
     $response = "[";
     foreach ($itemsArray as $item) {
         $response .= "{";
         foreach ($item as $propertyKey => $propertyValue) {
-            //We replace the word "ID" for "itemID"
-            if ($propertyKey == "ID") $propertyKey = "itemID";
             $response .= '"' . $propertyKey . '": "' . $propertyValue . '",';
         }
         $response = rtrim($response, ",") . '},';
@@ -161,10 +159,10 @@ function verifyBodyContent()
         }
     }
 
-    //Check that itemIDs field is an array (just in case it exists)
-    if (isset($body->itemIDs)) {
-        if (!is_array($body->itemIDs)) {
-            if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemIDs' field must be an array");
+    //Check that IDs field is an array (just in case it exists)
+    if (isset($body->IDs)) {
+        if (!is_array($body->IDs)) {
+            if ($RSallowDebug) returnJsonMessage(400, "Request body 'IDs' field must be an array");
             else returnJsonMessage(400, "");
         }
     }

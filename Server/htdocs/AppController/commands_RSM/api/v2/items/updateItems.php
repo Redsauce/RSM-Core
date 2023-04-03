@@ -39,13 +39,13 @@ function updateGivenItems()
       if ($propertyID != "id") $propertiesID[] = ParsePID($propertyID, $clientID);
     }
     $typeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
-    $itemID = $item->itemID;
+    $ID = $item->ID;
 
     if ($typeIDID != 0) {
-      $response .= '{ "typeID": ' . $typeIDID . ', "itemID": ' . $itemID . ',';
+      $response .= '{ "typeID": ' . $typeIDID . ', "ID": ' . $ID . ',';
 
       foreach ($item as $propertyID => $propertyValue) {
-        if ($propertyID != "itemID") {
+        if ($propertyID != "ID") {
           $id = ParsePID($propertyID, $clientID);
 
           // Only update properties that user has WRITE permissions
@@ -59,7 +59,7 @@ function updateGivenItems()
                 else returnJsonMessage(400, "");
               }
               $parsedValue = replaceUtf8Characters($propertyValue);
-              $result = setPropertyValueByID($id, $typeIDID, $itemID, $clientID, $parsedValue, $propertyType);
+              $result = setPropertyValueByID($id, $typeIDID, $ID, $clientID, $parsedValue, $propertyType);
             }
             // Result = 0 is a successful response
             if ($result != 0) {
@@ -73,7 +73,7 @@ function updateGivenItems()
       }
       $response = rtrim($response, ",") . '},';
     } else {
-      $response .= '{ "itemID": ' . $itemID . ', "error": "Not Updated (Incongruent properties)"}';
+      $response .= '{ "ID": ' . $ID . ', "error": "Not Updated (Incongruent properties)"}';
     }
   }
   $response = rtrim($response, ",") . ']';
@@ -104,15 +104,15 @@ function verifyBodyContent()
       else returnJsonMessage(400, "");
     }
 
-    //Check field 'itemID' exists
-    if (!isset($item->itemID)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body items must contain field 'itemID'");
+    //Check field 'ID' exists
+    if (!isset($item->ID)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body items must contain field 'ID'");
       else returnJsonMessage(400, "");
     }
 
-    //Check that itemID field is an integer
-    if (!is_int($item->itemID)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemID' field must be an integer");
+    //Check that ID field is an integer
+    if (!is_int($item->ID)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body 'ID' field must be an integer");
       else returnJsonMessage(400, "");
     }
   }
