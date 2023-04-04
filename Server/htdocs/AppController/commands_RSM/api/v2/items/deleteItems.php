@@ -6,14 +6,14 @@
 //  REQUEST BODY (JSON):
 //  Array with object/s inside, each object must contain:
 //          typeID: ID of the itemType to delete
-//          itemIDs: Array with the ID/IDs of the item/s to delete     
+//          IDs: Array with the ID/IDs of the item/s to delete     
 //  EXAMPLE: 
 //   [{
 //			"typeID": 98,
-//			"itemIDs": [12, 55]
+//			"IDs": [12, 55]
 //		},{
 //			"typeID": 102,
-//			"itemIDs": [10]
+//			"IDs": [10]
 //		}]	
 //***************************************************************************************
 deleteGivenItems();
@@ -33,20 +33,20 @@ function deleteGivenItems()
   $response = "[";
   foreach ($requestBody as $itemType) {
     $typeID = ParseITID($itemType->typeID, $clientID);
-    $itemIDs = implode(',', $itemType->itemIDs);
+    $IDs = implode(',', $itemType->IDs);
 
     // To delete an item, first we have to check that is has delete permissions for each of its properties  
     $propertiesList = getClientItemTypePropertiesId($typeID, $clientID);
 
     $response .= '{"typeID": ' . $typeID . ',';
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
-      if ($itemIDs != '') {
-        deleteItems($typeID, $clientID, $itemIDs);
+      if ($IDs != '') {
+        deleteItems($typeID, $clientID, $IDs);
         //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
-        foreach ($itemType->itemIDs as $itemID) $response .= '"' . $itemID . '": "Deleted",';
+        foreach ($itemType->IDs as $ID) $response .= '"' . $ID . '": "Deleted",';
       }
     } else {
-      foreach ($itemType->itemIDs as $itemID) $response .= '"' . $itemID . '": "Not Deleted (No DELETE permissions or properties not visible)",';
+      foreach ($itemType->IDs as $ID) $response .= '"' . $ID . '": "Not Deleted (No DELETE permissions or properties not visible)",';
     }
     $response = rtrim($response, ",") . '},';
   }
@@ -79,12 +79,12 @@ function verifyBodyContent()
       if ($RSallowDebug) returnJsonMessage(400, "Request body must contain field 'typeID'");
       else returnJsonMessage(400, "");
     }
-    if (!isset($item->itemIDs)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body must contain field 'itemIDs'");
+    if (!isset($item->IDs)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body must contain field 'IDs'");
       else returnJsonMessage(400, "");
     }
-    if (!is_array($item->itemIDs)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemIDs' field must be an array '[]'");
+    if (!is_array($item->IDs)) {
+      if ($RSallowDebug) returnJsonMessage(400, "Request body 'IDs' field must be an array '[]'");
       else returnJsonMessage(400, "");
     }
   }
