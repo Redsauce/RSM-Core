@@ -184,6 +184,54 @@ function getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken) {
 
     return $results;
 }
+function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs) {
+    
+    // build in clause for propertyids
+    $formattedPropertyIDs = '(';
+    foreach($propertyIDs as $prop) {
+        $formattedPropertyIDs .= $prop['ID'].',';
+    }
+    $formattedPropertyIDs = rtrim($formattedPropertyIDs,',').')';
+    
+    $clientID = RSclientFromToken($RStoken);
+    
+    // build a fast query to get user properties
+    $theQuery_getProperties = 'SELECT DISTINCT rs_categories.RS_NAME AS "cName",
+                                         rs_categories.RS_ORDER,
+                                         rs_item_properties.RS_PROPERTY_ID AS "pID",
+                                         rs_item_properties.RS_ORDER
+        FROM rs_categories
+                INNER JOIN rs_item_properties USING (RS_CLIENT_ID, RS_CATEGORY_ID)
+                INNER JOIN rs_token_permissions USING (RS_CLIENT_ID, RS_PROPERTY_ID)
+                INNER JOIN rs_tokens USING (RS_CLIENT_ID)
+        WHERE rs_categories.RS_ITEMTYPE_ID                 =     ' . $itemTypeID . '
+                AND rs_categories.RS_CLIENT_ID                 =     ' . $clientID . '
+                AND rs_item_properties.RS_CLIENT_ID        =     ' . $clientID . '
+                AND rs_token_permissions.RS_CLIENT_ID    =     ' . $clientID . '
+                AND rs_tokens.RS_TOKEN                                 = \'' . $RStoken . '\'
+                AND rs_item_properties.RS_PROPERTY_ID IN ' . $formattedPropertyIDs . '
+
+        ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
+
+    // execute query
+    $theProperties = RSquery($theQuery_getProperties);
+    // get properties values
+    $results = array();
+
+    $categoryName = '';
+    if($theProperties) {
+        while ($row = $theProperties->fetch_assoc()) {
+            // Only return properties that user have READ permission
+            if (RShasTokenPermission($RStoken, $row['pID'], "READ")) {
+                if ($row['cName'] != $categoryName) {
+                    $categoryName = $row['cName'];
+                }
+               $results[] = array('Category' => $categoryName ,'propertyID' => $row['pID']);
+            }
+        }
+    }
+    return $results;
+}
 
 function getPropertyIDs($propIDs, $clientID) {
     // prepare query
