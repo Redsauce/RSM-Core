@@ -19,9 +19,8 @@
 // Option 1: POST
 //    userLogin:    string: user's login
 //    userPassword: string: user's password encrypted in MD5
-//....userBadge: string user's badge
 // Option 2: POST
-//....userBadge: string user's badge
+//....userLogin: string user's badge
 //***************************************************//
 //Output: RSRecordset XML
 //    id:
@@ -35,10 +34,55 @@
 require_once "RSdatabase.php";
 require_once "RStools.php";
 
+isset($GLOBALS['RS_POST']['Login']) ? $userLogin = $GLOBALS['RS_POST']['Login'] : dieWithError(400);
+$userPass = $GLOBALS['RS_POST']['Password'];
 
-if (isset($GLOBALS['RS_POST']['Badge'])) {
 
-    $userBadge = $GLOBALS['RS_POST']['Badge'];
+if (isset($GLOBALS['RS_POST']['Login']) && isset($GLOBALS['RS_POST']['Password']) && $userPass !== "") {
+    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "'.$userLogin.'" AND rs_users.RS_PASSWORD = "'.$userPass.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
+
+    // Query the database
+    $users = RSQuery($query);
+    
+    // Analyze results
+    if (!$users) {
+        // Error validating user
+        RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -1);
+        exit;
+    }
+    
+    
+    switch ($users->num_rows) {
+    
+        case 0:
+            // No valid user was found
+            RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -2);
+            break;
+    
+        case 1:
+            $row = $users->fetch_assoc();
+    
+            $results['id'        ] = $row['RS_USER_ID'    ];
+            $results['clientID'] = $row['RS_CLIENT_ID'];
+            $results['itemID'  ] = $row['RS_ITEM_ID'    ];
+    
+            // Write XML Response back to the application
+            RSReturnArrayResults($results);
+            break;
+    
+        default:
+            while ($row = $users->fetch_assoc()) {
+                $results[] = array("id"=>$row['RS_USER_ID'], "userID"=>$row['RS_USER_ID'], "clientID"=>$row['RS_CLIENT_ID'], "itemID"=>$row['RS_ITEM_ID'], "clientName"=>$row['RS_CLIENT_NAME'], "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
+            }
+    
+            // Write XML Response back to the application
+            RSReturnArrayQueryResults($results);
+            break;
+    }
+}
+
+if ((isset($GLOBALS['RS_POST']['Login']) && !isset($GLOBALS['RS_POST']['Password'])) || (isset($GLOBALS['RS_POST']['Login']) && $userPass == "")){
+    $userBadge = $GLOBALS['RS_POST']['Login'];
 
     $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_BADGE = "'.$userBadge.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
 
@@ -48,7 +92,7 @@ if (isset($GLOBALS['RS_POST']['Badge'])) {
     // Analyze results
     if (!$users) {
         // Error validating user
-        RSReturnError("ACCESS DENIED. INCORRECT USER BADGE.", -3);
+        RSReturnError("ACCESS DENIED. INCORRECT BADGE.", -1);
         exit;
     }
 
@@ -56,7 +100,7 @@ if (isset($GLOBALS['RS_POST']['Badge'])) {
     
         case 0:
             // No valid user was found
-            RSReturnError("ACCESS DENIED. INCORRECT USER BADGE.", -3);
+            RSReturnError("ACCESS DENIED. INCORRECT BADGE.", -2);
             break;
         case 1:
             $row = $users->fetch_assoc();
@@ -70,55 +114,12 @@ if (isset($GLOBALS['RS_POST']['Badge'])) {
             break;
         default:
             // Database error
-            RSReturnError("DATABASE ERROR. MORE THAN ONE USER WITH THE SAME BADGE.", -3);
+            RSReturnError("DATABASE ERROR. MORE THAN ONE USER WITH THE SAME BADGE.", -1);
             exit;
     }
-
 }
 
-
-isset($GLOBALS['RS_POST']['Login'   ]) ? $userLogin  = $GLOBALS['RS_POST']['Login'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['Password']) ? $userPass   = $GLOBALS['RS_POST']['Password'] : dieWithError(400);
-
-$query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "'.$userLogin.'" AND rs_users.RS_PASSWORD = "'.$userPass.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
-
-// Query the database
-$users = RSQuery($query);
-
-// Analyze results
-if (!$users) {
-    // Error validating user
-    RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -3);
-    exit;
-}
-
-
-switch ($users->num_rows) {
-
-    case 0:
-        // No valid user was found
-        RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -3);
-        break;
-
-    case 1:
-        $row = $users->fetch_assoc();
-
-        $results['id'        ] = $row['RS_USER_ID'    ];
-        $results['clientID'] = $row['RS_CLIENT_ID'];
-        $results['itemID'  ] = $row['RS_ITEM_ID'    ];
-
-        // Write XML Response back to the application
-        RSReturnArrayResults($results);
-        break;
-
-    default:
-        while ($row = $users->fetch_assoc()) {
-            $results[] = array("id"=>$row['RS_USER_ID'], "userID"=>$row['RS_USER_ID'], "clientID"=>$row['RS_CLIENT_ID'], "itemID"=>$row['RS_ITEM_ID'], "clientName"=>$row['RS_CLIENT_NAME'], "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
-        }
-
-        // Write XML Response back to the application
-        RSReturnArrayQueryResults($results);
-        break;
-}
+RSReturnError("ACCESS DENIED.", -1);
+exit;
 
 ?>
