@@ -43,8 +43,7 @@ require_once "../../utilities/RSMfiltersManagement.php";
 require_once "../../utilities/RSMlistsManagement.php";
 
 getGivenItems();
-function getGivenItems()
-{
+function getGivenItems() {
     // Definitions
     global $RSallowDebug;
     verifyBodyContent();
@@ -59,9 +58,13 @@ function getGivenItems()
     $IDs = $requestBody->IDs;
     $typeID = $requestBody->typeID;
 
+    //includeCategories filter
+    $includeCategories = false;
+    if (isset($requestBody->includeCategories) && $requestBody->includeCategories == true) $includeCategories = true;
+
     //translateIDs
     $translateIDs = false;
-    if (isset($requestBody->$translateIDs)) $translateIDs = true;
+    if (isset($requestBody->translateIDs)) $translateIDs = true;
 
     //typeID
     if ($typeID == '') $typeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
@@ -105,16 +108,46 @@ function getGivenItems()
     //GET THE ITEMS
     $itemsArray = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
 
-    //Parse itemsArray into a JSON.
-    $response = "[";
-    foreach ($itemsArray as $item) {
-        $response .= "{";
-        foreach ($item as $propertyKey => $propertyValue) {
-            $response .= '"' . $propertyKey . '": "' . $propertyValue . '",';
+    // To construct the response, we have to verify if the includecategories filter is true
+    if ($includeCategories) {
+        // obtain all the corresponding properties and its categories
+        $categorizedProperties = getPropertiesExtendedForToken($typeID, $RStoken, $visiblePropertyIDs);
+        $combinedArray = array();
+        $responseArray = array();
+        // parse all the different items of the original response
+        foreach ($itemsArray as $item) {
+            $combinedArray['ID'] = $item['ID'];
+            // loop through the categories and save its values
+            foreach ($categorizedProperties as $property) {
+                $category = $property['Category'];
+                $propertyID = $property['propertyID'];
+                // save the values in the new array, with its corresponding categories
+                if (isset($item[$propertyID])) {
+                    $combinedArray[$category][$propertyID] = $item[$propertyID];
+                } else {
+                    $combinedArray[$category][$propertyID] = '';
+                }
+            }
+            // construct the response array by pushing each one of the items
+            array_push($responseArray, $combinedArray);
         }
-        $response = rtrim($response, ",") . '},';
+        // convert to json
+        $response = json_encode($responseArray);
+    } else {
+        //  Parse itemsArray into a JSON.
+        $response = "[";
+        foreach ($itemsArray as $item) {
+            $response .= "{";
+            foreach ($item as $propertyKey => $propertyValue) {
+                //We replace the word "ID" for "itemID"
+                if ($propertyKey == "ID") $propertyKey = "ID";
+
+                $response .= '"' . $propertyKey . '": "' . $propertyValue . '",';
+            }
+            $response = rtrim($response, ",") . '},';
+        }
+        $response = rtrim($response, ",") . ']';
     }
-    $response = rtrim($response, ",") . ']';
 
     //Return response
     if ($response != "[]") {
