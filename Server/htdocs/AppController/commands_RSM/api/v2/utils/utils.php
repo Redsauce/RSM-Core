@@ -11,12 +11,12 @@
 function setAuthorizationTokenOnGlobals()
 {
   //We need this variable to exists in order to make RSdatabase work propertly.
-  $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"]; 
-  if (strpos($GLOBALS['RS_POST']['RStoken'], "Basic ") !== false)   {
-      $GLOBALS['RS_POST']['RStoken'] = str_replace("Basic ","",$GLOBALS['RS_POST']['RStoken']);
-      $GLOBALS['RS_POST']['RStoken'] =  base64_decode($GLOBALS['RS_POST']['RStoken']);
-      $GLOBALS['RS_POST']['RStoken'] = str_replace("Authorization:","",$GLOBALS['RS_POST']['RStoken']);
-      $GLOBALS['RS_POST']['RStoken'] = str_replace(";","",$GLOBALS['RS_POST']['RStoken']);
+  $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"];
+  if (strpos($GLOBALS['RS_POST']['RStoken'], "Basic ") !== false) {
+    $GLOBALS['RS_POST']['RStoken'] = str_replace("Basic ", "", $GLOBALS['RS_POST']['RStoken']);
+    $GLOBALS['RS_POST']['RStoken'] =  base64_decode($GLOBALS['RS_POST']['RStoken']);
+    $GLOBALS['RS_POST']['RStoken'] = str_replace("Authorization:", "", $GLOBALS['RS_POST']['RStoken']);
+    $GLOBALS['RS_POST']['RStoken'] = str_replace(";", "", $GLOBALS['RS_POST']['RStoken']);
   }
 }
 
@@ -76,4 +76,12 @@ function getRSuserID()
     if ($RSallowDebug) returnJsonMessage(400, "RSuserID could not be retrieved");
     else returnJsonMessage(400, "");
   }
+}
+// returns api response in json
+function returnJsonResponse($response)
+{
+    header('Content-Type: application/json', true, 200);
+    Header("Content-Length: " . strlen($response));
+    echo $response;
+    die();
 }
