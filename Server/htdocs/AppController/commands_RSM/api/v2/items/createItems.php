@@ -28,29 +28,36 @@ function createGivenItems()
   $RStoken =  getRStoken();
   $RSuserID =  getRSuserID();
 
-  $response = "[";
+  $responseArray = array();
+
   foreach ($requestBody as $item) {
     $values = array();
-    $response .= '{';
+    $propertiesCount = 0;
+    $correctProperties = array();
+
     foreach ($item as $propertyID => $propertyValue) {
+      // count how many properties were sent
+      ++$propertiesCount;
       // Only prepare properties where user has CREATE permission
       if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-        $values[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
-        $response .= '"' . $propertyID . '": "Permissions OK", ';
-      } else $response .= '"' . $propertyID . '": "No CREATE permissions for this property", ';
+        $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
+        $values[$propertyID] = 'Permissions OK';
+      } else {
+        $values[$propertyID] = 'No CREATE permissions for this property';
+      }
     }
 
-    // Create item and verify the result creation
     $newID = 0;
-    if (count($values) != 0) $newID = createItem($clientID, $values);
-    if ($newID != 0) {
-      $response .= '"ID": ' . $newID;
+    //verify that there are properties to create and also that all of them have permissions
+    if ((count($correctProperties) != 0) && ($propertiesCount == count($correctProperties))) {
+      $newID = createItem($clientID,  $correctProperties);
+      if ($newID != 0)  $values['ID'] = $newID;
     } else {
-      $response .= '"ID": "Not Created"';
+      $values['error'] = 'Not created (At least 1 property has no WRITE permissions or its not visible';
     }
-    $response .= '},';
+    array_push($responseArray, $values);
   }
-  $response = rtrim($response, ",") . ']';
+  $response = json_encode($responseArray);
 
   if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
