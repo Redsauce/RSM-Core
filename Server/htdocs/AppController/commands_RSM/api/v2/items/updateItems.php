@@ -31,53 +31,53 @@ function updateGivenItems()
   $RStoken =  getRStoken();
   $RSuserID =  getRSuserID();
 
-  $response = "[";
+  $responseArray = array();
   foreach ($requestBody as $item) {
+    $combinedArray = array();
     $propertiesID = array();
     //Iterate through every propertyID of the items to check if they are incongruent
     foreach ($item as $propertyID => $propertyValue) {
-      if ($propertyID != "id") $propertiesID[] = ParsePID($propertyID, $clientID);
+      if ($propertyID != "id" && $propertyID != "ID") $propertiesID[] = ParsePID($propertyID, $clientID);
     }
     $typeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
-    $ID = $item->ID;
+    $hasAllPermissions = checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID);
+    $itemID = $item->ID;
 
-    if ($typeIDID != 0) {
-      $response .= '{ "typeID": ' . $typeIDID . ', "ID": ' . $ID . ',';
-
+    if ($typeIDID == 0) {
+      $combinedArray['itemID'] = $itemID;
+      $combinedArray['error'] = "Not Updated (Incongruent properties)";
+    } else if (!$hasAllPermissions) {
+      $combinedArray['itemID'] = $itemID;
+      $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
+    } else {
+      $combinedArray['typeID'] = intval($typeIDID);
+      $combinedArray['itemID'] = $itemID;
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "ID") {
           $id = ParsePID($propertyID, $clientID);
-
-          // Only update properties that user has WRITE permissions
-          if (RShasTokenPermission($RStoken, $id, "WRITE") || isPropertyVisible($RSuserID, $id, $clientID)) {
-            $propertyType = getPropertyType($id, $clientID);
-            if (($propertyType == 'file') || ($propertyType == 'image')) {
-              //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
-            } else {
-              if (!mb_check_encoding($propertyValue, "UTF-8")) {
-                if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
-                else returnJsonMessage(400, "");
-              }
-              $parsedValue = replaceUtf8Characters($propertyValue);
-              $result = setPropertyValueByID($id, $typeIDID, $ID, $clientID, $parsedValue, $propertyType);
-            }
-            // Result = 0 is a successful response
-            if ($result != 0) {
-              $response .= '"' . $propertyID . '": "Not Updated (' . $result . ')",';
-              continue;
-            } else $response .= '"' . $propertyID . '": "Updated",';
+          $propertyType = getPropertyType($id, $clientID);
+          if (($propertyType == 'file') || ($propertyType == 'image')) {
+            //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
           } else {
-            $response .= '"' . $propertyID . '": "Not Updated (No WRITE permissions or property not visible)",';
+            if (!mb_check_encoding($propertyValue, "UTF-8")) {
+              if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
+              else returnJsonMessage(400, "");
+            }
+            $parsedValue = replaceUtf8Characters($propertyValue);
+            $result = setPropertyValueByID($id, $typeIDID, $itemID, $clientID, $parsedValue, $propertyType);
           }
+          // Result = 0 is a successful response
+          if ($result != 0) {
+            $combinedArray[$propertyID] = 'Not Updated (' . $result . ')';
+            continue;
+          } else $combinedArray[$propertyID] = 'Updated';
         }
       }
-      $response = rtrim($response, ",") . '},';
-    } else {
-      $response .= '{ "ID": ' . $ID . ', "error": "Not Updated (Incongruent properties)"}';
     }
+    array_push($responseArray, $combinedArray);
   }
-  $response = rtrim($response, ",") . ']';
 
+  $response = json_encode($responseArray);
   if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
     Header("Content-Length: " . strlen($response));
@@ -116,4 +116,15 @@ function verifyBodyContent()
       else returnJsonMessage(400, "");
     }
   }
+}
+
+function checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID)
+{
+  foreach ($propertiesID as $propertyID) {
+    if (RShasTokenPermission($RStoken, $propertyID, "WRITE") || isPropertyVisible($RSuserID, $propertyID, $clientID)) {
+      continue;
+    }
+    return false;
+  }
+  return true;
 }
