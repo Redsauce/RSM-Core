@@ -43,7 +43,8 @@ require_once "../../utilities/RSMfiltersManagement.php";
 require_once "../../utilities/RSMlistsManagement.php";
 
 getGivenItems();
-function getGivenItems() {
+function getGivenItems()
+{
     // Definitions
     global $RSallowDebug;
     verifyBodyContent();
@@ -107,15 +108,15 @@ function getGivenItems() {
 
     //GET THE ITEMS
     $itemsArray = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
+    $responseArray = array();
 
     // To construct the response, we have to verify if the includecategories filter is true
     if ($includeCategories) {
         // obtain all the corresponding properties and its categories
         $categorizedProperties = getPropertiesExtendedForToken($typeID, $RStoken, $visiblePropertyIDs);
-        $combinedArray = array();
-        $responseArray = array();
         // parse all the different items of the original response
         foreach ($itemsArray as $item) {
+            $combinedArray = array();
             $combinedArray['ID'] = $item['ID'];
             // loop through the categories and save its values
             foreach ($categorizedProperties as $property) {
@@ -135,20 +136,15 @@ function getGivenItems() {
         $response = json_encode($responseArray);
     } else {
         //  Parse itemsArray into a JSON.
-        $response = "[";
         foreach ($itemsArray as $item) {
-            $response .= "{";
+            $combinedArray = array();
             foreach ($item as $propertyKey => $propertyValue) {
-                //We replace the word "ID" for "itemID"
-                if ($propertyKey == "ID") $propertyKey = "ID";
-
-                $response .= '"' . $propertyKey . '": "' . $propertyValue . '",';
+                $combinedArray[$propertyKey] = $propertyValue;
             }
-            $response = rtrim($response, ",") . '},';
+            array_push($responseArray, $combinedArray);
         }
-        $response = rtrim($response, ",") . ']';
+        $response = json_encode($responseArray);
     }
-
     //Return response
     if ($response != "[]") {
         header('Content-Type: application/json', true, 200);
