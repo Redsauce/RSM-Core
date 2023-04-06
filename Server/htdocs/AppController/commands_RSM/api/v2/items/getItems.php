@@ -145,12 +145,8 @@ function getGivenItems()
         }
         $response = json_encode($responseArray);
     }
-    //Return response
     if ($response != "[]") {
-        header('Content-Type: application/json', true, 200);
-        Header("Content-Length: " . strlen($response));
-        echo $response;
-        die();
+        returnJsonResponse($response);
     } else returnJsonMessage(404, "No items were found");
 }
 
