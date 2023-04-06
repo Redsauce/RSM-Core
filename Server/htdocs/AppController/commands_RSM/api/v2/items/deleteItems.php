@@ -29,28 +29,31 @@ function deleteGivenItems()
   $RStoken =  getRStoken();
   $RSuserID =  getRSuserID();
 
+  $responseArray = array();
 
-  $response = "[";
   foreach ($requestBody as $itemType) {
+    $combinedArray = array();
     $typeID = ParseITID($itemType->typeID, $clientID);
     $IDs = implode(',', $itemType->IDs);
 
     // To delete an item, first we have to check that is has delete permissions for each of its properties  
     $propertiesList = getClientItemTypePropertiesId($typeID, $clientID);
 
-    $response .= '{"typeID": ' . $typeID . ',';
+    $combinedArray["typeID"] = $typeID;
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
       if ($IDs != '') {
         deleteItems($typeID, $clientID, $IDs);
         //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
-        foreach ($itemType->IDs as $ID) $response .= '"' . $ID . '": "Deleted",';
+        foreach ($itemType->IDs as $ID)  $combinedArray[$ID] = "Deleted";
       }
     } else {
-      foreach ($itemType->IDs as $ID) $response .= '"' . $ID . '": "Not Deleted (No DELETE permissions or properties not visible)",';
+      foreach ($itemType->IDs as $ID) {
+        $combinedArray[$ID] = "Not Deleted (No DELETE permissions or properties not visible)";
+      }
     }
-    $response = rtrim($response, ",") . '},';
+    array_push($responseArray, $combinedArray);
   }
-  $response = rtrim($response, ",") . ']';
+  $response = json_encode($responseArray);
 
   if ($RSallowDebug and $response != "[]") {
     header('Content-Type: application/json', true, 200);
