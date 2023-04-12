@@ -16,6 +16,7 @@
 //			"IDs": [10]
 //		}]	
 //***************************************************************************************
+
 deleteGivenItems();
 function deleteGivenItems()
 {
@@ -44,11 +45,11 @@ function deleteGivenItems()
       if ($IDs != '') {
         deleteItems($typeID, $clientID, $IDs);
         //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
-        foreach ($itemType->IDs as $ID)  $combinedArray[$ID] = "Deleted";
+        foreach ($itemType->IDs as $ID)  $combinedArray[$ID] = "OK";
       }
     } else {
       foreach ($itemType->IDs as $ID) {
-        $combinedArray[$ID] = "Not Deleted (No DELETE permissions or properties not visible)";
+        $combinedArray[$ID] = "NOK";
       }
     }
     array_push($responseArray, $combinedArray);
