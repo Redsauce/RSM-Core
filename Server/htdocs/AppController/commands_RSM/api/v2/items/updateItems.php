@@ -50,7 +50,7 @@ function updateGivenItems()
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
     } else {
-      $combinedArray['typeID'] = intval($itemTypeIDID);
+      $combinedArray['itemTypeID'] = intval($itemTypeIDID);
       $combinedArray['ID'] = $itemID;
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "ID") {
