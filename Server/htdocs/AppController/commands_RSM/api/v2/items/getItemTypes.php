@@ -1,5 +1,7 @@
 <?php
 
+use function PHPUnit\Framework\isEmpty;
+
 getGivenItemTypes();
 
 function getGivenItemTypes()
@@ -10,10 +12,10 @@ function getGivenItemTypes()
   $RStoken = getRStoken();
   $RSuserID = getRSuserID();
 
-  if (!isset($_GET['itemTypeID']) && empty($_GET['itemTypeID'])) {
+  if (!isset($_GET['ID']) && empty($_GET['ID'])) {
     $itemTypeIDs = array_column(getClientItemTypes($clientID, '', false), "ID");
   } else {
-    $itemTypeIDs = explode(',', $_GET['itemTypeID']);
+    $itemTypeIDs = explode(',', $_GET['ID']);
   }
   $responseArray = array();
 
@@ -22,7 +24,7 @@ function getGivenItemTypes()
     $itemTypeIDName = getClientItemTypeName($itemTypeID, $clientID);
     if ($itemTypeIDName != "") {
       $combinedArray['itemTypeID'] = $itemTypeID;
-      $combinedArray['itemID'] = $itemTypeIDName;
+      $combinedArray['name'] = $itemTypeIDName;
       $properties = getClientItemTypeProperties($itemTypeID, $clientID);
       $propertiesArray = array();
       foreach ($properties as $property) {
@@ -32,11 +34,13 @@ function getGivenItemTypes()
         }
       }
       if (!empty($propertiesArray)) $combinedArray['properties'] = $propertiesArray;
+      array_push($responseArray, $combinedArray);
     }
-    array_push($responseArray, $combinedArray);
   }
   $response = json_encode($responseArray);
   if ($RSallowDebug and $response != "[]") {
     returnJsonResponse($response);
+  } else if ($RSallowDebug and $response == "[]") {
+    returnJsonMessage(404, "No ItemTypeIDs were found.");
   } else returnJsonMessage(200, "");
 }
