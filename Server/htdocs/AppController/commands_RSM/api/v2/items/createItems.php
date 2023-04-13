@@ -53,7 +53,7 @@ function createGivenItems()
       $newID = createItem($clientID,  $correctProperties);
       if ($newID != 0)  $values['ID'] = $newID;
     } else {
-      $values['error'] = 'Not created (At least 1 property has no WRITE permissions or its not visible';
+      $values['error'] = 'Not created (At least 1 property has no WRITE permissions or its not visible)';
     }
     array_push($responseArray, $values);
   }
@@ -67,17 +67,22 @@ function createGivenItems()
 // Verify if body contents are the ones expected
 function verifyBodyContent()
 {
-  global $RSallowDebug;
-
   $body = getRequestBody();
+  list($code, $message) = verifyBodyContent2($body);
+  if ($code == 400) returnJsonMessage($code, $message);
+}
+
+function verifyBodyContent2($body)
+{
+  global $RSallowDebug;
   if (!is_array($body)) {
-    if ($RSallowDebug) returnJsonMessage(400, "Request body must be an array '[]'");
-    else returnJsonMessage(400, "");
+    if ($RSallowDebug) return array(400, "Request body must be an array '[]'");
+    else return array(400, "");
   }
   foreach ($body as $item) {
     if (!is_object($item)) {
-      if ($RSallowDebug) returnJsonMessage(400, "Request body array elements must be JSON objects '{}'");
-      else returnJsonMessage(400, "");
+      if ($RSallowDebug) return array(400, "Request body array elements must be JSON objects '{}'");
+      else return array(400, "");
     }
   }
 }
