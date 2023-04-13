@@ -44,14 +44,14 @@ function updateGivenItems()
     $itemID = $item->ID;
 
     if ($typeIDID == 0) {
-      $combinedArray['itemID'] = $itemID;
+      $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (Incongruent properties)";
     } else if (!$hasAllPermissions) {
-      $combinedArray['itemID'] = $itemID;
+      $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
     } else {
       $combinedArray['typeID'] = intval($typeIDID);
-      $combinedArray['itemID'] = $itemID;
+      $combinedArray['ID'] = $itemID;
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "ID") {
           $id = ParsePID($propertyID, $clientID);
