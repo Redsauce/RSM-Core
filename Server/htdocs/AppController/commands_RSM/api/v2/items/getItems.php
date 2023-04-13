@@ -6,13 +6,12 @@
 //  EXAMPLE 1: 
 // {
 //     "IDs": [571],
-//     "typeID": 8
+//     "itemTypeID": 8
 // }
 //  EXAMPLE 2: 
 // {
 //     "IDs": [571, 569],
-//     "propertiesIDs": [58,59],
-//     "orderBy": 58,
+//     "propertiesIDs": [58,59]
 // }
 //  EXAMPLE 3: 
 // {
@@ -20,22 +19,16 @@
 //     "filtersRules": 
 //      [
 //          {
-//              “propertyID”: 58,
-//              “value”: “Sergio”,
-//              “operation”: “=”
+//              "propertyID": 58,
+//              "value": "Sergio",
+//              "operation": "="
 //          }.
 //          {
-//              “propertyID”: 59,
-//              “value”: “Santamaria”,
-//              “operation”: “<>”
+//              "propertyID": 59,
+//              "value": "Santamaria",
+//              "operation": "<>"
 //          }
-//      ],
-//      "filterJoining": "AND",
-//      "extFilterRules": { 
-//                     "propertyID": 43,
-//                      "value": "adsdad"
-//                       "condition": "algo"       
-//              }
+//      ]
 // }
 //***************************************************************************************
 // TODO check why routes are not relative
@@ -57,7 +50,7 @@ function getGivenItems()
     $filterRules = $requestBody->filterRules;
     $extFilterRules = $requestBody->extFilterRules;
     $IDs = $requestBody->IDs;
-    $typeID = $requestBody->typeID;
+    $itemTypeID = $requestBody->itemTypeID;
 
     //includeCategories filter
     $includeCategories = false;
@@ -67,15 +60,15 @@ function getGivenItems()
     $translateIDs = false;
     if (isset($requestBody->translateIDs)) $translateIDs = true;
 
-    //typeID
-    if ($typeID == '') $typeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
-    if ($typeID <= 0) {
-        if ($RSallowDebug) returnJsonMessage(400, "Invalid typeID: " . $typeID);
+    //itemTypeID
+    if ($itemTypeID == '') $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+    if ($itemTypeID <= 0) {
+        if ($RSallowDebug) returnJsonMessage(400, "Invalid itemTypeID: " . $itemTypeID);
         else returnJsonMessage(400, "");
     }
 
     //propertyIDs
-    if ($propertyIDs == '') $propertyIDs = getClientItemTypePropertiesId($typeID, $clientID);
+    if ($propertyIDs == '') $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
     //IDs
     if ($IDs != '') $IDs = implode(",", $IDs);
@@ -107,13 +100,13 @@ function getGivenItems()
     }
 
     //GET THE ITEMS
-    $itemsArray = getFilteredItemsIDs($typeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
+    $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, "", $translateIDs, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
     $responseArray = array();
 
     // To construct the response, we have to verify if the includecategories filter is true
     if ($includeCategories) {
         // obtain all the corresponding properties and its categories
-        $categorizedProperties = getPropertiesExtendedForToken($typeID, $RStoken, $visiblePropertyIDs);
+        $categorizedProperties = getPropertiesExtendedForToken($itemTypeID, $RStoken, $visiblePropertyIDs);
         // parse all the different items of the original response
         foreach ($itemsArray as $item) {
             $combinedArray = array();
@@ -162,16 +155,16 @@ function verifyBodyContent()
         else returnJsonMessage(400, "");
     }
 
-    //Check that body contains at least "typeID" or "propertyIDs"
-    if (!isset($body->typeID) and !isset($body->propertyIDs)) {
-        if ($RSallowDebug) returnJsonMessage(400, "Request body must contain at least field 'typeID' or field 'propertyIDs'");
+    //Check that body contains at least "itemTypeID" or "propertyIDs"
+    if (!isset($body->itemTypeID) and !isset($body->propertyIDs)) {
+        if ($RSallowDebug) returnJsonMessage(400, "Request body must contain at least field 'itemTypeID' or field 'propertyIDs'");
         else returnJsonMessage(400, "");
     }
 
-    //Check that typeID field is an integer (just in case it exists)
-    if (isset($body->typeID)) {
-        if (!is_int($body->typeID)) {
-            if ($RSallowDebug) returnJsonMessage(400, "Request body 'typeID' field must be an integer");
+    //Check that itemTypeID field is an integer (just in case it exists)
+    if (isset($body->itemTypeID)) {
+        if (!is_int($body->itemTypeID)) {
+            if ($RSallowDebug) returnJsonMessage(400, "Request body 'itemTypeID' field must be an integer");
             else returnJsonMessage(400, "");
         }
     }

@@ -1,7 +1,7 @@
 <?php
 // ****************************************************************************************
 //Description:
-//  Edits one or more items of the specified typeID with the associated values
+//  Edits one or more items of the specified itemTypeID with the associated values
 //
 //  REQUEST BODY (JSON)
 // Array with object/s inside, each object must contain
@@ -10,9 +10,9 @@
 //  EXAMPLE: 
 //      [{
 //          "109": "Roja"
-//          "id": "0008"
+//          "ID": "0008"
 //        },{
-//          "id":  "4001"
+//          "ID":  "4001"
 //          "319": "Peter
 //          "320": "Parker"
 //        }]
@@ -39,18 +39,18 @@ function updateGivenItems()
     foreach ($item as $propertyID => $propertyValue) {
       if ($propertyID != "id" && $propertyID != "ID") $propertiesID[] = ParsePID($propertyID, $clientID);
     }
-    $typeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
+    $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
     $hasAllPermissions = checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID);
     $itemID = $item->ID;
 
-    if ($typeIDID == 0) {
+    if ($itemTypeIDID == 0) {
       $combinedArray['itemID'] = $itemID;
       $combinedArray['error'] = "Not Updated (Incongruent properties)";
     } else if (!$hasAllPermissions) {
       $combinedArray['itemID'] = $itemID;
       $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
     } else {
-      $combinedArray['typeID'] = intval($typeIDID);
+      $combinedArray['itemTypeID'] = intval($itemTypeIDID);
       $combinedArray['itemID'] = $itemID;
       foreach ($item as $propertyID => $propertyValue) {
         if ($propertyID != "ID") {
@@ -64,7 +64,7 @@ function updateGivenItems()
               else returnJsonMessage(400, "");
             }
             $parsedValue = replaceUtf8Characters($propertyValue);
-            $result = setPropertyValueByID($id, $typeIDID, $itemID, $clientID, $parsedValue, $propertyType);
+            $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, $parsedValue, $propertyType);
           }
           // Result = 0 is a successful response
           if ($result != 0) {
