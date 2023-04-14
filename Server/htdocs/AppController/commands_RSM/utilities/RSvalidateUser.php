@@ -17,109 +17,61 @@
 //***************************************************//
 //Input:
 // Option 1: POST
-//    userLogin:    string: user's login
-//    userPassword: string: user's password encrypted in MD5
+//    Login:    string: user's login
+//    Password: string: user's password encrypted in MD5
 // Option 2: POST
-//....userLogin: string user's badge
+//    Login   : string user's badge
 //***************************************************//
 //Output: RSRecordset XML
 //    id:
-//      positive: access granted: user identificator in phpCollab (unique)
-//            -1: access denied: wrong user and/or password
-//  lastAllowedBuild: If included, indicates the build of the new version
-//  lastAllowedLink: If included, indicates the link to the download page
+//      positive     : access granted: user identificator in phpCollab (unique)
+//      [code number]: access denied : wrong user and/or password
 //***************************************************//
 
 // Database connection startup
 require_once "RSdatabase.php";
 require_once "RStools.php";
 
-isset($GLOBALS['RS_POST']['Login']) ? $userLogin = $GLOBALS['RS_POST']['Login'] : dieWithError(400);
-$userPass = $GLOBALS['RS_POST']['Password'];
+// The "login" is required
+isset($GLOBALS['RS_POST']['Login'   ]) ? $login    = $GLOBALS['RS_POST']['Login'   ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['Password']) ? $password = $GLOBALS['RS_POST']['Password'] : $password = "";
 
+if ($password == "") {
+    // Verification with a badge
+    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_BADGE = "'.$login.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
 
-if (isset($GLOBALS['RS_POST']['Login']) && isset($GLOBALS['RS_POST']['Password']) && $userPass !== "") {
-    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "'.$userLogin.'" AND rs_users.RS_PASSWORD = "'.$userPass.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
+} else {
+    // Verification with a username and password.
+    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "'.$login.'" AND rs_users.RS_PASSWORD = "'.$password.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
 
-    // Query the database
-    $users = RSQuery($query);
-    
-    // Analyze results
-    if (!$users) {
-        // Error validating user
-        RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -1);
-        exit;
-    }
-    
-    
-    switch ($users->num_rows) {
-    
-        case 0:
-            // No valid user was found
-            RSReturnError("ACCESS DENIED. INCORRECT USER OR PASSWORD.", -2);
-            break;
-    
-        case 1:
-            $row = $users->fetch_assoc();
-    
-            $results['id'        ] = $row['RS_USER_ID'    ];
-            $results['clientID'] = $row['RS_CLIENT_ID'];
-            $results['itemID'  ] = $row['RS_ITEM_ID'    ];
-    
-            // Write XML Response back to the application
-            RSReturnArrayResults($results);
-            break;
-    
-        default:
-            while ($row = $users->fetch_assoc()) {
-                $results[] = array("id"=>$row['RS_USER_ID'], "userID"=>$row['RS_USER_ID'], "clientID"=>$row['RS_CLIENT_ID'], "itemID"=>$row['RS_ITEM_ID'], "clientName"=>$row['RS_CLIENT_NAME'], "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
-            }
-    
-            // Write XML Response back to the application
-            RSReturnArrayQueryResults($results);
-            break;
-    }
 }
 
-if ((isset($GLOBALS['RS_POST']['Login']) && !isset($GLOBALS['RS_POST']['Password'])) || (isset($GLOBALS['RS_POST']['Login']) && $userPass == "")){
-    $userBadge = $GLOBALS['RS_POST']['Login'];
+// Query the database
+$users = RSQuery($query);
 
-    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_BADGE = "'.$userBadge.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
-
-    // Query the database
-    $users = RSQuery($query);
-
-    // Analyze results
-    if (!$users) {
-        // Error validating user
-        RSReturnError("ACCESS DENIED. INCORRECT BADGE.", -1);
-        exit;
-    }
-
-    switch ($users->num_rows) {
-    
-        case 0:
-            // No valid user was found
-            RSReturnError("ACCESS DENIED. INCORRECT BADGE.", -2);
-            break;
-        case 1:
-            $row = $users->fetch_assoc();
-    
-            $results['id'        ] = $row['RS_USER_ID'    ];
-            $results['clientID'] = $row['RS_CLIENT_ID'];
-            $results['itemID'  ] = $row['RS_ITEM_ID'    ];
-    
-            // Write XML Response back to the application
-            RSReturnArrayResults($results);
-            break;
-        default:
-            // Database error
-            RSReturnError("DATABASE ERROR. MORE THAN ONE USER WITH THE SAME BADGE.", -1);
-            exit;
-    }
+// Analyze results
+if (!$users) {
+    RSReturnError("QUERY EXECUTION ERROR.", 1);
+    exit;
 }
 
-RSReturnError("ACCESS DENIED.", -1);
-exit;
+switch ($users->num_rows) {
+    case 0:
+        
+        if ($password == "") {
+            RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
+        } else {
+            RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
+        }
+
+    default:
+
+        while ($row = $users->fetch_assoc()) {
+            $results[] = array("id"=>$row['RS_USER_ID'], "userID"=>$row['RS_USER_ID'], "clientID"=>$row['RS_CLIENT_ID'], "itemID"=>$row['RS_ITEM_ID'], "clientName"=>$row['RS_CLIENT_NAME'], "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
+        }
+
+        // Write XML Response back to the application
+        RSReturnArrayQueryResults($results);
+    }
 
 ?>

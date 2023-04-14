@@ -16,7 +16,7 @@ function checkTriggeredEvents($clientID) {
     // This token must be defined in the global variables in order for the triggers to be enabled
     if ($eventsHandlerToken == "") {
         $RSMsplitTriggers = false;
-	return;
+	    return;
     }
 
     // Check if there are events associated to the items creation
@@ -40,7 +40,7 @@ function checkTriggeredEvents($clientID) {
                     array_push($affectedItemID, $oneCreatedItemID);
                     queueActions($affectedItemID, $triggerIDs, "itemsCreated", $eventsHandlerToken);
                 }
-            }else{
+            } else {
                 queueActions($RSMcreatedItemIDs, $triggerIDs, "itemsCreated", $eventsHandlerToken);
             }
 
@@ -49,7 +49,7 @@ function checkTriggeredEvents($clientID) {
     }
 
     // Check if there are events associated to the items update
-    if (count($RSMupdatedItemIDs) > 0 ) {
+    if (count($RSMupdatedItemIDs) > 0) {
         $updatedItemTypeIDs = array();
 
         foreach ($RSMupdatedItemIDs as $group) {
@@ -116,8 +116,8 @@ function getTriggerIDs($ITIDs, $clientID, $mode) {
        "TriggerITID: ".$TriggerITID.chr(13).
        "TriggerTypePID: ".$TriggerTypePID.chr(13).
        "TriggerItemTypesPID: ".$TriggerItemTypesPID, "Trigger");
-    }
-    else {
+    
+    } else {
          // Build filter properties array
         $filterProperties   = array();
         $filterProperties[] = array('ID' => $TriggerTypePID,      'value' => $TriggerTypePV, 'mode' => "=" );
@@ -143,8 +143,8 @@ function getActionIDsByItemTypeIDs($ITIDs, $clientID, $mode) {
     return getActionIDsFromTriggerIDs($triggerIDs, $clientID);
 }
 
+// This function returns an array with the IDs of the actions, that should be executed by this URL trigger
 function getActionsByURLTriggerName($trigger, $clientID) {
-    // This function returns an array with the IDs of the actions, that should be executed by this URL trigger
 
     // Recover typeID and propertiesID from triggers
     $propertyURL                  = getValue(getClientListValueID_RelatedWith(getAppListValueID('triggerTypeUrl') , $clientID), $clientID);
@@ -186,15 +186,15 @@ function getActionIDsFromTriggerIDs($triggerIDs, $clientID) {
 }
 
 function getActionsFromTriggerIDs($triggerIDs, $clientID) {
-    $clientEventTriggerPropertyID = getClientPropertyID_RelatedWith_byName('eventTrigger.eventID', $clientID);
-    $clientEventTriggerPropertyPriority = getClientPropertyID_RelatedWith_byName('eventTrigger.priority', $clientID);
+    $clientEventTriggerPropertyID               = getClientPropertyID_RelatedWith_byName('eventTrigger.eventID'         , $clientID);
+    $clientEventTriggerPropertyPriority         = getClientPropertyID_RelatedWith_byName('eventTrigger.priority'        , $clientID);
     $clientEventTriggerPropertyAvoidDuplication = getClientPropertyID_RelatedWith_byName('eventTrigger.avoidDuplication', $clientID);
-    $actionIDs = array();
+    $actionIDs             = array();
     $actionIDsWithPriority = array();
 
     foreach ($triggerIDs as $triggerID) {
-        $actions = explode(",", getItemPropertyValue($triggerID, $clientEventTriggerPropertyID, $clientID));
-        $priority = $clientEventTriggerPropertyPriority==0?0:getItemPropertyValue($triggerID, $clientEventTriggerPropertyPriority, $clientID);
+        $actions          = explode(",", getItemPropertyValue($triggerID, $clientEventTriggerPropertyID, $clientID));
+        $priority         = $clientEventTriggerPropertyPriority==0?0:getItemPropertyValue($triggerID, $clientEventTriggerPropertyPriority, $clientID);
         $avoidDuplication = $clientEventTriggerPropertyAvoidDuplication==0?"No":getItemPropertyValue($triggerID, $clientEventTriggerPropertyAvoidDuplication, $clientID);
 
         foreach ($actions as $action) {
@@ -215,7 +215,7 @@ function getActionsFromTriggerIDs($triggerIDs, $clientID) {
 function getActionScript($actionID, $clientID) {
     // This function returns an array with the action scripts corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID      = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID      = getClientItemTypeID_RelatedWith_byName('event'        , $clientID);
     $propertyScriptID = getClientPropertyID_RelatedWith_byName('event.actions', $clientID);
 
     // Filter includes
@@ -225,7 +225,7 @@ function getActionScript($actionID, $clientID) {
 function getActionToken($actionID, $clientID) {
     // This function returns an array with the token corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID     = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID     = getClientItemTypeID_RelatedWith_byName('event'      , $clientID);
     $propertyTokenID = getClientPropertyID_RelatedWith_byName('event.token', $clientID);
 
     // Filter includes
@@ -235,7 +235,7 @@ function getActionToken($actionID, $clientID) {
 function getActionName($actionID, $clientID) {
     // This function returns a string with the action name corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID    = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID    = getClientItemTypeID_RelatedWith_byName('event'     , $clientID);
     $propertyNameID = getClientPropertyID_RelatedWith_byName('event.name', $clientID);
 
     // Filter includes
@@ -298,6 +298,7 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         ($executionEndPID == 0) ||
         ($parametersPID   == 0) ||
         ($priorityPID     == 0)) {
+      
       // One of the properties is not related
       return false;
     }
@@ -308,11 +309,13 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     $pValues[] = array('ID' => $parametersPID  , 'value' => $data);
     $pValues[] = array('ID' => $priorityPID    , 'value' => $priority);
 
-        if($personID != 0 ){
+    if (isset($personID)) {
+
       if ($userPID == 0) {
         // One of the properties is not related
         return false;
       }
+
       $pValues[] = array('ID' => $userPID  , 'value' => $personID);
     }
 
