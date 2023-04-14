@@ -1,6 +1,15 @@
 <?php
-
-use function PHPUnit\Framework\isEmpty;
+//***************************************************************************************
+// Description:
+//    Get one, multiple or all item types and its associated propertyIDS + NAME 
+// REQUEST BODY (JSON OBJECT):
+//  EXAMPLE 1: 
+//    -Use the endpoint without any param or body to obtain all of them
+//
+//  EXAMPLE 2
+//    - Add a query param with the specific itemtypeIDs
+//            ?ID=6,7,8
+//***************************************************************************************
 
 getGivenItemTypes();
 
