@@ -85,3 +85,13 @@ function returnJsonResponse($response)
     echo $response;
     die();
 }
+// returns the request params sent (through get)
+function getRequestParams() {
+  $search = array("'", "\"");
+  $replace = array("", "");
+
+  foreach ($_GET as $key => $value) {
+      $params[$key] = str_replace($search, $replace, $value);
+  }
+  return $params;
+}
