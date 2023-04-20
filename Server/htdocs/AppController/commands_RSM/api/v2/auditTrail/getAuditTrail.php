@@ -27,8 +27,8 @@ function getItemAuditTrail()
     $ID = $requestBody->ID;
 
     if ((!RShasREADTokenPermission(getRStoken(), $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-        if ($RSallowDebug) returnJsonMessage(401, "Token has no permissions to audit this item");
-        else returnJsonMessage(401, "");
+        if ($RSallowDebug) returnJsonMessage(403, "Token has no permissions to audit this item");
+        else returnJsonMessage(403, "");
     }
 
     // Process response
@@ -46,7 +46,6 @@ function getItemAuditTrail()
     foreach ($results as $item) {
         $change = array(
             "userName" => $item["userName"],
-            "clientID" => $item["clientID"],
             "description" => $item["description"] ?? "",
             "changedDate" => $item["changedDate"],
             "initialValue" => $item["initialValue"],
@@ -56,8 +55,10 @@ function getItemAuditTrail()
     }
 
     // verify if there are no changes
-    if (empty($responseArray['changes'])) returnJsonMessage(200, "Requested item does not have an Audit trail registered");
-
+    if (empty($responseArray['changes'])) {
+        if ($RSallowDebug) returnJsonMessage(200, "Requested item does not have an Audit trail registered");
+        else returnJsonMessage(200, "");
+    } 
     // enconde response as json and return
     $response = json_encode($responseArray);
     returnJsonResponse($response);
@@ -74,7 +75,7 @@ function verifyBodyContent(){
     }
     //Check that body contains ID and propertyID"
     if (!(isset($body->ID) and isset($body->propertyID))) {
-        if ($RSallowDebug) returnJsonMessage(400, "Request body must contain ID and propertyID'");
+        if ($RSallowDebug) returnJsonMessage(400, "Request body must contain ID and propertyID");
         else returnJsonMessage(400, "");
     }
 }
