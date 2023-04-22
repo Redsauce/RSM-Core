@@ -20,3 +20,4 @@ jobs:
     secrets: inherit
     with:
       not_deploy: true
+      workBranch: master
