@@ -15,9 +15,25 @@ permissions:
   contents: read
 
 jobs:
-  all:
-    uses: Roche-DIA-RIS-LabInsights/inventory-workflows/.github/workflows/aws-all-docker-image.yml@main
-    secrets: inherit
-    with:
-      not_deploy: true
-      workRef: master
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: master
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build --pull --rm -f "Dockerfile" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+  # all:
+  #   uses: Roche-DIA-RIS-LabInsights/inventory-workflows/.github/workflows/aws-all-docker-image.yml@main
+  #   secrets: inherit
+  #   with:
+  #     not_deploy: true
+  #     workRef: master
