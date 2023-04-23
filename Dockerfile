@@ -13,7 +13,9 @@ http://dl-cdn.alpinelinux.org/alpine/edge/community \
 # # http://dl-cdn.alpinelinux.org/alpine/3.17/testing \
 # " >> /etc/apk/repositories
 
-RUN apk update && apk upgrade && apk add \
+RUN apk update && apk upgrade
+
+RUN apk add \
     php7.3 \
     php7.3-fpm \
     php7.3-curl \
