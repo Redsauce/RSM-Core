@@ -62,7 +62,7 @@ RUN apk add --update util-linux
 RUN apk add autoconf gcc tar
 # RUN pecl install imagick
 ADD https://pecl.php.net/get/imagick-3.4.3.tgz /tmp/imagick.tgz
-RUN cd /tmp/ && tar -xvzf imagick-3.4.3.tgz \
+RUN cd /tmp && tar -xvzf -C /tmp /tmp/imagick-3.4.3.tgz \
 cd imagick-3.4.3 \
 phpize \
 ./configure \
