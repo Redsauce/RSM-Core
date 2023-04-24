@@ -38,7 +38,7 @@ echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content" && cat $PHP_INI_D
 # echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
 # echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
 # echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
-echo "!!!!!!!!!!!!"
+echo "!!!!!!!!!!!! $(nproc)"
 
 RUN apk update && apk upgrade
 
