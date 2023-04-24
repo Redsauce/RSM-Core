@@ -15,9 +15,9 @@ ARG PHP_INFO="true"
 # " >> /etc/apk/repositories
 
 RUN echo -e " \
-http://dl-cdn.alpinelinux.org/alpine/3.14/main \
-http://dl-cdn.alpinelinux.org/alpine/3.14/community \
-" >> /etc/apk/repositories
+\nhttp://dl-cdn.alpinelinux.org/alpine/3.14/main \
+\nhttp://dl-cdn.alpinelinux.org/alpine/3.14/community \
+\n" >> /etc/apk/repositories
 
 ENV PHP_INFO=$PHP_INFO
 RUN \
