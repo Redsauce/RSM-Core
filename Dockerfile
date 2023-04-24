@@ -1,23 +1,42 @@
-# FROM php:7.3-fpm-alpine3.14
-FROM nginx:1.24.0-alpine3.17-slim
+# https://github.com/codecasts/php-alpine/blob/master/README.md#php-73
+FROM php:7.3-fpm-alpine3.14
 
-RUN echo -e " \
-# http://dl-cdn.alpinelinux.org/alpine/edge/main \
-http://dl-cdn.alpinelinux.org/alpine/edge/community \
-# http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-" >> /etc/apk/repositories
-
+# FROM nginx:1.24.0-alpine3.17-slim
+# RUN echo -e " \
+# # http://dl-cdn.alpinelinux.org/alpine/edge/main \
+#  http://dl-cdn.alpinelinux.org/alpine/edge/community \
+# # http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+# " >> /etc/apk/repositories
 # RUN echo -e " \
 # # http://dl-cdn.alpinelinux.org/alpine/3.17/main \
 # http://dl-cdn.alpinelinux.org/alpine/3.17/community \
 # # http://dl-cdn.alpinelinux.org/alpine/3.17/testing \
 # " >> /etc/apk/repositories
 
+RUN echo -e " \
+# http://dl-cdn.alpinelinux.org/alpine/3.14/main \
+http://dl-cdn.alpinelinux.org/alpine/3.14/community \
+# http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
+" >> /etc/apk/repositories
+
+RUN  php -m; \
+ls -la /etc; \
+ls -la /etc/php7; \
+ls -la /etc/php7/php-fpm.d; \
+ls -la /etc/nginx/; \
+la -la /etc/nginx/conf.d/; \
+cat /etc/php7/php-fpm.conf; \
+cat /etc/php7/php.ini; \
+cat /etc/nginx/conf.d/fastcgi.conf; \
+echo $PHP_INI_DIR; \
+cat $PHP_INI_DIR
+
 RUN apk update && apk upgrade
 
 RUN apk add \
-    php7.3 \
-    php7.3-fpm \
+    nginx=1.24 \
+    # php7.3 \
+    # php7.3-fpm \
     php7.3-curl \
     php7.3-fileinfo \
     php7.3-gd \
@@ -29,6 +48,9 @@ RUN apk add \
     php7.3-xml \
     php7.3-xmlrpc \
     php-pear
+
+########### final try if ALL others fail    # RUN docker-php-ext-install -j$(nproc) gd ...
+# this seems not to be necessary            # RUN docker-php-ext-enable gd
 
 RUN echo "server { \
     listen 80; \
@@ -47,10 +69,11 @@ RUN echo "server { \
     } \
 }" > /etc/nginx/conf.d/rsm.conf
 
-RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log
-RUN chown -R www-data: /var/log/php-fpm && chown -R www-data: /var/log/nginx
+RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log \
+&& chown -R www-data: /var/log/php-fpm && chown -R www-data: /var/log/nginx
 
-RUN ls -la /etc; \
+RUN php -m; \
+ls -la /etc; \
 ls -la /etc/php7; \
 ls -la /etc/php7/php-fpm.d; \
 ls -la /etc/nginx/; \
@@ -72,9 +95,10 @@ RUN rc-service nginx restart
 # RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-WORKDIR /var/www
+# default WORKDIR /var/www/html
 
-# COPY ./src /var/www/localhost/htdocs
+RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
+COPY ./Server/htdocs/ /var/www/html/
 
 EXPOSE 9000
 
