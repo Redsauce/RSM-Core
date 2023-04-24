@@ -23,6 +23,9 @@ ARG PHP_INFO="true"
 
 ENV PHP_INFO=$PHP_INFO
 RUN \
+echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
+nproc; \
+echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
 [ "$PHP_INFO" = "true" ] && echo "PHP -R PHPINFO()" && php -r "phpinfo();" \
 [ "$PHP_INFO" = "true" ] && echo "PHP i" && php -i; \
 echo "APK REPOS LIST" && cat /etc/apk/repositories; \
