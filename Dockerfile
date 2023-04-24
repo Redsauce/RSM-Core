@@ -58,9 +58,8 @@ RUN apk update && apk upgrade
 #     php7.3-xmlrpc \
 #     php-pear
 
-RUN apk add autoconf
 RUN apk add --update util-linux
-RUN whereis pecl
+RUN apk add autoconf cc
 RUN pecl install imagick
 
 RUN docker-php-ext-enable imagick
