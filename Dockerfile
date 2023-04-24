@@ -25,14 +25,17 @@ echo "ETC content"; ls -la /etc; \
 echo "ETC/CONF.D content"; ls -la /etc/conf.d; \
 echo "ETC/INIT.D content"; ls -la /etc/init.d; \
 echo "'$PHP_INI_DIR' PHP_INI_DIR content"; ls -la $PHP_INI_DIR; \
+echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content"; cat $PHP_INI_DIR/php.ini-production; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content"; ls -la $PHP_INI_DIR/conf.d; \
-echo "ETC/PHP7 content"; ls -la /etc/php7; \
-echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
-echo "ETC/NGINX content"; ls -la /etc/nginx/; \
-echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
-echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/php7/php-fpm.conf; \
-echo "ETC/PHP7/PHP.ini content"; cat /etc/php7/php.ini; \
-echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/nginx/conf.d/fastcgi.conf;
+echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; ls -la $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+# echo "ETC/NGINX content"; ls -la /etc/nginx/; \
+# echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
+# echo "ETC/PHP7 content"; ls -la /etc/php7; \
+# echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
+# echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/php7/php-fpm.conf; \
+# echo "ETC/PHP7/PHP.ini content"; cat /etc/php7/php.ini; \
+# echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/nginx/conf.d/fastcgi.conf;
+echo "!!!!!!!!!!!!"
 
 RUN apk update && apk upgrade
 
@@ -81,14 +84,17 @@ echo "ETC content"; ls -la /etc; \
 echo "ETC/CONF.D content"; ls -la /etc/conf.d; \
 echo "ETC/INIT.D content"; ls -la /etc/init.d; \
 echo "'$PHP_INI_DIR' PHP_INI_DIR content"; ls -la $PHP_INI_DIR; \
+echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content"; cat $PHP_INI_DIR/php.ini-production; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content"; ls -la $PHP_INI_DIR/conf.d; \
-echo "ETC/PHP7 content"; ls -la /etc/php7; \
-echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
-echo "ETC/NGINX content"; ls -la /etc/nginx/; \
-echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
-echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/php7/php-fpm.conf; \
-echo "ETC/PHP7/PHP.ini content"; cat /etc/php7/php.ini; \
-echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/nginx/conf.d/fastcgi.conf;
+echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; ls -la $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+# echo "ETC/NGINX content"; ls -la /etc/nginx/; \
+# echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
+# echo "ETC/PHP7 content"; ls -la /etc/php7; \
+# echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
+# echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/php7/php-fpm.conf; \
+# echo "ETC/PHP7/PHP.ini content"; cat /etc/php7/php.ini; \
+# echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/nginx/conf.d/fastcgi.conf;
+echo "!!!!!!!!!!!!"
 
 RUN rc-update add nginx default
 RUN rc-update add php-fpm7 default
