@@ -27,6 +27,7 @@ echo "PHP MODULES" && php -m; \
 echo "ETC content" && ls -la /etc; \
 echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
 echo "ETC/INIT.D content" && ls -la /etc/init.d; \
+echo "END OF INFO";
 # [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
 # [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
 # [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
@@ -38,7 +39,6 @@ echo "ETC/INIT.D content" && ls -la /etc/init.d; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
-[ "$PHP_INFO" = "true" ] && echo "END OF INFO";
 
 RUN apk update && apk upgrade
 
