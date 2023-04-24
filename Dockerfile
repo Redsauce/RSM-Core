@@ -26,10 +26,10 @@ echo "PHP MODULES" && php -m; \
 echo "ETC content" && ls -la /etc; \
 echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
 echo "ETC/INIT.D content" && ls -la /etc/init.d; \
-[ "$PHP_INFO" = "true" ] && echo "'$PHP_INI_DIR' PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
-[ "$PHP_INFO" = "true" ] && echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
-[ "$PHP_INFO" = "true" ] && echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
-[ "$PHP_INFO" = "true" ] && echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+[ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
+[ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
+[ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
+[ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX content" && ls -la /etc/nginx/; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX/CONF.D content" && la -la /etc/nginx/conf.d/; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7 content" && ls -la /etc/php7; \
