@@ -22,7 +22,7 @@ FROM php:7.3-fpm-alpine3.14
 RUN \
 echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
 echo "PHP i" && php -i; \
-echo "APK REPOS LIST" && cat /etc/apk/repositories \
+echo "APK REPOS LIST" && cat /etc/apk/repositories; \
 echo "PHP MODULES" && php -m; \
 echo "ETC content" && ls -la /etc; \
 echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
