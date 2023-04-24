@@ -61,15 +61,17 @@ RUN apk update && apk upgrade
 RUN apk add --update util-linux
 RUN apk add autoconf gcc tar
 # RUN pecl install imagick
-ADD https://pecl.php.net/get/imagick-3.4.3.tgz /tmp/imagick.tgz
-RUN cd /tmp && tar -xvzf -C /tmp /tmp/imagick-3.4.3.tgz \
+WORKDIR /tmp
+ADD https://pecl.php.net/get/imagick-3.4.3.tgz imagick-3.4.3.tgz
+
+RUN tar -xvzf ./imagick-3.4.3.tgz \
 cd imagick-3.4.3 \
 phpize \
 ./configure \
 make install \
 cd && rm -rf /tmp/imagick-3.4.3*
 
-# RUN docker-php-ext-enable imagick
+RUN docker-php-ext-enable imagick
 
 RUN docker-php-ext-install -j$(nproc) curl fileinfo gd imagick json mdstring mysqli opcache xml xmlrpc
 
