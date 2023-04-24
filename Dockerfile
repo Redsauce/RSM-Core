@@ -60,6 +60,7 @@ RUN apk update && apk upgrade
 
 RUN apk add autoconf
 
+RUN whereis pecl
 RUN pecl install imagick
 
 RUN docker-php-ext-enable imagick
