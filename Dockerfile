@@ -14,11 +14,6 @@ ARG PHP_INFO="true"
 # http://dl-cdn.alpinelinux.org/alpine/3.17/community \
 # " >> /etc/apk/repositories
 
-RUN echo -e " \
-\nhttp://dl-cdn.alpinelinux.org/alpine/3.14/main \
-\nhttp://dl-cdn.alpinelinux.org/alpine/3.14/community \
-\n" >> /etc/apk/repositories
-
 ENV PHP_INFO=$PHP_INFO
 RUN \
 echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
@@ -42,7 +37,7 @@ echo "ETC/INIT.D content" && ls -la /etc/init.d; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
-[ "$PHP_INFO" = "true" ] && echo "!!!!!!!!!!!!"
+[ "$PHP_INFO" = "true" ] && echo "!!!!!!!!!!!!";
 
 RUN apk update && apk upgrade
 
