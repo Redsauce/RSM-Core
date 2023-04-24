@@ -19,12 +19,12 @@ http://dl-cdn.alpinelinux.org/alpine/3.14/community \
 # http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
 " >> /etc/apk/repositories
 
-RUN echo $PHP_INI_DIR; \
-cat $PHP_INI_DIR; \
+RUN \
 echo "PHP MODULES"; php -m; \
 echo "ETC content"; ls -la /etc; \
 echo "ETC/CONF.D content"; ls -la /etc/conf.d; \
 echo "ETC/INIT.D content"; ls -la /etc/init.d; \
+echo "'$PHP_INI_DIR' PHP_INI_DIR content"; ls -la $PHP_INI_DIR; \
 echo "ETC/PHP7 content"; ls -la /etc/php7; \
 echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
 echo "ETC/NGINX content"; ls -la /etc/nginx/; \
