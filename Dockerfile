@@ -60,9 +60,16 @@ RUN apk update && apk upgrade
 
 RUN apk add --update util-linux
 RUN apk add autoconf gcc
-RUN pecl install imagick
+# RUN pecl install imagick
+ADD https://pecl.php.net/get/imagick-3.4.3.tgz /tmp/imagick.tgz
+RUN tar xvzf imagick-3.4.3.tgz \
+cd imagick-3.4.3 \
+phpize \
+./configure \
+make install \
+rm -rf /tmp/imagick-3.4.3*
 
-RUN docker-php-ext-enable imagick
+# RUN docker-php-ext-enable imagick
 
 RUN docker-php-ext-install -j$(nproc) curl fileinfo gd imagick json mdstring mysqli opcache xml xmlrpc
 
@@ -75,7 +82,7 @@ RUN apk add \
     # php-imagick \
     # php-json \
     # php-mbstring \
-    # php-mysql \
+    # php-mysqli \
     # php-opcache \
     # php-xml \
     # php-xmlrpc \
@@ -104,22 +111,28 @@ RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log \
 && chown -R www-data: /var/log/php-fpm && chown -R www-data: /var/log/nginx
 
 RUN \
+echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
+nproc; \
+echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
+[ "$PHP_INFO" = "true" ] && echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
+[ "$PHP_INFO" = "true" ] && echo "PHP i" && php -i; \
+echo "APK REPOS LIST" && cat /etc/apk/repositories; \
 echo "PHP MODULES" && php -m; \
 echo "ETC content" && ls -la /etc; \
 echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
 echo "ETC/INIT.D content" && ls -la /etc/init.d; \
-echo "'$PHP_INI_DIR' PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
-echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
-echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
-echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
-# echo "ETC/NGINX content" && ls -la /etc/nginx/; \
-# echo "ETC/NGINX/CONF.D content" && la -la /etc/nginx/conf.d/; \
-# echo "ETC/PHP7 content" && ls -la /etc/php7; \
-# echo "ETC/PHP7/PHP-FPM.D content" && ls -la /etc/php7/php-fpm.d; \
-# echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
-# echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
-# echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
-echo "!!!!!!!!!!!!"
+echo "END OF INFO";
+# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
+# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
+# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
+# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX content" && ls -la /etc/nginx/; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX/CONF.D content" && la -la /etc/nginx/conf.d/; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7 content" && ls -la /etc/php7; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.D content" && ls -la /etc/php7/php-fpm.d; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
+# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
 
 RUN rc-update add nginx default
 RUN rc-update add php-fpm7 default
