@@ -38,7 +38,7 @@ echo "ETC/INIT.D content" && ls -la /etc/init.d; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
 # [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
-[ "$PHP_INFO" = "true" ] && echo "!!!!!!!!!!!!";
+[ "$PHP_INFO" = "true" ] && echo "END OF INFO";
 
 RUN apk update && apk upgrade
 
