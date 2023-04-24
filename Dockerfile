@@ -20,7 +20,7 @@ FROM php:7.3-fpm-alpine3.14
 # " >> /etc/apk/repositories
 
 RUN \
-echo "PHP -R PHPINFO()" && php -r "phpinfo()"; \
+echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
 echo "PHP i" && php -i; \
 echo "APK REPOS LIST" && cat /etc/apk/repositories \
 echo "PHP MODULES" && php -m; \
