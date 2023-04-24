@@ -60,23 +60,25 @@ RUN apk update && apk upgrade
 
 RUN apk add autoconf
 
-RUN pecl install imagick && docker-php-ext-enable imagick
+RUN pecl install imagick
+
+RUN docker-php-ext-enable imagick
 
 RUN docker-php-ext-install -j$(nproc) curl fileinfo gd imagick json mdstring mysqli opcache xml xmlrpc
 
 RUN apk add \
     nginx=1.20 \
-    php-curl \
-    php-fileinfo \
-    php-gd \
-    php-imagick \
-    php-json \
-    php-mbstring \
-    php-mysql \
-    php-opcache \
-    php-xml \
-    php-xmlrpc \
     php-pear
+    # php-curl \
+    # php-fileinfo \
+    # php-gd \
+    # php-imagick \
+    # php-json \
+    # php-mbstring \
+    # php-mysql \
+    # php-opcache \
+    # php-xml \
+    # php-xmlrpc \
 
 ########### final try if ALL others fail    # RUN docker-php-ext-install -j$(nproc) gd ...
 # this seems not to be necessary            # RUN docker-php-ext-enable gd
