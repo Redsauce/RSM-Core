@@ -59,7 +59,7 @@ RUN apk update && apk upgrade
 #     php-pear
 
 RUN apk add autoconf
-
+RUN apk add --update util-linux
 RUN whereis pecl
 RUN pecl install imagick
 
