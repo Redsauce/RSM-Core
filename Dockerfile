@@ -1,6 +1,8 @@
 # https://github.com/codecasts/php-alpine/blob/master/README.md#php-73
 FROM php:7.3-fpm-alpine3.14
 
+ARG PHP_INFO="true"
+
 # FROM nginx:1.24.0-alpine3.17-slim
 # RUN echo -e " \
 # # http://dl-cdn.alpinelinux.org/alpine/edge/main \
@@ -19,9 +21,10 @@ FROM php:7.3-fpm-alpine3.14
 # # http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
 # " >> /etc/apk/repositories
 
+ENV PHP_INFO=$PHP_INFO
 RUN \
-echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
-echo "PHP i" && php -i; \
+[[ $PHP_INFO == "true" && echo "PHP -R PHPINFO()" && php -r "phpinfo();"]] \
+[[ $PHP_INFO == "true" && echo "PHP i" && php -i]]; \
 echo "APK REPOS LIST" && cat /etc/apk/repositories; \
 echo "PHP MODULES" && php -m; \
 echo "ETC content" && ls -la /etc; \
