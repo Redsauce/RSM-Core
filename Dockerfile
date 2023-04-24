@@ -19,17 +19,20 @@ http://dl-cdn.alpinelinux.org/alpine/3.14/community \
 # http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
 " >> /etc/apk/repositories
 
-RUN  php -m; \
-ls -la /etc; \
-ls -la /etc/php7; \
-ls -la /etc/php7/php-fpm.d; \
-ls -la /etc/nginx/; \
-la -la /etc/nginx/conf.d/; \
-cat /etc/php7/php-fpm.conf; \
-cat /etc/php7/php.ini; \
-cat /etc/nginx/conf.d/fastcgi.conf; \
-echo $PHP_INI_DIR; \
-cat $PHP_INI_DIR
+RUN echo $PHP_INI_DIR; \
+cat $PHP_INI_DIR; \
+echo "PHP MODULES"; php -m; \
+echo "ETC content"; ls -la /etc; \
+echo "ETC/CONF.D content"; ls -la /etc/conf.d; \
+echo "ETC/INIT.D content"; ls -la /etc/init.d; \
+echo "ETC/PHP7 content"; ls -la /etc/php7; \
+echo "ETC/PHP7/PHP-FPM.D content"; ls -la /etc/php7/php-fpm.d; \
+echo "ETC/NGINX content"; ls -la /etc/nginx/; \
+echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
+echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/php7/php-fpm.conf; \
+echo "ETC/PHP7/PHP.ini content"; cat /etc/php7/php.ini; \
+echo "ETC/PHP7/PHP-FPM.conf content"; cat /etc/nginx/conf.d/fastcgi.conf;
+
 
 RUN apk update && apk upgrade
 
