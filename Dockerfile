@@ -13,13 +13,14 @@ FROM php:7.3-fpm-alpine3.14
 # # http://dl-cdn.alpinelinux.org/alpine/3.17/testing \
 # " >> /etc/apk/repositories
 
-RUN echo -e " \
-# http://dl-cdn.alpinelinux.org/alpine/3.14/main \
-http://dl-cdn.alpinelinux.org/alpine/3.14/community \
-# http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
-" >> /etc/apk/repositories
+# RUN echo -e " \
+# # http://dl-cdn.alpinelinux.org/alpine/3.14/main \
+#  http://dl-cdn.alpinelinux.org/alpine/3.14/community \
+# # http://dl-cdn.alpinelinux.org/alpine/3.14/testing \
+# " >> /etc/apk/repositories
 
 RUN \
+echo "APK REPOS LIST"; cat /etc/apk/repositories \
 echo "PHP MODULES"; php -m; \
 echo "ETC content"; ls -la /etc; \
 echo "ETC/CONF.D content"; ls -la /etc/conf.d; \
@@ -27,7 +28,7 @@ echo "ETC/INIT.D content"; ls -la /etc/init.d; \
 echo "'$PHP_INI_DIR' PHP_INI_DIR content"; ls -la $PHP_INI_DIR; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content"; cat $PHP_INI_DIR/php.ini-production; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content"; ls -la $PHP_INI_DIR/conf.d; \
-echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; ls -la $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
 # echo "ETC/NGINX content"; ls -la /etc/nginx/; \
 # echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
 # echo "ETC/PHP7 content"; ls -la /etc/php7; \
@@ -39,20 +40,34 @@ echo "!!!!!!!!!!!!"
 
 RUN apk update && apk upgrade
 
+# RUN apk add \
+#     nginx=1.24 \
+#     # php7.3 \
+#     # php7.3-fpm \
+#     php7.3-curl \
+#     php7.3-fileinfo \
+#     php7.3-gd \
+#     php7.3-imagick \
+#     php7.3-json \
+#     php7.3-mbstring \
+#     php7.3-mysql \
+#     php7.3-opcache \
+#     php7.3-xml \
+#     php7.3-xmlrpc \
+#     php-pear
+
 RUN apk add \
-    nginx=1.24 \
-    # php7.3 \
-    # php7.3-fpm \
-    php7.3-curl \
-    php7.3-fileinfo \
-    php7.3-gd \
-    php7.3-imagick \
-    php7.3-json \
-    php7.3-mbstring \
-    php7.3-mysql \
-    php7.3-opcache \
-    php7.3-xml \
-    php7.3-xmlrpc \
+    nginx=1.20 \
+    php-curl \
+    php-fileinfo \
+    php-gd \
+    php-imagick \
+    php-json \
+    php-mbstring \
+    php-mysql \
+    php-opcache \
+    php-xml \
+    php-xmlrpc \
     php-pear
 
 ########### final try if ALL others fail    # RUN docker-php-ext-install -j$(nproc) gd ...
@@ -86,7 +101,7 @@ echo "ETC/INIT.D content"; ls -la /etc/init.d; \
 echo "'$PHP_INI_DIR' PHP_INI_DIR content"; ls -la $PHP_INI_DIR; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content"; cat $PHP_INI_DIR/php.ini-production; \
 echo "'$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content"; ls -la $PHP_INI_DIR/conf.d; \
-echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; ls -la $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
+echo "'$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini' content"; cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
 # echo "ETC/NGINX content"; ls -la /etc/nginx/; \
 # echo "ETC/NGINX/CONF.D content"; la -la /etc/nginx/conf.d/; \
 # echo "ETC/PHP7 content"; ls -la /etc/php7; \
