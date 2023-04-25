@@ -1,16 +1,16 @@
 FROM ubuntu:focal-20230412
 
-ARG ARG_DBHOST = "dbhost"
-ARG ARG_DBNAME = "dbname"
-ARG ARG_DBUSERNAME = "dbusername"
-ARG ARG_DBPASSWORD = "dbpassword"
-ARG ARG_MONGODBHOST = ""
-ARG ARG_TEMPPATH = "/tmp/php_tmp"
-ARG ARG_APIURL = "http://localhost/AppController/commands_RSM/api/"
-ARG ARG_MEDIAURL = ""
-ARG ARG_IMAGECACHE = "/tmp/image_cache"
-ARG ARG_FILECACHE = "/tmp/file_cache"
-ARG ARG_BLOWFISHKEY = ""
+ARG ARG_DBHOST="dbhost"
+ARG ARG_DBNAME="dbname"
+ARG ARG_DBUSERNAME="dbusername"
+ARG ARG_DBPASSWORD="dbpassword"
+ARG ARG_MONGODBHOST=""
+ARG ARG_TEMPPATH="/tmp/php_tmp"
+ARG ARG_APIURL="http://localhost/AppController/commands_RSM/api/"
+ARG ARG_MEDIAURL=""
+ARG ARG_IMAGECACHE="/tmp/image_cache"
+ARG ARG_FILECACHE="/tmp/file_cache"
+ARG ARG_BLOWFISHKEY=""
 
 RUN apt update && apt upgrade && apt-get install -y ca-certificates gnupg2
 
