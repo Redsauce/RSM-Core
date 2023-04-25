@@ -65,36 +65,24 @@ RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
 RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*\w*\s*)/# \1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = /var/log/php-fpm/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*\w*\s*)/# \1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*\w*\s*)/# \1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*\w*\s*)/# \1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = /var/log/php-fpm/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = \/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
-# default WORKDIR /var/www/html
+RUN cat /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
 
-COPY ./Server/htdocs/ /var/www/html/
+COPY ./roche.svg ./Server/htdocs/ /var/www/html/
+
 RUN find /var/www/html/AppController -type d -exec chmod u=rwx,g=rx,o=rx {} +
 RUN find /var/www/html/AppController -type f -exec chmod u=rw,g=r,o=r {} +
 RUN chmod u=rw,g=r,o=r /var/www/html/index*
 RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
 
 RUN chown -R www-data:www-data /var/www
-
-
-# ARG_DBHOST = "dbhost"
-# ARG ARG_DBNAME = "rsm"
-# ARG ARG_DBUSERNAME = "rsm"
-# ARG ARG_DBPASSWORD = "rsm"
-# ARG ARG_MONGODBHOST = ""
-# ARG ARG_TEMPPATH = "/tmp/php_tmp"
-# ARG ARG_APIURL = "http://localhost/AppController/commands_RSM/api/"
-# ARG ARG_MEDIAURL = ""
-# ARG ARG_IMAGECACHE = "/var/www/rsm_image_cache"
-# ARG ARG_FILECACHE = "/var/www/rsm_file_cache"
-# ARG ARG_BLOWFISHKEY 
 
 ENV DBHOST = $ARG_DBHOST
 ENV DBNAME = $ARG_DBNAME
