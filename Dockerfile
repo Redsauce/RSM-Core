@@ -1,6 +1,6 @@
 FROM ubuntu:focal-20230412
 
-RUN apt update && apt upgrade && apt-get install -y gnupg2 apt-utils
+RUN apt update && apt upgrade && apt-get install -y ca-certificates gnupg2
 
 RUN echo "deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
 RUN echo "#deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
