@@ -1,17 +1,5 @@
 FROM ubuntu:focal-20230412
 
-ARG PRINT_INFO_ON_BUILD="true"
-
-ENV PRINT_INFO_ON_BUILD=$PRINT_INFO_ON_BUILD
-
-RUN \
-[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC content" && ls -la /etc; \
-[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/PROFILE.D content" && ls -la /etc/profile.d; \
-[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "APT REPOS LIST" && cat /etc/apt/sources.list; \
-[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/NGINX content" && ls -la -R /etc/nginx; \
-[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/PHP/7.3/FPM content" && ls -la -R /etc/php/7.3/fpm; \
-echo "END OF INFO";
-
 RUN add-apt-repository ppa:ondrej/php && apt update && apt upgrade
 
 RUN apt-get install -y \
@@ -29,8 +17,6 @@ RUN apt-get install -y \
     php7.3-fileinfo \
     php7.3-imagick \
     php-pear
-
-RUN [ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "ETC/NGINX/NGINX.conf content" && cat /etc/nginx/nginx.conf;
 
 RUN cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 RUN sed -i -E 's/^(\s*keepalive_timeout\s+\w+\s*)/# \1\nkeepalive_timeout 2/' /etc/nginx/nginx.conf
