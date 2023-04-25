@@ -75,26 +75,14 @@ RUN cat /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
 
-COPY ./Server/htdocs/ /var/www/html/
+COPY ./roche.svg ./Server/htdocs/ /var/www/html/
+
 RUN find /var/www/html/AppController -type d -exec chmod u=rwx,g=rx,o=rx {} +
 RUN find /var/www/html/AppController -type f -exec chmod u=rw,g=r,o=r {} +
 RUN chmod u=rw,g=r,o=r /var/www/html/index*
 RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
 
 RUN chown -R www-data:www-data /var/www
-
-
-# ARG_DBHOST = "dbhost"
-# ARG ARG_DBNAME = "rsm"
-# ARG ARG_DBUSERNAME = "rsm"
-# ARG ARG_DBPASSWORD = "rsm"
-# ARG ARG_MONGODBHOST = ""
-# ARG ARG_TEMPPATH = "/tmp/php_tmp"
-# ARG ARG_APIURL = "http://localhost/AppController/commands_RSM/api/"
-# ARG ARG_MEDIAURL = ""
-# ARG ARG_IMAGECACHE = "/var/www/rsm_image_cache"
-# ARG ARG_FILECACHE = "/var/www/rsm_file_cache"
-# ARG ARG_BLOWFISHKEY 
 
 ENV DBHOST = $ARG_DBHOST
 ENV DBNAME = $ARG_DBNAME
