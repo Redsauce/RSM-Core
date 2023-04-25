@@ -65,13 +65,13 @@ RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
 RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*\w*\s*)/# \1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = /var/log/php-fpm/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*\w*\s*)/# \1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*\w*\s*)/# \1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*\w*\s*)/# \1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = /var/log/php-fpm/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = \/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
-# default WORKDIR /var/www/html
+RUN cat /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
 
