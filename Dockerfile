@@ -1,6 +1,10 @@
 FROM ubuntu:focal-20230412
 
-RUN add-apt-repository ppa:ondrej/php && apt update && apt upgrade
+RUN echo "deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
+RUN echo "#deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4f4ea0aae5267a6c
+
+RUN apt update && apt upgrade
 
 RUN apt-get install -y \
     nginx \
