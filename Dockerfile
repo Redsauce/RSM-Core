@@ -39,7 +39,7 @@ RUN sed -i -E 's/^(\s*keepalive_timeout\s+\w+\s*)/# \1\nkeepalive_timeout 2/' /e
 RUN sed -i -E 's/^(\s*server_tokens\s+\w+\s*)/# \1\nserver_tokens off/' /etc/nginx/nginx.conf
 
 RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
-RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*\w*\s*)/# \1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
+RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*\w*\s*)/; \1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
 
 RUN echo "server {\n \
     listen 80;\n \
@@ -56,6 +56,7 @@ RUN echo "server {\n \
     }\n \
 }\n" > /etc/nginx/sites-available/rsm.conf
 
+RUN cat /etc/nginx/sites-available/rsm.conf
 
 RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
 
@@ -64,14 +65,12 @@ RUN ln -s /etc/nginx/sites-available/rsm.conf /etc/nginx/sites-enabled/rsm.conf 
 RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var/log/php-fpm/error.log && chown -R www-data: /var/log/php-fpm
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
-RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*\w*\s*)/# \1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*\w*\s*)/# \1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*\w*\s*)/# \1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*\w*\s*)/# \1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = \/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
-
-RUN cat /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*\w*\s*)/; \1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/; \1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*\w*\s*)/; \1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*\w*\s*)/; \1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*\w*\s*)/; \1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/; \1\naccess.log = \/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
 
@@ -84,20 +83,18 @@ RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
 
 RUN chown -R www-data:www-data /var/www
 
-ENV DBHOST = $ARG_DBHOST
-ENV DBNAME = $ARG_DBNAME
-ENV DBUSERNAME = $ARG_DBUSERNAME
-ENV DBPASSWORD = $ARG_DBPASSWORD
-ENV MONGODBHOST = $ARG_MONGODBHOST
-ENV TEMPPATH = $ARG_TEMPPATH
-ENV APIURL = $ARG_APIURL
-ENV MEDIAURL = $ARG_MEDIAURL
-ENV IMAGECACHE = $ARG_IMAGECACHE
-ENV FILECACHE = $ARG_FILECACHE
-ENV BLOWFISHKEY = $ARG_BLOWFISHKEY
+ENV DBHOST=$ARG_DBHOST
+ENV DBNAME=$ARG_DBNAME
+ENV DBUSERNAME=$ARG_DBUSERNAME
+ENV DBPASSWORD=$ARG_DBPASSWORD
+ENV MONGODBHOST=$ARG_MONGODBHOST
+ENV TEMPPATH=$ARG_TEMPPATH
+ENV APIURL=$ARG_APIURL
+ENV MEDIAURL=$ARG_MEDIAURL
+ENV IMAGECACHE=$ARG_IMAGECACHE
+ENV FILECACHE=$ARG_FILECACHE
+ENV BLOWFISHKEY=$ARG_BLOWFISHKEY
 
-RUN php-fpm7.3 -t && systemctl stop php7.3-fpm.service && systemctl start php7.3-fpm.service && systemctl status php7.3-fpm.service
-
-RUN nginx -t && systemctl stop nginx.service && systemctl start nginx.service && systemctl status nginx.service
+RUN php-fpm7.3 -t && nginx -t
 
 EXPOSE 80
