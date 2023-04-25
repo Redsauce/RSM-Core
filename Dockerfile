@@ -56,8 +56,6 @@ RUN echo "server {\n \
     }\n \
 }\n" > /etc/nginx/sites-available/rsm.conf
 
-RUN cat /etc/nginx/sites-available/rsm.conf
-
 RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
 
 RUN ln -s /etc/nginx/sites-available/rsm.conf /etc/nginx/sites-enabled/rsm.conf && rm /etc/nginx/sites-enabled/default && nginx -t
