@@ -1,5 +1,17 @@
 FROM ubuntu:focal-20230412
 
+ARG ARG_DBHOST = "dbhost"
+ARG ARG_DBNAME = "dbname"
+ARG ARG_DBUSERNAME = "dbusername"
+ARG ARG_DBPASSWORD = "dbpassword"
+ARG ARG_MONGODBHOST = ""
+ARG ARG_TEMPPATH = "/tmp/php_tmp"
+ARG ARG_APIURL = "http://localhost/AppController/commands_RSM/api/"
+ARG ARG_MEDIAURL = ""
+ARG ARG_IMAGECACHE = "/tmp/image_cache"
+ARG ARG_FILECACHE = "/tmp/file_cache"
+ARG ARG_BLOWFISHKEY = ""
+
 RUN apt update && apt upgrade && apt-get install -y ca-certificates gnupg2
 
 RUN echo "deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
@@ -71,12 +83,33 @@ RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
 
 RUN chown -R www-data:www-data /var/www
 
-RUN rc-update add nginx default
-RUN rc-update add php-fpm7 default
 
-RUN php-fpm7 -t
+# ARG_DBHOST = "dbhost"
+# ARG ARG_DBNAME = "rsm"
+# ARG ARG_DBUSERNAME = "rsm"
+# ARG ARG_DBPASSWORD = "rsm"
+# ARG ARG_MONGODBHOST = ""
+# ARG ARG_TEMPPATH = "/tmp/php_tmp"
+# ARG ARG_APIURL = "http://localhost/AppController/commands_RSM/api/"
+# ARG ARG_MEDIAURL = ""
+# ARG ARG_IMAGECACHE = "/var/www/rsm_image_cache"
+# ARG ARG_FILECACHE = "/var/www/rsm_file_cache"
+# ARG ARG_BLOWFISHKEY 
 
-RUN rc-service php-fpm7 restart
-RUN rc-service nginx restart
+ENV DBHOST = $ARG_DBHOST
+ENV DBNAME = $ARG_DBNAME
+ENV DBUSERNAME = $ARG_DBUSERNAME
+ENV DBPASSWORD = $ARG_DBPASSWORD
+ENV MONGODBHOST = $ARG_MONGODBHOST
+ENV TEMPPATH = $ARG_TEMPPATH
+ENV APIURL = $ARG_APIURL
+ENV MEDIAURL = $ARG_MEDIAURL
+ENV IMAGECACHE = $ARG_IMAGECACHE
+ENV FILECACHE = $ARG_FILECACHE
+ENV BLOWFISHKEY = $ARG_BLOWFISHKEY
 
-EXPOSE 9000
+RUN php-fpm7.3 -t && systemctl stop php7.3-fpm.service && systemctl start php7.3-fpm.service && systemctl status php7.3-fpm.service
+
+RUN nginx -t && systemctl stop nginx.service && systemctl start nginx.service && systemctl status nginx.service
+
+EXPOSE 80

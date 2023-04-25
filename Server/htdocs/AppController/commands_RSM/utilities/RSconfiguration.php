@@ -3,36 +3,36 @@
 // RSM configuration file
 //***************************************************
 
-$RShost      = '{RSMhost}';
-$RSdatabase  = '{RSMdatabase}';
-$RSuser      = '{RSMlogin}';
-$RSpassword  = '{RSMpassword}';
+$RShost      = getenv('DBHOST');
+$RSdatabase  = getenv('DBNAME');
+$RSuser      = getenv('DBUSERNAME');
+$RSpassword  = getenv('DBPASSWORD');
 
-$RSmongohost = '{RSMmongohost}';
+$RSmongohost = getenv('MONGODBHOST');
 // Determine in combination with POST value RSsendUncompressed=1 if response will be sent uncompressed
 $RSallowUncompressed = true;
 
 // Determine in combination with POST value RSdebug = 1 if queries will be sent
 $RSallowDebug = true;
 
-$RStempPath = '{PHPtempPath}';
+$RStempPath = getenv('TEMPPATH');
 
 // URL of the api directory
-$RSMapiURL   = '{RSMAPIURL}';
+$RSMapiURL   = getenv('APIURL');
 
 // URL of the media server api
-$RSMmediaURL   = '{RSMMEDIAURL}';
+$RSMmediaURL   = getenv('MEDIAURL');
 
 // File and image cache configuration
-$RSimageCache = '{RSMImageCache}';
-$RSfileCache  = '{RSMFileCache}';
+$RSimageCache = getenv('IMAGECACHE');
+$RSfileCache  = getenv('FILECACHE');
 
 // Determine if files/images cache will be used
 $enable_image_cache  = true;
 $enable_file_cache  = true;
 
 // Protocol encryption support
-$RSblowfishKey = '{RSMBLOWFISHKEY}';
+$RSblowfishKey = getenv('BLOWFISHKEY');
 
 // Code constants
 $cstCDATAseparator       = ']]]]><![CDATA[>';
