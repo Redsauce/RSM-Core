@@ -6,9 +6,7 @@ RUN echo "deb https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> 
 RUN echo "#deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main" >> /etc/apt/sources.list
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4f4ea0aae5267a6c
 
-RUN apt update
-
-RUN apt-get install -y \
+RUN apt update && apt-get install -y \
     nginx \
     php7.3 \
     php7.3-fpm \
@@ -31,7 +29,7 @@ RUN sed -i -E 's/^(\s*server_tokens\s+\w+\s*)/# \1\nserver_tokens off/' /etc/ngi
 RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
 RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*\w*\s*)/# \1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
 
-RUN echo -e "server {\n \
+RUN echo "server {\n \
     listen 80;\n \
     access_log /var/log/nginx/rsm_access.log;\n \
     error_log /var/log/nginx/rsm_error.log;\n \
