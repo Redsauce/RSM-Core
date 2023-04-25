@@ -28,7 +28,7 @@ function RSbadgeExist($RSbadge, $RSclientID = null) {
 
 
 function RSupdateBadgeForUser($userID, $RSclientID) {
-    $uniqueBadge = RSgetUniqueBadge();
+    $uniqueBadge = RSgetUniqueBadge($RSclientID);
     $results = RSQuery("UPDATE rs_users SET RS_BADGE = '".$uniqueBadge."' 
                         WHERE RS_USER_ID = " . $userID . " AND 
                         RS_CLIENT_ID = " . $RSclientID . ";");
@@ -49,8 +49,8 @@ function generateRandomString($length = 10) {
 }
 
 
-// We restrict the action to a single clientID
-function RSgetUniqueBadge($RSclientID){
+// We can restrict the action to a single clientID
+function RSgetUniqueBadge($RSclientID = null){
     do {
         $badge = md5(generateRandomString(256));
     } while (RSbadgeExist($badge, $RSclientID));
