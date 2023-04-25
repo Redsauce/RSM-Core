@@ -1,140 +1,85 @@
-# https://github.com/codecasts/php-alpine/blob/master/README.md#php-73
-FROM php:7.3-fpm-alpine3.14
+FROM ubuntu:focal-20230412
 
-ARG PHP_INFO="true"
+ARG PRINT_INFO_ON_BUILD="true"
 
-# FROM nginx:1.24.0-alpine3.17-slim
-# RUN echo -e " \
-# # http://dl-cdn.alpinelinux.org/alpine/edge/main \
-#  http://dl-cdn.alpinelinux.org/alpine/edge/community \
-# # http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-# " >> /etc/apk/repositories
-# RUN echo -e " \
-# http://dl-cdn.alpinelinux.org/alpine/3.17/main \
-# http://dl-cdn.alpinelinux.org/alpine/3.17/community \
-# " >> /etc/apk/repositories
-
-ENV PHP_INFO=$PHP_INFO
+ENV PRINT_INFO_ON_BUILD=$PRINT_INFO_ON_BUILD
 
 RUN \
-echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
-nproc; \
-echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
-[ "$PHP_INFO" = "true" ] && echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
-[ "$PHP_INFO" = "true" ] && echo "PHP i" && php -i; \
-echo "APK REPOS LIST" && cat /etc/apk/repositories; \
-echo "PHP MODULES" && php -m; \
-echo "ETC content" && ls -la /etc; \
-echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
-echo "ETC/INIT.D content" && ls -la /etc/init.d; \
+[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC content" && ls -la /etc; \
+[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/PROFILE.D content" && ls -la /etc/profile.d; \
+[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "APT REPOS LIST" && cat /etc/apt/sources.list; \
+[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/NGINX content" && ls -la -R /etc/nginx; \
+[ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "/ETC/PHP/7.3/FPM content" && ls -la -R /etc/php/7.3/fpm; \
 echo "END OF INFO";
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX content" && ls -la /etc/nginx/; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX/CONF.D content" && la -la /etc/nginx/conf.d/; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7 content" && ls -la /etc/php7; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.D content" && ls -la /etc/php7/php-fpm.d; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
 
-RUN apk update && apk upgrade
+RUN add-apt-repository ppa:ondrej/php && apt update && apt upgrade
 
-# RUN apk add \
-#     nginx=1.24 \
-#     # php7.3 \
-#     # php7.3-fpm \
-#     php7.3-curl \
-#     php7.3-fileinfo \
-#     php7.3-gd \
-#     php7.3-imagick \
-#     php7.3-json \
-#     php7.3-mbstring \
-#     php7.3-mysql \
-#     php7.3-opcache \
-#     php7.3-xml \
-#     php7.3-xmlrpc \
-#     php-pear
-
-RUN apk add --update util-linux
-RUN apk add autoconf gcc make tar
-# RUN pecl install imagick
-WORKDIR /tmp
-ADD https://pecl.php.net/get/imagick-3.4.3.tgz imagick-3.4.3.tgz
-
-RUN tar -xvzf ./imagick-3.4.3.tgz && \
-cd imagick-3.4.3 && \
-phpize && \
-./configure && \
-make install && \
-cd && rm -rf /tmp/imagick-3.4.3*
-
-RUN docker-php-ext-enable imagick
-
-RUN docker-php-ext-install -j$(nproc) curl fileinfo gd imagick json mdstring mysqli opcache xml xmlrpc
-
-RUN apk add \
-    nginx=1.20 \
+RUN apt-get install -y \
+    nginx \
+    php7.3 \
+    php7.3-fpm \
+    php7.3-curl \
+    php7.3-gd \
+    php7.3-json \
+    php7.3-mbstring \
+    php7.3-mysql \
+    php7.3-opcache \
+    php7.3-xml \
+    php7.3-xmlrpc \
+    php7.3-fileinfo \
+    php7.3-imagick \
     php-pear
-    # php-curl \
-    # php-fileinfo \
-    # php-gd \
-    # php-imagick \
-    # php-json \
-    # php-mbstring \
-    # php-mysqli \
-    # php-opcache \
-    # php-xml \
-    # php-xmlrpc \
 
-########### final try if ALL others fail    # RUN docker-php-ext-install -j$(nproc) gd ...
-# this seems not to be necessary            # RUN docker-php-ext-enable gd
+RUN [ "$PRINT_INFO_ON_BUILD" = "true" ] && echo "ETC/NGINX/NGINX.conf content" && cat /etc/nginx/nginx.conf;
 
-RUN echo "server { \
-    listen 80; \
-    access_log /var/log/nginx/rsm_access.log; \
-    error_log /var/log/nginx/rsm_error.log; \
-    root /var/www/localhost/htdocs; \
-    index index.html index.htm index.php; \
-    location / { \
-        try_files $uri $uri/ =404; \
-    } \
-    location ~ \.php$ { \
-        # fastcgi_pass      127.0.0.1:9000; \
-        fastcgi_pass      unix:/var/run/php/php7.3-fpm.sock; \
-        fastcgi_index     index.php; \
-        include           fastcgi.conf; \
-    } \
-}" > /etc/nginx/conf.d/rsm.conf
+RUN cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
+RUN sed -i -E 's/^(\s*keepalive_timeout\s+\w+\s*)/# \1\nkeepalive_timeout 2/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*server_tokens\s+\w+\s*)/# \1\nserver_tokens off/' /etc/nginx/nginx.conf
 
-RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log \
-&& chown -R www-data: /var/log/php-fpm && chown -R www-data: /var/log/nginx
+RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
+RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*\w*\s*)/# \1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
 
-RUN \
-echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
-nproc; \
-echo ">>>>>>>>$PHP_INFO<<<<<<<<"; \
-[ "$PHP_INFO" = "true" ] && echo "PHP -R PHPINFO()" && php -r "phpinfo();"; \
-[ "$PHP_INFO" = "true" ] && echo "PHP i" && php -i; \
-echo "APK REPOS LIST" && cat /etc/apk/repositories; \
-echo "PHP MODULES" && php -m; \
-echo "ETC content" && ls -la /etc; \
-echo "ETC/CONF.D content" && ls -la /etc/conf.d; \
-echo "ETC/INIT.D content" && ls -la /etc/init.d; \
-echo "END OF INFO";
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR PHP_INI_DIR content" && ls -la $PHP_INI_DIR; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/PHP-PRODUCTION.INI content" && cat $PHP_INI_DIR/php.ini-production; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D' PHP_INI_DIR/CONF.D content" && ls -la $PHP_INI_DIR/conf.d; \
-# [ "$PHP_INFO" = "true" ] && echo "$PHP_INI_DIR/CONF.D/docker-php-ext-sodium.ini content" && cat $PHP_INI_DIR/conf.d/docker-php-ext-sodium.ini; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX content" && ls -la /etc/nginx/; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/NGINX/CONF.D content" && la -la /etc/nginx/conf.d/; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7 content" && ls -la /etc/php7; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.D content" && ls -la /etc/php7/php-fpm.d; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/php7/php-fpm.conf; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP.ini content" && cat /etc/php7/php.ini; \
-# [ "$PHP_INFO" = "true" ] && echo "ETC/PHP7/PHP-FPM.conf content" && cat /etc/nginx/conf.d/fastcgi.conf; \
+RUN echo -e "server {\n \
+    listen 80;\n \
+    access_log /var/log/nginx/rsm_access.log;\n \
+    error_log /var/log/nginx/rsm_error.log;\n \
+    root /var/www/localhost/htdocs;\n \
+    index index.html index.htm index.php;\n \
+    location / {\n \
+        try_files $uri $uri/ =404;\n \
+    }\n \
+    location ~ \.php$ {\n \
+        include           fastcgi.conf;\n \
+        fastcgi_pass      unix:/var/run/php/php7.3-fpm.sock;\n \
+    }\n \
+}\n" > /etc/nginx/sites-available/rsm.conf
+
+
+RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
+
+RUN ln -s /etc/nginx/sites-available/rsm.conf /etc/nginx/sites-enabled/rsm.conf && rm /etc/nginx/sites-enabled/default && nginx -t
+
+RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var/log/php-fpm/error.log && chown -R www-data: /var/log/php-fpm
+
+RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
+RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*\w*\s*)/# \1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*\w*\s*)/# \1\nphp_admin_value[error_log] = /var/log/php-fpm/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*\w*\s*)/# \1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*\w*\s*)/# \1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*\w*\s*)/# \1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*access\.log\s*=\s*\w*\s*)/# \1\naccess.log = /var/log/php-fpm/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
+
+# default WORKDIR /var/www/html
+
+RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
+
+COPY ./Server/htdocs/ /var/www/html/
+RUN find /var/www/html/AppController -type d -exec chmod u=rwx,g=rx,o=rx {} +
+RUN find /var/www/html/AppController -type f -exec chmod u=rw,g=r,o=r {} +
+RUN chmod u=rw,g=r,o=r /var/www/html/index*
+RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
+
+RUN chown -R www-data:www-data /var/www
 
 RUN rc-update add nginx default
 RUN rc-update add php-fpm7 default
@@ -144,14 +89,4 @@ RUN php-fpm7 -t
 RUN rc-service php-fpm7 restart
 RUN rc-service nginx restart
 
-# RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-# default WORKDIR /var/www/html
-
-RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
-COPY ./Server/htdocs/ /var/www/html/
-
 EXPOSE 9000
-
-CMD ["php-fpm"]
