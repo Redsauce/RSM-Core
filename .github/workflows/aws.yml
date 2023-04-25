@@ -23,7 +23,6 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       run: |
         docker build -t dummy:latest .
-        docker run --rm dummy:latest php -m
   # all:
   #   uses: Roche-DIA-RIS-LabInsights/inventory-workflows/.github/workflows/aws-all-docker-image.yml@main
   #   secrets: inherit
