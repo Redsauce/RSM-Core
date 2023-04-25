@@ -16,7 +16,7 @@ if ($badge == "") {
 
 } else {
     $badgeExists = RSbadgeExist($badge, $clientID);
-    if($badgeExists == true){
+    if ($badgeExists == true) {
         RSReturnError("ERROR CREATING USER. BADGE ALREADY EXISTS FOR THIS CLIENT.", "1");
         exit;
     }
