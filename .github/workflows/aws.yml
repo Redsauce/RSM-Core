@@ -21,4 +21,4 @@ jobs:
     with:
       not_deploy: true
       workRef: master
-      dry_run: ${{ vars.dry_run }}
+      dry_run: ${{ fromJSON(vars.dry_run) }}
