@@ -85,3 +85,8 @@ function returnJsonResponse($response)
     echo $response;
     die();
 }
+// Returns true or false if the item exists or not
+function verifyItemExists($ID, $itemTypeID, $clientID){
+  $result = RSQuery("SELECT RS_ITEM_ID FROM rs_items WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $ID . " AND RS_CLIENT_ID = " . $clientID);
+  return !empty($result->fetch_assoc());
+}
