@@ -21,3 +21,4 @@ jobs:
     with:
       not_deploy: true
       workRef: master
+      dry_run: ${{ vars.dry_run }}
