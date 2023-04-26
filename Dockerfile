@@ -35,8 +35,8 @@ RUN apt update && apt-get install -y \
     php-pear
 
 RUN cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
-RUN sed -i -E 's/^(\s*keepalive_timeout\s+(\w|\W)+\s*)/# \1\nkeepalive_timeout 2;/' /etc/nginx/nginx.conf
-RUN sed -i -E 's/^(\s*server_tokens\s+(\w|\W)+\s*)/# \1\nserver_tokens off;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*keepalive_timeout\s+(\w|\W)+\s*)/# \1\nkeepalive_timeout 2;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*server_tokens\s+(\w|\W)+\s*)/# \1\nserver_tokens off;/' /etc/nginx/nginx.conf
 
 RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
 RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
@@ -48,19 +48,18 @@ COPY ./${RSM_FILE_NAME} ${RSM_CONF_PATH}
 RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
 
 RUN ln -s ${RSM_CONF_PATH} /etc/nginx/sites-enabled/${RSM_FILE_NAME} && rm /etc/nginx/sites-enabled/default
-RUN echo "/etc/nginx/sites-enabled/$RSM_FILE_NAME"
-RUN cat /etc/nginx/sites-enabled/${RSM_FILE_NAME}
+RUN echo $RSM_CONF_PATH
 RUN cat /etc/nginx/nginx.conf
 
 RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var/log/php-fpm/error.log && chown -R www-data: /var/log/php-fpm
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
-RUN sed -i -E 's/^(\s*php_admin_flag\[log_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_admin_value\[error_log\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*php_flag\[display_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*catch_workers_output\s*=\s*(\w|\W)*\s*)/;\1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*listen\.allowed_clients\s*=\s*(\w|\W)*\s*)/;\1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*access\.log\s*\=\s*(\w|\W)*\s*)/\;\1\naccess.log\=\/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*php_admin_flag\[log_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_flag[log_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*php_admin_value\[error_log\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_value[error_log] = \/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*php_flag\[display_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_flag[display_errors] = on/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*catch_workers_output\s*=\s*(\w|\W)*\s*)/;\1\ncatch_workers_output = yes/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*listen\.allowed_clients\s*=\s*(\w|\W)*\s*)/;\1\nlisten.allowed_clients = 127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*access\.log\s*\=\s*(\w|\W)*\s*)/\;\1\naccess.log\=\/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN cat /etc/php/7.3/fpm/pool.d/www.conf
 
