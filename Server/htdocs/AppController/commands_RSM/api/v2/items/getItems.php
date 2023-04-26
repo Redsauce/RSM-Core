@@ -125,6 +125,7 @@ function getGivenItems()
             // construct the response array by pushing each one of the items
             array_push($responseArray, $combinedArray);
         }
+
         // convert to json
         $response = json_encode($responseArray);
     } else {
@@ -136,7 +137,11 @@ function getGivenItems()
             }
             array_push($responseArray, $combinedArray);
         }
-        $response = json_encode($responseArray);
+        $response = array(
+            "totalItems" => count($responseArray),
+            "items" => $responseArray
+        );
+        $response = json_encode($response);
     }
     if ($response != "[]") {
         returnJsonResponse($response);
