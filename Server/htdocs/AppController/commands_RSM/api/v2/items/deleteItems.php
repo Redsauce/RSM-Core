@@ -43,9 +43,22 @@ function deleteGivenItems()
     $combinedArray["itemTypeID"] = $itemTypeID;
     if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
       if ($IDs != '') {
-        deleteItems($itemTypeID, $clientID, $IDs);
-        //TODO - RETURN 'DELETED' OR 'NOT DELETED' DEPENDING IF ITEM EXISTS OR NOT
-        foreach ($itemType->IDs as $ID)  $combinedArray[$ID] = "OK";
+        // Check and separate ID'S that exist from the ones that doesn't. Only delete the ones that exist
+        $existingItemIDs = array();
+        $notExistingItemIDs =  array();
+
+        foreach ($itemType->IDs as $ID) {
+          if (verifyItemExists($ID, $itemTypeID, $clientID)) {
+            $existingItemIDs[] = $ID;
+          } else {
+            $notExistingItemIDs[] = $ID;
+          }
+        }
+        // only call delete function, when there are items to delete.
+        if ((implode(',', $existingItemIDs)) != '') deleteItems($itemTypeID, $clientID, implode(',', $existingItemIDs));
+
+        foreach ($existingItemIDs as $ID)  $combinedArray[$ID] = "OK";
+        foreach ($notExistingItemIDs as $ID)  $combinedArray[$ID] = "Item does not exist";
       }
     } else {
       foreach ($itemType->IDs as $ID) {
