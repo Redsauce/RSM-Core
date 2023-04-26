@@ -42,13 +42,15 @@ function updateGivenItems()
     $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
     $hasAllPermissions = checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID);
     $itemID = $item->ID;
-
     if ($itemTypeIDID == 0) {
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (Incongruent properties)";
     } else if (!$hasAllPermissions) {
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
+    } else if (!verifyItemExists($itemID, $itemTypeIDID,$clientID )) {
+      $combinedArray['ID'] = $itemID;
+      $combinedArray['error'] = "Item doesn't exist";
     } else {
       $combinedArray['itemTypeID'] = intval($itemTypeIDID);
       $combinedArray['ID'] = $itemID;
