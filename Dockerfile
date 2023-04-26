@@ -44,11 +44,13 @@ RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo
 ENV RSM_FILE_NAME=rsm.conf
 ENV RSM_CONF_PATH=/etc/nginx/sites-available/${RSM_FILE_NAME}
 COPY ./${RSM_FILE_NAME} ${RSM_CONF_PATH}
-RUN cat ${RSM_CONF_PATH}
+
 RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
 
-RUN ln -s ${RSM_CONF_PATH} /etc/nginx/sites-enabled/${RSM_FILE_NAME} && rm /etc/nginx/sites-enabled/default && nginx -t
-
+RUN ln -s ${RSM_CONF_PATH} /etc/nginx/sites-enabled/${RSM_FILE_NAME} && rm /etc/nginx/sites-enabled/default
+RUN cat /etc/nginx/sites-enabled/${RSM_FILE_NAME}
+RUN cat /etc/nginx/nginx.conf
+RUN nginx -t
 RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var/log/php-fpm/error.log && chown -R www-data: /var/log/php-fpm
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
