@@ -5,12 +5,13 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMdefinitions.php";
 require_once "../utilities/RSMbadgesManagement.php";
 
+isset($GLOBALS['RS_POST']['password']) ? $password = $GLOBALS['RS_POST']['password'] : $password = "";
+isset($GLOBALS['RS_POST']['badge'   ]) ? $badge    = $GLOBALS['RS_POST']['badge'   ] : $badge = RSgetUniqueBadge($GLOBALS['RS_POST']['clientID']);
 $login    = base64_decode($GLOBALS['RS_POST']['login']);
 $clientID = $GLOBALS['RS_POST']['clientID'];
 $userID   = $GLOBALS['RS_POST']['userID'  ];
-$password = $GLOBALS['RS_POST']['password'];
 $personID = $GLOBALS['RS_POST']['personID'];
-$badge    = $GLOBALS['RS_POST']['badge'   ];
+
 
 // Check that the received clientID is a valid number
 if ($clientID > 0) {
@@ -26,7 +27,6 @@ if ($clientID > 0) {
 			
 			if ($result->fetch_array() != 0) {
 				RSReturnError("USER ALREADY EXISTS", "1");
-				exit;
 			}
 
 			// Now we can update the user
@@ -43,54 +43,46 @@ if ($clientID > 0) {
 
 			}
 
-			if ($GLOBALS['RS_POST']['passwordChanged'] == "1" && isset($password)) {
-				// The password is properly defined
-				$theQuery = "UPDATE rs_users SET RS_LOGIN = '".$login."', RS_PASSWORD = '".$password."', RS_ITEM_ID = ".$personID." WHERE RS_USER_ID = ".$userID." AND RS_CLIENT_ID = ".$clientID;
-			} else {
-				$theQuery = "UPDATE rs_users SET RS_LOGIN = '".$login."', RS_ITEM_ID = ".$personID." WHERE RS_USER_ID = ".$userID." AND RS_CLIENT_ID = ".$clientID;
-			}
+			// Check if password or badge has changed
+			$passwordChanged = $GLOBALS['RS_POST']['passwordChanged'] == "1" && $password != "";
+			$badgeChanged    = $GLOBALS['RS_POST']['badgeChanged'   ] == "1";
 
-			if ($GLOBALS['RS_POST']['badgeChanged'] == "1") {
-
-				// Ask the database for badges like the new one, for this client
-				$badgeExists = RSbadgeExist($badge, $clientID);
-				
-				// Check if we found a badge like ours in the database
-				if ($badgeExists == true) {
-					RSReturnError("ERROR UPDATING USER. BADGE ALREADY EXISTS.", "2");
-					exit;
-				}
-
-				$theBadgeQuery = "UPDATE rs_users SET RS_BADGE = '".$badge."' WHERE RS_USER_ID = ".$userID." AND RS_CLIENT_ID = ".$clientID;
-
-				if ($badgeResult = RSQuery($theBadgeQuery)) {
-					$results['result'      ] = "OK";
-					$results['login'       ] = $login;
-					$results['personID'    ] = $personID;
-					$results['badge'       ] = $badge;
-					$results['badgeChanged'] = $GLOBALS['RS_POST']['badgeChanged'];
-				} else {
-					RSReturnError("QUERY ERROR UPDATING USER", "3");
-				}
-			}
+			// Build the query base
+			$theQuery = "UPDATE rs_users SET RS_LOGIN = '" . $login . "'";
 			
+			// Add password change if needed
+			if ($passwordChanged) {
+				$theQuery .= ", RS_PASSWORD = '" . $password . "'";
+			}
+						
+			$theQuery .= ", RS_ITEM_ID = " . $personID;
+			
+			// Add badge change if needed
+			if ($badgeChanged) {
+				$theQuery .= ", RS_BADGE = '" . $badge . "'";
+			}
+
+			$theQuery .= " WHERE RS_USER_ID = " . $userID . " AND RS_CLIENT_ID = " . $clientID;
+
+			// Execute the query
 			if ($result = RSQuery($theQuery)) {
 				$results['result'         ] = "OK";
 				$results['login'          ] = $login;
 				$results['personID'       ] = $personID;
 				$results['badge'          ] = $badge;
-				$results['passwordChanged'] = $GLOBALS['RS_POST']['passwordChanged'];
+				$results['passwordChanged'] = $passwordChanged;
+				$results['badgeChanged'   ] = $badgeChanged;
+
 			} else {
-				RSReturnError("QUERY ERROR UPDATING USER", "4");
+				RSReturnError("QUERY ERROR UPDATING USER", "2");
 			}
 
-
 	} else {
-		RSReturnError("QUERY ERROR UPDATING USER", "5");
+		RSReturnError("QUERY ERROR UPDATING USER. USER NOT FOUND.", "3");
 	}
 
 } else {
-	RSReturnError("ERROR UPDATING USER. INVALID CLIENT NUMBER.", "6");
+	RSReturnError("ERROR UPDATING USER. INVALID CLIENT NUMBER.", "4");
 }
 
 // And write XML Response back to the application

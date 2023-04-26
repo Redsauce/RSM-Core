@@ -52,7 +52,6 @@ $users = RSQuery($query);
 // Analyze results
 if (!$users) {
     RSReturnError("QUERY EXECUTION ERROR.", 1);
-    exit;
 }
 
 switch ($users->num_rows) {

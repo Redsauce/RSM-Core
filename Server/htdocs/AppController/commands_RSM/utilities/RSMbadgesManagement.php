@@ -15,7 +15,7 @@ function RSbadgeExist($RSbadge, $RSclientID = null) {
     WHERE RS_BADGE = '" . $RSbadge . "'";
 
     if ($RSclientID != null) {
-        $query .= " AND RS_Client_ID = '$RSclientID'";
+        $query .= " AND RS_CLIENT_ID = '$RSclientID'";
     }
     
     $results = RSQuery($query);
@@ -64,7 +64,7 @@ function RSupdateAllBadgeUsers($RSclientID = null){
     $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
     
     if ($RSclientID != null) {
-        $theQuery_users .= " WHERE RS_Client_ID = '$RSclientID'";
+        $theQuery_users .= " WHERE RS_CLIENT_ID = '$RSclientID'";
     }
     
     $resultUsers = RSQuery($theQuery_users);

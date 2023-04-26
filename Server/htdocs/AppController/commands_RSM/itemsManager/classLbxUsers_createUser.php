@@ -4,34 +4,30 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbadgesManagement.php";
 
-$clientID =               $GLOBALS['RS_POST']['clientID'] ;
+isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : $clientID = "";
+isset($GLOBALS["RS_POST"]["badge"   ]) ? $badge    = $GLOBALS["RS_POST"]["badge"   ] : $badge    = "";
 $login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
 $password =               $GLOBALS['RS_POST']['password'] ;
 $personID =               $GLOBALS['RS_POST']['personID'] ;
-$badge    =               $GLOBALS['RS_POST']['badge'   ] ;
 
-// First of all, we need to verify if a badge is comming
-if ($badge == "") {
-    $badge = RSgetUniqueBadge($clientID);
-
-} else {
-    $badgeExists = RSbadgeExist($badge, $clientID);
-    if ($badgeExists == true) {
-        RSReturnError("ERROR CREATING USER. BADGE ALREADY EXISTS FOR THIS CLIENT.", "1");
-        exit;
-    }
-}
-
-// Second step, we need to check if the variable clientID has a value
-if (isset($clientID)) {
+if ($clientID != "") {
     
+    // Generate a badge if needed
+    if ($badge == "") {
+        $badge = RSgetUniqueBadge($clientID);
+    } else {
+        $badgeExists = RSbadgeExist($badge, $clientID);
+        if ($badgeExists == true) {
+            RSReturnError("ERROR CREATING USER. BADGE ALREADY EXISTS FOR THIS CLIENT.", "1");
+        }
+    }
+
     //We check if the user already exists for the given client
     $theQuery_userAlreadyExists = 'SELECT RS_USER_ID FROM rs_users WHERE RS_LOGIN ="' . $login . '" AND RS_CLIENT_ID = ' . $clientID;
     $result = RSQuery($theQuery_userAlreadyExists);
 
     if ($result->num_rows > 0) {
-        RSReturnError("QUERY ERROR CREATING USER.", "2");
-        exit;
+        RSReturnError("QUERY ERROR CREATING USER. USER ALREADY EXISTS.", "2");
 
     } else {
 
@@ -58,6 +54,9 @@ if (isset($clientID)) {
         $results['login'   ] = $login;
         $results['personID'] = $personID;
         $results['badge'   ] = $badge;
+        
+        // And write XML Response back to the application
+        RSReturnArrayResults($results);
 
     } else {
         RSReturnError("QUERY ERROR CREATING USER.", "3");
@@ -67,6 +66,4 @@ if (isset($clientID)) {
     RSReturnError("ERROR CREATING USER. INVALID CLIENTID.", "4");
 }
 
-// And write XML Response back to the application
-RSReturnArrayResults($results);
 ?>

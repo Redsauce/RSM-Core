@@ -309,7 +309,7 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     $pValues[] = array('ID' => $parametersPID  , 'value' => $data);
     $pValues[] = array('ID' => $priorityPID    , 'value' => $priority);
 
-    if (isset($personID)) {
+    if ($personID != 0) {
 
       if ($userPID == 0) {
         // One of the properties is not related
