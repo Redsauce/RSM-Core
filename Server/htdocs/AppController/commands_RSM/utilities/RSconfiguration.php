@@ -17,8 +17,8 @@ $RSallowUncompressed = true;
 $RSallowDebug = strtolower(getenv('ALLOWDEBUG')) === "true";
 
 $RStempPath = getenv('TEMPPATH') == false ? sys_get_temp_dir()."/php_tmp" : getenv('TEMPPATH');
-if (!is_dir($RSimageCache) && getenv('IMAGECACHE') != false) {
-    mkdir($RSimageCache, 0770, true);
+if (!is_dir($RStempPath) && getenv('TEMPPATH') != false) {
+    mkdir($RStempPath, 0770, true);
 }
 
 // URL of the api directory
