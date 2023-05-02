@@ -275,15 +275,15 @@ function queueActions($RSdata, $triggerIDs, $mode, $RStoken) {
    }
 }
 
-function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplication = 'No', $personID = 0) {
-    $result = queueEvent($clientID, $actionID, $RSdata, $priority, $avoidDuplication, $personID);
+function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
+    $result = queueEvent($clientID, $actionID, $RSdata, $priority, $avoidDuplication, $staffID);
 
-    //error_log("RSMeventsManagement/queueAction - personID: ". $personID);
+    //error_log("RSMeventsManagement/queueAction - staffID: ". $staffID);
     // TODO: Send an email if there were a problem
     if (!$result) mail('webmaster@redsauce.net', 'Error scheduling job', wordwrap("The action ID " . $actionID . " could not be queued.",70,"\r\n"));
 }
 
-function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplication = 'No', $personID = 0) {
+function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
     // Register the event in the rs_events table
 
     $eventPID        = getClientPropertyID_RelatedWith_byName("scheduledEvents.event"         , $clientID);
@@ -309,14 +309,14 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     $pValues[] = array('ID' => $parametersPID  , 'value' => $data);
     $pValues[] = array('ID' => $priorityPID    , 'value' => $priority);
 
-    if ($personID != 0) {
+    if ($staffID != 0) {
 
       if ($userPID == 0) {
         // One of the properties is not related
         return false;
       }
 
-      $pValues[] = array('ID' => $userPID  , 'value' => $personID);
+      $pValues[] = array('ID' => $userPID  , 'value' => $staffID);
     }
 
     //check if pending event can be duplicated
@@ -324,8 +324,8 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     if($avoidDuplication != 'No'){
         // Construct filterProperties array
         $filterProperties  = array(
-            array('ID' => $eventPID, 'value' => $actionID, 'mode' => "="),
-            array('ID' => $parametersPID, 'value' => $data, 'mode' => "="),
+            array('ID' => $eventPID       , 'value' => $actionID, 'mode' => "="),
+            array('ID' => $parametersPID  , 'value' => $data    , 'mode' => "="),
             array('ID' => $executionEndPID, 'value' => '00-00-00 00:00:00', 'mode' => "=")
         );
         // Construct returnProperties array

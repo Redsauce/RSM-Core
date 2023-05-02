@@ -53,10 +53,11 @@ function RSCheckUserAccess() {
     if (!isset($GLOBALS['RS_POST']['RSLogin'])) return 0;
     
     if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
-        // Continue with the 'classic' comprobation
+        // Continue checking the username and password.
         $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+    
     } else {
-        // Continue with the 'badge' comprobation
+        // There is no defined password. Use the login as a badge.
         $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
     }
 
@@ -74,12 +75,10 @@ function RSCheckUserAccess() {
 }
 
 
-// Get the personId (staffID) from passed user
-function getUserPerson($userID, $clientID) {
+// Get the staff associated with a customer's user.
+function getUserStaffID($userID, $clientID) {
 
-    // Continue with the 'classic' comprobation
     $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
-
     $users = RSQuery($theQuery);
 
     // Check the results

@@ -32,7 +32,7 @@
 require_once "RSdatabase.php";
 require_once "RStools.php";
 
-// The "login" is required
+// Login is required. If the password is not passed, the login acts as the badge.
 isset($GLOBALS['RS_POST']['Login'   ]) ? $login    = $GLOBALS['RS_POST']['Login'   ] : dieWithError(400);
 isset($GLOBALS['RS_POST']['Password']) ? $password = $GLOBALS['RS_POST']['Password'] : $password = "";
 

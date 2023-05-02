@@ -29,8 +29,8 @@ $actionID       = $items[3];
   // TODO: Check if the user has access to the client where he is executing the script
 //}
 
-//Get the personID (staffID) associated with passed user credentials
-$personID = getUserPerson($RSuserID, $clientID);
+//Get the staffID associated with the user credentials
+$personID = getUserStaffID($RSuserID, $clientID);
 
 //TODO: get real priority and avoidDuplication parameters
 //Add action to queue
