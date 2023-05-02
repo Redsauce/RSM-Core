@@ -21,7 +21,6 @@ if (!is_dir($RSimageCache) && getenv('IMAGECACHE') != false) {
     mkdir($RSimageCache, 0770, true);
 }
 
-
 // URL of the api directory
 $RSMapiURL   = getenv('APIURL') == false ? 'apiurl_undefined' : getenv('APIURL');
 
