@@ -16,7 +16,11 @@ $RSallowUncompressed = true;
 // Determine in combination with POST value RSdebug = 1 if queries will be sent
 $RSallowDebug = strtolower(getenv('ALLOWDEBUG')) === "true";
 
-$RStempPath = getenv('TEMPPATH') == false ? sys_get_temp_dir() : getenv('TEMPPATH');
+$RStempPath = getenv('TEMPPATH') == false ? sys_get_temp_dir()."/php_tmp" : getenv('TEMPPATH');
+if (!is_dir($RSimageCache) && getenv('IMAGECACHE') != false) {
+    mkdir($RSimageCache, 0770, true);
+}
+
 
 // URL of the api directory
 $RSMapiURL   = getenv('APIURL') == false ? 'apiurl_undefined' : getenv('APIURL');
