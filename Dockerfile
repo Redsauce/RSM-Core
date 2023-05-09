@@ -37,6 +37,9 @@ RUN apt update && apt-get install -y \
 RUN cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 RUN sed -i -E 's/^(\s*#?\s*keepalive_timeout\s+(\w|\W)+\s*)/# \1\nkeepalive_timeout 2;/' /etc/nginx/nginx.conf
 RUN sed -i -E 's/^(\s*#?\s*server_tokens\s+(\w|\W)+\s*)/# \1\nserver_tokens off;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*access_log\s+(\w|\W)+\s*)/# \1\naccess_log /dev/stdout;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*error_log\s+(\w|\W)+\s*)/# \1\nerror_log /dev/stderr;/' /etc/nginx/nginx.conf
+
 
 RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
 RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
