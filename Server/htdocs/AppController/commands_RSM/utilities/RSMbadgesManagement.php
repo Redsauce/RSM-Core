@@ -3,91 +3,68 @@
 require_once "RSdatabase.php";
 
 // Functions in this file related with the use of badges in RSM
-// - RScountBadge
+// - RSbadgeExists
 // - RSupdateBadgeForUser
-// - generateRandomString
-// - RSgetUniqueBadge
-// - RSupdateAllBadgeUsers
+// - RScreateBadge
+// - RSRS_BADGE
 
+// Check if the badge already exists or not in the database.
+function RSbadgeExists($RSbadge, $RSclientID = null) {
+    $query = "SELECT 'RS_BADGE'
+    FROM rs_users
+    WHERE RS_BADGE = '" . $RSbadge . "'";
 
-function RScountBadge($RSbadge) {
-    $results = RSQuery("SELECT COUNT('RS_BADGE') as total
-                        FROM rs_users
-                        WHERE RS_BADGE = '" . $RSbadge . "'");
-    return $results;
+    if ($RSclientID != null) {
+        // We can limit the search to a single customer.
+        $query .= " AND RS_CLIENT_ID = '$RSclientID'";
+    }
+    
+    $results = RSQuery($query);
+    if ($results->num_rows > 0) {
+        return true;
+    }
+
+    return false; 
 }
 
-function RSupdateBadgeForUser($userID, $clientID) {
-    $uniqueBadge = RSgetUniqueBadge();
+
+// Update the badge for a specific customer of a given user.
+function RSupdateBadgeForUser($userID, $RSclientID) {
+    $uniqueBadge = RScreateBadge($RSclientID);
     $results = RSQuery("UPDATE rs_users SET RS_BADGE = '".$uniqueBadge."' 
                         WHERE RS_USER_ID = " . $userID . " AND 
-                        RS_CLIENT_ID = " . $clientID . ";");
+                        RS_CLIENT_ID = " . $RSclientID . ";");
     return $results;
 }
 
-// This function generates a random string of the given length
-function generateRandomString($length = 10) {
-    // This is the list of characters allowed inside the generated string
-    $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    $randomString = '';
 
-    for ($i = 0; $i < $length; $i++) {
-        // We loop until the desired length is reached, adding random characters
-        $randomString .= $characters[random_int(0, strlen($characters) - 1)];
-    }
-
-    // And return the result
-    return $randomString;
-}
-
-
-function RSgetUniqueBadge(){
-    /* ***************************************************************************************
-    DESCRIPTION
-    Create a new badge that does not exist in the list of user badges in the database.
-
-    PARAMETERS
-    It does not need any parameters.
-
-    RETURN
-    badge: The badge itself, as a 32-character string (MD5 hash)
-    ***************************************************************************************
-    */
-
-    // We will use this variable in order to control if the new badge exists or not
-    $exists = false;
-
+// We can avoid repetition for a specific customer.
+function RScreateBadge($RSclientID = null){
     do {
-        // Let's generate a badge
-        $badge = md5(generateRandomString(256));
+        // Compose the badge based on the current time in milliseconds.
+        $badge = md5(microtime(true));
+    } while (RSbadgeExists($badge, $RSclientID));
 
-        // Ask the database for badges like the new one
-        $results = RScountBadge($badge);
-
-        // Obtain the data from the query
-        if ($results) $result = $results->fetch_assoc();
-        
-        // Check if we found a badge like ours in the database
-        if ($result['total'] <> 0) $exists = true; // The badge is already stored in the database. We must generate a new one
-
-    } while ($exists == true);
-
-    // If the execution reaches this point, the badge does not exist so we can return it
+    // Return the new badge
     return $badge;
-
-
-}
-
-function RSupdateAllBadgeUsers(){
-    $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
-    $resultUsers = RSQuery($theQuery_users);
-
-    while($row=$resultUsers->fetch_assoc()){
-        RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);
-    }
 }
 
 
 
+// Retrieve the badge of a user from a specific client.
+function RSgetBadgeFromUser($userID, $RSclientID){
+    $results = RSQuery("SELECT RS_BADGE FROM rs_users' 
+    WHERE RS_USER_ID = " . $userID . " AND 
+    RS_CLIENT_ID = " . $RSclientID . ";");
+    
+    // Analyze results
+    if ($results && $results->num_rows > 0) {
+		$row = $results->fetch_assoc();
+		return $row['RS_BADGE'];
+	} 
+    
+    // Query failed or badge not found
+    return "";
+}
 
 ?>

@@ -4,56 +4,65 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbadgesManagement.php";
 
-$clientID =               $GLOBALS['RS_POST']['clientID'] ;
+isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : $clientID = "";
+isset($GLOBALS["RS_POST"]["badge"   ]) ? $badge    = base64_decode($GLOBALS["RS_POST"]["badge"]) : $badge    = "";
 $login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
 $password =               $GLOBALS['RS_POST']['password'] ;
-$personID =               $GLOBALS['RS_POST']['personID'] ;
+$staffID  =               $GLOBALS['RS_POST']['staffID' ] ;
 
-//First of all, we need to check if the variable clientID does not have the value 0
-if (($clientID != 0) || ($clientID != "")) {
-    //We check if the user already exists for the given client
+if ($clientID != "") {
+    
+    // Generate a badge if needed
+    if ($badge == "") {
+        $badge = RScreateBadge($clientID);
+    } else {
+        $badgeExists = RSbadgeExists($badge, $clientID);
+        if ($badgeExists == true) {
+            RSReturnError("ERROR CREATING USER. BADGE ALREADY EXISTS FOR THIS CLIENT.", "1");
+        }
+    }
+
+    // We check if the user already exists for the given client
     $theQuery_userAlreadyExists = 'SELECT RS_USER_ID FROM rs_users WHERE RS_LOGIN ="' . $login . '" AND RS_CLIENT_ID = ' . $clientID;
     $result = RSQuery($theQuery_userAlreadyExists);
 
     if ($result->num_rows > 0) {
+        RSReturnError("QUERY ERROR CREATING USER. USER ALREADY EXISTS.", "2");
+    } 
 
-        RSReturnError("USER ALREADY EXISTS", "1");
-        exit ;
-    } else {
+    // If the user creation request does not have an associated staff, we create a new staff element.
+    if (empty($staffID)) {
 
-        if (($personID == '0') || ($personID == "")) {
+        // Get staff item type
+        $staffItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
 
-            // get staff item type
-            $staffItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
+        // Add new entry
+        $staffID = createEmptyItem($staffItemTypeID, $clientID);
 
-            // add new entry
-            $personID = createEmptyItem($staffItemTypeID, $clientID);
+        // Update the system property 'staff.Name' with the login-email
+        setPropertyValueByID($definitions['staffName'], $staffItemTypeID, $staffID, $clientID, $login, '', $RSuserID);
 
-            // update main value with the login (TODO: the main value of the items "staff" may not be
-            // the name or an identifier name... so we could add an application property called "name"
-            // to the staff itemtype and use it for saving login into the item entry)
-            setPropertyValueByID(getMainPropertyID($staffItemTypeID, $clientID), $staffItemTypeID, $personID, $clientID, $login, '', $RSuserID);
-        }
-
-        // Insert user into rs_users table
-        $newID = getNextIdentification("rs_users", "RS_USER_ID", $clientID);
-        $newBadge = RSgetUniqueBadge();
-        $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID, RS_BADGE) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $personID . ',"' . $newBadge . '")';
     }
 
-    // execute the query
+    // Insert user into rs_users table
+    $newID = getNextIdentification("rs_users", "RS_USER_ID", $clientID);
+    $theQueryUser = 'INSERT INTO rs_users (RS_USER_ID, RS_CLIENT_ID, RS_LOGIN, RS_PASSWORD, RS_ITEM_ID, RS_BADGE) VALUES (' . $newID . ',' . $clientID . ',"' . $login . '","' . $password . '",' . $staffID . ',"' . $badge . '")';
+
+    // Execute the query
     if ($result = RSQuery($theQueryUser)) {
+        
+        $createdUser['userID' ] = $newID;
+        $createdUser['staffID'] = $staffID;
+        
+        // And write XML Response back to the application
+        RSReturnArrayResults($createdUser);
 
-        $results['userID'  ] = $newID;
-        $results['login'   ] = $login;
-        $results['personID'] = $personID;
     } else {
-
-        $results['result'] = "NOK";
+        RSReturnError("QUERY ERROR CREATING USER.", "3");
     }
 
-} else $results['result'] = "NOK"; // Invalid clientID
+} else {
+    RSReturnError("ERROR CREATING USER. INVALID CLIENTID.", "4");
+}
 
-// And write XML Response back to the application
-RSReturnArrayResults($results);
 ?>
