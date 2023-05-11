@@ -47,48 +47,47 @@ function RSCheckCompatibleDB($serviceMode) {
     return 1;
 }
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 // Check if the current user has access to work with the selected database
 function RSCheckUserAccess() {
-	if (!isset($GLOBALS['RS_POST']['RSLogin'          ])) return 0;
-	if (!isset($GLOBALS['RS_POST']['RSuserMD5Password'])) return 0;
-
-    // Continue with the 'classic' comprobation
-    $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+    if (!isset($GLOBALS['RS_POST']['RSLogin'])) return 0;
+    
+    if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
+        // Continue checking the username and password.
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+    
+    } else {
+        // There is no defined password. Use the login as a badge.
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+    }
 
     $users = RSQuery($theQuery);
 
     // Check the results
     if (!$users) return -1;
 
-    // There was an error executing the query
-    if ($users->num_rows != 1) return 0;
     // User not found
+    if ($users->num_rows != 1) return 0;
 
     // A single user was found with the provided login and password
-    // So return the user ID
     $row = $users->fetch_assoc();
     return $row['RS_USER_ID'];
 }
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Get the personId (staffID) from passed user
-function getUserPerson($userID, $clientID) {
 
-    // Continue with the 'classic' comprobation
+// Get the staff associated with a customer's user.
+function getUserStaffID($userID, $clientID) {
+
     $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
-
     $users = RSQuery($theQuery);
 
     // Check the results
     if (!$users) return -1;
 
-    // There was an error executing the query
-    if ($users->num_rows != 1) return 0;
     // User not found
+    if ($users->num_rows != 1) return 0;
 
     // A single user was found with the userID
-    // So return the person ID
     $row = $users->fetch_assoc();
     return $row['RS_ITEM_ID'];
 }

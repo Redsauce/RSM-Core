@@ -1,6 +1,7 @@
 <?php
 // Database connection startup
 include "../../utilities/RSconfiguration.php";
+include "../../utilities/RSMbadgesManagement.php";
 
 $oldVersion = "6.8.1.3.163";
 $newVersion = "6.9.0.3.164";
@@ -40,13 +41,28 @@ foreach($postSQLs as $postSQL){
 $mysqli->query("COMMIT");
 
 // Assign a badget for each user
-include "../../utilities/RSMbadgesManagement.php";
-echo("Creating badges... \n\n");
+function RSupdateAllBadgeUsers($RSclientID = null){
+    $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
+    
+    if ($RSclientID != null) {
+        $theQuery_users .= " WHERE RS_CLIENT_ID = '$RSclientID'";
+    }
+    
+    $resultUsers = RSQuery($theQuery_users);
+    
+    while ($row=$resultUsers->fetch_assoc()){
+        RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);
+    }
+}
+
+echo("Creating badges for all users... \n\n");
 RSupdateAllBadgeUsers();
 
 // Closes the modification of the user table
-$mysqli->query("ALTER TABLE rs_users CHANGE `RS_BADGE` `RS_BADGE` CHAR(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL;");
-$mysqli->query("ALTER TABLE rs_users ADD UNIQUE(RS_BADGE);");
+echo ("Modifying the user table to make badges unique for each customer...\n\n");
+$mysqli->query("ALTER TABLE rs_users CHANGE `RS_BADGE` `RS_BADGE` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;");
+$mysqli->query("ALTER TABLE rs_users ADD CONSTRAINT RS_BADGE_UNIQUE UNIQUE KEY (RS_BADGE, RS_CLIENT_ID)");
 
 echo ("[SUCCESS]: Database successfully updated from v" . $oldVersion . " to v" . $newVersion . "\n\n");
+
 ?>
