@@ -668,3 +668,8 @@ function getRequestParams()
     }
     return $params;
 }
+
+function checkCorrectRequestMethod($requestMethod)
+{
+    if ($requestMethod != $_SERVER["REQUEST_METHOD"]) returnJsonMessage(400, "");
+}
