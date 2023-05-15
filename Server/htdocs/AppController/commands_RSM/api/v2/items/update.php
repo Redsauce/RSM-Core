@@ -95,15 +95,14 @@ if ($response != "[]") {
   returnJsonResponse($response);
 }
 
-
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-  checkBodyIsArray($body);
+  checkIsArray($body);
   foreach ($body as $item) {
-    checkIsJsonObjectInArray($item);
-    checkBodyContainsID($item);
-    checkIDisInteger($item);
+    checkIsJsonObject($item);
+    checkBodyContains($item, "ID");
+    checkIsInteger($item->ID);
   }
 }
 

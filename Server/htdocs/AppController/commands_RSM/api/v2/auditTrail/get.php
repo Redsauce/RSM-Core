@@ -66,7 +66,7 @@ returnJsonResponse($response);
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-    checkBodyIsJsonObject($body);
-    checkBodyContainsID($body);
-    checkBodyContainsPropertyID($body);
+    checkIsJsonObject($body);
+    checkBodyContains($body, "ID");
+    checkBodyContains($body, "propertyID");
 }

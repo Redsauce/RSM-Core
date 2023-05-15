@@ -148,10 +148,12 @@ if (strpos($valuePropertyRelated, ",") === false) {
 $results = json_encode($results);
 if ($results != "[]") {
     returnJsonResponse($results);
-} else  returnJsonMessage(404, "");
+} else returnJsonMessage(404, "");
 
 function verifyBodyContent($body)
 {
-    checkBodyIsJsonObject($body);
-    checkBodyContainsItemTypeFilterPropertyFilterPropertyID($body);
+    checkIsJsonObject($body);
+    checkBodyContains($body, "itemType");
+    checkBodyContains($body, "filterProperty");
+    checkBodyContains($body, "filterPropertyID");
 }

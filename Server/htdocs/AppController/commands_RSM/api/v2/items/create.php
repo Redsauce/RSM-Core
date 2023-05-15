@@ -72,8 +72,8 @@ if ($response != "[]") {
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-  checkBodyIsArray($body);
+  checkIsArray($body);
   foreach ($body as $item) {
-    checkIsJsonObjectInArray($item);
+    checkIsJsonObject($item);
   }
 }

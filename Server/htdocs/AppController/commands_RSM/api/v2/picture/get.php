@@ -460,9 +460,9 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension)
 }
 function validateRequestParams($parameters)
 {
-    checkParamsContainsID($parameters);
-    checkParamsContainsPropertyID($parameters);
-    checkWParamIsNumeric($parameters);
-    checkHParamIsNumeric($parameters);
+    checkParamsContains($parameters, "ID");
+    checkParamsContains($parameters, "propertyID");
+    checkIsInteger($parameters["w"]);
+    checkIsInteger($parameters["h"]);
     checkADJParamIsValid($parameters);
 }

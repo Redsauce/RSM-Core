@@ -100,6 +100,6 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
 //validate params sent are the ones needed
 function verifyRequestParams($parameters)
 {
-    checkParamsContainsID($parameters);
-    checkParamsContainsPropertyID($parameters);
+    checkParamsContains($parameters, "ID");
+    checkParamsContains($parameters, "propertyID");
 }

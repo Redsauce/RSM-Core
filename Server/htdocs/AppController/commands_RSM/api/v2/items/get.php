@@ -152,9 +152,9 @@ if ($response != "[]") {
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-    checkBodyIsJsonObject($body);
-    checkBodyContainsItemTypeIDorPropertyIDs($body);
-    checkItemTypeIDisInteger($body);
-    checkPropertyIDsIsArray($body);
-    checkIDsIsArray($body);
+    checkIsJsonObject($body);
+    checkBodyContainsAtLeastOne($body, "itemTypeID", "propertyIDs");
+    checkIsInteger($body->itemTypeID);
+    checkIsArray($body->propertyIDs);
+    checkIsArray($body->IDs);
 }

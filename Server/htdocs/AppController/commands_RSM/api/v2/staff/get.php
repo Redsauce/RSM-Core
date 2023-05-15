@@ -33,8 +33,8 @@ returnJsonResponse($response);
 
 function verifyBodyContent($body)
 {
-  checkBodyIsJsonObject($body);
-  checkBodyContainsLogin($body);
-  checkBodyContainsPassword($body);
-  checkBodyContainsClientID($body);
+  checkIsJsonObject($body);
+  checkBodyContains($body, "login");
+  checkBodyContains($body, "password");
+  checkBodyContains($body, "clientID");
 }

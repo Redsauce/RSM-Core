@@ -78,7 +78,7 @@ if (verifyItemExists($ID, $itemTypeID, $clientID)) {
 }
 function verifyBodyContent($body)
 {
-    checkBodyIsJsonObject($body);
-    checkBodyContainsID($body);
-    checkBodyContainsItemTypeId($body);
+    checkIsJsonObject($body);
+    checkBodyContains($body, "ID");
+    checkBodyContains($body, "itemTypeID");
 }
