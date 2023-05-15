@@ -88,7 +88,7 @@ ENV IMAGECACHE=$ARG_IMAGECACHE
 ENV FILECACHE=$ARG_FILECACHE
 ENV BLOWFISHKEY=$ARG_BLOWFISHKEY
 
-RUN php-fpm7.3 -t && nginx -t && systemctl stop nginx.service
+RUN php-fpm7.3 -t && nginx -t
 
 EXPOSE 80
 
