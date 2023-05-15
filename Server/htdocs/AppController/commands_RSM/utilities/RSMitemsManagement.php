@@ -180,7 +180,7 @@ function getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken)
                 }
 
                 // store info
-                $results[] = array('id' => $row['pID'], 'name' => $row['pName'], 'type' => $row['pType'], 'value' => $propertyValue, 'realValue' => $propertyRealValue,);
+                $results[] = array('id' => $row['pID'], 'name' => $row['pName'], 'type' => $row['pType'], 'value' => $propertyValue, 'realValue' => $propertyRealValue);
             }
         }
     }
