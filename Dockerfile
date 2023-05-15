@@ -37,12 +37,11 @@ RUN apt update && apt-get install -y \
 RUN cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.orig
 RUN sed -i -E 's/^(\s*#?\s*keepalive_timeout\s+(\w|\W)+\s*)/# \1\nkeepalive_timeout 2;/' /etc/nginx/nginx.conf
 RUN sed -i -E 's/^(\s*#?\s*server_tokens\s+(\w|\W)+\s*)/# \1\nserver_tokens off;/' /etc/nginx/nginx.conf
-RUN sed -i -E 's/^(\s*#?\s*access_log\s+(\w|\W)+\s*)/# \1\naccess_log /dev/stdout;/' /etc/nginx/nginx.conf
-RUN sed -i -E 's/^(\s*#?\s*error_log\s+(\w|\W)+\s*)/# \1\nerror_log /dev/stderr;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*access_log\s+(\w|\W)+\s*)/# \1\naccess_log \/dev\/stdout;/' /etc/nginx/nginx.conf
+RUN sed -i -E 's/^(\s*#?\s*error_log\s+(\w|\W)+\s*)/# \1\nerror_log \/dev\/stderr;/' /etc/nginx/nginx.conf
 
-
-RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
-RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
+# access_log /var/log/nginx/access.log;
+# error_log /var/log/nginx/error.log;
 
 ENV RSM_FILE_NAME=rsm.conf
 ENV RSM_CONF_PATH=/etc/nginx/sites-available/${RSM_FILE_NAME}
@@ -51,6 +50,10 @@ COPY ./${RSM_FILE_NAME} ${RSM_CONF_PATH}
 RUN mkdir -p /var/log/nginx && touch /var/log/nginx/rsm_access.log && touch /var/log/nginx/rsm_error.log && chown -R www-data: /var/log/nginx
 
 RUN ln -s ${RSM_CONF_PATH} /etc/nginx/sites-enabled/${RSM_FILE_NAME} && rm /etc/nginx/sites-enabled/default
+
+
+RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
+RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
 
 RUN mkdir -p /var/log/php-fpm && touch /var/log/php-fpm/access.log && touch /var/log/php-fpm/error.log && chown -R www-data: /var/log/php-fpm
 
@@ -88,3 +91,5 @@ ENV BLOWFISHKEY=$ARG_BLOWFISHKEY
 RUN php-fpm7.3 -t && nginx -t
 
 EXPOSE 80
+
+HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=3 CMD curl -f http://localhost/ || exit 1
