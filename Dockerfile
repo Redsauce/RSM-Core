@@ -88,8 +88,10 @@ ENV IMAGECACHE=$ARG_IMAGECACHE
 ENV FILECACHE=$ARG_FILECACHE
 ENV BLOWFISHKEY=$ARG_BLOWFISHKEY
 
-RUN php-fpm7.3 -t && nginx -t
+RUN php-fpm7.3 -t && nginx -t && systemctl stop nginx.service
 
 EXPOSE 80
 
 HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=3 CMD curl -f http://localhost/ || exit 1
+
+CMD ["nginx" "-g" "daemon off;"]
