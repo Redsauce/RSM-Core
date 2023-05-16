@@ -60,7 +60,7 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
 function checkIsInteger($item)
 {
   global $RSallowDebug;
-  if (!is_int($item)) {
+  if (isset($item) && !is_int($item)) {
     if ($RSallowDebug) returnJsonMessage(400, "'{$item}' must be an integer");
     else returnJsonMessage(400, "");
   }
