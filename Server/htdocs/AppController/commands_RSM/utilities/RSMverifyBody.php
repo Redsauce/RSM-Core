@@ -16,7 +16,7 @@ function checkIsJsonObject($item)
 function checkIsArray($item)
 {
   global $RSallowDebug;
-  if (!is_array($item)) {
+  if (!is_null($item) and !is_array($item)) {
     if ($RSallowDebug) returnJsonMessage(400, "Invalid Array '[]'");
     else returnJsonMessage(400, "");
   }
