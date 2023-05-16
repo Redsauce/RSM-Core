@@ -41,8 +41,8 @@ RUN sed -i -E 's/^(\s*#?\s*access_log\s+(\w|\W)+\s*)/# \1\naccess_log \/var\/log
 RUN sed -i -E 's/^(\s*#?\s*error_log\s+(\w|\W)+\s*)/# \1\nerror_log \/var\/log\/nginx\/error.log;/' /etc/nginx/nginx.conf
 
 RUN mkdir -p /var/log/nginx
-RUN ln -s /var/log/nginx/access.log /dev/stdout
-RUN ln -s /var/log/nginx/error.log /dev/stderr
+RUN ln -s /dev/stdout /var/log/nginx/access.log
+RUN ln -s /dev/stderr /var/log/nginx/error.log
 RUN chmod u=rw,g=r,o=r /var/log/nginx
 RUN chown -R www-data:www-data /var/log/nginx
 
@@ -64,8 +64,8 @@ RUN sed -i -E 's/^(\s*;?\s*listen\.allowed_clients\s*=\s*(\w|\W)*\s*)/;\1\nliste
 RUN sed -i -E 's/^(\s*;?\s*access\.log\s*\=\s*(\w|\W)*\s*)/\;\1\naccess.log\=\/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/log/php-fpm
-RUN ln -s /var/log/php-fpm/access.log /dev/stdout
-RUN ln -s /var/log/php-fpm/error.log /dev/stderr
+RUN ln -s /dev/stdout /var/log/php-fpm/access.log
+RUN ln -s /dev/stderr /var/log/php-fpm/error.log
 RUN chmod u=rw,g=r,o=r /var/log/php-fpm
 RUN chown -R www-data: /var/log/php-fpm
 
