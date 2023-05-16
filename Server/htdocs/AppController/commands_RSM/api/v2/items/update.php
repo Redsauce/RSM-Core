@@ -44,7 +44,7 @@ foreach ($requestBody as $item) {
     if ($propertyID != "id" && $propertyID != "ID") $propertiesID[] = ParsePID($propertyID, $clientID);
   }
   $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
-  $hasAllPermissions = checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID);
+  $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
   if ($itemTypeIDID == 0) {
     if ($RSallowDebug) {
@@ -106,7 +106,7 @@ function verifyBodyContent($body)
   }
 }
 
-function checkTokenHasAllPermissions($RStoken, $RSuserID, $clientID, $propertiesID)
+function checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID)
 {
   foreach ($propertiesID as $propertyID) {
     if (RShasTokenPermission($RStoken, $propertyID, "WRITE") || isPropertyVisible($RSuserID, $propertyID, $clientID)) {
