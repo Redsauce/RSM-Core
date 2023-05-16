@@ -16,7 +16,7 @@ function checkIsJsonObject($item)
 function checkIsArray($item)
 {
   global $RSallowDebug;
-  if (!is_array($item)) {
+  if (!is_null($item) and !is_array($item)) {
     if ($RSallowDebug) returnJsonMessage(400, "Invalid Array '[]'");
     else returnJsonMessage(400, "");
   }
@@ -60,7 +60,7 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
 function checkIsInteger($item)
 {
   global $RSallowDebug;
-  if (!is_int($item)) {
+  if (isset($item) && !is_int($item)) {
     if ($RSallowDebug) returnJsonMessage(400, "'{$item}' must be an integer");
     else returnJsonMessage(400, "");
   }

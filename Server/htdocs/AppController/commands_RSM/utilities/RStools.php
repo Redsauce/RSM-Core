@@ -559,8 +559,14 @@ function replaceUtf8Characters($propertyValue) {
 }
 
 // Returns request body sent through petition, transormed into php object (json)
-function getRequestBody(){
-    return json_decode(stripslashes(file_get_contents('php://input')));
+function getRequestBody() {
+    global $RSallowDebug;
+    $body = json_decode(stripslashes(file_get_contents('php://input')));
+    if ($body == "") {
+        if ($RSallowDebug) returnJsonMessage(400, "Invalid JSON body");
+        else returnJsonMessage(400, "");
+    }
+    return $body;
 }
 
 function returnJsonMessage($code, $message) {
