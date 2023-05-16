@@ -40,6 +40,8 @@ RUN sed -i -E 's/^(\s*#?\s*server_tokens\s+(\w|\W)+\s*)/# \1\nserver_tokens off;
 RUN sed -i -E 's/^(\s*#?\s*access_log\s+(\w|\W)+\s*)/# \1\naccess_log \/var\/log\/nginx\/access.log;/' /etc/nginx/nginx.conf
 RUN sed -i -E 's/^(\s*#?\s*error_log\s+(\w|\W)+\s*)/# \1\nerror_log \/var\/log\/nginx\/error.log;/' /etc/nginx/nginx.conf
 
+RUN rm /var/log/nginx/access.log
+RUN rm /var/log/nginx/error.log
 RUN mkdir -p /var/log/nginx
 RUN ln -s /dev/stdout /var/log/nginx/access.log
 RUN ln -s /dev/stderr /var/log/nginx/error.log
