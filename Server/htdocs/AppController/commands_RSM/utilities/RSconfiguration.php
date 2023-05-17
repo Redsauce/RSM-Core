@@ -28,7 +28,7 @@ $RSMapiURL   = getenv('APIURL') == false ? 'apiurl_undefined' : getenv('APIURL')
 $RSMmediaURL   = getenv('MEDIAURL') == false ? 'mediaurl_undefined' : getenv('MEDIAURL');
 
 // Image cache configuration
-$RSimageCacheUndefined = 'imagecache_undefined'
+$RSimageCacheUndefined = 'imagecache_undefined';
 $RSimageCache = getenv('IMAGECACHE') == false ? $RSimageCacheUndefined : getenv('IMAGECACHE');
 if (!is_dir($RSimageCache) && getenv('IMAGECACHE') != false && $RSimageCache != $RSimageCacheUndefined) {
     mkdir($RSimageCache, 0770, true);
@@ -37,7 +37,7 @@ if (!is_dir($RSimageCache) && getenv('IMAGECACHE') != false && $RSimageCache != 
 $enable_image_cache  = is_dir($RSimageCache) ? true : strtolower(getenv('ENABLE_IMAGE_CACHE')) === "true";
 
 // File cache configuration
-$RSfileCacheUndefined = 'filecache_undefined'
+$RSfileCacheUndefined = 'filecache_undefined';
 $RSfileCache  = getenv('FILECACHE') == false ? $RSfileCacheUndefined : getenv('FILECACHE');
 if (!is_dir($RSfileCache) && getenv('FILECACHE') != false && $RSfileCache != $RSfileCacheUndefined) {
     mkdir($RSfileCache, 0770, true);
