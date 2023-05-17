@@ -71,17 +71,14 @@ RUN ln -s /dev/stderr /var/log/php-fpm/error.log
 RUN chmod u=rw,g=r,o=r /var/log/php-fpm
 RUN chown -R www-data: /var/log/php-fpm
 
-RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
+RUN mkdir -p /var/www/rsm_file_cache && mkdir -p /var/www/rsm_image_cache && mkdir -p /tmp/php_tmp
 
-COPY ./roche.svg ./Server/htdocs/ /var/www/html/
+COPY ./Server/htdocs/ /var/www/html/
 
 RUN echo "<html><head><title>navify Inventory - RSM</title></head><body>navify Inventory - RSM</body></html>" > /var/www/html/index.html
 
-RUN find /var/www/html/AppController -type d -exec chmod u=rwx,g=rx,o=rx {} +
-RUN find /var/www/html/AppController -type f -exec chmod u=rw,g=r,o=r {} +
-RUN chmod u=rw,g=r,o=r /var/www/html/index*
-RUN chmod u=rw,g=r,o=r /var/www/html/roche.svg
-
+RUN find /var/www/html/ -type d -exec chmod u=rwx,g=rx,o=rx {} +
+RUN find /var/www/html/ -type f -exec chmod u=rw,g=r,o=r {} +
 RUN chown -R www-data:www-data /var/www
 
 ENV DBHOST=$ARG_DBHOST
