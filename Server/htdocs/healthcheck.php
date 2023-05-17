@@ -30,7 +30,7 @@ header("Content-Type: application/json");
 Header("Content-Length: " . strlen($response));
 
 // Finally send the response
-echo $response
+echo $response;
 
 // Function to check the database connectivity
 function checkDatabaseConnectivityStatus(){
