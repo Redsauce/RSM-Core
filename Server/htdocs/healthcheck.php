@@ -15,7 +15,7 @@ $errorHeaderMessage = $_SERVER['SERVER_PROTOCOL'] . ' 500 INTERNAL SERVER ERROR'
 // Check the status of your application
 // Add your application-specific health checks here
 // For example, check the database connection, external services, etc.
-$dbConnCheck = checkDatabaseConnectivityStatus();
+$dbConnCheck = checkDatabaseConnectivityStatus($RShost, $RSuser, $RSpassword, $RSdatabase);
 if (!$dbConnCheck['success']) {
     header($errorHeaderMessage, true, 500);
     $response['status'] = 'ko';
@@ -33,7 +33,7 @@ Header("Content-Length: " . strlen($response));
 echo $response;
 
 // Function to check the database connectivity
-function checkDatabaseConnectivityStatus(){
+function checkDatabaseConnectivityStatus($RShost, $RSuser, $RSpassword, $RSdatabase){
     $result = array(
         'success' => true,
         'message' => 'connection alive'
