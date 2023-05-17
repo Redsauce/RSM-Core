@@ -65,7 +65,7 @@ RUN sed -i -E 's/^(\s*;?\s*php_admin_value\[error_log\]\s*=\s*(\w|\W)*\s*)/;\1\n
 RUN sed -i -E 's/^(\s*;?\s*php_flag\[display_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_flag[display_errors]=on/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*;?\s*catch_workers_output\s*=\s*(\w|\W)*\s*)/;\1\ncatch_workers_output=yes/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*;?\s*listen\.allowed_clients\s*=\s*(\w|\W)*\s*)/;\1\nlisten.allowed_clients=127.0.0.1/' /etc/php/7.3/fpm/pool.d/www.conf
-RUN sed -i -E 's/^(\s*;?\s*access\.log\s*\=\s*(\w|\W)*\s*)/\;\1\naccess.log\=\/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
+RUN sed -i -E 's/^(\s*;?\s*access\.log\s*=\s*(\w|\W)*\s*)/\;\1\naccess.log=\/var\/log\/php-fpm\/access.log/' /etc/php/7.3/fpm/pool.d/www.conf
 
 RUN mkdir -p /var/log/php-fpm
 RUN ln -s /dev/stdout /var/log/php-fpm/access.log
