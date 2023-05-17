@@ -3,7 +3,7 @@
 // RSM configuration file
 //***************************************************
 
-$RShost      = getenv('DBHOST') == false ? 'dbhost_undefined' : getenv('BHOST');
+$RShost      = getenv('DBHOST') == false ? 'dbhost_undefined' : getenv('DBHOST');
 $RSdatabase  = getenv('DBNAME') == false ? 'dbname_undefined' : getenv('DBNAME');
 $RSuser      = getenv('DBUSERNAME') == false ? 'dbusername_undefined' :  getenv('DBUSERNAME');
 $RSpassword  = getenv('DBPASSWORD') == false ? 'dbpassword_undefined' :  getenv('DBPASSWORD');
