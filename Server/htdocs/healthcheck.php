@@ -1,37 +1,48 @@
 <?php
 // health_check.php
 
-// Function to check the database connection (replace with your own implementation)
-function isDatabaseConnected()
-{
-    // Perform your database connection check here
-    // Return true if the connection is successful, false otherwise
-    // Example:
-    // $db = new PDO('mysql:host=localhost;dbname=mydatabase', 'username', 'password');
-    // return ($db !== false);
-
-    // For demonstration purposes, assume the database connection is always successful
-    return true;
-}
-
-// Set the appropriate headers for the health check response
-header("Content-Type: application/json");
+require_once "AppController/commands_RSM/utilities/RSconfiguration.php";
 
 // Define the response structure
 $response = array(
     'status' => 'ok',
-    'message' => 'Application is healthy',
+    'causes' => array(),
     'timestamp' => time()
 );
+
+$errorHeaderMessage = $_SERVER['SERVER_PROTOCOL'] . ' 500 INTERNAL SERVER ERROR';
 
 // Check the status of your application
 // Add your application-specific health checks here
 // For example, check the database connection, external services, etc.
-if (!isDatabaseConnected()) {
-    $response['status'] = 'error';
-    $response['message'] = 'Database connection error';
+$dbConnCheck = checkDatabaseConnectivityStatus();
+if (!$dbConnCheck['success']) {
+    header($errorHeaderMessage, true, 500);
+    $response['status'] = 'ko';
+    $response['causes']['dbConnectivity'] = $dbConnCheck['message'];
 }
 
+$response = json_encode($response);
+
+// Set the appropriate headers for the health check response
+header("Content-Type: application/json");
+Header("Content-Length: " . strlen($response));
+
 // Encode the response as JSON and send it
-echo json_encode($response);
+echo $response
+
+// Function to check the database connectivity
+function checkDatabaseConnectivityStatus(){
+    $result = array(
+        'success' => true,
+        'message' => 'connection alive'
+    );
+    // Connect to the database using the above settings
+    $mysqli = new mysqli($RShost, $RSuser, $RSpassword, $RSdatabase);
+    if ($mysqli->connect_errno) {
+        result['success'] = false;
+        result['message'] = $mysqli->connect_error;
+    }
+    return $result;
+}
 ?>
