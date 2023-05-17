@@ -19,6 +19,7 @@ RUN echo "#deb-src https://ppa.launchpadcontent.net/ondrej/php/ubuntu focal main
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4f4ea0aae5267a6c
 
 RUN apt update && apt-get install -y \
+    curl \
     nginx \
     php7.3 \
     php7.3-fpm \
