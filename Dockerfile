@@ -75,6 +75,8 @@ RUN mkdir -p /var/www/{rsm_image_cache,rsm_file_cache} && mkdir -p /tmp/php_tmp
 
 COPY ./roche.svg ./Server/htdocs/ /var/www/html/
 
+RUN echo "<html><head><title>navify Inventory - RSM</title></head><body>navify Inventory - RSM</body></html>" > /var/www/html/index.html
+
 RUN find /var/www/html/AppController -type d -exec chmod u=rwx,g=rx,o=rx {} +
 RUN find /var/www/html/AppController -type f -exec chmod u=rw,g=r,o=r {} +
 RUN chmod u=rw,g=r,o=r /var/www/html/index*
