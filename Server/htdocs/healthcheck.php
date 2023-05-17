@@ -22,13 +22,14 @@ if (!$dbConnCheck['success']) {
     $response['causes']['dbConnectivity'] = $dbConnCheck['message'];
 }
 
+// Encode the response as JSON
 $response = json_encode($response);
 
 // Set the appropriate headers for the health check response
 header("Content-Type: application/json");
 Header("Content-Length: " . strlen($response));
 
-// Encode the response as JSON and send it
+// Finally send the response
 echo $response
 
 // Function to check the database connectivity
