@@ -41,8 +41,8 @@ function checkDatabaseConnectivityStatus(){
     // Connect to the database using the above settings
     $mysqli = new mysqli($RShost, $RSuser, $RSpassword, $RSdatabase);
     if ($mysqli->connect_errno) {
-        result['success'] = false;
-        result['message'] = $mysqli->connect_error;
+        $result['success'] = false;
+        $result['message'] = $mysqli->connect_error;
     }
     return $result;
 }
