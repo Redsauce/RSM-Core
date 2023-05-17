@@ -59,6 +59,7 @@ RUN cp /etc/php/7.3/fpm/php.ini /etc/php/7.3/fpm/php.ini.orig
 RUN sed -i -E 's/^(\s*cgi\.fix_pathinfo\s*=\s*(\w|\W)*\s*)/;\1\ncgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini
 
 RUN cp /etc/php/7.3/fpm/pool.d/www.conf /etc/php/7.3/fpm/pool.d/www.conf.orig
+RUN sed -i -E 's/^(\s*;?\s*clear_env\s*=\s*(\w|\W)*\s*)/;\1\nclear_env=yes/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*;?\s*php_admin_flag\[log_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_flag[log_errors]=on/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*;?\s*php_admin_value\[error_log\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_admin_value[error_log]=\/var\/log\/php-fpm\/error.log/' /etc/php/7.3/fpm/pool.d/www.conf
 RUN sed -i -E 's/^(\s*;?\s*php_flag\[display_errors\]\s*=\s*(\w|\W)*\s*)/;\1\nphp_flag[display_errors]=on/' /etc/php/7.3/fpm/pool.d/www.conf
