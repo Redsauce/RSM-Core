@@ -77,7 +77,7 @@ RUN mkdir -p /var/www/rsm_file_cache && mkdir -p /var/www/rsm_image_cache && mkd
 
 COPY ./Server/htdocs/ /var/www/html/
 
-RUN echo "<html><head><title>navify Inventory - RSM</title></head><body>navify Inventory - RSM</body></html>" > /var/www/html/index.html
+RUN echo "<html><head><title>RSM</title></head><body>RSM</body></html>" > /var/www/html/index.html
 
 RUN find /var/www/html/ -type d -exec chmod u=rwx,g=rx,o=rx {} +
 RUN find /var/www/html/ -type f -exec chmod u=rw,g=r,o=r {} +
