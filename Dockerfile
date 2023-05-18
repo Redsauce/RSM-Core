@@ -99,6 +99,6 @@ RUN php-fpm7.3 -t && nginx -t
 
 EXPOSE 80
 
-HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=3 CMD curl -f http://localhost/healthcheck || exit 1
+HEALTHCHECK --interval=60s --timeout=5s --start-period=60s --retries=3 CMD curl -f http://localhost/healthcheck || exit 1
 
 ENTRYPOINT ["sh", "-c", "php-fpm7.3 --daemonize && nginx -c /etc/nginx/nginx.conf -g 'daemon off;'"]
