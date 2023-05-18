@@ -9,11 +9,15 @@ function checkTriggeredEvents($clientID) {
     global $RSMcreatedItemIDs;
     global $RSMupdatedItemIDs;
     global $RSMdeletedItemIDs;
+    global $RSMsplitTriggers;
 
     $eventsHandlerToken = getGlobalVariableValue("eventsHandler.token", $clientID);
 
     // This token must be defined in the global variables in order for the triggers to be enabled
-    if ($eventsHandlerToken == "") return;
+    if ($eventsHandlerToken == "") {
+        $RSMsplitTriggers = false;
+	    return;
+    }
 
     // Check if there are events associated to the items creation
     if (count($RSMcreatedItemIDs) > 0) {
@@ -26,11 +30,26 @@ function checkTriggeredEvents($clientID) {
 
         $triggerIDs = getTriggerIDs($createdItemTypeIDs, $clientID, "triggerTypeCreateItem");
 
-        if (count($triggerIDs) > 0) queueActions($RSMcreatedItemIDs, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+
+        if (count($triggerIDs) > 0) {
+
+            // When we have RSMsplitTriggers enabled, we queue an action for each item
+            if($RSMsplitTriggers == true){
+                foreach($RSMcreatedItemIDs as $oneCreatedItemID){
+                    $affectedItemID = array();
+                    array_push($affectedItemID, $oneCreatedItemID);
+                    queueActions($affectedItemID, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+                }
+            } else {
+                queueActions($RSMcreatedItemIDs, $triggerIDs, "itemsCreated", $eventsHandlerToken);
+            }
+
+        }
+
     }
 
     // Check if there are events associated to the items update
-    if (count($RSMupdatedItemIDs) > 0 ) {
+    if (count($RSMupdatedItemIDs) > 0) {
         $updatedItemTypeIDs = array();
 
         foreach ($RSMupdatedItemIDs as $group) {
@@ -40,7 +59,21 @@ function checkTriggeredEvents($clientID) {
 
         $triggerIDs = getTriggerIDs($updatedItemTypeIDs, $clientID, "triggerTypeUpdateItem");
 
-        if (count($triggerIDs) > 0) queueActions($RSMupdatedItemIDs, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+        if (count($triggerIDs) > 0) {
+
+            // When we have RSMsplitTriggers enabled, we queue an action for each item
+            if($RSMsplitTriggers == true){
+                foreach($RSMupdatedItemIDs as $oneUpdatedItemID){
+                    $affectedItemID = array();
+                    array_push($affectedItemID, $oneUpdatedItemID);
+                    queueActions($affectedItemID, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+		}   
+            }else{
+                queueActions($RSMupdatedItemIDs, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
+            }
+
+        }
+
     }
 
     // Check if there are events associated to the items deletion
@@ -56,6 +89,8 @@ function checkTriggeredEvents($clientID) {
 
         if (count($triggerIDs) > 0) queueActions($RSMdeletedItemIDs, $triggerIDs, "itemsDeleted", $eventsHandlerToken);
     }
+    
+   $RSMsplitTriggers = false;
 
 }
 
@@ -81,8 +116,8 @@ function getTriggerIDs($ITIDs, $clientID, $mode) {
        "TriggerITID: ".$TriggerITID.chr(13).
        "TriggerTypePID: ".$TriggerTypePID.chr(13).
        "TriggerItemTypesPID: ".$TriggerItemTypesPID, "Trigger");
-    }
-    else {
+    
+    } else {
          // Build filter properties array
         $filterProperties   = array();
         $filterProperties[] = array('ID' => $TriggerTypePID,      'value' => $TriggerTypePV, 'mode' => "=" );
@@ -108,8 +143,8 @@ function getActionIDsByItemTypeIDs($ITIDs, $clientID, $mode) {
     return getActionIDsFromTriggerIDs($triggerIDs, $clientID);
 }
 
+// This function returns an array with the IDs of the actions, that should be executed by this URL trigger
 function getActionsByURLTriggerName($trigger, $clientID) {
-    // This function returns an array with the IDs of the actions, that should be executed by this URL trigger
 
     // Recover typeID and propertiesID from triggers
     $propertyURL                  = getValue(getClientListValueID_RelatedWith(getAppListValueID('triggerTypeUrl') , $clientID), $clientID);
@@ -151,15 +186,15 @@ function getActionIDsFromTriggerIDs($triggerIDs, $clientID) {
 }
 
 function getActionsFromTriggerIDs($triggerIDs, $clientID) {
-    $clientEventTriggerPropertyID = getClientPropertyID_RelatedWith_byName('eventTrigger.eventID', $clientID);
-    $clientEventTriggerPropertyPriority = getClientPropertyID_RelatedWith_byName('eventTrigger.priority', $clientID);
+    $clientEventTriggerPropertyID               = getClientPropertyID_RelatedWith_byName('eventTrigger.eventID'         , $clientID);
+    $clientEventTriggerPropertyPriority         = getClientPropertyID_RelatedWith_byName('eventTrigger.priority'        , $clientID);
     $clientEventTriggerPropertyAvoidDuplication = getClientPropertyID_RelatedWith_byName('eventTrigger.avoidDuplication', $clientID);
-    $actionIDs = array();
+    $actionIDs             = array();
     $actionIDsWithPriority = array();
 
     foreach ($triggerIDs as $triggerID) {
-        $actions = explode(",", getItemPropertyValue($triggerID, $clientEventTriggerPropertyID, $clientID));
-        $priority = $clientEventTriggerPropertyPriority==0?0:getItemPropertyValue($triggerID, $clientEventTriggerPropertyPriority, $clientID);
+        $actions          = explode(",", getItemPropertyValue($triggerID, $clientEventTriggerPropertyID, $clientID));
+        $priority         = $clientEventTriggerPropertyPriority==0?0:getItemPropertyValue($triggerID, $clientEventTriggerPropertyPriority, $clientID);
         $avoidDuplication = $clientEventTriggerPropertyAvoidDuplication==0?"No":getItemPropertyValue($triggerID, $clientEventTriggerPropertyAvoidDuplication, $clientID);
 
         foreach ($actions as $action) {
@@ -180,7 +215,7 @@ function getActionsFromTriggerIDs($triggerIDs, $clientID) {
 function getActionScript($actionID, $clientID) {
     // This function returns an array with the action scripts corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID      = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID      = getClientItemTypeID_RelatedWith_byName('event'        , $clientID);
     $propertyScriptID = getClientPropertyID_RelatedWith_byName('event.actions', $clientID);
 
     // Filter includes
@@ -190,7 +225,7 @@ function getActionScript($actionID, $clientID) {
 function getActionToken($actionID, $clientID) {
     // This function returns an array with the token corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID     = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID     = getClientItemTypeID_RelatedWith_byName('event'      , $clientID);
     $propertyTokenID = getClientPropertyID_RelatedWith_byName('event.token', $clientID);
 
     // Filter includes
@@ -200,7 +235,7 @@ function getActionToken($actionID, $clientID) {
 function getActionName($actionID, $clientID) {
     // This function returns a string with the action name corresponding with the passed actionID
     // Retrieve the script for each action
-    $eventTypeID    = getClientItemTypeID_RelatedWith_byName('event', $clientID);
+    $eventTypeID    = getClientItemTypeID_RelatedWith_byName('event'     , $clientID);
     $propertyNameID = getClientPropertyID_RelatedWith_byName('event.name', $clientID);
 
     // Filter includes
@@ -240,15 +275,15 @@ function queueActions($RSdata, $triggerIDs, $mode, $RStoken) {
    }
 }
 
-function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplication = 'No', $personID = 0) {
-    $result = queueEvent($clientID, $actionID, $RSdata, $priority, $avoidDuplication, $personID);
+function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
+    $result = queueEvent($clientID, $actionID, $RSdata, $priority, $avoidDuplication, $staffID);
 
-    //error_log("RSMeventsManagement/queueAction - personID: ". $personID);
+    //error_log("RSMeventsManagement/queueAction - staffID: ". $staffID);
     // TODO: Send an email if there were a problem
     if (!$result) mail('webmaster@redsauce.net', 'Error scheduling job', wordwrap("The action ID " . $actionID . " could not be queued.",70,"\r\n"));
 }
 
-function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplication = 'No', $personID = 0) {
+function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
     // Register the event in the rs_events table
 
     $eventPID        = getClientPropertyID_RelatedWith_byName("scheduledEvents.event"         , $clientID);
@@ -263,6 +298,7 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         ($executionEndPID == 0) ||
         ($parametersPID   == 0) ||
         ($priorityPID     == 0)) {
+      
       // One of the properties is not related
       return false;
     }
@@ -273,12 +309,14 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     $pValues[] = array('ID' => $parametersPID  , 'value' => $data);
     $pValues[] = array('ID' => $priorityPID    , 'value' => $priority);
 
-        if($personID != 0 ){
+    if ($staffID != 0) {
+
       if ($userPID == 0) {
         // One of the properties is not related
         return false;
       }
-      $pValues[] = array('ID' => $userPID  , 'value' => $personID);
+
+      $pValues[] = array('ID' => $userPID  , 'value' => $staffID);
     }
 
     //check if pending event can be duplicated
@@ -286,8 +324,8 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     if($avoidDuplication != 'No'){
         // Construct filterProperties array
         $filterProperties  = array(
-            array('ID' => $eventPID, 'value' => $actionID, 'mode' => "="),
-            array('ID' => $parametersPID, 'value' => $data, 'mode' => "="),
+            array('ID' => $eventPID       , 'value' => $actionID, 'mode' => "="),
+            array('ID' => $parametersPID  , 'value' => $data    , 'mode' => "="),
             array('ID' => $executionEndPID, 'value' => '00-00-00 00:00:00', 'mode' => "=")
         );
         // Construct returnProperties array

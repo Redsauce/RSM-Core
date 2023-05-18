@@ -11,6 +11,7 @@ $propertyIDs    = explode(',', $GLOBALS['RS_POST']['propertyIDs'   ]);
 $propertiesList = explode(':', $GLOBALS['RS_POST']['propertiesList']);
 
 $overwrite      = $GLOBALS['RS_POST']['overwrite'] == 1? true : false;
+$trigger        = $GLOBALS['RS_POST']['allowTriggerEvents'] == 1? true : false;
 $overwriteQuery = $overwrite ? "REPLACE INTO " : "INSERT INTO ";
 
 
@@ -125,6 +126,30 @@ if (RSquery($query)) {
     $results['query' ] = $query;
 
 }
+
+
+// Trigger events
+if ($trigger){
+	$affectedItems = array();
+	$elementID = "";
+	
+	foreach($itemIDs as $elementID){
+		array_push($affectedItems, $itemTypeID . ',' . $elementID);
+	}
+
+	if($overwrite){
+		global $RSMsplitTriggers;
+		global $RSMupdatedItemIDs;
+		$RSMsplitTriggers = true;
+		$RSMupdatedItemIDs = $affectedItems;
+	}else{
+		global $RSMsplitTriggers;
+		global $RSMcreatedItemIDs;
+		$RSMsplitTriggers = true;
+		$RSMcreatedItemIDs = $affectedItems;
+	}
+}
+
 
 // Write response back to application
 RSReturnArrayResults($results);
