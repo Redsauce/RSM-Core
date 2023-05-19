@@ -1,6 +1,6 @@
 <?php
 
-//***************************************************************************************
+//***************************************************************************
 // Description:
 //      Get grouped properties + values of the specified item (and itemType)
 // REQUEST BODY (JSON OBJECT):
@@ -8,8 +8,8 @@
 //    {
 //      "ID": 5,
 //      "itemTypeID": 8
-//    }  
-//***************************************************************************************
+//    }
+//***************************************************************************
 
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
@@ -19,7 +19,7 @@ require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../api_headers.php";
 
-// Definitions 
+//Definitions
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
@@ -29,7 +29,9 @@ $RStoken =  getRStoken();
 $ID = $requestBody->ID;
 $itemTypeID = $requestBody->itemTypeID;
 
-if (!isset($RSuserID)) $RSuserID =  0;
+if (!isset($RSuserID)) {
+    $RSuserID =  0;
+}
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
@@ -46,10 +48,13 @@ if (verifyItemExists($ID, $itemTypeID, $clientID)) {
         $results = getPropertiesExtendedForItemAndToken($itemTypeID, $ID, $RStoken);
     } else {
         // We have no credentials
-        if ($RSallowDebug) returnJsonMessage(403, "No credentials provided");
-        else returnJsonMessage(403, "");
+        if ($RSallowDebug) {
+            returnJsonMessage(403, "No credentials provided");
+        } else {
+            returnJsonMessage(403, "");
+        }
     }
-    // create the response array 
+    //create the response array
     $responseArray = array();
     $category = '';
 
@@ -73,8 +78,11 @@ if (verifyItemExists($ID, $itemTypeID, $clientID)) {
     $response = json_encode($responseArray);
     returnJsonResponse($response);
 } else {
-    if ($RSallowDebug) returnJsonMessage(404, "Item doesn't exist");
-    else returnJsonMessage(404, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(404, "Item doesn't exist");
+    } else {
+        returnJsonMessage(404, "");
+    }
 }
 function verifyBodyContent($body)
 {

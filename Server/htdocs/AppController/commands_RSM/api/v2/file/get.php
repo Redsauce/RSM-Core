@@ -5,7 +5,6 @@
 //  Query params:
 //      ID: integer: id of the item containing the file to retrieve
 //      propertyID: integer: id of the property of the item that contains the file
-//
 //***************************************************************************************
 
 require_once "../../../utilities/RStools.php";
@@ -29,13 +28,19 @@ $ID = $parameters["ID"];
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
-    if ($RSallowDebug) returnJsonMessage(403, "Token has no permissions to get this file");
-    else returnJsonMessage(403, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(403, "Token has no permissions to get this file");
+    } else {
+        returnJsonMessage(403, "");
+    }
 }
 // Check if asked property is file
 if (getPropertyType($propertyID, $clientID) != 'file') {
-    if ($RSallowDebug) returnJsonMessage(404, "Property is not a file");
-    else returnJsonMessage(404, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(404, "Property is not a file");
+    } else {
+        returnJsonMessage(404, "");
+    }
 }
 
 // create file path
@@ -82,7 +87,6 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
             $fileData = getMediaFile($clientID, $ID, $propertyID);
             $file_original = $fileData['RS_DATA'];
         }
-
         // Return the original file
         if (strtolower($extension) == "apk") {
             header('Content-type: application/vnd.android.package-archive');
@@ -91,7 +95,9 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
         }
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         echo $file_original;
-        if ($enable_file_cache) saveFileCache($file_original, $file_path, $file_name, $extension);
+        if ($enable_file_cache) {
+            saveFileCache($file_original, $file_path, $file_name, $extension);
+        }
     } else {
         returnJsonMessage(200, "");
     }

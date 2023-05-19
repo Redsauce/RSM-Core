@@ -6,18 +6,17 @@
 //    returns a picture with selected size
 //
 //params:
-//        itemID: integer: id of the item containing the image to retrieve
+//  ID: integer: id of the item containing the image to retrieve
 //  propertyID: integer: id of the property of the item that contains the picture
-//         token:  string: authentication string
-//             w: integer: selected width (same as original by default)
-//             h: integer: selected height (same as original by default)
-//           adj:  string: adjust scale to selected dimension (s by default):
-//                      (s(how all: the image is scaled proportionally to fit completely inside passed dimensions leaving blank space if needed)|
-//                       f(ill all: the image is scaled proportionally to fit lesser dimmension, centered and cropped to fit the other dimension)|
-//                       w(idth: the image is centered and scaled proportionally to fit the passed width and cropped in height if needed)|
-//                       h(eight: the image is centered and scaled proportionally to fit the passed height and cropped in width if needed)|
-//                       d(eform: the image is scaled unproportionally to fit completely both passed dimensions)|
-//                       c(rop: the image is centered and cropped if it's bigger than passed dimensions without scaling))
+//  w: integer: selected width (same as original by default)
+//  h: integer: selected height (same as original by default)
+//  adj: string: adjust scale to selected dimension (s by default):
+//        s(how all: the image is scaled proportionally to fit completely inside passed dimensions leaving blank space if needed)|
+//        f(ill all: the image is scaled proportionally to fit lesser dimmension, centered and cropped to fit the other dimension)|
+//        w(idth: the image is centered and scaled proportionally to fit the passed width and cropped in height if needed)|
+//        h(eight: the image is centered and scaled proportionally to fit the passed height and cropped in width if needed)|
+//        d(eform: the image is scaled unproportionally to fit completely both passed dimensions)|
+//        c(rop: the image is centered and cropped if it's bigger than passed dimensions without scaling))
 //returns:
 //    string: picture binary stream
 //****************************************//
@@ -50,19 +49,28 @@ array_key_exists("adj", $parameters) ? $adj = $parameters["adj"] : $adj = "";
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
-    if ($RSallowDebug) returnJsonMessage(403, "Token has no permissions to get this picture");
-    else returnJsonMessage(403, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(403, "Token has no permissions to get this picture");
+    } else {
+        returnJsonMessage(403, "");
+    }
 }
 // Check if asked property is image
 if (getPropertyType($propertyID, $clientID) != 'image') {
-    if ($RSallowDebug) returnJsonMessage(404, "Property is not an image");
-    else returnJsonMessage(404, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(404, "Property is not an image");
+    } else {
+        returnJsonMessage(404, "");
+    }
 }
 // Check if item exists
 $itemTypeID = getItemTypeIDFromProperties([$propertyID], $clientID);
 if (!verifyItemExists($ID, $itemTypeID, $clientID)) {
-    if ($RSallowDebug) returnJsonMessage(404, "Item doesn't exist");
-    else returnJsonMessage(404, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(404, "Item doesn't exist");
+    } else {
+        returnJsonMessage(404, "");
+    }
 }
 
 $clientID = getClientID();
@@ -93,9 +101,11 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     //check base image in cache
     $nombres_archivo = glob($directory . "img_" . $ID . "_*");
 
-    //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
+    //Check if cached images are resized versions of original file like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
     for ($i = count($nombres_archivo) - 1; $i >= 0; $i--) {
-        if (preg_match("/^img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) unset($nombres_archivo[$i]);
+        if (preg_match("/^img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) {
+            unset($nombres_archivo[$i]);
+        }
     }
     $nombres_archivo = array_values($nombres_archivo);
 
@@ -122,18 +132,30 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         }
 
         // Save in cache base image
-        if ($enable_image_cache) saveFileCache($imageOriginal, $directory . "img_" . $ID, $image_name, $extension);
+        if ($enable_image_cache) {
+            saveFileCache($imageOriginal, $directory . "img_" . $ID, $image_name, $extension);
+        }
     }
 
     if ($imageOriginal == '') {
-        if ($RSallowDebug) returnJsonMessage(404, "No image found");
-        else returnJsonMessage(404, "");
+        if ($RSallowDebug) {
+            returnJsonMessage(404, "No image found");
+        } else {
+            returnJsonMessage(404, "");
+        }
     }
 
-    if ($extension !== "jpg" && $extension !== "jpeg" && $extension !== "gif" && $extension !== "png" && $extension !== "svg") {
+    if (
+        $extension !== "jpg" && $extension !== "jpeg" &&
+        $extension !== "gif" && $extension !== "png" &&
+        $extension !== "svg"
+    ) {
         RSError("api_getPicture: Unknown extension: " . $extension);
-        if ($RSallowDebug) returnJsonMessage(403, "Unknown extension");
-        else returnJsonMessage(403, "");
+        if ($RSallowDebug) {
+            returnJsonMessage(403, "Unknown extension");
+        } else {
+            returnJsonMessage(403, "");
+        }
     }
 
     if ($extension == "svg") {
@@ -148,8 +170,11 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         if ($originalImage === false) {
             // The original image is not valid
             RSError("api_getPicture: not a valid image: " . $imageOriginal);
-            if ($RSallowDebug) returnJsonMessage(403, "Not a valid image");
-            else returnJsonMessage(403, "");
+            if ($RSallowDebug) {
+                returnJsonMessage(403, "Not a valid image");
+            } else {
+                returnJsonMessage(403, "");
+            }
         } else {
             // Valid image, continue processing it
             $ow = imagesx($originalImage);
@@ -197,7 +222,8 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
                     $dh = (int)($oh * $xscale);
                     $destX = 0;
                     $destY = (int)(($nh - $dh) / 2);
-                } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) && ($adj == 'f')) || ($adj == 'h')) {
+                } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) &&
+                    ($adj == 'f')) || ($adj == 'h')) {
                     $dw = (int)($ow * $yscale);
                     $dh = $nh;
                     $destX = (int)(($nw - $dw) / 2);
@@ -252,42 +278,52 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
                 switch ($extension) {
                     case "jpeg":
                         Header("Content-type: image/jpeg");
-                        echo imagejpeg($image_thumb, NULL, 90);
-                        if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
+                        echo imagejpeg($image_thumb, null, 90);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
+                        }
                         break;
 
                     case "jpg":
                         Header("Content-type: image/jpeg");
-                        echo imagejpeg($image_thumb, NULL, 90);
-                        if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
+                        echo imagejpeg($image_thumb, null, 90);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "jpg");
+                        }
                         break;
 
                     case "gif":
                         Header("Content-type: image/gif");
                         echo imagegif($image_thumb);
-                        if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "gif");
+                        }
                         break;
 
                     case "png":
                         Header("Content-type: image/png");
                         echo imagepng($image_thumb);
-                        if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "png");
+                        }
+                        break;
+
+                    default:
                         break;
                 }
             } else {
-                // Return the original image
+                //Return the original image
                 Header("Content-type: image/" . $extension);
-                if ($enable_image_cache) saveImgCache($originalImage, $image_string, $image_name, $extension);
+                if ($enable_image_cache) {
+                    saveImgCache($originalImage, $image_string, $image_name, $extension);
+                }
                 echo $imageOriginal;
             }
         }
     }
 }
 
-
-/**
- * Resize Svg image
- */
+/* Resize Svg image */
 function resizeSvg($svg_data, $w, $h, $adj)
 {
     // No hay resize, se devuelve tal cual
@@ -305,11 +341,14 @@ function resizeSvg($svg_data, $w, $h, $adj)
         $viewBoxActual = $item->getAttribute('viewBox');
         $aspectRatioActual = $item->getAttribute('preserveAspectRatio');
         //set default aspect ratio if not defined
-        if ($aspectRatioActual == "") $aspectRatioActual = "xMidYMid meet";
+        if ($aspectRatioActual == "") {
+            $aspectRatioActual = "xMidYMid meet";
+        }
         //get original ratio positioning, if it is none, set default value
         $aspectRatioParts = explode(' ', $aspectRatioActual);
-        if (count($aspectRatioParts) < 2) $aspectRatioParts = array("xMidYMid", "meet");
-
+        if (count($aspectRatioParts) < 2) {
+            $aspectRatioParts = array("xMidYMid", "meet");
+        }
         if ($viewBoxActual == "") {
             // The svg has no viewBox so can't be scaled unless we create one
             if ($widthActual != "" && $heightActual != "") {
@@ -321,10 +360,12 @@ function resizeSvg($svg_data, $w, $h, $adj)
             }
         } else {
             $viewBoxParts = explode(' ', $viewBoxActual);
-            if ($widthActual == "")
+            if ($widthActual == "") {
                 $widthActual = $viewBoxParts[2];
-            if ($heightActual == "")
+            }
+            if ($heightActual == "") {
                 $heightActual = $viewBoxParts[3];
+            }
         }
 
         if ($adj == "s") {
@@ -417,37 +458,34 @@ function resizeSvg($svg_data, $w, $h, $adj)
                 $newHeight = $h;
             }
         }
-
         $item->setAttribute('width', $newWidth . 'px');
         $item->setAttribute('height', $newHeight . 'px');
     }
-
     return $dom->saveXML();
 }
 
-/**
- * Save Image in cache directory
- */
+/*Save Image in cache directory*/
 function saveImgCache($imageOriginal, $imagePath, $image_name, $extension)
 {
     global $directory;
 
     // Check if directory exists
-    if (!file_exists($directory)) {
-        if (!mkdir($directory, 0775, true)) {
-            RSError("api_getPicture: Could not create directory");
-        }
+    if (!file_exists($directory) && !mkdir($directory, 0775, true)) {
+        RSError("api_getPicture: Could not create directory");
     }
 
     switch ($extension) {
         case "jpg":
-            return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+            return imagejpeg($imageOriginal, $imagePath . "_" .
+                rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "gif":
-            return imagegif($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+            return imagegif($imageOriginal, $imagePath . "_" .
+                rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "png":
             imagealphablending($imageOriginal, false);
             imagesavealpha($imageOriginal, true);
-            return imagepng($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+            return imagepng($imageOriginal, $imagePath . "_" .
+                rawurlencode(base64_encode($image_name)) . "." . $extension);
         case "svg":
             $file = $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension;
             $fh = fopen($file, "w");
@@ -455,7 +493,8 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension)
             fclose($fh);
             return 0;
         default:
-            return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+            return imagejpeg($imageOriginal, $imagePath . "_" .
+                rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
 function validateRequestParams($parameters)

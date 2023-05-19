@@ -7,7 +7,7 @@
 // Array with object/s inside, each object must contain
 //          - one propertyId and its value (one or more)
 //          - id: id of of the item being updated
-//  EXAMPLE: 
+//  EXAMPLE:
 //      [{
 //          "109": "Roja"
 //          "ID": "0008"
@@ -41,28 +41,39 @@ foreach ($requestBody as $item) {
   $propertiesID = array();
   //Iterate through every propertyID of the items to check if they are incongruent
   foreach ($item as $propertyID => $propertyValue) {
-    if ($propertyID != "id" && $propertyID != "ID") $propertiesID[] = ParsePID($propertyID, $clientID);
+    if ($propertyID != "id" && $propertyID != "ID") {
+      $propertiesID[] = ParsePID($propertyID, $clientID);
+    }
   }
   $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
   $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
+
   if ($itemTypeIDID == 0) {
     if ($RSallowDebug) {
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (Incongruent properties)";
-    } else $combinedArray[$itemID] = "NOK";
-  } else if (!$hasAllPermissions) {
+    } else {
+      $combinedArray[$itemID] = "NOK";
+    }
+  } elseif (!$hasAllPermissions) {
     if ($RSallowDebug) {
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
-    } else $combinedArray[$itemID] = "NOK";
-  } else if (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
+    } else {
+      $combinedArray[$itemID] = "NOK";
+    }
+  } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
     if ($RSallowDebug) {
       $combinedArray['ID'] = $itemID;
       $combinedArray['error'] = "Item doesn't exist";
-    } else $combinedArray[$itemID] = "NOK";
+    } else {
+      $combinedArray[$itemID] = "NOK";
+    }
   } else {
-    if ($RSallowDebug) $combinedArray['itemTypeID'] = intval($itemTypeIDID);
+    if ($RSallowDebug) {
+      $combinedArray['itemTypeID'] = intval($itemTypeIDID);
+    }
     $combinedArray['ID'] = $itemID;
     foreach ($item as $propertyID => $propertyValue) {
       if ($propertyID != "ID") {
@@ -72,17 +83,23 @@ foreach ($requestBody as $item) {
           //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
         } else {
           if (!mb_check_encoding($propertyValue, "UTF-8")) {
-            if ($RSallowDebug) returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
-            else returnJsonMessage(400, "");
+            if ($RSallowDebug) {
+              returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
+            } else {
+              returnJsonMessage(400, "");
+            }
           }
           $parsedValue = replaceUtf8Characters($propertyValue);
           $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, $parsedValue, $propertyType);
         }
         // Result = 0 is a successful response
         if ($result != 0) {
-          $RSallowDebug ? $combinedArray[$propertyID] = 'Not Updated (' . $result . ')' : $combinedArray[$propertyID] = 'NOK';
+          $RSallowDebug ? $combinedArray[$propertyID] = 'Not Updated (' . $result . ')' :
+            $combinedArray[$propertyID] = 'NOK';
           continue;
-        } else $RSallowDebug ? $combinedArray[$propertyID] = 'Updated' : $combinedArray[$propertyID] = 'OK';
+        } else {
+          $RSallowDebug ? $combinedArray[$propertyID] = 'Updated' : $combinedArray[$propertyID] = 'OK';
+        }
       }
     }
   }

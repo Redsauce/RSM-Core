@@ -3,7 +3,7 @@
 // Description:
 //    Get the audittrail of of the specified item and specified property
 // REQUEST BODY (JSON OBJECT):
-//  EXAMPLE 1: 
+//  EXAMPLE 1:
 //   {
 //     "ID": [471],
 //     "propertyID": 821
@@ -18,7 +18,7 @@ require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMverifyBody.php";
 
-// definitions and validations 
+// definitions and validations
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 $clientID = getClientID();
@@ -29,8 +29,11 @@ $propertyID = $requestBody->propertyID;
 $ID = $requestBody->ID;
 
 if ((!RShasREADTokenPermission(getRStoken(), $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-    if ($RSallowDebug) returnJsonMessage(403, "Token has no permissions to audit this item");
-    else returnJsonMessage(403, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(403, "Token has no permissions to audit this item");
+    } else {
+        returnJsonMessage(403, "");
+    }
 }
 
 // Process response
@@ -56,8 +59,11 @@ foreach ($results as $item) {
 
 // verify if there are no changes
 if (empty($responseArray['changes'])) {
-    if ($RSallowDebug) returnJsonMessage(200, "Requested item does not have an Audit trail registered");
-    else returnJsonMessage(200, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(200, "Requested item does not have an Audit trail registered");
+    } else {
+        returnJsonMessage(200, "");
+    }
 }
 // enconde response as json and return
 $response = json_encode($responseArray);

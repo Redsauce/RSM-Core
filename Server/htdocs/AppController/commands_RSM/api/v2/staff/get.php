@@ -15,13 +15,18 @@ $login = $requestBody->login;
 $password = $requestBody->password;
 $clientID = $requestBody->clientID;
 
-$theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
+$theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" .
+  $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" .
+  $clientID . "'";
 
 $result = RSQuery($theQuery);
 
 if ($result->num_rows == 0) {
-  if ($RSallowDebug) returnJsonMessage(404, "No users found");
-  else returnJsonMessage(404, "");
+  if ($RSallowDebug) {
+    returnJsonMessage(404, "No users found");
+  } else {
+    returnJsonMessage(404, "");
+  }
 }
 
 $ID = mysqli_fetch_assoc($result)["ID"];

@@ -1,15 +1,17 @@
 <?php
-//****************************************************************************************
+//**************************************************************************************************
 //Description:
 //    Retrieves an item of the specified itemType with the associated values
 //
-//  REQUEST BODY 
+//  REQUEST BODY
 //  {
 //    itemType: itemType to retrieve (for example: the itemType of crm-accounts)
-//    filterProperty: property of another itemType related with the first one (for example: the property 'client' into invoices)
-//    filterPropertyID: itemID of the filter property (for example: The identifier of the invoice from which we get the client)
+//    filterProperty: property of another itemType related with the first one
+//                    (for example: the property 'client' into invoices)
+//    filterPropertyID: itemID of the filter property
+//                      (for example: The identifier of the invoice from which we get the client)
 //  }
-//****************************************************************************************
+//**************************************************************************************************
 
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
@@ -34,7 +36,9 @@ $filterPropertyID = $requestBody->filterPropertyID;
 
 //translateIDs
 $translateIDs = false;
-if (isset($requestBody->translateIDs) && $requestBody->includeCategories == true) $translateIDs = true;
+if (isset($requestBody->translateIDs) && $requestBody->includeCategories) {
+    $translateIDs = true;
+}
 
 $properties   = array();
 $attributes   = array();
@@ -51,11 +55,13 @@ if (!isSingleIdentifier($propertyType) && !isMultiIdentifier($propertyType)) {
 // Get itemType of the filter property
 $filterItemType = getItemTypeIDFromProperties(array($filterProperty), $clientID);
 
-// verify if item exists 
-
+// verify if item exists
 if (!verifyItemExists($filterPropertyID, $filterItemType, $clientID)) {
-    if ($RSallowDebug) returnJsonMessage(404, "Item doesn't exist");
-    else returnJsonMessage(404, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(404, "Item doesn't exist");
+    } else {
+        returnJsonMessage(404, "");
+    }
 }
 
 // Get the value of the property $filterPropertyID for the given $filterProperty
@@ -73,7 +79,8 @@ if (strpos($valuePropertyRelated, ",") === false) {
         $value = getItemDataPropertyValue($valuePropertyRelated, $property['id'], $clientID);
 
         if (($property['type'] == 'image') || ($property['type'] == 'file')) {
-            // A file needs additional properties like the file name and the file size, so let's query the database for extra attributes
+            //A file needs additional properties like the file name and the file size,
+            //so let's query the database for extra attributes
             $attributes = explode(":", getItemPropertyValue($valuePropertyRelated, $property['id'], $clientID));
 
             $results[] = array(
@@ -87,7 +94,7 @@ if (strpos($valuePropertyRelated, ",") === false) {
         } elseif ($translateIDs && $property['type'] == 'identifier') {
             $results[] = array(
                 'propertyID' => $property['id'],
-                'name' => html_entity_decode($property['name'],  ENT_COMPAT, "UTF-8"),
+                'name' => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
                 'value' => $value,
                 'type' => $property['type'],
                 'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID))
@@ -122,18 +129,23 @@ if (strpos($valuePropertyRelated, ",") === false) {
 
     // Check if user has permissions to read properties of the item and remove otherwise
     foreach ($properties as $key => $property) {
-        // fix the id vs ID key issue TODO: review all code and solve it
         $properties[$key]['ID'] = $property['id'];
         $properties[$key]['name'] = html_entity_decode($property['name'], ENT_COMPAT, "UTF-8");
-        if (!RShasTokenPermission($RStoken, $property['id'], "READ") && (!isPropertyVisible($RSuserID, $property['id'], $clientID))) {
+        if (
+            !RShasTokenPermission($RStoken, $property['id'], "READ") &&
+            (!isPropertyVisible($RSuserID, $property['id'], $clientID))
+        ) {
             unset($properties[$key]);
         }
     }
 
     //check at least one property allowed and exit otherwise
-    if (count($properties) == 0) {
-        if ($RSallowDebug) returnJsonMessage(403, "No permissions to read these items");
-        else returnJsonMessage(403, "");
+    if (empty($properties)) {
+        if ($RSallowDebug) {
+            returnJsonMessage(403, "No permissions to read these items");
+        } else {
+            returnJsonMessage(403, "");
+        }
     }
     // get the items
     $itemsArray = getFilteredItemsIDs($itemType, $clientID, array(), $properties, '', $translateIDs, '', $valuePropertyRelated, 'AND', 0, true, '', true);
@@ -148,7 +160,9 @@ if (strpos($valuePropertyRelated, ",") === false) {
 $results = json_encode($results);
 if ($results != "[]") {
     returnJsonResponse($results);
-} else returnJsonMessage(404, "");
+} else {
+    returnJsonMessage(404, "");
+}
 
 function verifyBodyContent($body)
 {

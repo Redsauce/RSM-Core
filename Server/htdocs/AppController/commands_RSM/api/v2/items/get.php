@@ -3,20 +3,20 @@
 // Description:
 //    Get one or multiple item/s of the specified itemType with the associated values
 // REQUEST BODY (JSON OBJECT):
-//  EXAMPLE 1: 
+//  EXAMPLE 1:
 // {
 //     "IDs": [571],
 //     "itemTypeID": 8
 // }
-//  EXAMPLE 2: 
+//  EXAMPLE 2:
 // {
 //     "IDs": [571, 569],
 //     "propertiesIDs": [58,59]
 // }
-//  EXAMPLE 3: 
+//  EXAMPLE 3:
 // {
 //     "propertiesIDs": [59],
-//     "filtersRules": 
+//     "filtersRules":
 //      [
 //          {
 //              "propertyID": 58,
@@ -58,38 +58,62 @@ $itemTypeID = $requestBody->itemTypeID;
 
 //includeCategories filter
 $includeCategories = false;
-if (isset($requestBody->includeCategories) && $requestBody->includeCategories == true) $includeCategories = true;
+if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
+    $includeCategories = true;
+}
 
 //translateIDs
 $translateIDs = false;
-if (isset($requestBody->translateIDs)) $translateIDs = true;
+if (isset($requestBody->translateIDs)) {
+    $translateIDs = true;
+}
 
 //itemTypeID
-if ($itemTypeID == '') $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+if ($itemTypeID == '') {
+    $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+}
 if ($itemTypeID <= 0) {
-    if ($RSallowDebug) returnJsonMessage(400, "Invalid itemTypeID: " . $itemTypeID);
-    else returnJsonMessage(400, "");
+    if ($RSallowDebug) {
+        returnJsonMessage(400, "Invalid itemTypeID: " . $itemTypeID);
+    } else {
+        returnJsonMessage(400, "");
+    }
 }
 
 //propertyIDs
-if ($propertyIDs == '') $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
+if ($propertyIDs == '') {
+    $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
+}
 
 //IDs
-if ($IDs != '') $IDs = implode(",", $IDs);
+if ($IDs != '') {
+    $IDs = implode(",", $IDs);
+}
 
 // Build an array with the filterRules
 $filterProperties  = array();
 if ($filterRules != '') {
     foreach ($filterRules as $rule) {
-        $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
+        $filterProperties[] = array(
+            'ID' => parsePID($rule->propertyID, $clientID),
+            'value' => replaceUtf8Characters($rule->value),
+            'mode' => $rule->operation
+        );
     }
 }
 
 // Build array with the visible propertyIds (the ones we have permissions)
 $visiblePropertyIDs = array();
 foreach ($propertyIDs as $singlePropertyID) {
-    if (RShasTokenPermission($RStoken, $singlePropertyID, "READ") || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
-        $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    if (
+        RShasTokenPermission($RStoken, $singlePropertyID, "READ") ||
+        (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))
+    ) {
+        $visiblePropertyIDs[] = array(
+            'ID' => ParsePID($singlePropertyID, $clientID),
+            'name' => $singlePropertyID,
+            'trName' => $singlePropertyID . 'trs'
+        );
     }
 }
 
@@ -97,8 +121,11 @@ foreach ($propertyIDs as $singlePropertyID) {
 $formattedExtFilterRules = "";
 if ($extFilterRules != '') {
     foreach ($extFilterRules as $singleRule) {
-        // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-        $formattedExtFilterRules  .=  $singleRule->propertyID . ";" . base64_encode($singleRule->value) . ";" . $singleRule->operation . ',';
+        //To use getFilteredItemsIDs function without changing the original php's
+        //we need to transform the following data into an specific format (base64)
+        $formattedExtFilterRules .= $singleRule->propertyID . ";"
+            . base64_encode($singleRule->value) . ";"
+            . $singleRule->operation . ',';
     }
     $formattedExtFilterRules = substr_replace($formattedExtFilterRules, "", -1);
 }
@@ -146,10 +173,11 @@ if ($includeCategories) {
 }
 if ($response != "[]") {
     returnJsonResponse($response);
-} else returnJsonMessage(404, "No items were found");
+} else {
+    returnJsonMessage(404, "No items were found");
+}
 
-
-// Verify if body contents are the ones expected
+//Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
     checkIsJsonObject($body);

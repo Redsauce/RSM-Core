@@ -6,15 +6,15 @@
 //  REQUEST BODY (JSON):
 //  Array with object/s inside, each object must contain:
 //          itemTypeID: ID of the itemType to delete
-//          IDs: Array with the ID/IDs of the item/s to delete     
-//  EXAMPLE: 
+//          IDs: Array with the ID/IDs of the item/s to delete
+//  EXAMPLE:
 //   [{
-//			"itemTypeID": 98,
-//			"IDs": [12, 55]
-//		},{
-//			"itemTypeID": 102,
-//			"IDs": [10]
-//		}]	
+//      "itemTypeID": 98,
+//       "IDs": [12, 55]
+//     },{
+//      "itemTypeID": 102,
+//      "IDs": [10]
+//    }]
 //***************************************************************************************
 
 require_once "../../../utilities/RStools.php";
@@ -41,11 +41,14 @@ foreach ($requestBody as $itemType) {
   $itemTypeID = ParseITID($itemType->itemTypeID, $clientID);
   $IDs = implode(',', $itemType->IDs);
 
-  // To delete an item, first we have to check that is has delete permissions for each of its properties  
+//To delete an item, first we have to check that is has delete permissions for each of its properties
   $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
-  if ($RSallowDebug) $combinedArray["itemTypeID"] = $itemTypeID;
-  if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
+  if ($RSallowDebug) {
+    $combinedArray["itemTypeID"] = $itemTypeID;
+  }
+  if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) ||
+      (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
     if ($IDs != '') {
       // Check and separate ID'S that exist from the ones that doesn't. Only delete the ones that exist
       $existingItemIDs = array();
@@ -59,10 +62,15 @@ foreach ($requestBody as $itemType) {
         }
       }
       // only call delete function, when there are items to delete.
-      if ((implode(',', $existingItemIDs)) != '') deleteItems($itemTypeID, $clientID, implode(',', $existingItemIDs));
-
-      foreach ($existingItemIDs as $ID) $RSallowDebug ? $combinedArray[$ID] = "Deleted" : $combinedArray[$ID] = "OK";
-      foreach ($notExistingItemIDs as $ID) $RSallowDebug ? $combinedArray[$ID] = "Item doesn't exist" : $combinedArray[$ID] = "NOK";
+      if ((implode(',', $existingItemIDs)) != '') {
+        deleteItems($itemTypeID, $clientID, implode(',', $existingItemIDs));
+      }
+      foreach ($existingItemIDs as $ID) {
+        $RSallowDebug ? $combinedArray[$ID] = "Deleted" : $combinedArray[$ID] = "OK";
+      }
+      foreach ($notExistingItemIDs as $ID) {
+        $RSallowDebug ? $combinedArray[$ID] = "Item doesn't exist" : $combinedArray[$ID] = "NOK";
+      }
     }
   } else {
     foreach ($itemType->IDs as $ID) {
@@ -77,7 +85,7 @@ if ($response != "[]") {
   returnJsonResponse($response);
 }
 
-// Verify if body contents are the ones expected 
+//Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
   checkIsArray($body);
