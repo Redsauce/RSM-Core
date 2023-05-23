@@ -695,15 +695,24 @@ function _predictNumberOfFields($result) {
 
     $count = 0;
 
-    for ($i = 0; $i < $limit; $i++){
-        $resultLine = each($result);
-        $count += count($resultLine[1]);
-    }
+    // for ($i = 0; $i < $limit; $i++){
+    //     $resultLine = each($result);
+    //     $count += count($resultLine[1]);
+    // }
 
-    if ($i > 0) {
-        return (count($result) * round($count / $i));
+    foreach ($result as $resultLine) {
+        $count += count($resultLine);
+        if (--$limit === 0) {
+            break;
+        }
     }
-
+    // if ($i > 0) {
+    //     return (count($result) * round($count / $i));
+    // }
+    
+    if ($limit < $count) {
+        return (count($result) * round($count / $limit));
+    }
     return 0;
 }
 

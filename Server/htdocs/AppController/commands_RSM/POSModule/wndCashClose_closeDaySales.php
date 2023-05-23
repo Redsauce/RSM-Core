@@ -219,7 +219,7 @@ $relOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.re
 $totalPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationTotal'], $clientID);
 $totalPropertyType = getPropertyType($totalPropertyID, $clientID);
 
-$operationsList=split(",",$operationIDs);
+$operationsList=explode(",",$operationIDs);
 
 for($i=0;$i<count($operationsList);$i++){
 	// add operations into the properly lists
