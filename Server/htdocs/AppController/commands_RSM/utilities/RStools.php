@@ -540,7 +540,7 @@ function is_base64($s){
     return true;
 }
 
-// Set the Authorization token readed on the header and puts it in the $GLOBALS variable 
+// Set the Authorization token read on the header and puts it in the $GLOBALS variable
 function setAuthorizationTokenOnGlobals() {
     //We need this variable to exists in order to make RSdatabase work propertly.
     $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"];
@@ -558,7 +558,7 @@ function replaceUtf8Characters($propertyValue) {
     return str_replace("'", "&#39;", $parsedPropertyValue);
 }
 
-// Returns request body sent through petition, transormed into php object (json)
+// Returns request body sent through petition, transformed into php object (json)
 function getRequestBody() {
     global $RSallowDebug;
     $body = json_decode(stripslashes(file_get_contents('php://input')));
@@ -572,7 +572,7 @@ function getRequestBody() {
 function returnJsonMessage($code, $message) {
     $json = "";
     if ($message != "") $json = '{"message": "' . $message . '"}';
-    header('Content-Type: application/json', true, $code);
+    Header('Content-Type: application/json', true, $code);
     Header("Content-Length: " . strlen($json));
     echo $json;
     die();
@@ -590,10 +590,14 @@ function returnJsonResponse($response) {
 function getClientID() {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) return $GLOBALS['RS_POST']['clientID'];
-    else {
-        if ($RSallowDebug) returnJsonMessage(400, "clientID could not be retrieved");
-        else returnJsonMessage(400, "");
+    if (isset($GLOBALS['RS_POST']['clientID'])) {
+        return $GLOBALS['RS_POST']['clientID'];
+    } else {
+        if ($RSallowDebug) {
+            returnJsonMessage(400, "clientID could not be retrieved");
+        }else {
+            returnJsonMessage(400, "");
+        }
     }
 }
 
@@ -601,10 +605,14 @@ function getClientID() {
 function getRStoken() {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RS_POST']['RStoken'])) return $GLOBALS['RS_POST']['RStoken'];
-    else {
-        if ($RSallowDebug) returnJsonMessage(400, "RStoken could not be retrieved");
-        else returnJsonMessage(400, "");
+    if (isset($GLOBALS['RS_POST']['RStoken'])) {
+        return $GLOBALS['RS_POST']['RStoken'];
+    } else {
+        if ($RSallowDebug) {
+            returnJsonMessage(400, "RStoken could not be retrieved");
+        } else {
+            returnJsonMessage(400, "");
+        }
     }
 }
 
@@ -612,24 +620,31 @@ function getRStoken() {
 function getRSuserID() {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RSuserID'])) return $GLOBALS['RSuserID'];
-    else {
-        if ($RSallowDebug) returnJsonMessage(400, "RSuserID could not be retrieved");
-        else returnJsonMessage(400, "");
+    if (isset($GLOBALS['RSuserID'])) {
+        return $GLOBALS['RSuserID'];
+    } else {
+        if ($RSallowDebug) {
+            returnJsonMessage(400, "RSuserID could not be retrieved");
+        } else {
+            returnJsonMessage(400, "");
+        }
     }
 }
 
-// returns the request params sent (through get)
+// Cleans and returns the request params sent (through get)
 function getRequestParams() {
+
+    // Clean GET data in order to avoid SQL injections
     $search = array("'", "\"");
     $replace = array("", "");
-
     foreach ($_GET as $key => $value) {
         $params[$key] = str_replace($search, $replace, $value);
     }
+
     return $params;
 }
-
+// The api calls are made directly to the files, so in order to verify that the correct
+// request method is used, we need to call this function to verify it.
 function checkCorrectRequestMethod($requestMethod) {
     if ($requestMethod != $_SERVER["REQUEST_METHOD"]) returnJsonMessage(400, "");
 }

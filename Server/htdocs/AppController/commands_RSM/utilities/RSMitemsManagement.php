@@ -3519,16 +3519,16 @@ function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs) {
                                          rs_item_properties.RS_PROPERTY_ID AS "pID",
                                          rs_item_properties.RS_ORDER
         FROM rs_categories
-                INNER JOIN rs_item_properties USING (RS_CLIENT_ID, RS_CATEGORY_ID)
-                INNER JOIN rs_token_permissions USING (RS_CLIENT_ID, RS_PROPERTY_ID)
-                INNER JOIN rs_tokens USING (RS_CLIENT_ID)
+                INNER JOIN rs_item_properties  on rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID 
+                                               AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
+                INNER JOIN rs_token_permissions ON rs_categories.RS_CLIENT_ID = rs_token_permissions.RS_CLIENT_ID 
+                                                AND rs_item_properties.RS_PROPERTY_ID = rs_token_permissions.RS_PROPERTY_ID
+                INNER JOIN rs_tokens ON rs_categories.RS_CLIENT_ID = rs_tokens.RS_CLIENT_ID
         WHERE rs_categories.RS_ITEMTYPE_ID                 =     ' . $itemTypeID . '
-                AND rs_categories.RS_CLIENT_ID                 =     ' . $clientID . '
-                AND rs_item_properties.RS_CLIENT_ID        =     ' . $clientID . '
                 AND rs_token_permissions.RS_CLIENT_ID    =     ' . $clientID . '
                 AND rs_tokens.RS_TOKEN                                 = \'' . $RStoken . '\'
                 AND rs_item_properties.RS_PROPERTY_ID IN ' . $formattedPropertyIDs . '
-
+                AND rs_token_permissions.RS_PERMISSION = "READ"
         ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
 
     // execute query
@@ -3540,14 +3540,11 @@ function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs) {
     if ($theProperties) {
         while ($row = $theProperties->fetch_assoc()) {
             // Only return properties that user have READ permission
-            if (RShasTokenPermission($RStoken, $row['pID'], "READ")) {
                 if ($row['cName'] != $categoryName) {
                     $categoryName = $row['cName'];
                 }
                 $results[] = array('Category' => $categoryName, 'propertyID' => $row['pID']);
-            }
         }
     }
     return $results;
 }
-?>
