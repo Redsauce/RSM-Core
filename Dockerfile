@@ -102,7 +102,7 @@ HEALTHCHECK --interval=60s --timeout=5s --start-period=60s --retries=3 CMD curl 
 COPY ./configurations/entrypoint.sh /entrypoint.sh
 RUN chmod 744 /entrypoint.sh
 
-ENV EXEC_RSYSLOG=1
+ENV EXEC_RSYSLOG=0
 ENV EXEC_PHPFPM=1
 ENV EXEC_NGINX=1
 
