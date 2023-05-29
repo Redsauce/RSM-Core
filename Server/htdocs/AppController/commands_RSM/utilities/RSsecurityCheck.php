@@ -31,7 +31,13 @@ require_once "RSMtokensManagement.php";
 $RSuserID =  0; // By default there is not a defined user
 
 if (isset($GLOBALS['RS_GET']['r'])) {
-    $parameters = explode("&", rtrim(mcrypt_decrypt("blowfish", $RSblowfishKey, pack("H*" , $GLOBALS['RS_GET']['r']), "ecb"), "\x05"));;
+
+	// use openssl and related functions to simulate the mcrypt
+	$encryptedData = hex2bin($GLOBALS['RS_GET']['r']);
+    $decryptedData = openssl_decrypt($encryptedData, 'BF-ECB', $RSblowfishKey, OPENSSL_RAW_DATA);
+
+    $parameters = explode("\x05", rtrim($decryptedData, "\x05"));
+   //$parameters = explode("&", rtrim(mcrypt_decrypt("blowfish", $RSblowfishKey, pack("H*" , $GLOBALS['RS_GET']['r']), "ecb"), "\x05"));;
 
     foreach ($parameters as $parameter) {
         $parameter = explode("=", $parameter);
