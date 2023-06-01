@@ -3,19 +3,19 @@
 // RStools.php
 //***************************************************//
 // Description:
-//	diverse utility functions.
+//  diverse utility functions.
 //***************************************************//
 // Version:
-//	v1.0: getFinalDate and getNextWorkableDate functions
+//  v1.0: getFinalDate and getNextWorkableDate functions
 //  v2.0: isBefore, isAfter, isSameDate and isValidSqlDate functions
 //  v3.0:
-//		  splitDatetime, splitDate, splitTime functions,
-//		  function to retrieve the datetime values,
+//        splitDatetime, splitDate, splitTime functions,
+//        function to retrieve the datetime values,
 //        getNextDay, sumTime and convertDurationToTime functions
-//		  isTimeBefore, isTimeAfter and isSameTime functions
-// 		  isDateBetween and isTimeBetween functions
-// 		  isDateStrictlyBetween and isTimeStrictlyBetween functions
-//		  getDayName, getMonthName functions
+//        isTimeBefore, isTimeAfter and isSameTime functions
+//        isDateBetween and isTimeBetween functions
+//        isDateStrictlyBetween and isTimeStrictlyBetween functions
+//        getDayName, getMonthName functions
 
 function checkType($data, $type) {
 
@@ -53,8 +53,9 @@ function checkType($data, $type) {
         case 'identifiers' :
             $arr = explode(',', $data);
             foreach ($arr as $i) {
-                if (intval($i) < 1)
+                if (intval($i) < 1) {
                     return 0;
+                }
             }
             return $data;
 
@@ -82,8 +83,9 @@ function getFinalDate($startDate, $totalHours, $hoursPerDay) {
 }
 
 function getNextWorkableDate($myTimeStamp) {
-    while (date("w", $myTimeStamp) <= 0 || date("w", $myTimeStamp) >= 6)
+    while (date("w", $myTimeStamp) <= 0 || date("w", $myTimeStamp) >= 6) {
         $myTimeStamp += 86400;
+    }
     return ($myTimeStamp);
 }
 
@@ -100,11 +102,7 @@ function isBefore($startDate, $endDate) {
     $startDateTimestamp = mktime(0, 0, 0, $sDate[1], $sDate[2], $sDate[0]);
     $endDateTimestamp = mktime(0, 0, 0, $eDate[1], $eDate[2], $eDate[0]);
 
-    if ($startDateTimestamp < $endDateTimestamp) {
-        return true;
-    } else {
-        return false;
-    }
+    return $startDateTimestamp < $endDateTimestamp;
 }
 
 // Return true if $startDate is after $endDate (Sql dates)
@@ -120,25 +118,23 @@ function isAfter($startDate, $endDate) {
     $startDateTimestamp = mktime(0, 0, 0, $sDate[1], $sDate[2], $sDate[0]);
     $endDateTimestamp = mktime(0, 0, 0, $eDate[1], $eDate[2], $eDate[0]);
 
-    if ($startDateTimestamp > $endDateTimestamp) {
-        return true;
-    } else {
-        return false;
-    }
+    return $startDateTimestamp > $endDateTimestamp;
 }
 
 // Return true if the dates are the same (Sql dates)
 function isSameDate($date1, $date2) {
 
-    if ((!isValidSqlDate($date1)) || (!isValidSqlDate($date2)))
+    if ((!isValidSqlDate($date1)) || (!isValidSqlDate($date2))) {
         return false;
+    }
 
     $sDate = explode('-', $date1);
     $eDate = explode('-', $date2);
 
     // check years, months and days
-    if (($sDate[0] == $eDate[0]) && ($sDate[1] == $eDate[1]) && ($sDate[2] == $eDate[2]))
+    if (($sDate[0] == $eDate[0]) && ($sDate[1] == $eDate[1]) && ($sDate[2] == $eDate[2])) {
         return true;
+    }
 
     return false;
 }
@@ -146,21 +142,14 @@ function isSameDate($date1, $date2) {
 // Return true if date passed is between the start date and the end date passed (Sql dates)
 function isDateBetween($date, $startDate, $endDate) {
 
-    if ((isAfter($date, $startDate) && isBefore($date, $endDate)) || isSameDate($date, $startDate) || isSameDate($date, $endDate)) {
-        return true;
-    } else {
-        return false;
-    }
+    return (isAfter($date, $startDate) && isBefore($date, $endDate)) || isSameDate($date, $startDate)
+    || isSameDate($date, $endDate);
 }
 
 // Return true if date passed is strictly between the start date and the end date passed (Sql dates)
 function isDateStrictlyBetween($date, $startDate, $endDate) {
 
-    if (isAfter($date, $startDate) && isBefore($date, $endDate)) {
-        return true;
-    } else {
-        return false;
-    }
+    return isAfter($date, $startDate) && isBefore($date, $endDate);
 }
 
 // Return true if $startTime is before $endTime
@@ -226,8 +215,9 @@ function isSameTime($time1, $time2) {
     $eTime = explode(':', $time2);
 
     // check hours, minutes and seconds
-    if (($sTime[0] == $eTime[0]) && ($sTime[1] == $eTime[1]) && ($sTime[2] == $eTime[2]))
+    if (($sTime[0] == $eTime[0]) && ($sTime[1] == $eTime[1]) && ($sTime[2] == $eTime[2])) {
         return true;
+    }
 
     return false;
 }
@@ -235,21 +225,14 @@ function isSameTime($time1, $time2) {
 // Return true if time passed is between the start time and the end time passed
 function isTimeBetween($time, $startTime, $endTime) {
 
-    if ((isTimeAfter($time, $startTime) && isTimeBefore($time, $endTime)) || isSameTime($time, $startTime) || isSameTime($time, $endTime)) {
-        return true;
-    } else {
-        return false;
-    }
+    return (isTimeAfter($time, $startTime) && isTimeBefore($time, $endTime)) || isSameTime($time, $startTime)
+    || isSameTime($time, $endTime);
 }
 
 // Return true if time passed is strictly between the start time and the end time passed
 function isTimeStrictlyBetween($time, $startTime, $endTime) {
 
-    if (isTimeAfter($time, $startTime) && isTimeBefore($time, $endTime)) {
-        return true;
-    } else {
-        return false;
-    }
+    return isTimeAfter($time, $startTime) && isTimeBefore($time, $endTime);
 }
 
 // Return true if $date is a valid Sql date
@@ -275,14 +258,12 @@ function isValidSqlTime($time) {
 
     $timeArr = explode(':', $time);
 
-    if (count($timeArr) != 3)
-        return false;
-
-    if ((intval($timeArr[0]) < 24 && intval($timeArr[0]) >= 0) && (intval($timeArr[1]) < 60 && intval($timeArr[1]) >= 0) && (intval($timeArr[2]) < 60 && intval($timeArr[2]) >= 0)) {
-        return true;
-    } else {
+    if (count($timeArr) != 3) {
         return false;
     }
+
+    return (intval($timeArr[0]) < 24 && intval($timeArr[0]) >= 0) && (intval($timeArr[1]) < 60
+    && intval($timeArr[1]) >= 0) && (intval($timeArr[2]) < 60 && intval($timeArr[2]) >= 0);
 }
 
 // Return true if $datetime is a valid Sql datetime
@@ -290,12 +271,15 @@ function isValidSqlDatetime($datetime) {
 
     $dateAndTime = explode(' ', $datetime);
 
-    if (count($dateAndTime) != 2)
+    if (count($dateAndTime) != 2) {
         return false;
-    if (!isValidSqlDate($dateAndTime[0]))
+    }
+    if (!isValidSqlDate($dateAndTime[0])) {
         return false;
-    if (!isValidSqlTime($dateAndTime[1]))
+    }
+    if (!isValidSqlTime($dateAndTime[1])) {
         return false;
+    }
 
     return true;
 }
@@ -344,50 +328,58 @@ function splitTime($time) {
 
 // Functions to retrieve the single values of the date and time passed
 function getDateFromSplitDatetime($splitDatetime) {
-    if (!isset($splitDatetime['date']))
+    if (!isset($splitDatetime['date'])) {
         return null;
+    }
     return $splitDatetime['date'];
 }
 
 function getTimeFromSplitDatetime($splitDatetime) {
-    if (!isset($splitDatetime['time']))
+    if (!isset($splitDatetime['time'])) {
         return null;
+    }
     return $splitDatetime['time'];
 }
 
 function getYearFromSplitDate($splitDate) {
-    if (!isset($splitDate['year']))
+    if (!isset($splitDate['year'])) {
         return null;
+    }
     return $splitDate['year'];
 }
 
 function getMonthFromSplitDate($splitDate) {
-    if (!isset($splitDate['month']))
+    if (!isset($splitDate['month'])) {
         return null;
+    }
     return $splitDate['month'];
 }
 
 function getDayFromSplitDate($splitDate) {
-    if (!isset($splitDate['day']))
+    if (!isset($splitDate['day'])) {
         return null;
+    }
     return $splitDate['day'];
 }
 
 function getHoursFromSplitTime($splitTime) {
-    if (!isset($splitTime['hours']))
+    if (!isset($splitTime['hours'])) {
         return null;
+    }
     return $splitTime['hours'];
 }
 
 function getMinsFromSplitTime($splitTime) {
-    if (!isset($splitTime['mins']))
+    if (!isset($splitTime['mins'])) {
         return null;
+    }
     return $splitTime['mins'];
 }
 
 function getSecsFromSplitTime($splitTime) {
-    if (!isset($splitTime['secs']))
+    if (!isset($splitTime['secs'])) {
         return null;
+    }
     return $splitTime['secs'];
 }
 
@@ -420,32 +412,34 @@ function sumTime($time1, $time2) {
 
     // retrieve hours, minutes and seconds of the time1
     $splitTime1 = splitTime($time1);
-    if ($splitTime1 == null)
+    if ($splitTime1 == null) {
         return null;
+    }
     // retrieve hours, minutes and seconds of the time2
     $splitTime2 = splitTime($time2);
-    if ($splitTime2 == null)
+    if ($splitTime2 == null) {
         return null;
+    }
 
     // now we have two valid time values.. sum them
-    $time1_totalSeconds = 0;
+    $time1TotalSeconds = 0;
     $t = 3600;
     foreach ($splitTime1 as $st) {
-        $time1_totalSeconds = $time1_totalSeconds + ($st * $t);
+        $time1TotalSeconds = $time1TotalSeconds + ($st * $t);
         $t = $t / 60;
     }
-    $time2_totalSeconds = 0;
+    $time2TotalSeconds = 0;
     $t = 3600;
     foreach ($splitTime2 as $st) {
-        $time2_totalSeconds = $time2_totalSeconds + ($st * $t);
+        $time2TotalSeconds = $time2TotalSeconds + ($st * $t);
         $t = $t / 60;
     }
 
-    $sumTime_totalSeconds = $time1_totalSeconds + $time2_totalSeconds;
+    $sumTimeTotalSeconds = $time1TotalSeconds + $time2TotalSeconds;
 
-    $sumTimeHours = floor($sumTime_totalSeconds / 3600);
-    $sumTimeMins = floor(floor(($sumTime_totalSeconds % 3600)) / 60);
-    $sumTimeSecs = floor(floor(($sumTime_totalSeconds % 3600)) % 60);
+    $sumTimeHours = floor($sumTimeTotalSeconds / 3600);
+    $sumTimeMins = floor(floor(($sumTimeTotalSeconds % 3600)) / 60);
+    $sumTimeSecs = floor(floor(($sumTimeTotalSeconds % 3600)) % 60);
 
     return ($sumTimeHours . ":" . $sumTimeMins . ":" . $sumTimeSecs);
 }
@@ -468,46 +462,43 @@ function parseDatetime($datetime) {
     $dateInfo = explode('-', $dateAndTime[0]);
     $timeInfo = explode(':', $dateAndTime[1]);
 
-    return array('year' => $dateInfo[0], 'month' => $dateInfo[1], 'day' => $dateInfo[2], 'hour' => $timeInfo[0], 'minute' => $timeInfo[1], 'second' => $timeInfo[2]);
+    return array('year' => $dateInfo[0], 'month' => $dateInfo[1], 'day' => $dateInfo[2],
+    'hour' => $timeInfo[0], 'minute' => $timeInfo[1], 'second' => $timeInfo[2]);
 }
 
 function dieWithError($code, $message = null) {
+    $httpMessage = "HTTP/1.1 ";
 
     switch ($code) {
 
-        case 400 :
-            $errorString = "400 Bad Request";
-            header("HTTP/1.1 " . $errorString, true, 400);
-            break;
-
         case 401 :
             $errorString = "401 Unauthorized";
-            header("HTTP/1.1 " . $errorString, true, 401);
+            header($httpMessage . $errorString, true, 401);
             break;
 
         case 403 :
             $errorString = "403 Forbidden";
-            header("HTTP/1.1 " . $errorString, true, 403);
+            header($httpMessage . $errorString, true, 403);
             break;
 
         case 404 :
             $errorString = "404 Page not found";
-            header("HTTP/1.1 " . $errorString, true, 404);
+            header($httpMessage . $errorString, true, 404);
             break;
 
         case 500 :
             $errorString = "500 Internal Server Error";
-            header("HTTP/1.1 " . $errorString, true, 500);
+            header($httpMessage . $errorString, true, 500);
             break;
 
         default :
             $errorString = "400 Bad Request";
-            header("HTTP/1.1 " . $errorString, true, 400);
+            header($httpMessage . $errorString, true, 400);
             break;
     }
 
 	// Si hay info extra la mostramos por la salida de error
-	if($message != null) {
+	if ($message != null) {
 		RSError("dieWithError: " . $errorString . ". " . $message);
 	}
 
@@ -518,24 +509,29 @@ function dieWithError($code, $message = null) {
 function dieWithErrorJson($code, $errorText) {
     // Obtain error message as json
     $error = array("errorMessage" => $errorText);
-    $json_error = json_encode($error);
+    $jsonError = json_encode($error);
 
     header('Content-Type: application/json', true, $code);
-    Header("Content-Length: " . strlen($json_error));
+    header("Content-Length: " . strlen($jsonError));
     
-    die($json_error);
+    die($jsonError);
 }
 
-function is_base64($s){
+function isBase64($s) {
     // Check if there are valid base64 characters
-    if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) return false;
-
+    if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) {
+        return false;
+    }
     // Decode the string in strict mode and check the results
     $decoded = base64_decode($s, true);
-    if(false === $decoded) return false;
+    if (false === $decoded) {
+        return false;
+    }
 
     // Encode the string again
-    if(base64_encode($decoded) != $s) return false;
+    if (base64_encode($decoded) != $s) {
+        return false;
+    }
 
     return true;
 }
@@ -543,19 +539,16 @@ function is_base64($s){
 // Set the Authorization token read on the header and puts it in the $GLOBALS variable
 function setAuthorizationTokenOnGlobals() {
     //We need this variable to exists in order to make RSdatabase work propertly.
-    $GLOBALS['RS_POST']['RStoken'] = getallheaders()["Authorization"];
-    if (strpos($GLOBALS['RS_POST']['RStoken'], "Basic ") !== false) {
-        $GLOBALS['RS_POST']['RStoken'] = str_replace("Basic ", "", $GLOBALS['RS_POST']['RStoken']);
-        $GLOBALS['RS_POST']['RStoken'] =  base64_decode($GLOBALS['RS_POST']['RStoken']);
-        $GLOBALS['RS_POST']['RStoken'] = str_replace("Authorization:", "", $GLOBALS['RS_POST']['RStoken']);
-        $GLOBALS['RS_POST']['RStoken'] = str_replace(";", "", $GLOBALS['RS_POST']['RStoken']);
+
+    if (isset(getallheaders()["authorization"])) {
+        $GLOBALS['RS_POST']['RStoken'] = getallheaders()["authorization"];
     }
 }
 
-// Replace incorrect values related to UTF-8
+// Returns the property value with the "'" and "&" characters escaped
 function replaceUtf8Characters($propertyValue) {
-    $parsedPropertyValue = str_replace("&amp;", "&", htmlentities($propertyValue, ENT_COMPAT, "UTF-8"));
-    return str_replace("'", "&#39;", $parsedPropertyValue);
+    $propertyValue = str_replace("&amp;", "&", htmlentities($propertyValue, ENT_COMPAT, "UTF-8"));
+    return str_replace("'", "&#39;", $propertyValue);
 }
 
 // Returns request body sent through petition, transformed into php object (json)
@@ -563,17 +556,24 @@ function getRequestBody() {
     global $RSallowDebug;
     $body = json_decode(stripslashes(file_get_contents('php://input')));
     if ($body == "") {
-        if ($RSallowDebug) returnJsonMessage(400, "Invalid JSON body");
-        else returnJsonMessage(400, "");
+        if ($RSallowDebug) {
+            returnJsonMessage(400, "Invalid JSON body");
+        } else {
+            RSError("getRequestBody: Invalid JSON body");
+            returnJsonMessage(400, "");
+        }
     }
     return $body;
 }
 
 function returnJsonMessage($code, $message) {
+
     $json = "";
-    if ($message != "") $json = '{"message": "' . $message . '"}';
-    Header('Content-Type: application/json', true, $code);
-    Header("Content-Length: " . strlen($json));
+    if ($message != "") {
+        $json = '{"message": "' . $message . '"}';
+    }
+    header('Content-Type: application/json', true, $code);
+    header("Content-Length: " . strlen($json));
     echo $json;
     die();
 }
@@ -581,7 +581,7 @@ function returnJsonMessage($code, $message) {
 // returns api response in json
 function returnJsonResponse($response) {
     header('Content-Type: application/json', true, 200);
-    Header("Content-Length: " . strlen($response));
+    header("Content-Length: " . strlen($response));
     echo $response;
     die();
 }
@@ -595,7 +595,8 @@ function getClientID() {
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");
-        }else {
+        } else {
+            RSError("getClientID: clientID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -611,6 +612,7 @@ function getRStoken() {
         if ($RSallowDebug) {
             returnJsonMessage(400, "RStoken could not be retrieved");
         } else {
+            RSError("getRStoken: RStoken could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -626,6 +628,7 @@ function getRSuserID() {
         if ($RSallowDebug) {
             returnJsonMessage(400, "RSuserID could not be retrieved");
         } else {
+            RSError("getRSuserID: RSuserID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -637,6 +640,7 @@ function getRequestParams() {
     // Clean GET data in order to avoid SQL injections
     $search = array("'", "\"");
     $replace = array("", "");
+    $params = array();
     foreach ($_GET as $key => $value) {
         $params[$key] = str_replace($search, $replace, $value);
     }
@@ -646,5 +650,7 @@ function getRequestParams() {
 // The api calls are made directly to the files, so in order to verify that the correct
 // request method is used, we need to call this function to verify it.
 function checkCorrectRequestMethod($requestMethod) {
-    if ($requestMethod != $_SERVER["REQUEST_METHOD"]) returnJsonMessage(400, "");
+    if ($requestMethod != $_SERVER["REQUEST_METHOD"]) {
+        returnJsonMessage(400, "");
+    }
 }

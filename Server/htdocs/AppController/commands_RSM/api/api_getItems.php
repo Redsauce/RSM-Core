@@ -57,7 +57,7 @@ if ($filterRules != '') {
         $rule = explode(";", $ruleN);
 
         // Obtain the property value
-        if (is_base64($rule[1])) {
+        if (isBase64($rule[1])) {
             // The user is specifying a custom base64 filter value
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
             
@@ -142,4 +142,3 @@ if (is_string($results)) {
 } else {
     RSReturnArrayQueryResults($results, false);
 }
-?>

@@ -43,7 +43,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $AllPropertiesID[] = $id;
         $value = $chainValues[1];
 
-        if (!is_base64($value)) {
+        if (!isBase64($value)) {
             dieWithError(400, "Input parameters are not base64: ".$value);
         }
 
@@ -121,4 +121,3 @@ $results['itemID'] = implode($newPropertiesID,",");
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
-?>

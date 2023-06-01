@@ -66,7 +66,7 @@ if ($itemTypeID != 0) {
             } else {
 
                 $value = $chainValues[1];
-                if (!is_base64($value)) {
+                if (!isBase64($value)) {
                     dieWithError(400, "Input parameters are not base64");
                 }
 
