@@ -11,7 +11,7 @@ function checkIsJsonObject($item)
     if ($RSallowDebug) {
       returnJsonMessage(400, "Invalid JSON Object '{}'");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkIsJsonObject: Invalid JSON Object '{}'");
       returnJsonMessage(400, "");
     }
   }
@@ -24,7 +24,7 @@ function checkIsArray($item)
     if ($RSallowDebug) {
       returnJsonMessage(400, "Invalid Array '[]'");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkIsArray: Invalid Array '[]'");
       returnJsonMessage(400, "");
     }
   }
@@ -41,7 +41,7 @@ function checkBodyContains($body, $item)
     if ($RSallowDebug) {
       returnJsonMessage(400, "Request body must contain '{$item}'");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkBodyContains: Request body must contain '{$item}'");
       returnJsonMessage(400, "");
     }
   }
@@ -54,7 +54,7 @@ function checkParamsContains($params, $item)
     if ($RSallowDebug) {
       returnJsonMessage(400, "Request must include query param '{$item}'");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkParamsContains: Request must include query param '{$item}'");
       returnJsonMessage(400, "");
     }
   }
@@ -67,7 +67,7 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
     if ($RSallowDebug) {
       returnJsonMessage(400, "Request body must contain at least field '{$item1}' or field '{$item2}'");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkBodyContainsAtLeastOne: Request body must contain at least field '{$item1}' or field '{$item2}'");
       returnJsonMessage(400, "");
     }
   }
@@ -84,7 +84,7 @@ function checkIsInteger($item)
     if ($RSallowDebug) {
       returnJsonMessage(400, "'{$item}' must be an integer");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkIsInteger: '{$item}' must be an integer");
       returnJsonMessage(400, "");
     }
   }
@@ -97,7 +97,7 @@ function checkADJParamIsValid($body)
     if ($RSallowDebug) {
       returnJsonMessage(400, "adj must be one of those characters: s, f, w, h, d, c");
     } else {
-      RSError("getRequestBody: Invalid JSON body");
+      RSError("checkADJParamIsValid: adj must be one of those characters: s, f, w, h, d, c");
       returnJsonMessage(400, "");
     }
   }
