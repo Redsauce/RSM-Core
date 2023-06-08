@@ -694,24 +694,20 @@ function _predictNumberOfFields($result) {
     }
 
     $count = 0;
-
-    // for ($i = 0; $i < $limit; $i++){
-    //     $resultLine = each($result);
-    //     $count += count($resultLine[1]);
-    // }
-
+    $i = 0;
     foreach ($result as $resultLine) {
+        // Count the number of fields in the current element and add it to the total count
         $count += count($resultLine);
-        if (--$limit === 0) {
+        $i++;
+        
+        //If the limit has been reached, break
+        if ($i >= $limit) {
             break;
         }
     }
-    // if ($i > 0) {
-    //     return (count($result) * round($count / $i));
-    // }
-    
-    if ($limit < $count) {
-        return (count($result) * round($count / $limit));
+
+    if ($i > 0) {
+        return (count($result) * round($count / $i));
     }
     return 0;
 }
@@ -737,21 +733,25 @@ function RSQuery($theQuery, $registerError = true) {
         $start = microtime(TRUE);
     }
 
-    $result = $mysqli->query($theQuery);
+    try {
+        $result = $mysqli->query($theQuery);
 
-    if ($result===false && $registerError) {
-        RSerror("RSdatabase: failed query: $theQuery");
+        if (($RSallowDebug && $RSdebug)) {
+            usleep(1);
+            error_log ($theQuery . "\n");
+            error_log ("Total queries executed: " . $queryCount . "\n\n");
+            error_log ("time elapsed(seconds): " . (microtime(TRUE) - $start) . "\n\n");
+        }
+        //return query result
+        return ($result);
+
+    } catch (mysqli_sql_exception $e) {
+        if ($registerError) {
+            RSerror("RSdatabase: failed query: " . $theQuery);
+            RSerror("RSdatabase: failed query: error:" . $e);
+        }
+        return false;
     }
-
-    if (($RSallowDebug && $RSdebug)) {
-        usleep(1);
-        error_log ($theQuery . "\n");
-        error_log ("Total queries executed: " . $queryCount . "\n\n");
-        error_log ("time elapsed(seconds): " . (microtime(TRUE) - $start) . "\n\n");
-    }
-
-    //return query result
-    return ($result);
 }
 
 //store a new error in database
@@ -766,7 +766,11 @@ function RSError($message, $type = ""){
   .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS[$cstRS_POST][$cstClientID].")";
 
    // Query the database
-  $result = $mysqli->query($query);
+   try {
+        $result = $mysqli->query($query);
+   } catch (mysqli_sql_exception $e) {
+        error_log ("RSdatabase: failed query: " . $query);
+   }
 }
 
 //
