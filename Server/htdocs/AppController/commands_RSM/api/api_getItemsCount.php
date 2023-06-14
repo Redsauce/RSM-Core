@@ -25,12 +25,12 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Definitions
-isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemTypeID"     ]) ? $itemTypeID      = $GLOBALS["RS_POST"]["itemTypeID"     ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"    ] : $filterRules     = "";
-isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
-isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
+isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["itemTypeID"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["filterRules"]) ? $filterRules = $GLOBALS["RS_POST"]["filterRules"] : $filterRules = "";
+isset($GLOBALS["RS_POST"]["filterJoining"]) ? $filterJoining = $GLOBALS["RS_POST"]["filterJoining"] : $filterJoining = "AND";
+isset($GLOBALS["RS_POST"]["extFilterRules"]) ? $extFilterRules = $GLOBALS["RS_POST"]["extFilterRules"] : $extFilterRules = "";
+isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken = $GLOBALS["RS_POST"]["RStoken"] : $RStoken = "";
 
 // Construct filterProperties using a double explode
 $rules = array();
@@ -55,7 +55,7 @@ if ($filterRules != '') {
     }
 }
 
-$itemTypeID = parseITID($itemTypeID,$clientID);
+$itemTypeID = parseITID($itemTypeID, $clientID);
 if ($itemTypeID <= 0) {
     $response['result'] = "NOK";
     $response['description'] = "INVALID ITEM TYPE";
@@ -63,7 +63,7 @@ if ($itemTypeID <= 0) {
 }
 
 // Check if user has permissions to apply the filters on the item
-$filterPropertyIDs=array();
+$filterPropertyIDs = array();
 foreach ($filterProperties as $filterProperty) {
     $filterPropertyIDs[] = $filterProperty['ID'];
 }
