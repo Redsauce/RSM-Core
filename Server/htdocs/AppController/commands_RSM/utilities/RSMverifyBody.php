@@ -20,7 +20,7 @@ function checkIsJsonObject($item)
 function checkIsArray($item)
 {
   global $RSallowDebug;
-  if (!is_null($item) and !is_array($item)) {
+  if (!is_null($item) && !is_array($item)) {
     if ($RSallowDebug) {
       returnJsonMessage(400, "Invalid Array '[]'");
     } else {
@@ -63,7 +63,7 @@ function checkParamsContains($params, $item)
 function checkBodyContainsAtLeastOne($body, $item1, $item2)
 {
   global $RSallowDebug;
-  if (!(isset($body->$item1) or isset($body->$item2))) {
+  if (!(isset($body->$item1) || isset($body->$item2))) {
     if ($RSallowDebug) {
       returnJsonMessage(400, "Request body must contain at least field '{$item1}' or field '{$item2}'");
     } else {
