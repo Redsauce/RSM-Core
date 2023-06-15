@@ -27,18 +27,21 @@
 
 require_once "RSvalidationFunctions.php";
 require_once "RSMtokensManagement.php";
+require_once "RSerrorMailing.php";
 
 $RSuserID =  0; // By default there is not a defined user
 
 if (isset($GLOBALS['RS_GET']['r'])) {
-
-
- 	$parameters = explode("&", rtrim(mcrypt_decrypt("blowfish", $RSblowfishKey, pack("H*" , $GLOBALS['RS_GET']['r']), "ecb"), "\x05"));
-    foreach ($parameters as $parameter) {
-        $parameter = explode("=", $parameter);
-        $GLOBALS['RS_GET'][$parameter[0]] = $parameter[1];
-    }
-
+	try {
+		$parameters = explode("&", rtrim(mcrypt_decrypt("blowfish", $RSblowfishKey, pack("H*" , $GLOBALS['RS_GET']['r']), "ecb"), "\x05"));
+		foreach ($parameters as $parameter) {
+			$parameter = explode("=", $parameter);
+			$GLOBALS['RS_GET'][$parameter[0]] = $parameter[1];
+		}
+	
+	} catch (Exception $e) {
+		sendEmail("Deprecated function called", "The 'r' param was used and it triggered a deprecated function");
+	}
     unset($GLOBALS['RS_GET']['r']);
 }
 
