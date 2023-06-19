@@ -3258,13 +3258,13 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
 
     //prepare debug memory usage monitoring array
     //$lastValues=array('i'=>0,'startUsage'=>0,'startPeakUsage'=>0,'startAllocated'=>0,'startPeakallocated'=>0);
-    //mem_increase_check($lastValues);
+    //memIncreaseCheck($lastValues);
 
     // query the database
     $result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $limit, $ids, $filtersJoining, $propertiesToTranslate, $returnOrder);
 
     //debug memory usage
-    //mem_increase_check($lastValues);
+    //memIncreaseCheck($lastValues);
 
     // build the results array
     if ($result) {
@@ -3306,7 +3306,7 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
         }
 
         //debug memory usage
-        //mem_increase_check($lastValues);
+        //memIncreaseCheck($lastValues);
 
     } else {
         $results = array();
