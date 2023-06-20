@@ -20,36 +20,42 @@
 function checkType($data, $type)
 {
 
+    $result = "";
+
     switch ($type) {
 
         case 'text':
-            return $data;
-
         case 'longtext':
-            return $data;
+            $result = $data;
+            break;
 
         case 'date':
             if (isValidSqlDate($data)) {
-                return date('Y-m-d', strtotime($data));
+                $result = date('Y-m-d', strtotime($data));
             } else {
-                return '0000-00-00';
+                $result = '0000-00-00';
             }
+            break;
 
         case 'datetime':
             if (isValidSqlDatetime($data)) {
-                return date('Y-m-d H:i:s', strtotime($data));
+                $result = date('Y-m-d H:i:s', strtotime($data));
             } else {
-                return '0000-00-00 00:00:00';
+                $result = '0000-00-00 00:00:00';
             }
+            break;
 
         case 'integer':
-            return intval($data);
+            $result = intval($data);
+            break;
 
         case 'float':
-            return floatval($data);
+            $result = floatval($data);
+            break;
 
         case 'identifier':
-            return intval($data);
+            $result = intval($data);
+            break;
 
         case 'identifiers':
             $arr = explode(',', $data);
@@ -58,20 +64,30 @@ function checkType($data, $type)
                     return 0;
                 }
             }
-            return $data;
+            $result = $data;
+            break;
 
         case 'image':
-            return $data;
+            $result = $data;
             // TODO: implementar
+            break;
 
         case 'file':
-            return $data;
+            $result = $data;
             // TODO: implementar
+            break;
 
         case 'variant':
-            return $data;
+            $result = $data;
             // TODO: implementar
+            break;
+
+        default:
+            $result = $data;
+            break;
     }
+
+    return $result;
 }
 
 function getFinalDate($startDate, $totalHours, $hoursPerDay)
@@ -163,26 +179,28 @@ function isTimeBefore($startTime, $endTime)
     $sTime = explode(':', $startTime);
     $eTime = explode(':', $endTime);
 
+    $isBefore = false;
+
     // check hours
     if ($sTime[0] < $eTime[0]) {
-        return true;
+        $isBefore = true;
     } elseif ($sTime[0] > $eTime[0]) {
-        return false;
+        $isBefore = false;
     }
     // check minutes
     if ($sTime[1] < $eTime[1]) {
-        return true;
+        $isBefore = true;
     } elseif ($sTime[1] > $eTime[1]) {
-        return false;
+        $isBefore = false;
     }
     // check seconds
     if ($sTime[2] < $eTime[2]) {
-        return true;
+        $isBefore = true;
     } elseif ($sTime[2] > $eTime[2]) {
-        return false;
+        $isBefore = false;
     }
 
-    return false;
+    return $isBefore;
 }
 
 // Return true if $startTime is after $endTime
@@ -192,26 +210,28 @@ function isTimeAfter($startTime, $endTime)
     $sTime = explode(':', $startTime);
     $eTime = explode(':', $endTime);
 
+    $isAfter = false;
+
     // check hours
     if ($sTime[0] > $eTime[0]) {
-        return true;
+        $isAfter = true;
     } elseif ($sTime[0] < $eTime[0]) {
-        return false;
+        $isAfter = false;
     }
     // check minutes
     if ($sTime[1] > $eTime[1]) {
-        return true;
+        $isAfter = true;
     } elseif ($sTime[1] < $eTime[1]) {
-        return false;
+        $isAfter = false;
     }
     // check seconds
     if ($sTime[2] > $eTime[2]) {
-        return true;
+        $isAfter = true;
     } elseif ($sTime[2] < $eTime[2]) {
-        return false;
+        $isAfter = false;
     }
 
-    return false;
+    return $isAfter;
 }
 
 // Return true if the times are the same
@@ -276,20 +296,13 @@ function isValidSqlTime($time)
 // Return true if $datetime is a valid Sql datetime
 function isValidSqlDatetime($datetime)
 {
-
     $dateAndTime = explode(' ', $datetime);
 
-    if (count($dateAndTime) != 2) {
-        return false;
-    }
-    if (!isValidSqlDate($dateAndTime[0])) {
-        return false;
-    }
-    if (!isValidSqlTime($dateAndTime[1])) {
-        return false;
+    if (count($dateAndTime) == 2 && isValidSqlDate($dateAndTime[0]) && isValidSqlTime($dateAndTime[1])) {
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 // Return an array containing separated date and time of the (date[ time]) datetime string passed
@@ -323,18 +336,23 @@ function splitTime($time)
 {
 
     $timeArr = explode(':', $time);
+    $result = array();
 
     switch (count($timeArr)) {
         case 1:
-            return array('hours' => $timeArr[0]);
+            $result = array('hours' => $timeArr[0]);
+            break;
         case 2:
-            return array('hours' => $timeArr[0], 'mins' => $timeArr[1]);
+            $result = array('hours' => $timeArr[0], 'mins' => $timeArr[1]);
+            break;
         case 3:
-            return array('hours' => $timeArr[0], 'mins' => $timeArr[1], 'secs' => $timeArr[2]);
+            $result = array('hours' => $timeArr[0], 'mins' => $timeArr[1], 'secs' => $timeArr[2]);
+            break;
 
         default:
             return null;
     }
+    return $result;
 }
 
 // Functions to retrieve the single values of the date and time passed
@@ -552,18 +570,11 @@ function isBase64($s)
     if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) {
         return false;
     }
-    // Decode the string in strict mode and check the results
+    // Decode the string in strict mode
     $decoded = base64_decode($s, true);
-    if (false === $decoded) {
-        return false;
-    }
 
     // Encode the string again
-    if (base64_encode($decoded) != $s) {
-        return false;
-    }
-
-    return true;
+    return base64_encode($decoded) === $s;
 }
 
 // Set the Authorization token read on the header and puts it in the $GLOBALS variable
