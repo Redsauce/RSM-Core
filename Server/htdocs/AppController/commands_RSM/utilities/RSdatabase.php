@@ -98,12 +98,13 @@ function checkCompressionVersion($response)
 function memIncreaseCheck(&$lastValues)
 {
     global $RSallowDebug;
+    $mibString = "(MiB): ";
 
     if ($RSallowDebug) {
-        error_log("\n\nused memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_usage()         - $lastValues["startUsage"]) / 1024 / 1024);
-        error_log("max used memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage()    - $lastValues["startPeakUsage"]) / 1024 / 1024);
-        error_log("allocated memory increment from #"     . $lastValues["i"] . "(MiB): " . (memory_get_usage(true)     - $lastValues["startAllocated"]) / 1024 / 1024);
-        error_log("max allocated memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage(true) - $lastValues["startPeakallocated"]) / 1024 / 1024 . "\n");
+        error_log("\n\nused memory increment from #"      . $lastValues["i"] . $mibString . (memory_get_usage()         - $lastValues["startUsage"]) / 1024 / 1024);
+        error_log("max used memory increment from #"      . $lastValues["i"] . $mibString . (memory_get_peak_usage()    - $lastValues["startPeakUsage"]) / 1024 / 1024);
+        error_log("allocated memory increment from #"     . $lastValues["i"] . $mibString . (memory_get_usage(true)     - $lastValues["startAllocated"]) / 1024 / 1024);
+        error_log("max allocated memory increment from #" . $lastValues["i"] . $mibString . (memory_get_peak_usage(true) - $lastValues["startPeakallocated"]) / 1024 / 1024 . "\n");
 
         $lastValues["i"]++;
         $lastValues["startUsage"] = memory_get_usage();
@@ -111,10 +112,10 @@ function memIncreaseCheck(&$lastValues)
         $lastValues["startAllocated"] = memory_get_usage(true);
         $lastValues["startPeakallocated"] = memory_get_peak_usage(true);
 
-        error_log("used memory at #"          . $lastValues["i"] . "(MiB): " . ($lastValues["startUsage"]) / 1024 / 1024);
-        error_log("max used memory at #"      . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakUsage"]) / 1024 / 1024);
-        error_log("allocated memory at #"     . $lastValues["i"] . "(MiB): " . ($lastValues["startAllocated"]) / 1024 / 1024);
-        error_log("max allocated memory at #" . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakallocated"]) / 1024 / 1024 . "\n");
+        error_log("used memory at #"          . $lastValues["i"] . $mibString . ($lastValues["startUsage"]) / 1024 / 1024);
+        error_log("max used memory at #"      . $lastValues["i"] . $mibString . ($lastValues["startPeakUsage"]) / 1024 / 1024);
+        error_log("allocated memory at #"     . $lastValues["i"] . $mibString . ($lastValues["startAllocated"]) / 1024 / 1024);
+        error_log("max allocated memory at #" . $lastValues["i"] . $mibString . ($lastValues["startPeakallocated"]) / 1024 / 1024 . "\n");
     }
 }
 
@@ -180,7 +181,9 @@ function mysqlToXML($resource, $clientID, $itemTypeID, $propertiesToTranslate = 
 
                 // get all paths between filtered and destination itemtype
                 $allowedItemTypes = array();
-                if (isset($filterArr[3]) && $filterArr[3] != "") $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
+                if (isset($filterArr[3]) && $filterArr[3] != "") {
+                    $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
+                }
 
                 $treePath = array();
 
@@ -213,7 +216,7 @@ function mysqlToXML($resource, $clientID, $itemTypeID, $propertiesToTranslate = 
 
         while ($row = $resource->fetch_assoc()) {
 
-            if (count($extFilters) == 0) {
+            if (empty($extFilters)) {
                 $found = true;
             }
 
@@ -365,7 +368,7 @@ function RSReturnArrayQueryResults($result, $compressed = true)
     $theFile = '';
     $filename = '';
 
-    if (_predictNumberOfFields($result) > $optimizerValue) {
+    if (predictNumberOfFields($result) > $optimizerValue) {
 
         // create a temporary file with a unique filename
         $filename = @tempnam($RStempPath, "RSR");
@@ -402,16 +405,16 @@ function RSReturnArrayQueryResults($result, $compressed = true)
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? false : true;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
         if ($compress) {
-            $comp_result = gzCompressFile($filename);
-            if ($comp_result !== false) {
+            $compResult = gzCompressFile($filename);
+            if ($compResult !== false) {
                 // delete uncompressed temporary file
                 removeTmpFile($filename);
-                $filename = $comp_result;
+                $filename = $compResult;
                 Header('Content-type: application/x-gzip');
             }
         }
@@ -516,16 +519,16 @@ function RSReturnQueryResults($result, $compressed = true)
     }
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? false : true;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
         if ($compress) {
-            $comp_result = gzCompressFile($filename);
-            if ($comp_result !== false) {
+            $compResult = gzCompressFile($filename);
+            if ($compResult !== false) {
                 // delete uncompressed temporary file
                 removeTmpFile($filename);
-                $filename = $comp_result;
+                $filename = $compResult;
                 Header('Content-type: application/x-gzip');
             }
         }
@@ -593,11 +596,15 @@ function RSReturnJsonQueryResults($result)
             foreach ($row as $field => $value) {
                 // We replace double quotes for single quotes in every string
                 $json .= "\"" . $field . "\" : \"" . str_replace("\"", "'", $value) . "\"";
-                if ($value != end($row)) $json .= ",";
+                if ($value != end($row)) {
+                    $json .= ",";
+                }
                 $json .= "";
             }
             $json .= "}";
-            if ($row != end($result)) $json .= ",";
+            if ($row != end($result)) {
+                $json .= ",";
+            }
             $json .= "";
         }
         $json .= "]";
@@ -634,7 +641,7 @@ function RSReturnArrayResults($array, $compressed = true)
     $theFile .= "</rows>";
     $theFile .= "</RSRecordset>";
 
-    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? false : true;
 
     header("Content-type: text/xml");
 
@@ -644,7 +651,7 @@ function RSReturnArrayResults($array, $compressed = true)
     }
 
     Header('Content-Length: ' . strlen($theFile));
-    echo ($theFile);
+    echo $theFile;
 
     if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
         checkTriggeredEvents($GLOBALS[$cstRS_POST][$cstClientID]);
@@ -660,22 +667,21 @@ function RSReturnArrayResults($array, $compressed = true)
 function RSReturnFileResults($filename, $compressed = true)
 {
     global $RSallowUncompressed;
-    global $RStempPath;
     global $cstRSsendUncompressed;
     global $cstClientID;
     global $cstRS_POST;
 
     // Check compression required
-    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? FALSE : TRUE;
+    $compress = ((isset($GLOBALS[$cstRS_POST][$cstRSsendUncompressed]) || !$compressed) && ($RSallowUncompressed)) ? false : true;
 
     if (file_exists($filename) && filesize($filename) > 0) {
         header("Content-type: text/xml");
         if ($compress) {
-            $comp_result = gzCompressFile($filename);
-            if ($comp_result !== false) {
+            $compResult = gzCompressFile($filename);
+            if ($compResult !== false) {
                 // delete uncompressed temporary file
                 removeTmpFile($filename);
-                $filename = $comp_result;
+                $filename = $compResult;
                 Header('Content-type: application/x-gzip');
             }
         }
@@ -683,7 +689,7 @@ function RSReturnFileResults($filename, $compressed = true)
         readfile($filename);
     } else {
         // file not exists or is empty so construct and return empty result
-        $theFile .= "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+        $theFile = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
         $theFile .= "<RSRecordset>";
         $theFile .= "<rows>";
         $theFile .= "</rows>";
@@ -715,7 +721,7 @@ function RSReturnFileResults($filename, $compressed = true)
 }
 
 // try to predict the number of fields of an array of arrays (just considering its first ten rows)
-function _predictNumberOfFields($result)
+function predictNumberOfFields($result)
 {
 
     if (!is_array($result)) {
@@ -730,9 +736,16 @@ function _predictNumberOfFields($result)
 
     $count = 0;
 
-    for ($i = 0; $i < $limit; $i++) {
-        $resultLine = each($result);
-        $count += count($resultLine[1]);
+    $i = 0;
+    foreach ($result as $resultLine) {
+        // Count the number of fields in the current element and add it to the total count
+        $count += count($resultLine);
+        $i++;
+
+        //If the limit has been reached, break
+        if ($i >= $limit) {
+            break;
+        }
     }
 
     if ($i > 0) {
@@ -753,15 +766,15 @@ function RSQuery($theQuery, $registerError = true)
     // If present, we will print in the error_log additional debug information
     // including time taken to execute the requests in the server
     // and the executed query statements
-    $RSdebug = FALSE;
+    $RSdebug = false;
 
     if ($RSallowDebug && isset($GLOBALS[$cstRS_POST]['RSdebug'])) {
-        $RSdebug = TRUE;
+        $RSdebug = true;
 
         // The RSdebug parameter is usually only sent by POST Master
         global $queryCount;
         $queryCount++;
-        $start = microtime(TRUE);
+        $start = microtime(true);
     }
 
     $result = $mysqli->query($theQuery);
@@ -774,7 +787,7 @@ function RSQuery($theQuery, $registerError = true)
         usleep(1);
         error_log($theQuery . "\n");
         error_log("Total queries executed: " . $queryCount . "\n\n");
-        error_log("time elapsed(seconds): " . (microtime(TRUE) - $start) . "\n\n");
+        error_log("time elapsed(seconds): " . (microtime(true) - $start) . "\n\n");
     }
 
     //return query result
@@ -794,7 +807,7 @@ function RSError($message, $type = "")
         . $mysqli->real_escape_string($message) . "','" . $type . "'," . $GLOBALS[$cstRS_POST][$cstClientID] . ")";
 
     // Query the database
-    $result = $mysqli->query($query);
+    $mysqli->query($query);
 }
 
 //
