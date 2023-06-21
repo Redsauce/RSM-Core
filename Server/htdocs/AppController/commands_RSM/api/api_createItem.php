@@ -43,8 +43,8 @@ foreach ($RSdataSplit as $RSdataRow) {
         $AllPropertiesID[] = $id;
         $value = $chainValues[1];
 
-        if (!is_base64($value)) {
-            dieWithError(400, "Input parameters are not base64: ".$value);
+        if (!isBase64($value)) {
+            dieWithError(400, "Input parameters are not base64: " . $value);
         }
 
         // Only create properties where user has CREATE permission
@@ -64,7 +64,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $results['description'] = 'YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM';
         error_log('YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM');
         RSReturnArrayResults($results, false);
-    } 
+    }
 
     // Verify all properties pertain to the same item type
     $itemTypeID = getItemTypeIDFromProperties($AllPropertiesID, $clientID);
@@ -73,7 +73,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $results['description'] = 'PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE';
         error_log('PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE');
         RSReturnArrayResults($results, false);
-    }   
+    }
 }
 
 
@@ -84,7 +84,7 @@ foreach ($RSdataSplit as $RSdataRow) {
     $chainValues  = array();
     $propertiesID = array();
     $values       = array();
-    
+
     // Create array with the different values with a double explode
     $RSdataRow = explode(";", $RSdataRow);
 
@@ -94,7 +94,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $id = ParsePID($chainValues[0], $clientID);
         $value = $chainValues[1];
 
-       // Only prepare properties where user has CREATE permission
+        // Only prepare properties where user has CREATE permission
         if ((RShasTokenPermission($RStoken, $id, "CREATE")) || (isPropertyVisible($RSuserID, $id, $clientID))) {
             $propertiesID[] = $id;
             $decodedValue = base64_decode($value);
@@ -102,7 +102,6 @@ foreach ($RSdataSplit as $RSdataRow) {
             $newValue = str_replace("'", "&#39;", $newValue);
             $values[] = array('ID' => $id, 'value' => $newValue);
         }
-
     }
 
     // Create item and verify the result creation
@@ -114,11 +113,9 @@ foreach ($RSdataSplit as $RSdataRow) {
         $results['description'] = 'CREATE FUNCTION RETURNED AN ITEMID 0';
         error_log('CREATE FUNCTION RETURNED AN ITEMID 0');
     }
-
 }
 
-$results['itemID'] = implode($newPropertiesID,",");
+$results['itemID'] = implode($newPropertiesID, ",");
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
-?>
