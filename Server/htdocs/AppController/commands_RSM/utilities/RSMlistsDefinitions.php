@@ -9,15 +9,15 @@ $listDefs = array(
 	'projectStatusOpen'		=> 'projects.status.open',
 	'taskStatusOpen'		=> 'tasks.status.open',
 	'staffStatusActive'		=> 'staff.status.active',
-    'staffStatusInactive'   => 'staff.status.inactive',
+	'staffStatusInactive'   => 'staff.status.inactive',
 	'operationStatusOpen'   => 'operations.status.open',
 	'operationStatusClosed' => 'operations.status.closed',
 	'operationShowNoteYes'  => 'operations.showNote.yes',
 	'operationShowNoteNo'	=> 'operations.showNote.no',
-	'studiesStatusCancelled'=> 'studies.status.cancelled',
+	'studiesStatusCancelled' => 'studies.status.cancelled',
 	'studiesStatusClosed'   => 'studies.status.closed',
 	'studiesStatusOpen'     => 'studies.status.open',
-	'studiesStatusSuspended'=> 'studies.status.suspended',
+	'studiesStatusSuspended' => 'studies.status.suspended',
 	'studiesStatusWaiting'  => 'studies.status.waiting',
 	'stepsTypes'			=> 'steps.types',
 	'stepsTypesScriptNONE'	=> 'steps.types.none',
@@ -50,12 +50,12 @@ $listDefs = array(
 	'stepUnitTypeImage'			    	    => 'stepUnit.type.image',
 	'stepUnitTypeDate'			    	    => 'stepUnit.type.date',
 	'stepUnitTypeSeleniumResult'	        => 'stepUnit.type.seleniumResult',
-    'stepUnitTypeSeleniumResultDescription'	=> 'stepUnit.type.seleniumResultDescription',
+	'stepUnitTypeSeleniumResultDescription'	=> 'stepUnit.type.seleniumResultDescription',
 
 	'operationPayment'		      => 'operations.payment',
 	'operationPaymentCash'	      => 'operations.payment.cash',
 
-    'configurationModuleHTMLModuleWebbrowser'  => 'configuration.module.HTMLModule.webbrowser',
+	'configurationModuleHTMLModuleWebbrowser'  => 'configuration.module.HTMLModule.webbrowser',
 
 	'triggerTypes'                  => 'trigger.types',
 	'triggerTypeUrl'                => 'trigger.type.url',
@@ -63,4 +63,5 @@ $listDefs = array(
 	'triggerTypeQR'                 => 'trigger.type.qr',
 	'triggerTypeCreateItem'         => 'trigger.type.create.item',
 	'triggerTypeUpdateItem'         => 'trigger.type.update.item',
-	'triggerTypeDeleteItem'         => 'trigger.type.delete.item');
+	'triggerTypeDeleteItem'         => 'trigger.type.delete.item'
+);
