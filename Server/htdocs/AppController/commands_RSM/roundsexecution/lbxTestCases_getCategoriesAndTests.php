@@ -55,7 +55,7 @@ if($parentTestCaseID=="0"){
 $categories = getFilteredItemsIDs($categoriesItemTypeID, $clientID, $filters, $returnProperties);
 
 //Next, order the categories
-usort($categories, make_comparer('testCategoryOrder'));
+usort($categories, makeComparer('testCategoryOrder'));
 
 //Init the result array
 $result = array();

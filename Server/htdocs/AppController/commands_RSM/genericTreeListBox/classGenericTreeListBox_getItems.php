@@ -42,7 +42,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 	}
 	$descendants = getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes);
 
-    if ($parentID == 0 && array_search_ID($parentItemTypeID, $descendants, "itemTypeID") === false) {
+    if ($parentID == 0 && arraySearchID($parentItemTypeID, $descendants, "itemTypeID") === false) {
         // getting root level from a not recursive itemtype, add to descendants
         array_unshift($descendants, array("itemTypeID" => $parentItemTypeID, "propertyType" => '', "propertyID" => '0'));
     }
@@ -94,7 +94,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         }
 
         // check if is recursive itemtype and get recursive parent in this case
-        $recursivePropertyPos = array_search_ID($descendant['itemTypeID'], $subDescendants, "itemTypeID");
+        $recursivePropertyPos = arraySearchID($descendant['itemTypeID'], $subDescendants, "itemTypeID");
         if ($recursivePropertyPos !== false) $returnProperties[] = array('ID' => $subDescendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
 
         // get items pertaining to the parent passed

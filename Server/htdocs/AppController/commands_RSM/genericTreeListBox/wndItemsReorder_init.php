@@ -24,7 +24,7 @@ $returnProperties[] = array('ID' => getMainPropertyID($itemTypeID, $clientID), '
 $descendants = getDescendantsLevel($clientID, $itemTypeID, array($itemTypeID));
 
 // check if is recursive itemtype and get recursive parent in this case
-$recursivePropertyPos = array_search_ID($itemTypeID, $descendants, "itemTypeID");
+$recursivePropertyPos = arraySearchID($itemTypeID, $descendants, "itemTypeID");
 if ($recursivePropertyPos !== false) $returnProperties[] = array('ID' => $descendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
 
 if ($propertyID != '0') {

@@ -59,7 +59,7 @@ for ($i=0;$i<count($groups);$i++){
 	$testcasescategories = getFilteredItemsIDs($itemTypeTestCategoryID, $clientID, $filtersTestCategories, $returnPropertiesTestCategories);
 
 	//Reorder results
-	usort($testcasescategories, make_comparer('order'));
+	usort($testcasescategories, makeComparer('order'));
 
 	//Add the group first
 	array_push($results,(array)$groups[$i]);

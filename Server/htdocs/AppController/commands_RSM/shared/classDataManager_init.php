@@ -46,7 +46,7 @@ foreach ($sysProperties as $sysProperty) is_numeric($sysProperty)? $userProperti
 
 // Get properties required
 $propertiesUser = getPropertyIDs             ($userProperties, $clientID);
-$propertiesApp  = getPropertyIDs_usingSysName($appProperties , $clientID);
+$propertiesApp  = getPropertyIDsUsingSysName($appProperties , $clientID);
 
 // Merge the properties
 $properties = array();

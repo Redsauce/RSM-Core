@@ -68,7 +68,7 @@ if ($orderPropertyID != "") {
         $propertyType = getPropertyType($orderPropertyID, $clientID);
         if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)){
             $orderPropertyID_parsed = parsePID($orderPropertyID, $clientID);
-            if (in_array($property_parsed, $visibleProperties) && array_search_ID($orderPropertyID_parsed, $returnProperties) === false) $returnProperties[] = array('ID' => $orderPropertyID_parsed, 'name' => $orderPropertyID, 'trName' => $orderPropertyID . 'trs');
+            if (in_array($property_parsed, $visibleProperties) && arraySearchID($orderPropertyID_parsed, $returnProperties) === false) $returnProperties[] = array('ID' => $orderPropertyID_parsed, 'name' => $orderPropertyID, 'trName' => $orderPropertyID . 'trs');
         } else {
             $response['result'] = "NOK";
             $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";

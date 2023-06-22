@@ -104,7 +104,7 @@ for ($i = 0; $i < count($stepUnits); $i++) {
 }
 
 // reorder array
-usort($stepUnits, make_comparer(array('order', SORT_DESC)));
+usort($stepUnits, makeComparer(array('order', SORT_DESC)));
 
 // return results
 RSReturnArrayQueryResults($stepUnits);

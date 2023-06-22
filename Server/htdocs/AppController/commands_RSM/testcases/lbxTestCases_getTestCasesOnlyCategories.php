@@ -32,7 +32,7 @@ $filters[] = array('ID' => $parentTestCaseCategoryPropertyID, 'value' => $parent
 $testcasescategories = getFilteredItemsIDs($itemTypeID, $clientID, $filters, $returnProperties);
 
 //Reorder results by order
-usort($testcasescategories, make_comparer('order'));
+usort($testcasescategories, makeComparer('order'));
 
 // get the test cases
 $tcItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);

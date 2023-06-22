@@ -51,7 +51,7 @@ $subAccounts = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $r
 
 // add accountType property to subAccounts list
 for($i=0; $i<count($subAccounts); $i++){
-	$j=array_search_ID($subAccounts[$i]['accountID'],$accounts);
+	$j=arraySearchID($subAccounts[$i]['accountID'],$accounts);
 	if($j!==false) $subAccounts[$i]['accountType']=$accounts[$j]['accountType'];
 }
 

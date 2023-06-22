@@ -116,7 +116,7 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang){
                     else $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
                 }
 
-                usort($moduleTranslations, make_comparer('clientName'));
+                usort($moduleTranslations, makeComparer('clientName'));
                 array_unshift($moduleTranslations,array("appName"=>"All Modules","clientName"=>"All Modules"));
             }
 
@@ -250,7 +250,7 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
                     else  $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
                 }
 
-                usort($moduleTranslations, make_comparer('clientName'));
+                usort($moduleTranslations, makeComparer('clientName'));
                 array_unshift($moduleTranslations,array("appName"=>"All Modules","clientName"=>"All Modules"));
             }
 
@@ -378,7 +378,7 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
                     else $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
                 }
 
-                usort($moduleTranslations, make_comparer('clientName'));
+                usort($moduleTranslations, makeComparer('clientName'));
                 array_unshift($moduleTranslations,array("appName"=>"All Modules","clientName"=>"All Modules"));
             }
             //replace modules

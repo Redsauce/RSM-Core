@@ -109,7 +109,7 @@ function getParamsAndResultsForAStep($step, $parentStudyID, $parentSubjectID, $m
     }
 
     //Reordenamos el array en funci√≥n del orden
-    usort($stepUnitsChecked, make_comparer(array('order', SORT_DESC)));
+    usort($stepUnitsChecked, makeComparer(array('order', SORT_DESC)));
 
     //Una vez tenemos los par√°metros ordenados, hemos de coger sus valores
     for ($i = 0; $i < count($stepUnitsChecked); $i++) {
