@@ -54,23 +54,21 @@ if (!$users) {
     RSReturnError("QUERY EXECUTION ERROR.", 1);
 }
 
-switch ($users->num_rows) {
-    case 0:
-        
-        if ($password == "") {
-            RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
-        } else {
-            RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
-        }
-
-    default:
-
-        while ($row = $users->fetch_assoc()) {
-            $results[] = array("id"=>$row['RS_USER_ID'], "userID"=>$row['RS_USER_ID'], "clientID"=>$row['RS_CLIENT_ID'], "itemID"=>$row['RS_ITEM_ID'], "clientName"=>$row['RS_CLIENT_NAME'], "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
-        }
-
-        // Write XML Response back to the application
-        RSReturnArrayQueryResults($results);
+if ($users->num_rows == 0) {
+    if ($password == "") {
+        RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
+    } else {
+        RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
     }
-
-?>
+} else {
+    while ($row = $users->fetch_assoc()) {
+        $results[] = array(
+            "id"=>$row['RS_USER_ID'],
+            "userID"=>$row['RS_USER_ID'],
+            "clientID"=>$row['RS_CLIENT_ID'],
+            "itemID"=>$row['RS_ITEM_ID'],
+            "clientName"=>$row['RS_CLIENT_NAME'],
+            "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
+    }
+    RSReturnArrayQueryResults($results);
+}
