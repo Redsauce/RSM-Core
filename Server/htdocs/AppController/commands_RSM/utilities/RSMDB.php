@@ -1,6 +1,6 @@
 <?php
 
-require 'vendor/autoload.php'; // include Composer stuff installed with: composer require "mongodb/mongodb=^1.0.0"
+require_once 'vendor/autoload.php'; // include Composer stuff installed with: composer require "mongodb/mongodb=^1.0.0"
 
 /**
  * RSM's Database Interface Class
@@ -21,7 +21,8 @@ class RSMDB
      *
      * @param $address (String) Contains the location of the MongoDB instance
      */
-    public function SetClient($address){
+    public function SetClient($address)
+    {
         $this->client = new MongoDB\Client($address);
     }
 
@@ -32,9 +33,10 @@ class RSMDB
      *
      * @param $db (Any) Contains the id of the database.
      */
-    public function SetDatabase($db){
+    public function SetDatabase($db)
+    {
         $this->database = $db;
-        if (!is_null($this->collection)){
+        if (!is_null($this->collection)) {
             //To Avoid PHP Syntax quirks
             $name = $this->collectionName;
             $this->collection = $this->client->$db->$name;
@@ -48,7 +50,8 @@ class RSMDB
      *
      * @param $col (Any) Contains the id of the database.
      */
-    public function SetCollection($col){
+    public function SetCollection($col)
+    {
         $db = $this->database; //Because of PHP Syntax reasons
         $this->collection = $this->client->$db->$col;
         $this->collectionName = $col;
@@ -62,9 +65,9 @@ class RSMDB
      * @param $query (Array) Contains the query information in the following format: ['key' => 'value', 'key2' => 'value2']
      * @return MongoDB\Driver\Cursor Which can be iterated in a foreach ($result as $entry) where each entry's information can be accessed as $entry['key']
      */
-    public function Query($query){
-        $result = $this->collection->find($query);
-        return $result;
+    public function Query($query)
+    {
+        return $this->collection->find($query);
     }
 
     /**
@@ -76,9 +79,9 @@ class RSMDB
      * [['key' => 'value', 'key2' => 'value2'], ['key' => 'value3']]
      * @return MongoDB\InsertManyResult Which can be consulted with ->getInsertedIds to obtain an Array with the IDs of all successful inserts.
      */
-    public function Insert($data){
-        $result = $this->collection->insertMany($data);
-        return $result;
+    public function Insert($data)
+    {
+        return $this->collection->insertMany($data);
     }
 
     /**
@@ -89,9 +92,9 @@ class RSMDB
      * @param $filter (Array) Contains the query information in the following format: ['key' => 'value', 'key2' => 'value2']
      * @return MongoDB\DeleteManyResult Which can be consulted with ->getDeletedIds to obtain an Array with the IDs of all successful inserts.
      */
-    public function Remove($filter){
-        $result = $this->collection->deleteMany($filter);
-        return $result;
+    public function Remove($filter)
+    {
+        return $this->collection->deleteMany($filter);
     }
 
     /**
@@ -100,7 +103,8 @@ class RSMDB
      * Drops the entire selected Database.
      *
      */
-    public function DropDatabase(){
+    public function DropDatabase()
+    {
         $db = $this->database;
         $this->client->$db->drop();
     }
@@ -111,10 +115,8 @@ class RSMDB
      * Drops the entire selected Collection.
      *
      */
-    public function DropCollection(){
+    public function DropCollection()
+    {
         $this->collection->drop();
     }
-
 }
-
-?>
