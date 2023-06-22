@@ -27,12 +27,12 @@ $definitions = array(
     'staffStatus'              => 'staff.status',
     'staffPayrollSubAccountID' => 'staff.payrollSubAccountID',
     'staffName'                => 'staff.name',
-	'staffTaxCode'             => 'staff.taxCode',
-	'staffBankAccount'         => 'staff.bankAccount',
-	'staffBIC'                 => 'staff.bic',
-	'staffAddress'             => 'staff.address',
-	'staffPostCode'            => 'staff.postCode',
-	'staffCity'                => 'staff.city',
+    'staffTaxCode'             => 'staff.taxCode',
+    'staffBankAccount'         => 'staff.bankAccount',
+    'staffBIC'                 => 'staff.bic',
+    'staffAddress'             => 'staff.address',
+    'staffPostCode'            => 'staff.postCode',
+    'staffCity'                => 'staff.city',
 
     'subAccounts'             => 'subAccounts',
     'subAccountName'          => 'subAccounts.name',
@@ -180,9 +180,9 @@ $definitions = array(
     'resultStepAssociatedID'     => 'result.StepID',
     'resultValue'                => 'result.value',
 
-	  'ticket'                     => 'ticket',
-	  'ticketID'                   => 'ticket.ID',
-	  'ticketDate'                 => 'ticket.date',
+      'ticket'                     => 'ticket',
+      'ticketID'                   => 'ticket.ID',
+      'ticketDate'                 => 'ticket.date',
 
     'cashRegisters'                          => 'cashRegisters',
     'cashRegisterID'                         => 'cashRegister.ID',
@@ -347,12 +347,12 @@ $definitions = array(
     'onlineStoreAttribute.StockItemID'    => 'onlineStoreAttribute.stockItemID',
     'onlineStoreAttribute.Price'          => 'onlineStoreAttribute.price',
 
-    'crmAdresses'          	=> 'crmAdresses',
-    'crmAdresses.address'	=> 'crmAdresses.address',
+    'crmAdresses'           => 'crmAdresses',
+    'crmAdresses.address'   => 'crmAdresses.address',
     'crmAdresses.postcode'  => 'crmAdresses.postcode',
-    'crmAdresses.city'		=> 'crmAdresses.city',
-    'crmAdresses.province'	=> 'crmAdresses.province',
-    'crmAdresses.country'	=> 'crmAdresses.country',
+    'crmAdresses.city'      => 'crmAdresses.city',
+    'crmAdresses.province'  => 'crmAdresses.province',
+    'crmAdresses.country'   => 'crmAdresses.country',
 
     'crmAccounts'                         => 'crmAccounts',
     'crmAccountsInvoicingCCC'             => 'crmAccounts.invoicing.ccc',
@@ -410,13 +410,13 @@ $definitions = array(
     'newsType.URL'         => 'newsType.URL',
     'newsType.language'    => 'newsType.language',
 
-    'news' 			   	=> 'news',
-    'news.title'       	=> 'news.title',
-    'news.description' 	=> 'news.description',
-    'news.type' 		=> 'news.type',
-    'news.author' 		=> 'news.author',
-    'news.date' 		=> 'news.date',
-    'news.image' 		=> 'news.image',
+    'news'              => 'news',
+    'news.title'        => 'news.title',
+    'news.description'  => 'news.description',
+    'news.type'         => 'news.type',
+    'news.author'       => 'news.author',
+    'news.date'         => 'news.date',
+    'news.image'        => 'news.image',
     'news.URL'          => 'news.URL',
 
     'tasksGroup'                 => 'tasksGroup',
@@ -431,4 +431,3 @@ $definitions = array(
     'tasksGroup.status'          => 'tasksGroup.status'
 );
 
-?>
