@@ -6,7 +6,8 @@ require_once "RSMitemsManagement.php";
 //******************************************************************
 //Get relations for the round and subject passed
 //******************************************************************
-function getRelations($theRoundID, $theSubjectID, $clientID) {
+function getRelations($theRoundID, $theSubjectID, $clientID)
+{
     global $definitions;
 
     //get item type
@@ -30,15 +31,14 @@ function getRelations($theRoundID, $theSubjectID, $clientID) {
     $filters[] = array('ID' => $relationsRoundPropertyID, 'value' => $theRoundID);
     $filters[] = array('ID' => $relationsSubjectPropertyID, 'value' => $theSubjectID);
 
-    $relations = getFilteredItemsIDs($relationsItemTypeID, $clientID, $filters, $returnProperties);
-
-    return $relations;
+    return getFilteredItemsIDs($relationsItemTypeID, $clientID, $filters, $returnProperties);
 }
 
 //******************************************************************
 ///This function returns all the testcases inside one group (and inside their categories and sub-categories)
 //******************************************************************
-function getAllTestCategoriesInsideAGroup($groupID, $clientID) {
+function getAllTestCategoriesInsideAGroup($groupID, $clientID)
+{
 
     global $definitions;
 
@@ -71,7 +71,8 @@ function getAllTestCategoriesInsideAGroup($groupID, $clientID) {
 //******************************************************************
 //This function returns all the testcases inside one group (and inside their categories and sub-categories)
 //******************************************************************
-function getAllTestCasesInsideAGroup($groupID, $clientID) {
+function getAllTestCasesInsideAGroup($groupID, $clientID)
+{
 
     global $definitions;
 
@@ -110,7 +111,8 @@ function getAllTestCasesInsideAGroup($groupID, $clientID) {
 //******************************************************************
 //This function returns all the categories inside one parent category and their sub-categories
 //******************************************************************
-function getAllTestCategoriesInsideACategory($parentCategoryID, $clientID) {
+function getAllTestCategoriesInsideACategory($parentCategoryID, $clientID)
+{
 
     global $definitions;
 
@@ -156,7 +158,8 @@ function getAllTestCategoriesInsideACategory($parentCategoryID, $clientID) {
 //******************************************************************
 //This function returns the categories inside one parent category only (not sub-categories)
 //******************************************************************
-function getTestCategoriesInsideACategory($parentCategoryID, $clientID) {
+function getTestCategoriesInsideACategory($parentCategoryID, $clientID)
+{
 
     global $definitions;
 
@@ -189,7 +192,8 @@ function getTestCategoriesInsideACategory($parentCategoryID, $clientID) {
 //******************************************************************
 //This function returns all the testcases inside one parent category and their sub-categories
 //******************************************************************
-function getAllTestCasesInsideCategory($parentCategoryID, $clientID) {
+function getAllTestCasesInsideCategory($parentCategoryID, $clientID)
+{
 
     global $definitions;
 
@@ -228,7 +232,8 @@ function getAllTestCasesInsideCategory($parentCategoryID, $clientID) {
 //******************************************************************
 //This function returns the testcases inside one parent category only (not sub-categories)
 //******************************************************************
-function getTestCasesInsideCategory($parentCategoryID, $clientID) {
+function getTestCasesInsideCategory($parentCategoryID, $clientID)
+{
 
     global $definitions;
 
@@ -260,12 +265,13 @@ function getTestCasesInsideCategory($parentCategoryID, $clientID) {
 //******************************************************************
 //Get the structure from the testCategories to the first test category. Returns all inversed testCategories tree
 //******************************************************************
-function getParentCategoriesForCategory($categoryID, $clientID) {
+function getParentCategoriesForCategory($categoryID, $clientID)
+{
 
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
+    //$itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
 
     //get property
     $testCategoryParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasescategoryParentID'], $clientID);
@@ -288,12 +294,13 @@ function getParentCategoriesForCategory($categoryID, $clientID) {
 //******************************************************************
 //Get the structure from the testCase to the first test category. Returns all inversed testCategories tree
 //******************************************************************
-function getParentCategoriesForTestCase($testCaseID, $clientID) {
+function getParentCategoriesForTestCase($testCaseID, $clientID)
+{
 
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
+    // $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
 
     //get property
     $testCasesParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasesFolderID'], $clientID);
@@ -308,7 +315,8 @@ function getParentCategoriesForTestCase($testCaseID, $clientID) {
 //******************************************************************
 //Adds the tests or categories that aren't in the relation
 //******************************************************************
-function addItemsToRelationIfNotExists($itemsList, $listToAdd) {
+function addItemsToRelationIfNotExists($itemsList, $listToAdd)
+{
 
     //First, split the two lists
     $existingRelation = explode(',', $itemsList);
@@ -335,7 +343,8 @@ function addItemsToRelationIfNotExists($itemsList, $listToAdd) {
 //******************************************************************
 //Removes the tests or categories that are in the relation
 //******************************************************************
-function removeItemsFromRelationIfExists($itemsList, $listToRemove) {
+function removeItemsFromRelationIfExists($itemsList, $listToRemove)
+{
 
     //First, split the two lists
     $existingRelation = explode(',', $itemsList);
@@ -362,7 +371,8 @@ function removeItemsFromRelationIfExists($itemsList, $listToRemove) {
 //******************************************************************
 //This function removes the steps of a test case from the results
 //******************************************************************
-function deleteStepsResultsForATestCase($testCase, $relation, $clientID) {
+function deleteStepsResultsForATestCase($testCase, $relation, $clientID)
+{
 
     global $definitions;
 
@@ -394,7 +404,7 @@ function deleteStepsResultsForATestCase($testCase, $relation, $clientID) {
         $stepsList[] = $step['ID'];
     }
 
-    if (count($stepsList) > 0) {
+    if (!empty($stepsList)) {
         // delete steps associated results
         //build the return array
         $returnProperties = array();
@@ -412,7 +422,7 @@ function deleteStepsResultsForATestCase($testCase, $relation, $clientID) {
             $resList[] = $result['ID'];
         }
 
-        if (count($resList) > 0) {
+        if (!empty($resList)) {
             //Clear results steps list
             deleteItems($resultsItemTypeID, $clientID, implode(',', $resList));
         }
@@ -425,7 +435,8 @@ function deleteStepsResultsForATestCase($testCase, $relation, $clientID) {
 //******************************************************************
 //This function duplicate the steps of a test case
 //******************************************************************
-function duplicateStepsForTestCase($testCase, $relation, $clientID) {
+function duplicateStepsForTestCase($testCase, $relation, $clientID)
+{
 
     global $definitions;
 
@@ -458,4 +469,3 @@ function duplicateStepsForTestCase($testCase, $relation, $clientID) {
         setPropertyValueByID($relatedRelationPropertyID, $itemTypeStepsID, $stepCopy, $clientID, $relation['ID'], '', $RSuserID);
     }
 }
-?>
