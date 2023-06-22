@@ -9,7 +9,8 @@
 ****RS_DATA: binary file
 ****RS_NAME: file name
 */
-function getMediaFile($clientID,$itemID,$propertyID){
+function getMediaFile($clientID, $itemID, $propertyID)
+{
     global $RSMmediaURL;
     global $curlFileName;
 
@@ -20,9 +21,9 @@ function getMediaFile($clientID,$itemID,$propertyID){
     $data = 'clientID=' . $clientID . '&itemID=' . $itemID . '&propertyID=' . $propertyID;
 
     // set options
-    curl_setopt($ch, CURLOPT_POST          , true                );
-    curl_setopt($ch, CURLOPT_POSTFIELDS    , $data               );
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true                );
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     //curl_setopt($ch, CURLOPT_HEADER        , 0                   );
     curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'curlHeaderCallback');
 
@@ -49,19 +50,20 @@ function getMediaFile($clientID,$itemID,$propertyID){
 ****result: OK/NOK
 ****description:error description if result=nok
 */
-function setMediaFile($clientID,$itemID,$propertyID,$file_data,$file_name){
+function setMediaFile($clientID, $itemID, $propertyID, $fileData, $fileName)
+{
     global $RSMmediaURL;
     $results= array();
 
     // prepare cURL
     $ch = curl_init($RSMmediaURL . "api_setFile.php");
-    $data = 'clientID=' . $clientID . '&itemID=' . $itemID . '&propertyID=' . $propertyID . '&data=' . urlencode(base64_encode($file_data)) . '&name=' . urlencode(base64_encode($file_name));
+    $data = 'clientID=' . $clientID . '&itemID=' . $itemID . '&propertyID=' . $propertyID . '&data=' . urlencode(base64_encode($fileData)) . '&name=' . urlencode(base64_encode($fileName));
 
     // set options
-    curl_setopt($ch, CURLOPT_POST          , true );
-    curl_setopt($ch, CURLOPT_POSTFIELDS    , $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt($ch, CURLOPT_HEADER        , 0    );
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
 
     // grab URL and receive xml
     $xmlret = curl_exec($ch);
@@ -71,18 +73,21 @@ function setMediaFile($clientID,$itemID,$propertyID,$file_data,$file_name){
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
-    $xml_elements = $xml -> rows -> row;
+    $xmlElements = $xml -> rows -> row;
 
-    foreach ($xml_elements[0] -> column as $propertyValue) {
-        if ($propertyValue -> attributes() -> name == 'result'     ) $results['result'     ] = trim($propertyValue);
-        if ($propertyValue -> attributes() -> name == 'description') $results['description'] = trim($propertyValue);
+    foreach ($xmlElements[0] -> column as $propertyValue) {
+        if ($propertyValue -> attributes() -> name == 'result') {
+            $results['result'     ] = trim($propertyValue);
+        }
+        if ($propertyValue -> attributes() -> name == 'description') {
+            $results['description'] = trim($propertyValue);
+        }
     }
 
-    if(!isset($results['result'])) {
-        $results['result'     ] = "NOK";
+    if (!isset($results['result'])) {
+        $results['result'] = "NOK";
         $results['description'] = "Missing response uploading file: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
     }
-
     return $results;
 }
 
@@ -96,7 +101,8 @@ function setMediaFile($clientID,$itemID,$propertyID,$file_data,$file_name){
 ****result: OK/NOK
 ****description:error description if result=nok
 */
-function deleteMediaFile($clientID,$itemID,$propertyID){
+function deleteMediaFile($clientID, $itemID, $propertyID)
+{
     global $RSMmediaURL;
     $results= array();
 
@@ -105,10 +111,10 @@ function deleteMediaFile($clientID,$itemID,$propertyID){
     $data = 'clientID=' . $clientID . '&itemID=' . $itemID . '&propertyID=' . $propertyID;
 
     // set options
-    curl_setopt($ch, CURLOPT_POST          , true );
-    curl_setopt($ch, CURLOPT_POSTFIELDS    , $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt($ch, CURLOPT_HEADER        , 0    );
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
 
     // grab URL and receive xml
     $xmlret = curl_exec($ch);
@@ -118,18 +124,21 @@ function deleteMediaFile($clientID,$itemID,$propertyID){
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
-    $xml_elements = $xml -> rows -> row;
+    $xmlElements = $xml -> rows -> row;
 
-    foreach ($xml_elements[0] -> column as $propertyValue) {
-        if ($propertyValue -> attributes() -> name == 'result'     ) $results['result'     ] = trim($propertyValue);
-        if ($propertyValue -> attributes() -> name == 'description') $results['description'] = trim($propertyValue);
+    foreach ($xmlElements[0] -> column as $propertyValue) {
+        if ($propertyValue -> attributes() -> name == 'result') {
+            $results['result'] = trim($propertyValue);
+        }
+        if ($propertyValue -> attributes() -> name == 'description') {
+            $results['description'] = trim($propertyValue);
+        }
     }
 
-    if(!isset($results['result'])) {
-        $results['result'     ] = "NOK";
+    if (!isset($results['result'])) {
+        $results['result'] = "NOK";
         $results['description'] = "Missing response deleting file: clientID=" . $clientID . ', itemID=' . $itemID . ', propertyID=' . $propertyID ;
     }
-
     return $results;
 }
 
@@ -143,7 +152,8 @@ function deleteMediaFile($clientID,$itemID,$propertyID){
 ****result: OK/NOK
 ****description:error description if result=nok
 */
-function duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend){
+function duplicateMediaProperty($clientID, $propertyIDstart, $propertyIDend)
+{
     global $RSMmediaURL;
     $results= array();
 
@@ -152,10 +162,10 @@ function duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend){
     $data = 'clientID=' . $clientID . '&propertyIDstart=' . $propertyIDstart . '&propertyIDend=' . $propertyIDend;
 
     // set options
-    curl_setopt($ch, CURLOPT_POST          , true );
-    curl_setopt($ch, CURLOPT_POSTFIELDS    , $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt($ch, CURLOPT_HEADER        , 0    );
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
 
     // grab URL and receive xml
     $xmlret = curl_exec($ch);
@@ -165,18 +175,21 @@ function duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend){
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
-    $xml_elements = $xml -> rows -> row;
+    $xmlElements = $xml -> rows -> row;
 
-    foreach ($xml_elements[0] -> column as $propertyValue) {
-        if ($propertyValue -> attributes() -> name == 'result'     ) $results['result'     ] = trim($propertyValue);
-        if ($propertyValue -> attributes() -> name == 'description') $results['description'] = trim($propertyValue);
+    foreach ($xmlElements[0] -> column as $propertyValue) {
+        if ($propertyValue -> attributes() -> name == 'result') {
+            $results['result'] = trim($propertyValue);
+        }
+        if ($propertyValue -> attributes() -> name == 'description') {
+            $results['description'] = trim($propertyValue);
+        }
     }
 
-    if(!isset($results['result'])) {
-        $results['result'     ] = "NOK";
+    if (!isset($results['result'])) {
+        $results['result'] = "NOK";
         $results['description'] = "Missing response duplicating property: clientID=" . $clientID . ', propertyIDstart=' . $propertyIDstart . ', propertyIDend=' . $propertyIDend ;
     }
-
     return $results;
 }
 
@@ -189,7 +202,8 @@ function duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend){
 ****result: OK/NOK
 ****description:error description if result=nok
 */
-function deleteMediaProperty($clientID,$propertyID){
+function deleteMediaProperty($clientID, $propertyID)
+{
     global $RSMmediaURL;
     $results= array();
 
@@ -198,10 +212,10 @@ function deleteMediaProperty($clientID,$propertyID){
     $data = 'clientID=' . $clientID . '&propertyID=' . $propertyID;
 
     // set options
-    curl_setopt($ch, CURLOPT_POST          , true );
-    curl_setopt($ch, CURLOPT_POSTFIELDS    , $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt($ch, CURLOPT_HEADER        , 0    );
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
 
     // grab URL and receive xml
     $xmlret = curl_exec($ch);
@@ -211,15 +225,19 @@ function deleteMediaProperty($clientID,$propertyID){
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
-    $xml_elements = $xml -> rows -> row;
+    $xmlElements = $xml -> rows -> row;
 
-    foreach ($xml_elements[0] -> column as $propertyValue) {
-        if ($propertyValue -> attributes() -> name == 'result'     ) $results['result'     ] = trim($propertyValue);
-        if ($propertyValue -> attributes() -> name == 'description') $results['description'] = trim($propertyValue);
+    foreach ($xmlElements[0] -> column as $propertyValue) {
+        if ($propertyValue -> attributes() -> name == 'result') {
+            $results['result'] = trim($propertyValue);
+        }
+        if ($propertyValue -> attributes() -> name == 'description') {
+            $results['description'] = trim($propertyValue);
+        }
     }
 
-    if(!isset($results['result'])) {
-        $results['result'     ] = "NOK";
+    if (!isset($results['result'])) {
+        $results['result'] = "NOK";
         $results['description'] = "Missing response deleting property: clientID=" . $clientID . ', propertyID=' . $propertyID ;
     }
 
@@ -228,15 +246,14 @@ function deleteMediaProperty($clientID,$propertyID){
 
 
 /* Function for parsing curl response headers and store file name in $curlFileName var*/
-function curlHeaderCallback($resURL, $strHeader) {
+function curlHeaderCallback($resURL, $strHeader)
+{
     global $curlFileName;
 
     $reDispo = '/^Content-Disposition: .*?filename="([^"]*).*$/im';
 
-    if (preg_match($reDispo, $strHeader, $mDispo)){
-        $curlFileName = trim($mDispo[1],' ";');
+    if (preg_match($reDispo, $strHeader, $mDispo)) {
+        $curlFileName = trim($mDispo[1], ' ";');
     }
     return strlen($strHeader);
 }
-
-?>
