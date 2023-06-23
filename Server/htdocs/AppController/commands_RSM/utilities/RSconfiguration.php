@@ -43,10 +43,4 @@ $cstMainPropertyType     = 'mainPropertyType';
 $cstReferredItemTypeID   = 'referredItemTypeID';
 $cstRS_POST              = 'RS_POST';
 $cstUTF8                 = 'UTF-8';
-
-// Mailing settings
-$SMTPServer = '{SMTPServer}';
-$mailUser = '{SMTPMailUser}';
-$mailPassword = '{SMTPMailPassword}';
-$mailRecipient = '{MailRecipient}';
 ?>
