@@ -1882,8 +1882,8 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
                 }
             }
 
-            if (!empty($childsToCopy) && duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties) == -1 ) {
-                    return -1;
+            if (!empty($childsToCopy) && duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties) == -1) {
+                return -1;
             }
 
             foreach ($childsToMove as $originalChildID => $parents) {
