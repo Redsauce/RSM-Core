@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - develop
+      - sonar_files
 
 
 jobs:
