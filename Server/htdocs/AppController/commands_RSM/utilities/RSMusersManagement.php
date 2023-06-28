@@ -15,7 +15,7 @@ function removeUserFromGroup($userID, $clientID, $groupID)
         if ($result->fetch_array() == 0) {
             $status = 'OK';
         } else {
-            $theQuery = "DELETE FROM rs_users_groups WHERE (RS_GROUP_ID=" . $groupID . "AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID . ")";
+            $theQuery = "DELETE FROM rs_users_groups WHERE (RS_GROUP_ID=" . $groupID . " AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID . ")";
 
             if ($result == RSQuery($theQuery)) {
                 $status = 'OK';
@@ -33,8 +33,8 @@ function addUserToGroup($userID, $clientID, $groupID)
         $status = 'NOK';
     } else {
         //We check if the user is already into the group
-        $theQueryUserAlreadyinGroup = "SELECT RS_GROUP_ID FROM rs_users_groups WHERE RS_GROUP_ID=" . $groupID . "AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID;
-        
+        $theQueryUserAlreadyinGroup = "SELECT RS_GROUP_ID FROM rs_users_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID;
+
         $result = RSQuery($theQueryUserAlreadyinGroup);
 
         if ($result->fetch_array() != 0) {
@@ -91,8 +91,7 @@ function removePropertyFromGroup($propertyID, $groupID, $clientID)
         if ($result->fetch_array() == 0) {
             $status = 'OK';
         } else {
-            $theQuery = "DELETE FROM rs_properties_groups WHERE (RS_GROUP_ID=" . $groupID .
-                        "AND RS_PROPERTY_ID=" . $propertyID . " AND RS_CLIENT_ID=" . $clientID . ")";
+            $theQuery = "DELETE FROM rs_properties_groups WHERE (RS_GROUP_ID=" . $groupID . " AND RS_PROPERTY_ID=" . $propertyID . " AND RS_CLIENT_ID=" . $clientID . ")";
 
             if ($result == RSQuery($theQuery)) {
                 $status = 'OK';
@@ -138,7 +137,7 @@ function removeActionFromGroup($actionClientID, $groupID, $clientID)
         $status = 'NOK';
     } else {
         //We check if the action is already into the group
-        $theQueryActionAlreadyNotinGroup = "SELECT RS_GROUP_ID FROM rs_actions_groups WHERE RS_GROUP_ID=" . $groupID . "AND RS_ACTION_CLIENT_ID=" . $actionClientID . " AND RS_CLIENT_ID=" . $clientID;
+        $theQueryActionAlreadyNotinGroup = "SELECT RS_GROUP_ID FROM rs_actions_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_ACTION_CLIENT_ID=" . $actionClientID . " AND RS_CLIENT_ID=" . $clientID;
 
         $result = RSquery($theQueryActionAlreadyNotinGroup);
 
