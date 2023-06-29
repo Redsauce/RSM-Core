@@ -10,4 +10,3 @@ $results['clientValueID'] = getClientListValueID_RelatedWith($appValueID, $clien
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

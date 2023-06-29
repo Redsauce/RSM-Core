@@ -10,15 +10,14 @@ $appListValues = getAppListValues($appListID);
 
 $results = array();
 foreach ($appListValues as $value) {
-	$clientValueIDRelated = getClientListValueID_RelatedWith($value['valueID'], $clientID);
-	if ($clientValueIDRelated == '0') {
-		$related = '0';
-	} else {
-		$related = '1';
-	}
-	$results[] = array('ID' => $value['valueID'], 'value' => $value['value'], 'related' => $related);
+    $clientValueIDRelated = getClientListValueID_RelatedWith($value['valueID'], $clientID);
+    if ($clientValueIDRelated == '0') {
+        $related = '0';
+    } else {
+        $related = '1';
+    }
+    $results[] = array('ID' => $value['valueID'], 'value' => $value['value'], 'related' => $related);
 }
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

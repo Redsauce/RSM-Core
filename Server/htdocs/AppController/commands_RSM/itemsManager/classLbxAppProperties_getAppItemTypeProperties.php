@@ -25,4 +25,4 @@ if ($theProperties) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($data);
-?>
+
