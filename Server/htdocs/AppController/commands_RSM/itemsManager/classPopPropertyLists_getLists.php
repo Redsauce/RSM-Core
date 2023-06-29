@@ -5,4 +5,3 @@ require_once "../utilities/RSMlistsManagement.php";
 
 // And write XML Response back to the application
 RSReturnQueryResults(getLists($GLOBALS['RS_POST']['clientID']));
-?>

@@ -18,8 +18,8 @@ $theQuery = "INSERT INTO rs_item_type_app_relations (RS_ITEMTYPE_ID, RS_CLIENT_I
 $results = RSQuery($theQuery);
 
 $response = array();
-$response['result'] = ($results == TRUE) ? "OK" : "NOK";
+$response['result'] = $results ? "OK" : "NOK";
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
-?>
+

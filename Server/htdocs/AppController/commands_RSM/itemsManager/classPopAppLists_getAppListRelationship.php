@@ -12,4 +12,3 @@ $result['clientListID'] = $clientListID;
 
 // And write XML Response back to the application
 RSReturnArrayResults($result);
-?>
