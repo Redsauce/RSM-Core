@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	update the item property
+//  update the item property
 //***************************************************
 
 // Database connection startup
@@ -26,19 +26,19 @@ isset($GLOBALS['RS_POST']['confirmDuplicated'                    ]) ? $confirmDu
 $itemTypeID = getClientPropertyItemType($propertyID, $clientID);
 
 //check property name exists
-if($confirmDuplicated != '1'){
-	$itemTypeProperties=getClientItemTypeProperties($itemTypeID,$clientID);
-	foreach($itemTypeProperties as $itemTypeProperty){
-		if($itemTypeProperty['name']==$propertyName&&$itemTypeProperty['id']!=$propertyID){
+if ($confirmDuplicated != '1') {
+  $itemTypeProperties=getClientItemTypeProperties($itemTypeID,$clientID);
+  foreach ($itemTypeProperties as $itemTypeProperty) {
+    if ($itemTypeProperty['name']==$propertyName&&$itemTypeProperty['id']!=$propertyID) {
 
-			$results['result'] = 'NOK';
-			$results['description'] = 'NAME_ALREADY_EXISTS';
-			// And write XML Response back to the application
-			RSReturnArrayResults($results);
-			// Terminate PHP execution
-			exit;
-		}
-	}
+      $results['result'] = 'NOK';
+      $results['description'] = 'NAME_ALREADY_EXISTS';
+      // And write XML Response back to the application
+      RSReturnArrayResults($results);
+      // Terminate PHP execution
+      exit;
+    }
+  }
 }
 
 // get property type
@@ -54,23 +54,20 @@ $propertyPrevDefValue = getClientPropertyDefaultValue($propertyID, $clientID);
 $result = RSquery('UPDATE rs_item_properties SET RS_NAME = "'.$propertyName.'", RS_DESCRIPTION = "'.$propertyDescription.'", RS_DEFAULTVALUE = "'.$propertyDefaultValue.'", RS_AUDIT_TRAIL = '.$propertyAuditTrail.', RS_AUDIT_TRAIL_DESCRIPTION_REQUIRED = '.$propertyAuditTrailDescriptionRequired.', RS_AVOID_DUPLICATION = '.$avoidDuplicateProperty.', RS_SEARCHABLE = '.$isSearchableProperty.' WHERE RS_PROPERTY_ID = '.$propertyID.' AND RS_CLIENT_ID = '.$clientID);
 // check if a list for the property was sent
 if ($listID != 0) {
-	//if (RSQuery("SELECT RS_LIST_ID FROM rs_properties_lists WHERE RS_PROPERTY_ID = ".$propertyID." AND RS_CLIENT_ID = ".$clientID->num_rows) > 0) {
-	//	RSQuery("UPDATE rs_properties_lists SET RS_LIST_ID = ".$listID.", RS_MULTIVALUES = ".$propertyMultiValue." WHERE RS_PROPERTY_ID = ".$propertyID." AND RS_CLIENT_ID = ".$clientID);
-	//} else {
-	//	RSQuery("INSERT IGNORE INTO rs_properties_lists (RS_PROPERTY_ID, RS_LIST_ID, RS_CLIENT_ID, RS_MULTIVALUES) VALUES (".$propertyID.",".$listID.",".$clientID.",".$propertyMultiValue.")");
-	//}
-	$result = RSquery("REPLACE INTO rs_properties_lists (RS_PROPERTY_ID, RS_LIST_ID, RS_CLIENT_ID, RS_MULTIVALUES) VALUES (".$propertyID.",".$listID.",".$clientID.",".$propertyMultiValue.")");
-} else $result = RSquery("DELETE FROM rs_properties_lists WHERE RS_PROPERTY_ID = ".$propertyID." AND RS_CLIENT_ID = ".$clientID);
+  $result = RSquery("REPLACE INTO rs_properties_lists (RS_PROPERTY_ID, RS_LIST_ID, RS_CLIENT_ID, RS_MULTIVALUES) VALUES (".$propertyID.",".$listID.",".$clientID.",".$propertyMultiValue.")");
+} else {
+  $result = RSquery("DELETE FROM rs_properties_lists WHERE RS_PROPERTY_ID = ".$propertyID." AND RS_CLIENT_ID = ".$clientID);
+}
 
 if ($updatePrevious == '1') {
-	// update the property default value for the items that already exist
-	$itemTypeID = getClientPropertyItemType($propertyID, $clientID);
-	$itemIDs = IQ_getItemIDs($itemTypeID, $clientID);
-	while ($row = $itemIDs->fetch_assoc()) {
-		if (getItemPropertyValue($row['ID'], $propertyID, $clientID, $propertyType) == $propertyPrevDefValue) {
-			setPropertyValueByID($propertyID, $itemTypeID, $row['ID'], $clientID, $propertyDefaultValue, $propertyType, $RSuserID);
-		}
-	}
+  // update the property default value for the items that already exist
+  $itemTypeID = getClientPropertyItemType($propertyID, $clientID);
+  $itemIDs = IQ_getItemIDs($itemTypeID, $clientID);
+  while ($row = $itemIDs->fetch_assoc()) {
+    if (getItemPropertyValue($row['ID'], $propertyID, $clientID, $propertyType) == $propertyPrevDefValue) {
+      setPropertyValueByID($propertyID, $itemTypeID, $row['ID'], $clientID, $propertyDefaultValue, $propertyType, $RSuserID);
+    }
+  }
 }
 
 $results['result'                       ] = "OK";
@@ -86,4 +83,3 @@ $results['searchable'                   ] = $isSearchableProperty;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	updates the item properties
+//  updates the item properties
 //  ---> updated for the v.3.10
 //***************************************************
 
@@ -11,52 +11,54 @@
 include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
 
-if ($GLOBALS['RS_POST']['clientID'] != 0){
+if ($GLOBALS['RS_POST']['clientID'] != 0) {
 
-	//We check if the itemtype exists into the client
-	$theQuery = "SELECT rs_item_types.RS_ITEMTYPE_ID FROM rs_item_types INNER JOIN rs_categories ON rs_item_types.RS_ITEMTYPE_ID=rs_categories.RS_ITEMTYPE_ID AND rs_item_types.RS_CLIENT_ID=rs_categories.RS_CLIENT_ID WHERE rs_categories.RS_CATEGORY_ID =".$GLOBALS['RS_POST']['categoryID']." AND rs_categories.RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+  //We check if the itemtype exists into the client
+  $theQuery = "SELECT rs_item_types.RS_ITEMTYPE_ID FROM rs_item_types INNER JOIN rs_categories ON rs_item_types.RS_ITEMTYPE_ID=rs_categories.RS_ITEMTYPE_ID AND rs_item_types.RS_CLIENT_ID=rs_categories.RS_CLIENT_ID WHERE rs_categories.RS_CATEGORY_ID =" . $GLOBALS['RS_POST']['categoryID'] . " AND rs_categories.RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-	$result = RSQuery($theQuery);
+  $result = RSQuery($theQuery);
 
-	if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
+  if (isset($GLOBALS['RS_POST']['RSdebug']) && $GLOBALS['RS_POST']['RSdebug']) {
+    echo $theQuery;
+  }
 
-	if ($resItem = $result->fetch_assoc()){
-		//The itemtype exists, so perform the action
-		//We check if the property exists into the client
-		$theQuery = "SELECT RS_PROPERTY_ID, RS_TYPE FROM rs_item_properties WHERE RS_PROPERTY_ID =".$GLOBALS['RS_POST']['propertyID']." AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+  if ($resItem = $result->fetch_assoc()) {
+    //The itemtype exists, so perform the action
+    //We check if the property exists into the client
+    $theQuery = "SELECT RS_PROPERTY_ID, RS_TYPE FROM rs_item_properties WHERE RS_PROPERTY_ID =" . $GLOBALS['RS_POST']['propertyID'] . " AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-		$result = RSQuery($theQuery);
+    $result = RSQuery($theQuery);
 
-		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
+    if (isset($GLOBALS['RS_POST']['RSdebug']) && $GLOBALS['RS_POST']['RSdebug']) {
+      echo $theQuery;
+    }
 
-		if ($res = $result->fetch_assoc()){
-			//The property exists
-			if ($res['RS_TYPE'] != 'identifier' && $res['RS_TYPE'] != 'identifiers' && $res['RS_TYPE'] != 'file' && $res['RS_TYPE'] != 'image') {  // the main property can't be an identifier property!
-				// perform the action
-				$theQueryItem = "UPDATE rs_item_types SET RS_MAIN_PROPERTY_ID=".$GLOBALS['RS_POST']['propertyID']." WHERE RS_ITEMTYPE_ID=".$resItem['RS_ITEMTYPE_ID']." AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+    if ($res = $result->fetch_assoc()) {
+      //The property exists
+      if ($res['RS_TYPE'] != 'identifier' && $res['RS_TYPE'] != 'identifiers' && $res['RS_TYPE'] != 'file' && $res['RS_TYPE'] != 'image') {  // the main property can't be an identifier property!
+        // perform the action
+        $theQueryItem = "UPDATE rs_item_types SET RS_MAIN_PROPERTY_ID=" . $GLOBALS['RS_POST']['propertyID'] . " WHERE RS_ITEMTYPE_ID=" . $resItem['RS_ITEMTYPE_ID'] . " AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']){
-					echo $theQueryItem;
-				}
+        if (isset($GLOBALS['RS_POST']['RSdebug']) && $GLOBALS['RS_POST']['RSdebug']) {
+          echo $theQueryItem;
+        }
 
-				if($result = RSQuery($theQueryItem)){
-					$results['result']="OK";
-				}else{
-					$results["result"] = "NOK";
-				}
-
-			} else {
-				$results['result'] = 'NOK';
-			}
-		}else{
-			$results["result"] = "NOK";
-		}
-	}else{
-		$results["result"] = "NOK";
-	}
-}else{
-	$results["result"] = "NOK";
+        if ($result = RSQuery($theQueryItem)) {
+          $results['result'] = "OK";
+        } else {
+          $results["result"] = "NOK";
+        }
+      } else {
+        $results['result'] = 'NOK';
+      }
+    } else {
+      $results["result"] = "NOK";
+    }
+  } else {
+    $results["result"] = "NOK";
+  }
+} else {
+  $results["result"] = "NOK";
 }
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>
