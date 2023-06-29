@@ -4,21 +4,23 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$itemTypeID     =              $GLOBALS['RS_POST']['itemTypeID'    ] ;
-$clientID       =              $GLOBALS['RS_POST']['clientID'      ] ;
-$itemIDs        = explode(",", $GLOBALS['RS_POST']['itemIDs'       ]);
-$propertyIDs    = explode(',', $GLOBALS['RS_POST']['propertyIDs'   ]);
+$itemTypeID     =              $GLOBALS['RS_POST']['itemTypeID'];
+$clientID       =              $GLOBALS['RS_POST']['clientID'];
+$itemIDs        = explode(",", $GLOBALS['RS_POST']['itemIDs']);
+$propertyIDs    = explode(',', $GLOBALS['RS_POST']['propertyIDs']);
 $propertiesList = explode(':', $GLOBALS['RS_POST']['propertiesList']);
 
-$overwrite      = $GLOBALS['RS_POST']['overwrite'] == 1? true : false;
-$trigger        = $GLOBALS['RS_POST']['allowTriggerEvents'] == 1? true : false;
+$overwrite      = $GLOBALS['RS_POST']['overwrite'] == 1 ? true : false;
+$trigger        = $GLOBALS['RS_POST']['allowTriggerEvents'] == 1 ? true : false;
 $overwriteQuery = $overwrite ? "REPLACE INTO " : "INSERT INTO ";
 
 
 $numItems       = count($propertiesList);
 $propertyValues = array();
 
-for ($i = 0; $i < $numItems; $i++) $propertyValues[] = explode(' ', $propertiesList[$i]);
+for ($i = 0; $i < $numItems; $i++) {
+    $propertyValues[] = explode(' ', $propertiesList[$i]);
+}
 
 
 if ($GLOBALS['RS_POST']['itemIDs'] == '') {
@@ -28,9 +30,9 @@ if ($GLOBALS['RS_POST']['itemIDs'] == '') {
     $firstItemID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
 
     // build items IDs array
-    for ($i = 0; $i < $numItems; $i++) $itemIDs[$i] = $firstItemID + $i;
-
-
+    for ($i = 0; $i < $numItems; $i++) {
+        $itemIDs[$i] = $firstItemID + $i;
+    }
 } else {
     // try to create items with predefined IDs
 
@@ -47,7 +49,6 @@ if ($GLOBALS['RS_POST']['itemIDs'] == '') {
                 // Write response back to application
                 RSReturnArrayResults($results);
             }
-
         } else {
             // id repeated
             $results['result'] = 'ERROR2';
@@ -59,9 +60,11 @@ if ($GLOBALS['RS_POST']['itemIDs'] == '') {
 }
 
 // build the query to create items
-for ($i = 0; $i < $numItems; $i++) $theQuery_createItem[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $clientID . ')';
+for ($i = 0; $i < $numItems; $i++) {
+    $theQuery_createItem[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $clientID . ')';
+}
 
-$query = $overwriteQuery.'rs_items (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) VALUES ' . implode(",", $theQuery_createItem);
+$query = $overwriteQuery . 'rs_items (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) VALUES ' . implode(",", $theQuery_createItem);
 
 // execute query
 if (RSquery($query)) {
@@ -85,21 +88,27 @@ if (RSquery($query)) {
         $theQuery_insertProperties = array();
 
         for ($i = 0; $i < $numItems; $i++) {
-            if ((!$passed) && ($overwrite)) continue; // If we are overwriting we don't store the property if it has not been passed
+            if ((!$passed) && ($overwrite)) {
+                continue; // If we are overwriting we don't store the property if it has not been passed
+            }
 
-            if ($passed) $value = base64_decode($propertyValues[$i][$k]);
+            if ($passed) {
+                $value = base64_decode($propertyValues[$i][$k]);
+            }
 
             // Ensure property value match the defined property type and convert to default otherwise
             $value = enforcePropertyType($value, $clientID, $property['id'], $property['type']);
 
             if ($property['type'] == 'identifiers') {
-                $theQuery_insertProperties[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $property['id'] . ',"' . $value . '",' . $clientID . ', "' . implode(',', array_fill(0, count(explode(',',$value)), '0')) . '")';
+                $theQuery_insertProperties[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $property['id'] . ',"' . $value . '",' . $clientID . ', "' . implode(',', array_fill(0, count(explode(',', $value)), '0')) . '")';
             } else {
                 $theQuery_insertProperties[] = '(' . $itemTypeID . ',' . $itemIDs[$i] . ',' . $property['id'] . ',"' . $value . '",' . $clientID . ')';
             }
         }
 
-        if (count($theQuery_insertProperties) == 0) continue; // If there is nothing to insert, don't execute the query
+        if (empty($theQuery_insertProperties)) {
+            continue; // If there is nothing to insert, don't execute the query
+        }
 
         if ($property['type'] == 'identifiers') {
             $query = $overwriteQuery . $propertiesTables[$property['type']] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_CLIENT_ID, RS_ORDER) VALUES ' . implode(",", $theQuery_insertProperties);
@@ -110,47 +119,43 @@ if (RSquery($query)) {
         if (!RSquery($query)) {
             // query error
             $results['result'] = 'ERROR0';
-            $results['query' ] = $query;
+            $results['query'] = $query;
 
             // Write response back to application
             RSReturnArrayResults($results);
         }
-
     }
 
     $results['result'] = 'OK';
-
 } else {
     // query error
     $results['result'] = 'ERROR3';
-    $results['query' ] = $query;
-
+    $results['query'] = $query;
 }
 
 
 // Trigger events
-if ($trigger){
-	$affectedItems = array();
-	$elementID = "";
-	
-	foreach($itemIDs as $elementID){
-		array_push($affectedItems, $itemTypeID . ',' . $elementID);
-	}
+if ($trigger) {
+    $affectedItems = array();
+    $elementID = "";
 
-	if($overwrite){
-		global $RSMsplitTriggers;
-		global $RSMupdatedItemIDs;
-		$RSMsplitTriggers = true;
-		$RSMupdatedItemIDs = $affectedItems;
-	}else{
-		global $RSMsplitTriggers;
-		global $RSMcreatedItemIDs;
-		$RSMsplitTriggers = true;
-		$RSMcreatedItemIDs = $affectedItems;
-	}
+    foreach ($itemIDs as $elementID) {
+        array_push($affectedItems, $itemTypeID . ',' . $elementID);
+    }
+
+    if ($overwrite) {
+        global $RSMsplitTriggers;
+        global $RSMupdatedItemIDs;
+        $RSMsplitTriggers = true;
+        $RSMupdatedItemIDs = $affectedItems;
+    } else {
+        global $RSMsplitTriggers;
+        global $RSMcreatedItemIDs;
+        $RSMsplitTriggers = true;
+        $RSMcreatedItemIDs = $affectedItems;
+    }
 }
 
 
 // Write response back to application
 RSReturnArrayResults($results);
-?>

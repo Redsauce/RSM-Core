@@ -11,13 +11,12 @@ $categoriesList = getClientItemTypeCategories($itemTypeID, $clientID);
 $results = array();
 // get properties info
 foreach ($categoriesList as $category) {
-	$propertiesList = getClientCategoryProperties($category['id'], $clientID);
-	foreach ($propertiesList as $property) {
-		// store info
-		$results[] = $property;
-	}
+  $propertiesList = getClientCategoryProperties($category['id'], $clientID);
+  foreach ($propertiesList as $property) {
+    // store info
+    $results[] = $property;
+  }
 }
-	
-// Return results			
+
+// Return results
 RSReturnArrayQueryResults($results);
-?>
