@@ -31,7 +31,7 @@ if ($force != 1) {
 
                         // Write XML Response back to the application
                         RSReturnArrayResults($results);
-                        exit ;
+                        exit;
                     }
                 }
             } elseif (isMultiIdentifier($property['type'])) {
@@ -47,7 +47,7 @@ if ($force != 1) {
 
                         // Write XML Response back to the application
                         RSReturnArrayResults($results);
-                        exit ;
+                        exit;
                     }
                 }
             }
@@ -66,4 +66,3 @@ $results['result'] = 'OK';
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>
