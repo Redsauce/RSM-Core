@@ -15,8 +15,7 @@ if (!$data) {
     // The passed itemTypeID could not be found
     $results = array();
     RSReturnArrayResults($results);
-} else {   
+} else {
     // Return data
     RSReturnQueryResults($data);
 }
-?>

@@ -12,4 +12,3 @@ $results = getListValues($listID, $clientID);
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>
