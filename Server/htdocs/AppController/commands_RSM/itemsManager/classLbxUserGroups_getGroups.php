@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Returns all the groups for a client
+//  Returns all the groups for a client
 //***************************************************
 
 // Database connection startup
@@ -15,4 +15,4 @@ $results = RSQuery($theQuery);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>
+
