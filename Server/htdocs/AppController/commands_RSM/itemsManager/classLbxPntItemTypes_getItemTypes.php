@@ -15,4 +15,3 @@ $results = RSQuery($theQuery);
 
 // Return results
 RSReturnQueryResults($results);
-?>

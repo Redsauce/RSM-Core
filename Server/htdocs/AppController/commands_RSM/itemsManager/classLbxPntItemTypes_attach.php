@@ -12,11 +12,10 @@ $pointerItemID = $GLOBALS['RS_POST']['pointerItemID'];
 
 // update identifiers properties
 foreach ($pointerPropertyIDs as $pointerPropertyID) {
-	addIdentifier($pointerItemID, $itemTypeID, $itemID, $pointerPropertyID, $clientID, $RSuserID);
+    addIdentifier($pointerItemID, $itemTypeID, $itemID, $pointerPropertyID, $clientID, $RSuserID);
 }
 
 $results['result'] = 'OK';
 
-// Return data			
+// Return data
 RSReturnArrayResults($results);
-?>

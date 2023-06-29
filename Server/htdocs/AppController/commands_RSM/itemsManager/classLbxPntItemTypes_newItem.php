@@ -13,11 +13,11 @@ $pointerItemID      = $GLOBALS['RS_POST']['pointerItemID'];
 $itemID = createItem($itemTypeID, $clientID);
 
 // update identifiers properties
-foreach ($pointerPropertyIDs as $pointerPropertyID)
+foreach ($pointerPropertyIDs as $pointerPropertyID) {
     setPropertyValueByID($pointerPropertyID, $itemTypeID, $itemID, $clientID, $pointerItemID, '', $RSuserID);
+}
 
 $results['ID'] = $itemID;
 
-// Return data			
+// Return data
 RSReturnArrayResults($results);
-?>
