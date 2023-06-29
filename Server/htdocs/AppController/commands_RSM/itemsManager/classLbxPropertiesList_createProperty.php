@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Creates a new item property
+//  Creates a new item property
 //  ---> updated for the v.3.10
 //***************************************************
 
