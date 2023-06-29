@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get client custom itemType name related with received appItemTypeName
+//  Get client custom itemType name related with received appItemTypeName
 //***************************************************
 
 // Database connection startup
@@ -20,4 +20,3 @@ $results['customItemTypeName'] = getClientItemTypeName($itemTypeID, $clientID);
 
 // And return XML results
 RSReturnArrayResults($results);
-?>

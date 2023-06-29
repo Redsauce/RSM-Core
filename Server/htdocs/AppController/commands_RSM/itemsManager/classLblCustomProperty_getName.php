@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get client custom property name related with received appPropertyName
+//  Get client custom property name related with received appPropertyName
 //***************************************************
 
 // Database connection startup
@@ -17,4 +17,3 @@ $results['customItemPropertyName'] = getClientPropertyName_RelatedWith_byName($d
 
 // And return XML results
 RSReturnArrayResults($results);
-?>
