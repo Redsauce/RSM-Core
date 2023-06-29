@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	updates the item properties
+//  updates the item properties
 //***************************************************
 
 // Database connection startup
@@ -40,7 +40,9 @@ for ($i = 0; isset($GLOBALS['RS_POST']['propertyID' . $i]); $i++) {
         $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $propertyName, $propertyData, $propertyType, $RSuserID);
     }
 
-    if ($result != 0) $results['errorProperty' . $err++] = $propertyID . ',' . $result; // error while updating property
+    if ($result != 0) {
+        $results['errorProperty' . $err++] = $propertyID . ',' . $result; // error while updating property
+    }
 }
 
 // retrieve main property ID and value
@@ -52,4 +54,3 @@ $results['mainPropertyValue'] = getItemPropertyValue($itemID, $mainPropertyID, $
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

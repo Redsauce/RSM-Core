@@ -18,8 +18,8 @@ $results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, 
 
 $results[] = array('lists' => '');
 
-if ($getLists == 'true' && count($results) > 0) {
-	$properties = array();
+if ($getLists == 'true' && !empty($results)) {
+    $properties = array();
 
     foreach ($results as $result) {
         if (isset($result["id"])) {
@@ -27,18 +27,17 @@ if ($getLists == 'true' && count($results) > 0) {
         }
     }
 
-	// build a fast query to get the properties lists
-	$theQuery_propertiesList = 'SELECT rs_lists.RS_LIST_ID AS "listID", rs_property_values.RS_VALUE AS "listValue", rs_properties_lists.RS_PROPERTY_ID AS "propertyID", rs_properties_lists.RS_MULTIVALUES AS "multiValues" FROM rs_lists INNER JOIN rs_property_values USING (RS_CLIENT_ID, RS_LIST_ID) INNER JOIN rs_properties_lists USING (RS_CLIENT_ID, RS_LIST_ID) WHERE (rs_lists.RS_CLIENT_ID = ' . $clientID . ') AND (rs_property_values.RS_CLIENT_ID = ' . $clientID . ') AND (rs_properties_lists.RS_PROPERTY_ID IN (' . ((count($properties) > 0) ? (implode(',', $properties)) : ('""')) . ') AND rs_properties_lists.RS_CLIENT_ID = ' . $clientID . ') ORDER BY rs_properties_lists.RS_PROPERTY_ID, rs_property_values.RS_ORDER';
+    // build a fast query to get the properties lists
+    $theQuery_propertiesList = 'SELECT rs_lists.RS_LIST_ID AS "listID", rs_property_values.RS_VALUE AS "listValue", rs_properties_lists.RS_PROPERTY_ID AS "propertyID", rs_properties_lists.RS_MULTIVALUES AS "multiValues" FROM rs_lists INNER JOIN rs_property_values USING (RS_CLIENT_ID, RS_LIST_ID) INNER JOIN rs_properties_lists USING (RS_CLIENT_ID, RS_LIST_ID) WHERE (rs_lists.RS_CLIENT_ID = ' . $clientID . ') AND (rs_property_values.RS_CLIENT_ID = ' . $clientID . ') AND (rs_properties_lists.RS_PROPERTY_ID IN (' . ((!empty($properties)) ? (implode(',', $properties)) : ('""')) . ') AND rs_properties_lists.RS_CLIENT_ID = ' . $clientID . ') ORDER BY rs_properties_lists.RS_PROPERTY_ID, rs_property_values.RS_ORDER';
 
-	// execute query
-	$theLists = RSquery($theQuery_propertiesList);
+    // execute query
+    $theLists = RSquery($theQuery_propertiesList);
 
-	// store info
-	while ($row = $theLists->fetch_assoc()) {
-		$results[] = $row;
-	}
+    // store info
+    while ($row = $theLists->fetch_assoc()) {
+        $results[] = $row;
+    }
 }
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results);
-?>
