@@ -26,32 +26,32 @@ $clientID           = $GLOBALS['RS_POST']['clientID'];
 $userID             = RSCheckUserAccess();
 
 // The user must to have permission to access to both properties
-if (isPropertyVisible($userID, $propertyIDstart, $clientID) && isPropertyVisible($userID, $propertyIDend, $clientID)){
+if (isPropertyVisible($userID, $propertyIDstart, $clientID) && isPropertyVisible($userID, $propertyIDend, $clientID)) {
     // The two properties must belong to the same property
-    if (getClientPropertyItemType($propertyIDstart, $clientID) == getClientPropertyItemType($propertyIDend, $clientID)){
+    if (getClientPropertyItemType($propertyIDstart, $clientID) == getClientPropertyItemType($propertyIDend, $clientID)) {
         // Get itemTypes
-        $propertyTypeStart          = getPropertyType($propertyIDstart,  $clientID );
-        $propertyTypeEnd            = getPropertyType($propertyIDend, $clientID );
+        $propertyTypeStart          = getPropertyType($propertyIDstart, $clientID);
+        $propertyTypeEnd            = getPropertyType($propertyIDend, $clientID);
         $equivalentTypeMysqlStart   = typeMySQL($propertyTypeStart);
         $equivalentTypeMysqlDestiny = typeMySQL($propertyTypeEnd);
 
         // CONVERSION CASES:
         // Any permutation between: text, longtext, integer, float, date, datetime
-        if (($propertyTypeStart == 'integer' || $propertyTypeStart == 'text' || $propertyTypeStart == 'longtext' || $propertyTypeStart == 'float' || $propertyTypeStart == 'date' || $propertyTypeStart == 'datetime') && ($propertyTypeEnd == 'integer' || $propertyTypeEnd == 'text' || $propertyTypeEnd == 'longtext' || $propertyTypeEnd == 'float' || $propertyTypeEnd == 'date' || $propertyTypeEnd == 'datetime')){
+        if (($propertyTypeStart == 'integer' || $propertyTypeStart == 'text' || $propertyTypeStart == 'longtext' || $propertyTypeStart == 'float' || $propertyTypeStart == 'date' || $propertyTypeStart == 'datetime') && ($propertyTypeEnd == 'integer' || $propertyTypeEnd == 'text' || $propertyTypeEnd == 'longtext' || $propertyTypeEnd == 'float' || $propertyTypeEnd == 'date' || $propertyTypeEnd == 'datetime')) {
             $theQuery = 'REPLACE INTO  '.RSMtable($propertyTypeEnd).' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) SELECT '.getClientPropertyItemType($propertyIDend, $clientID).', RS_ITEM_ID, CAST(RS_DATA AS '.$equivalentTypeMysqlDestiny.'), ' . $propertyIDend . ', RS_CLIENT_ID FROM ' . RSMtable($propertyTypeStart) . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = '.getClientPropertyItemType($propertyIDstart, $clientID).' AND RS_PROPERTY_ID = ' . $propertyIDstart;
         }
         // Any permutation between: images, files
-        if (($propertyTypeStart == 'image' || $propertyTypeStart == 'file') && ($propertyTypeEnd == 'image' || $propertyTypeEnd == 'file')){
+        if (($propertyTypeStart == 'image' || $propertyTypeStart == 'file') && ($propertyTypeEnd == 'image' || $propertyTypeEnd == 'file')) {
             $theQuery = 'REPLACE INTO  '.RSMtable($propertyTypeEnd).' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_NAME, RS_SIZE, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) SELECT '.getClientPropertyItemType($propertyIDend, $clientID).', RS_ITEM_ID, RS_NAME, RS_SIZE, RS_DATA, ' . $propertyIDend . ', RS_CLIENT_ID FROM ' . RSMtable($propertyTypeStart) . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = '.getClientPropertyItemType($propertyIDstart, $clientID).' AND RS_PROPERTY_ID = ' . $propertyIDstart;
         }
 
         // From: identifier --> identifier/identifiers OR identifiers --> identifiers
-        if (($propertyTypeStart == 'identifier' && ($propertyTypeEnd == 'identifier' || $propertyTypeEnd == 'identifiers')) || ($propertyTypeStart == 'identifiers' && $propertyTypeEnd == 'identifiers')){
+        if (($propertyTypeStart == 'identifier' && ($propertyTypeEnd == 'identifier' || $propertyTypeEnd == 'identifiers')) || ($propertyTypeStart == 'identifiers' && $propertyTypeEnd == 'identifiers')) {
             $theQuery = 'REPLACE INTO  '.RSMtable($propertyTypeEnd).' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) SELECT '.getClientPropertyItemType($propertyIDend, $clientID).', RS_ITEM_ID, CAST(RS_DATA AS '.$equivalentTypeMysqlDestiny.'), ' . $propertyIDend . ', RS_CLIENT_ID, RS_ORDER FROM ' . RSMtable($propertyTypeStart) . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = '.getClientPropertyItemType($propertyIDstart, $clientID).' AND RS_PROPERTY_ID = ' . $propertyIDstart;
         }
 
         // From: identifiers --> identifier. Only identifiers that can be considered as integers will replace values on destiny table, in other case no replacement will be done.
-        if ($propertyTypeStart == 'identifiers' && $propertyTypeEnd == 'identifier'){
+        if ($propertyTypeStart == 'identifiers' && $propertyTypeEnd == 'identifier') {
             $theQuery = 'REPLACE INTO  '.RSMtable($propertyTypeEnd).' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) SELECT '.getClientPropertyItemType($propertyIDend, $clientID).', RS_ITEM_ID, CAST(RS_DATA AS '.$equivalentTypeMysqlDestiny.'), ' . $propertyIDend . ', RS_CLIENT_ID, RS_ORDER FROM ' . RSMtable($propertyTypeStart) . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = '.getClientPropertyItemType($propertyIDstart, $clientID).' AND RS_PROPERTY_ID = ' . $propertyIDstart. " AND RS_DATA REGEXP '^[0-9]+$'";
         }
 
@@ -63,20 +63,18 @@ if (isPropertyVisible($userID, $propertyIDstart, $clientID) && isPropertyVisible
             $results['result'] = "OK";
 
             // Check for properties in media server
-            if (($propertyTypeStart == 'image' || $propertyTypeStart == 'file') && ($propertyTypeEnd == 'image' || $propertyTypeEnd == 'file')){
-                $results = duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend);
+            if (($propertyTypeStart == 'image' || $propertyTypeStart == 'file') && ($propertyTypeEnd == 'image' || $propertyTypeEnd == 'file')) {
+                $results = duplicateMediaProperty($clientID, $propertyIDstart, $propertyIDend);
             }
         } else {
             $results['result'     ] = "NOK";
             $results['description'] = "ERROR DUPLICATING PROPERTY";
         }
-    }
-    else{
+    } else {
         $results['result'     ] = "NOK";
         $results['description'] = "PROPERTIES BELONGING TO DIFFERENT ITEMTYPES";
     }
-}
-else{
+} else {
     // The user does not have sufficient permissions
     $results['result'     ] = "NOK";
     $results['description'] = "USER HAS NOT PERMISSIONS";
@@ -86,9 +84,10 @@ else{
 RSReturnArrayResults($results);
 
 // This function returns the closest mysql itemtype for a given RSM property
-function typeMySQL($type){
+function typeMySQL($type)
+{
 
-    switch($type){
+    switch ($type) {
         case "text":
             $mysqlType = "char";
             break;
@@ -138,8 +137,9 @@ function typeMySQL($type){
 }
 
 // This function returns the table where RSM saves the data depending on the type
-function RSMtable($type){
-    switch($type){
+function RSMtable($type)
+{
+    switch ($type) {
         case "integer":
             $tableName = "rs_property_integers";
             break;
@@ -175,5 +175,3 @@ function RSMtable($type){
     }
     return $tableName;
 }
-
-?>

@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Returns the client's item property associated with the application's item property
+//  Returns the client's item property associated with the application's item property
 //***************************************************
 
 require_once "../utilities/RSdatabase.php";
@@ -11,4 +11,3 @@ $results = RSQuery("SELECT RS_PROPERTY_ID AS 'propertyID' FROM rs_property_app_r
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>
