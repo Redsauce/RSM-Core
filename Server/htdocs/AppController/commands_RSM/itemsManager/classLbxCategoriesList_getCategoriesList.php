@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Returns all the categories for the given itemtype
+//  Returns all the categories for the given itemtype
 //***************************************************
 
 // Database connection startup
@@ -15,4 +15,3 @@ $results = RSQuery($theQuery);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>
