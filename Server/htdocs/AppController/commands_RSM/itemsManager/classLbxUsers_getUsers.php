@@ -9,5 +9,3 @@ $results = RSQuery("SELECT RS_USER_ID as 'userID', RS_LOGIN as 'userLogin', RS_I
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-
-?>

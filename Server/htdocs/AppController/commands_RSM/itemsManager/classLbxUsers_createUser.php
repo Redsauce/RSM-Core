@@ -17,7 +17,7 @@ if ($clientID != "") {
         $badge = RScreateBadge($clientID);
     } else {
         $badgeExists = RSbadgeExists($badge, $clientID);
-        if ($badgeExists == true) {
+        if ($badgeExists) {
             RSReturnError("ERROR CREATING USER. BADGE ALREADY EXISTS FOR THIS CLIENT.", "1");
         }
     }
@@ -28,7 +28,7 @@ if ($clientID != "") {
 
     if ($result->num_rows > 0) {
         RSReturnError("QUERY ERROR CREATING USER. USER ALREADY EXISTS.", "2");
-    } 
+    }
 
     // If the user creation request does not have an associated staff, we create a new staff element.
     if (empty($staffID)) {
@@ -64,5 +64,3 @@ if ($clientID != "") {
 } else {
     RSReturnError("ERROR CREATING USER. INVALID CLIENTID.", "4");
 }
-
-?>
