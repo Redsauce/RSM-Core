@@ -39,7 +39,6 @@ $responseArray = array();
 foreach ($requestBody as $itemType) {
   $combinedArray = array();
   $itemTypeID = ParseITID($itemType->itemTypeID, $clientID);
-  $IDs = implode(',', $itemType->IDs);
 
   // To delete an item, first we have to check that is has delete permissions for each of its properties
   $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
@@ -49,7 +48,7 @@ foreach ($requestBody as $itemType) {
   }
 
   if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
-    if ($IDs != '') {
+    if (count($itemType->IDs) != 0) {
       // Check and separate ID'S that exist from the ones that doesn't. Only delete the ones that exist
       $existingItemIDs = array();
       $notExistingItemIDs =  array();

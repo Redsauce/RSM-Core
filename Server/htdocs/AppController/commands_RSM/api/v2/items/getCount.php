@@ -46,18 +46,18 @@ if ($itemTypeID <= 0) {
 }
 
 //propertyIDs
-if ($propertyIDs == '') {
+if (count($propertyIDs) != 0) {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
 
 //IDs
-if ($IDs != '') {
+if (count($IDs) != 0) {
   $IDs = implode(",", $IDs);
 }
 
 // Build an array with the filterRules
 $filterProperties  = array();
-if ($filterRules != '') {
+if (count($filterRules) != 0) {
   foreach ($filterRules as $rule) {
     $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
   }
@@ -73,12 +73,12 @@ foreach ($propertyIDs as $singlePropertyID) {
 
 // Build a string with the extFilterRules
 $formattedExtFilterRules = "";
-if ($extFilterRules != '') {
+if (count($extFilterRules) != 0) {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
     $formattedExtFilterRules  .=  $singleRule->propertyID . ";" . base64_encode($singleRule->value) . ";" . $singleRule->operation . ',';
   }
-  $formattedExtFilterRules = substr_replace($formattedExtFilterRules, "", -1);
+  $formattedExtFilterRules = rtrim($formattedExtFilterRules, ",");
 }
 
 //GET THE ITEMS
