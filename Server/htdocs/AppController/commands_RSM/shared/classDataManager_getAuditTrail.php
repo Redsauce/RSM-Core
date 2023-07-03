@@ -11,13 +11,12 @@ isset($GLOBALS['RS_POST']['propertyID']) ? $propertyID = $GLOBALS['RS_POST']['pr
 
 // First, check if the user has access to this property
 if (!isPropertyVisible($RSuserID, $propertyID, $clientID)) {
-   // There were no permissions
-   $results = array('propertyId' => '-1');
-   RSReturnArrayQueryResults($results);
+  // There were no permissions
+  $results = array('propertyId' => '-1');
+  RSReturnArrayQueryResults($results);
 }
 
 $results = getAuditTrail($clientID, $propertyID, $itemID);
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results);
-?>
