@@ -21,14 +21,14 @@ isset($GLOBALS['RS_POST']['propertyList'   ]) ? $propertyNames   = explode(',', 
 isset($GLOBALS['RS_POST']['filterList'     ]) ? $filterList      =              $GLOBALS['RS_POST']['filterList'     ]  : $filterList = '';
 
 if ($subAccountID != '0') {
-	// we will filter by subAccountID only...
-	$accountID = '0';
+    // we will filter by subAccountID only...
+    $accountID = '0';
 }
 
 // build an associative array for the properties (name => ID)
 foreach ($propertyNames as $propertyName) {
-	// add entry to the properties list
-	$propertiesList[$propertyName] = getClientPropertyID_RelatedWith_byName($definitions['operation'.$propertyName], $clientID);
+    // add entry to the properties list
+    $propertiesList[$propertyName] = getClientPropertyID_RelatedWith_byName($definitions['operation'.$propertyName], $clientID);
 }
 
 
@@ -44,69 +44,69 @@ $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'],
 $filterProperties = array();
 
 if ($accountID != '0') {
-	// get subaccounts item type
-	$subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
+    // get subaccounts item type
+    $subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
 
-	// build filter properties array
-	$saFilterProperties = array();
-	if (strpos($accountID, ',') === false) {
-		$saFilterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accountID);
-	} else {
-		$saFilterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accountID, 'mode' => '<-IN');
-	}
+    // build filter properties array
+    $saFilterProperties = array();
+    if (strpos($accountID, ',') === false) {
+        $saFilterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accountID);
+    } else {
+        $saFilterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accountID, 'mode' => '<-IN');
+    }
 
-	$subAccountsQueryResults = IQ_getFilteredItemsIDs($subAccountsItemTypeID, $clientID, $saFilterProperties, array());
+    $subAccountsQueryResults = IQ_getFilteredItemsIDs($subAccountsItemTypeID, $clientID, $saFilterProperties, array());
 
-	$subAccounts = array();
+    $subAccounts = array();
 
     if ($subAccountsQueryResults) {
         while ($row = $subAccountsQueryResults->fetch_assoc()) {
             $subAccounts[] = $row['ID'];
         }
-	}
+    }
 
-	// filter operations by accountID
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => implode(',', $subAccounts), 'mode' => '<-IN');
+    // filter operations by accountID
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => implode(',', $subAccounts), 'mode' => '<-IN');
 }
 
 if ($subAccountID != '0') {
-	// filter operations by subAccountID
-	if (strpos($subAccountID, ',') === false) {
-		$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID);
-	} else {
-		$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID, 'mode' => '<-IN');
-	}
+    // filter operations by subAccountID
+    if (strpos($subAccountID, ',') === false) {
+        $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID);
+    } else {
+        $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID, 'mode' => '<-IN');
+    }
 }
 
 if ($linkOperationID != '0') {
-	// filter operations by linkOperationID
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), 'value' => $linkOperationID, 'mode' => 'IN');
+    // filter operations by linkOperationID
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), 'value' => $linkOperationID, 'mode' => 'IN');
 }
 
 if ($year != '0') {
-	// get year and property
-	$yearArr = explode(';', $year);
+    // get year and property
+    $yearArr = explode(';', $year);
 
-	// get the property ID
-	$yearFilterPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operation'.$yearArr[1]], $clientID);
+    // get the property ID
+    $yearFilterPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operation'.$yearArr[1]], $clientID);
 
-	// filter operations by year
-	$filterProperties[] = array('ID' => $yearFilterPropertyID, 'value' => ($yearArr[0]-1).'-12-31', 'mode' => 'AFTER');
-	$filterProperties[] = array('ID' => $yearFilterPropertyID, 'value' => ($yearArr[0]+1).'-01-01', 'mode' => 'BEFORE');
+    // filter operations by year
+    $filterProperties[] = array('ID' => $yearFilterPropertyID, 'value' => ($yearArr[0]-1).'-12-31', 'mode' => 'AFTER');
+    $filterProperties[] = array('ID' => $yearFilterPropertyID, 'value' => ($yearArr[0]+1).'-01-01', 'mode' => 'BEFORE');
 }
 
 //check filter parameter sent
-if($filterList!=""){
-	$filterArray=split(",",$filterList);
-	foreach($filterArray as $filterElement){
-		$auxFilter=explode("=",$filterElement);
+if ($filterList!="") {
+    $filterArray=split(",", $filterList);
+    foreach ($filterArray as $filterElement) {
+        $auxFilter=explode("=", $filterElement);
 
-		if(count($auxFilter)==3){
-			$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operation'.$auxFilter[0]], $clientID), 'value' => $auxFilter[1], 'mode' => $auxFilter[2]);
-		}else{
-			$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operation'.$auxFilter[0]], $clientID), 'value' => $auxFilter[1]);
-		}
-	}
+        if (count($auxFilter)==3) {
+            $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operation'.$auxFilter[0]], $clientID), 'value' => $auxFilter[1], 'mode' => $auxFilter[2]);
+        } else {
+            $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operation'.$auxFilter[0]], $clientID), 'value' => $auxFilter[1]);
+        }
+    }
 }
 
 
@@ -114,8 +114,8 @@ if($filterList!=""){
 $returnProperties = array();
 
 foreach ($propertyNames as $propertyName) {
-	// add the property to return
-	$returnProperties[] = array('ID' => $propertiesList[$propertyName], 'name' => $propertyName);
+    // add the property to return
+    $returnProperties[] = array('ID' => $propertiesList[$propertyName], 'name' => $propertyName);
 }
 
 
@@ -125,4 +125,3 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // Write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

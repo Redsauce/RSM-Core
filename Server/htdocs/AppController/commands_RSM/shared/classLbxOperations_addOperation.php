@@ -1,7 +1,7 @@
 <?php
 //***********************************************************
 //Description:
-//	Add an operation
+//  Add an operation
 // --> updated for the v.3.10
 //***********************************************************
 
@@ -49,4 +49,3 @@ $results['status'] = getPropertyValue($definitions['operationStatus'], $itemType
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

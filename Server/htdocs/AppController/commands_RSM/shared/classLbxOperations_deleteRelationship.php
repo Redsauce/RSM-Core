@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Delete a relationship between a two operations
+//  Delete a relationship between a two operations
 // --> updated for the v.3.10
 //***************************************************
 
@@ -56,4 +56,3 @@ if ($resetPayDate == '1') {
 
 // And write XML response back to the application
 RSReturnArrayResults($results);
-?>

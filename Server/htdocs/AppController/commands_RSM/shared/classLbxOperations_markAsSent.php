@@ -1,7 +1,7 @@
 <?php
 //***********************************************************
 //Description:
-//	marks an invoice as sent, adding the today's date
+//  marks an invoice as sent, adding the today's date
 // --> updated for the v.3.10
 //***********************************************************
 
@@ -25,4 +25,3 @@ $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $item
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

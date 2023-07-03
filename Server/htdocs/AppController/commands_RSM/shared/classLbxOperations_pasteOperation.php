@@ -13,50 +13,50 @@ $duplicate = $GLOBALS['RS_POST']['duplicate'];
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
 
 if ($duplicate == 'yes') {
-	// duplicate operation
-	$newOperationID = duplicateItem($itemTypeID, $operationID, $clientID);
+    // duplicate operation
+    $newOperationID = duplicateItem($itemTypeID, $operationID, $clientID);
 
-	// change some properties values
-	if ($subAccountID != '0') {
-		// the operation pertains to the subaccount passed
-		setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
-	}
-	
-	// reset operationID
-	setItemPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID), $clientID), $RSuserID);
-	
-	// reset related operations
-	setItemPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), $clientID), $RSuserID);
+    // change some properties values
+    if ($subAccountID != '0') {
+        // the operation pertains to the subaccount passed
+        setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
+    }
+    
+    // reset operationID
+    setItemPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID), $clientID), $RSuserID);
+    
+    // reset related operations
+    setItemPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), $clientID), $RSuserID);
 
-	// reset dates
-	setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationSendDate'], $clientID), $clientID), $RSuserID);
-	setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationPayDate'], $clientID), $clientID), $RSuserID);
-	setItemPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID), $clientID), $RSuserID);
-	setItemPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationDomicilyDate'], $clientID), $clientID), $RSuserID);
-	setItemPropertyValue($definitions['operationValueDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationValueDate'], $clientID), $clientID), $RSuserID);
-	
-	// duplicate concepts
-	$conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+    // reset dates
+    setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationSendDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationPayDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationDomicilyDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationValueDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationValueDate'], $clientID), $clientID), $RSuserID);
+    
+    // duplicate concepts
+    $conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
 
-	// build filter properties array
-	$filterProperties = array();
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
+    // build filter properties array
+    $filterProperties = array();
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
 
-	// get invoice concepts
-	$concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
+    // get invoice concepts
+    $concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
 
-	// duplicate
-	while ($row = $concepts->fetch_assoc()) {
-		$newConceptID = duplicateItem($conceptsItemTypeID, $row['ID'], $clientID);
-		// the concept pertains to the duplicated operation
-		setItemPropertyValue($definitions['conceptOperationID'], $conceptsItemTypeID, $newConceptID, $clientID, $newOperationID, $RSuserID);
-	}
+    // duplicate
+    while ($row = $concepts->fetch_assoc()) {
+        $newConceptID = duplicateItem($conceptsItemTypeID, $row['ID'], $clientID);
+        // the concept pertains to the duplicated operation
+        setItemPropertyValue($definitions['conceptOperationID'], $conceptsItemTypeID, $newConceptID, $clientID, $newOperationID, $RSuserID);
+    }
 } else {
-	
-	// simply change the subAccountID to the operation
-	$newOperationID = $operationID;
-	
-	setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
+    
+    // simply change the subAccountID to the operation
+    $newOperationID = $operationID;
+    
+    setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
 }
 
 
@@ -82,4 +82,3 @@ $results['status'] = getPropertyValue($definitions['operationStatus'], $itemType
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

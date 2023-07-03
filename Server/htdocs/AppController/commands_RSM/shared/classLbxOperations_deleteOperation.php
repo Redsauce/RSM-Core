@@ -23,7 +23,7 @@ $concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProper
 
 // ... and delete them
 while ($row = $concepts->fetch_assoc()) {
-	deleteItem($conceptsItemTypeID, $row['ID'], $clientID);
+    deleteItem($conceptsItemTypeID, $row['ID'], $clientID);
 }
 
 
@@ -39,7 +39,7 @@ $relatedOperations = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterPrope
 
 // ... and delete the relations
 while ($row = $relatedOperations->fetch_assoc()) {
-	removeIdentifier($operationID, $itemTypeID, $row['ID'], $relatedOperationsPropertyID, $clientID, $RSuserID);
+    removeIdentifier($operationID, $itemTypeID, $row['ID'], $relatedOperationsPropertyID, $clientID, $RSuserID);
 }
 
 
@@ -50,4 +50,3 @@ $results['result'] = 'OK';
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

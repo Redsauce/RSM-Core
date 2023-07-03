@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Generate date and ID for an operation
+//  Generate date and ID for an operation
 // --> updated for the v.3.10
 //***************************************************
 
@@ -73,7 +73,7 @@ while ($row = $subAccountsQueryResults->fetch_assoc()) {
     $subAccounts[] = $row['ID'];
 }
 
-if (count($subAccounts) > 0) {
+if (!empty($subAccounts)) {
     // get subAccountID property
     $subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
 
@@ -115,4 +115,3 @@ $results['invoiceDate'] = getItemPropertyValue($operationID, $invoiceDatePropert
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

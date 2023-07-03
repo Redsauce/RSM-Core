@@ -1,7 +1,7 @@
 <?php
 //***********************************************************
 //Description:
-//	Add an operation
+//  Add an operation
 // --> updated for the v.3.10
 //***********************************************************
 
@@ -33,7 +33,7 @@ $VATPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationI
 $deductionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationDeduction'], $clientID);
 $descriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationDescription'], $clientID);
 
-$propertiesValues = array( array('ID' => $subAccountPropertyID, 'value' => $subAccountID), array('ID' => $invoiceDatePropertyID, 'value' => $date), array('ID' => $payDatePropertyID, 'value' => $date), array('ID' => $basePropertyID, 'value' => $amount - $VAT), array('ID' => $deductionPropertyID, 'value' => 0), array('ID' => $totalPropertyID, 'value' => $amount), array('ID' => $VATPropertyID, 'value' => $VAT), array('ID' => $descriptionPropertyID, 'value' => $description));
+$propertiesValues = array(array('ID' => $subAccountPropertyID, 'value' => $subAccountID), array('ID' => $invoiceDatePropertyID, 'value' => $date), array('ID' => $payDatePropertyID, 'value' => $date), array('ID' => $basePropertyID, 'value' => $amount - $VAT), array('ID' => $deductionPropertyID, 'value' => 0), array('ID' => $totalPropertyID, 'value' => $amount), array('ID' => $VATPropertyID, 'value' => $VAT), array('ID' => $descriptionPropertyID, 'value' => $description));
 
 // create a new operation
 $operationID = createItem($clientID, $propertiesValues);
@@ -103,4 +103,3 @@ $results['description'] = getItemPropertyValue($operationID, $descriptionPropert
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>
