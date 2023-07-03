@@ -19,27 +19,27 @@ $accountID = getPropertyValue($definitions['subAccountAccountID'], $itemTypeID, 
 
 // get the account type
 if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountID, $clientID) == '430') {
-	// delete associated users
-	$usersItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['users'], $clientID);
+    // delete associated users
+    $usersItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['users'], $clientID);
 
-	// build filter properties array
-	$filterProperties = array();
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['userSubAccountID'], $clientID), 'value' => $subAccountID);
+    // build filter properties array
+    $filterProperties = array();
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['userSubAccountID'], $clientID), 'value' => $subAccountID);
 
-	$usersQueryResults = IQ_getFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
+    $usersQueryResults = IQ_getFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
 
-	$users = array();
-	while ($row = $usersQueryResults->fetch_assoc()) {
-		$users[] = $row['ID'];
-	}
+    $users = array();
+    while ($row = $usersQueryResults->fetch_assoc()) {
+        $users[] = $row['ID'];
+    }
 
-	if (count($users) > 0) {
-		// delete concepts
-		deleteItems($usersItemTypeID, $clientID, implode(',', $users));
-	}
+    if (!empty($users)) {
+        // delete concepts
+        deleteItems($usersItemTypeID, $clientID, implode(',', $users));
+    }
 
-	// also delete the relationships between the user and the modules
-	RSQuery('DELETE FROM rs_extranet_modules_users WHERE RS_CLIENT_ID = '.$clientID.' AND RS_ITEM_ID IN ('.implode(',', $users).')');
+    // also delete the relationships between the user and the modules
+    RSQuery('DELETE FROM rs_extranet_modules_users WHERE RS_CLIENT_ID = '.$clientID.' AND RS_ITEM_ID IN ('.implode(',', $users).')');
 
 }
 
@@ -55,39 +55,39 @@ $relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operation
 
 $operations = array();
 while ($row = $operationsQueryResults->fetch_assoc()) {
-	$operations[] = $row['ID'];
+    $operations[] = $row['ID'];
 
-	// get the operation related operations
-	$filterProperties = array();
-	$filterProperties[] = array('ID' => $relatedOperationsPropertyID, 'value' => $row['ID'], 'mode' => 'IN');
+    // get the operation related operations
+    $filterProperties = array();
+    $filterProperties[] = array('ID' => $relatedOperationsPropertyID, 'value' => $row['ID'], 'mode' => 'IN');
 
-	$relatedOperations = IQ_getFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
+    $relatedOperations = IQ_getFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
 
-	// delete the relationships
-	while ($operation = $relatedOperations->fetch_assoc()) {
-		removeIdentifier($row['ID'], $operationsItemTypeID, $operation['ID'], $relatedOperationsPropertyID, $clientID, $RSuserID);
-	}
+    // delete the relationships
+    while ($operation = $relatedOperations->fetch_assoc()) {
+        removeIdentifier($row['ID'], $operationsItemTypeID, $operation['ID'], $relatedOperationsPropertyID, $clientID, $RSuserID);
+    }
 }
 
-if (count($operations) > 0) {
-	// get operations concepts
-	$filterProperties = array();
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => implode(',', $operations), 'mode' => '<-IN');
+if (!empty($operations)) {
+    // get operations concepts
+    $filterProperties = array();
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => implode(',', $operations), 'mode' => '<-IN');
 
-	$conceptsQueryResults = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
+    $conceptsQueryResults = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
 
-	$concepts = array();
-	while ($row = $conceptsQueryResults->fetch_assoc()) {
-		$concepts[] = $row['ID'];
-	}
+    $concepts = array();
+    while ($row = $conceptsQueryResults->fetch_assoc()) {
+        $concepts[] = $row['ID'];
+    }
 
-	if (count($concepts) > 0) {
-		// delete concepts
-		deleteItems($conceptsItemTypeID, $clientID, implode(',', $concepts));
-	}
+    if (!empty($concepts)) {
+        // delete concepts
+        deleteItems($conceptsItemTypeID, $clientID, implode(',', $concepts));
+    }
 
-	// delete operations
-	deleteItems($operationsItemTypeID, $clientID, implode(',', $operations));
+    // delete operations
+    deleteItems($operationsItemTypeID, $clientID, implode(',', $operations));
 }
 
 // finally delete the subaccount
@@ -98,4 +98,3 @@ $results['result'] = 'OK';
 
 // Return results
 RSReturnArrayResults($results);
-?>

@@ -31,13 +31,13 @@ $filterProperties = array();
 
 // if no accountID received, return all subaccounts
 if ($accountID != "" && $accountID != 0) {
-	if (strpos($accountID, ',') === false) {
-		// filter by account ID
-		$filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID);
-	} else {
-		// filter by accounts IDs
-		$filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID, 'mode' => '<-IN');
-	}
+    if (strpos($accountID, ',') === false) {
+        // filter by account ID
+        $filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID);
+    } else {
+        // filter by accounts IDs
+        $filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID, 'mode' => '<-IN');
+    }
 }
 
 // build the return properties array
@@ -50,11 +50,12 @@ $returnProperties[] = array('ID' => $accountPropertyID, 'name' => 'accountID');
 $subAccounts = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 // add accountType property to subAccounts list
-for($i=0; $i<count($subAccounts); $i++){
-	$j=arraySearchID($subAccounts[$i]['accountID'],$accounts);
-	if($j!==false) $subAccounts[$i]['accountType']=$accounts[$j]['accountType'];
+for ($i=0; $i<count($subAccounts); $i++) {
+    $j=arraySearchID($subAccounts[$i]['accountID'], $accounts);
+    if ($j!==false) {
+        $subAccounts[$i]['accountType']=$accounts[$j]['accountType'];
+    }
 }
 
 // Return results
 RSReturnArrayQueryResults($subAccounts);
-?>

@@ -19,4 +19,3 @@ $results['personalID'] = getClientPropertyName(getClientPropertyID_RelatedWith_b
 
 // Return results
 RSReturnArrayResults($results);
-?>
