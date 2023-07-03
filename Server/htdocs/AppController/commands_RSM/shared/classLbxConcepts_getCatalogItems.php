@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get the passed operation concepts
+//  Get the passed operation concepts
 // --> updated for the v.3.10
 //***************************************************
 
@@ -17,13 +17,12 @@ $itemIDs = explode(",", $itemIDs);
 $results = array();
 
 foreach ($itemIDs as $itemID) {
-	$result = array();
-	
-	$result["name" ] = getPropertyValue("catalogItem.name" , "catalogItem", $itemID, $clientID);
-	$result["price"] = getPropertyValue("catalogItem.price", "catalogItem", $itemID, $clientID);
-	
-	$results[] = $result;
+    $result = array();
+    
+    $result["name" ] = getPropertyValue("catalogItem.name", "catalogItem", $itemID, $clientID);
+    $result["price"] = getPropertyValue("catalogItem.price", "catalogItem", $itemID, $clientID);
+    
+    $results[] = $result;
 }
 
 RSReturnArrayQueryResults($results);
-?>
