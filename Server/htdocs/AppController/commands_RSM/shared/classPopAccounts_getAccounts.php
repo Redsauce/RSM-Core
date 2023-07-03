@@ -12,4 +12,3 @@ $accounts = IQ_getItems($itemTypeID, $clientID);
 
 // Return results
 RSReturnQueryResults($accounts);
-?>

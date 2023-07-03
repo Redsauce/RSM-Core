@@ -16,11 +16,11 @@ $accountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['subAcc
 // build the filter properties array
 $filterProperties = array();
 if (strpos($accountID, ',') === false) {
-	// filter by account ID
-	$filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID);
+    // filter by account ID
+    $filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID);
 } else {
-	// filter by accounts IDs
-	$filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID, 'mode' => '<-IN');
+    // filter by accounts IDs
+    $filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID, 'mode' => '<-IN');
 }
 
 // build the return properties array
@@ -32,4 +32,3 @@ $subAccounts = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties,
 
 // Return results
 RSReturnQueryResults($subAccounts);
-?>

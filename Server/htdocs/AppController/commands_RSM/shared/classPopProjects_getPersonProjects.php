@@ -20,10 +20,10 @@ $filterProperties = array();
 $filterProperties[] = array('ID' => $staffPropertyID, 'value' => $personID, 'mode' => 'IN');
 
 if ($onlyOpen == '1') {
-	// retrieve the open status
-	$openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
-	
-	$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
+    // retrieve the open status
+    $openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
+    
+    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
 }
 
 // build return properties array
@@ -37,4 +37,3 @@ $projectsList = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties
 
 // And return XML response back to the application
 RSReturnQueryResults($projectsList);
-?>
