@@ -32,10 +32,10 @@ $returnProperties[] = array('ID' => $personalIDPropertyID, 'name' => 'personalID
 $subAccountsQueryResults = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
 
 while ($row = $subAccountsQueryResults->fetch_assoc()) {
-	if ($row['personalID'] > $maxID) {
-		// update maxID
-		$maxID = $row['personalID'];
-	}
+    if ($row['personalID'] > $maxID) {
+        // update maxID
+        $maxID = $row['personalID'];
+    }
 }
 
 
@@ -44,7 +44,7 @@ $values = array();
 $values[]=array('ID' => $accountPropertyID, 'value' => $accountID);
 $values[]=array('ID' => $personalIDPropertyID, 'value' => $maxID+1);
 
-$newSubAccountID = createItem($clientID,$values);
+$newSubAccountID = createItem($clientID, $values);
 
 $results['ID'] = $newSubAccountID;
 $results['mainValue'] = getClientItemMainPropertyValue($newSubAccountID, $itemTypeID, $clientID);
@@ -52,4 +52,3 @@ $results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], 
 
 // Return results
 RSReturnArrayResults($results);
-?>
