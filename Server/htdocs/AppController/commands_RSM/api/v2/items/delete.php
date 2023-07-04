@@ -43,48 +43,22 @@ foreach ($requestBody as $itemType) {
   // To delete an item, first we have to check that is has delete permissions for each of its properties
   $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
-  if ($RSallowDebug) {
-    $combinedArray["itemTypeID"] = $itemTypeID;
+  if (!((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID)))) {
+    $RSallowDebug ? returnJsonMessage(400, "Not Deleted (At least 1 property has no DELETE permissions or its not visible)") : returnJsonMessage(400, "");
   }
-
-  if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
-    if (count($itemType->IDs) != 0) {
-      // Check and separate ID'S that exist from the ones that doesn't. Only delete the ones that exist
-      $existingItemIDs = array();
-      $notExistingItemIDs =  array();
-
-      foreach ($itemType->IDs as $ID) {
-        if (verifyItemExists($ID, $itemTypeID, $clientID)) {
-          $existingItemIDs[] = $ID;
-        } else {
-          $notExistingItemIDs[] = $ID;
-        }
-      }
-      // only call delete function, when there are items to delete.
-      if ((implode(',', $existingItemIDs)) != '') {
-        deleteItems($itemTypeID, $clientID, implode(',', $existingItemIDs));
-      }
-
-      foreach ($existingItemIDs as $ID) {
-        $RSallowDebug ? $combinedArray[$ID] = "Deleted" : $combinedArray[$ID] = "OK";
-      }
-
-      foreach ($notExistingItemIDs as $ID) {
-        $RSallowDebug ? $combinedArray[$ID] = "Item doesn't exist" : $combinedArray[$ID] = "NOK";
-      }
-    }
-  } else {
+  if (count($itemType->IDs) != 0) {
     foreach ($itemType->IDs as $ID) {
-      $RSallowDebug ? $combinedArray[$ID] = "Not deleted" : $combinedArray[$ID] = "NOK";
+      if (!verifyItemExists($ID, $itemTypeID, $clientID)) {
+        returnJsonMessage(400, "Item doesn't exist");
+      }
     }
   }
-  array_push($responseArray, $combinedArray);
 }
-$response = json_encode($responseArray);
+foreach ($requestBody as $itemType) {
+  deleteItems($itemType->itemTypeID, $clientID, implode(',', $itemType->IDs));
+}
 
-if ($response != "[]") {
-  returnJsonResponse($response);
-}
+$RSallowDebug ? returnJsonMessage(200, "Deleted") : returnJsonMessage(200, "");
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)

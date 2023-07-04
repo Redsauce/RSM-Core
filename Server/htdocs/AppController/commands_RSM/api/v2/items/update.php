@@ -35,7 +35,6 @@ $clientID = getClientID();
 $RStoken =  getRStoken();
 $RSuserID =  getRSuserID();
 
-$responseArray = array();
 foreach ($requestBody as $item) {
   $propertiesID = array();
   //Iterate through every propertyID of the items to check if they are incongruent
@@ -48,56 +47,40 @@ foreach ($requestBody as $item) {
   $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
   if ($itemTypeIDID == 0) {
-    $RSallowDebug ? returnJsonMessage(400, "Not Updated (Incongruent properties)")  : returnJsonMessage(400, "NOK");
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (Incongruent properties)")  : returnJsonMessage(400, "");
     break;
   } elseif (!$hasAllPermissions) {
-    $RSallowDebug ? returnJsonMessage(400, "Not Updated (At least 1 property has no WRITE permissions or its not visible)")  : returnJsonMessage(400, "NOK");
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (At least 1 property has no WRITE permissions or its not visible)")  : returnJsonMessage(400, "");
     break;
   } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
-    $RSallowDebug ? returnJsonMessage(400, "Item doesn't exist")  : returnJsonMessage(400, "NOK");
+    $RSallowDebug ? returnJsonMessage(400, "Item doesn't exist")  : returnJsonMessage(400, "");
     break;
   }
 }
 
-if (!isset($responseArray['error'])) {
-  foreach ($requestBody as $item) {
-    $combinedArray = array();
-    if ($RSallowDebug) {
-      $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
-      $combinedArray['itemTypeID'] = intval($itemTypeIDID);
-    }
-    $itemID = $item->ID;
-    $combinedArray['ID'] = $itemID;
-    foreach ($item as $propertyID => $propertyValue) {
-      if ($propertyID != "ID") {
-        $id = ParsePID($propertyID, $clientID);
-        $propertyType = getPropertyType($id, $clientID);
-        if (($propertyType == 'file') || ($propertyType == 'image')) {
-          //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
-        } else {
-          if (!mb_check_encoding($propertyValue, "UTF-8")) {
-            $RSallowDebug ? returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid") : returnJsonMessage(400, "");
-          }
-          $parsedValue = replaceUtf8Characters($propertyValue);
-          $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, $parsedValue, $propertyType);
+foreach ($requestBody as $item) {
+  $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
+  $itemID = $item->ID;
+  foreach ($item as $propertyID => $propertyValue) {
+    if ($propertyID != "ID") {
+      $id = ParsePID($propertyID, $clientID);
+      $propertyType = getPropertyType($id, $clientID);
+      if (($propertyType == 'file') || ($propertyType == 'image')) {
+        //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
+      } else {
+        if (!mb_check_encoding($propertyValue, "UTF-8")) {
+          $RSallowDebug ? returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid") : returnJsonMessage(400, "");
         }
-        // Result = 0 is a successful response
-        if ($result != 0) {
-          $RSallowDebug ? $combinedArray[$propertyID] = 'Not Updated (' . $result . ')' : $combinedArray[$propertyID] = 'NOK';
-        } else {
-          $RSallowDebug ? $combinedArray[$propertyID] = 'Updated' : $combinedArray[$propertyID] = 'OK';
-        }
+        $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
+      }
+      // Result = 0 is a successful response
+      if ($result != 0) {
+        $RSallowDebug ? returnJsonMessage(400, "Not updated") : returnJsonMessage(400, "");
       }
     }
-    array_push($responseArray, $combinedArray);
   }
 }
-
-$response = json_encode($responseArray);
-
-if ($response != "[]") {
-  returnJsonResponse($response);
-}
+$RSallowDebug ? returnJsonMessage(200, "Updated") : returnJsonMessage(200, "");
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
