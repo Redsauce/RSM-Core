@@ -37,7 +37,6 @@ $RSuserID =  getRSuserID();
 
 $responseArray = array();
 foreach ($requestBody as $item) {
-  $combinedArray = array();
   $propertiesID = array();
   //Iterate through every propertyID of the items to check if they are incongruent
   foreach ($item as $propertyID => $propertyValue) {
@@ -50,29 +49,36 @@ foreach ($requestBody as $item) {
   $itemID = $item->ID;
   if ($itemTypeIDID == 0) {
     if ($RSallowDebug) {
-      $combinedArray['ID'] = $itemID;
-      $combinedArray['error'] = "Not Updated (Incongruent properties)";
+      $responseArray['error'] = "Not Updated (Incongruent properties)";
     } else {
-      $combinedArray[$itemID] = "NOK";
+      $responseArray['error'] = "NOK";
     }
+    break;
   } elseif (!$hasAllPermissions) {
     if ($RSallowDebug) {
-      $combinedArray['ID'] = $itemID;
-      $combinedArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
+      $responseArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
     } else {
-      $combinedArray[$itemID] = "NOK";
+      $responseArray['error'] = "NOK";
     }
+    break;
   } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
     if ($RSallowDebug) {
-      $combinedArray['ID'] = $itemID;
-      $combinedArray['error'] = "Item doesn't exist";
+      $responseArray['error'] = "Item doesn't exist";
     } else {
-      $combinedArray[$itemID] = "NOK";
+      $responseArray['error'] = "NOK";
     }
-  } else {
+    break;
+  }
+}
+
+if (!isset($responseArray['error'])) {
+  foreach ($requestBody as $item) {
+    $combinedArray = array();
     if ($RSallowDebug) {
+      $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
       $combinedArray['itemTypeID'] = intval($itemTypeIDID);
     }
+    $itemID = $item->ID;
     $combinedArray['ID'] = $itemID;
     foreach ($item as $propertyID => $propertyValue) {
       if ($propertyID != "ID") {
@@ -99,8 +105,8 @@ foreach ($requestBody as $item) {
         }
       }
     }
+    array_push($responseArray, $combinedArray);
   }
-  array_push($responseArray, $combinedArray);
 }
 
 $response = json_encode($responseArray);
