@@ -64,7 +64,7 @@ if (isset($requestBody->includeCategories) && $requestBody->includeCategories ==
 
 //translateIDs
 $translateIDs = false;
-if (isset($requestBody->translateIDs)) {
+if (isset($requestBody->translateIDs) && $requestBody->translateIDs === true) {
     $translateIDs = true;
 }
 
