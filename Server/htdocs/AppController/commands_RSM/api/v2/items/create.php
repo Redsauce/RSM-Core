@@ -45,9 +45,9 @@ foreach ($requestBody as $item) {
       $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
     } else {
       if ($RSallowDebug) {
-        returnJsonMessage(403, 'Not created (At least 1 property has no WRITE permissions or its not visible)');
+        returnJsonMessage(400, 'Not created (At least 1 property has no WRITE permissions or its not visible)');
       } else {
-        returnJsonMessage(403, '');
+        returnJsonMessage(400, '');
       }
     }
   }
