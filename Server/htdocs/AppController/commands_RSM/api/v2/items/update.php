@@ -48,25 +48,13 @@ foreach ($requestBody as $item) {
   $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
   if ($itemTypeIDID == 0) {
-    if ($RSallowDebug) {
-      $responseArray['error'] = "Not Updated (Incongruent properties)";
-    } else {
-      $responseArray['error'] = "NOK";
-    }
+    $RSallowDebug ? $responseArray['error'] = "Not Updated (Incongruent properties)" : $responseArray['error'] = "NOK";
     break;
   } elseif (!$hasAllPermissions) {
-    if ($RSallowDebug) {
-      $responseArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)";
-    } else {
-      $responseArray['error'] = "NOK";
-    }
+    $RSallowDebug ? $responseArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)" : $responseArray['error'] = "NOK";
     break;
   } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
-    if ($RSallowDebug) {
-      $responseArray['error'] = "Item doesn't exist";
-    } else {
-      $responseArray['error'] = "NOK";
-    }
+    $RSallowDebug ? $responseArray['error'] = "Item doesn't exist" : $responseArray['error'] = "NOK";
     break;
   }
 }
@@ -88,11 +76,7 @@ if (!isset($responseArray['error'])) {
           //TODO - ASK ON HOW UPDATE FILE/IMAGE SHOULD WORK AND WHY ":" IS NEEDED
         } else {
           if (!mb_check_encoding($propertyValue, "UTF-8")) {
-            if ($RSallowDebug) {
-              returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid");
-            } else {
-              returnJsonMessage(400, "");
-            }
+            $RSallowDebug ? returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid") : returnJsonMessage(400, "");
           }
           $parsedValue = replaceUtf8Characters($propertyValue);
           $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, $parsedValue, $propertyType);
