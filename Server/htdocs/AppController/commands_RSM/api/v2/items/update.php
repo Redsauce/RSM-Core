@@ -48,13 +48,13 @@ foreach ($requestBody as $item) {
   $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
   if ($itemTypeIDID == 0) {
-    $RSallowDebug ? $responseArray['error'] = "Not Updated (Incongruent properties)" : $responseArray['error'] = "NOK";
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (Incongruent properties)")  : returnJsonMessage(400, "NOK");
     break;
   } elseif (!$hasAllPermissions) {
-    $RSallowDebug ? $responseArray['error'] = "Not Updated (At least 1 property has no WRITE permissions or its not visible)" : $responseArray['error'] = "NOK";
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (At least 1 property has no WRITE permissions or its not visible)")  : returnJsonMessage(400, "NOK");
     break;
   } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
-    $RSallowDebug ? $responseArray['error'] = "Item doesn't exist" : $responseArray['error'] = "NOK";
+    $RSallowDebug ? returnJsonMessage(400, "Item doesn't exist")  : returnJsonMessage(400, "NOK");
     break;
   }
 }
