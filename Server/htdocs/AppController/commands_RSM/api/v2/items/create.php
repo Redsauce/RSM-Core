@@ -35,49 +35,41 @@ $RSuserID =  getRSuserID();
 
 $responseArray = array();
 
+$propertiesToCreate = array();
 foreach ($requestBody as $item) {
-  $values = array();
-  $propertiesCount = 0;
   $correctProperties = array();
 
   foreach ($item as $propertyID => $propertyValue) {
-    // count how many properties were sent
-    ++$propertiesCount;
     // Only prepare properties where user has CREATE permission
     if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
       $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
-      if ($RSallowDebug) {
-        $values[$propertyID] = 'Permissions OK';
-      }
     } else {
       if ($RSallowDebug) {
-        $values[$propertyID] = 'No CREATE permissions for this property';
+        returnJsonMessage(403, 'Not created (At least 1 property has no WRITE permissions or its not visible)');
+      } else {
+        returnJsonMessage(403, '');
       }
     }
   }
+  $propertiesToCreate[] = $correctProperties;
+}
 
-  $newID = 0;
-  //verify that there are properties to create and also that all of them have permissions
-  if ((!empty($correctProperties)) && ($propertiesCount == count($correctProperties))) {
-    $newID = createItem($clientID, $correctProperties);
-    if ($newID != 0) {
-      $values['ID'] = $newID;
+  foreach ($propertiesToCreate as $properties) {
+    $values = array();
+    // create the item
+    $newID = createItem($clientID, $properties);
+    foreach ($properties as $property) {
+      if ($RSallowDebug) {
+          $values[$property['ID']] = "Permissions OK";
+      }
     }
-  } else {
-    if ($RSallowDebug) {
-      $values['error'] = 'Not created (At least 1 property has no WRITE permissions or its not visible)';
-    } else {
-      $values['ID'] = "NOK";
-    }
-  }
-  if ($RSallowDebug || array_key_exists('ID', $values)) {
+    $values['ID'] =  $newID;
     array_push($responseArray, $values);
   }
-}
-$response = json_encode($responseArray);
 
-if ($response != "[]") {
-  returnJsonResponse($response);
+
+if (!empty($responseArray)) {
+  returnJsonResponse(json_encode($responseArray));
 }
 
 // Verify if body contents are the ones expected
