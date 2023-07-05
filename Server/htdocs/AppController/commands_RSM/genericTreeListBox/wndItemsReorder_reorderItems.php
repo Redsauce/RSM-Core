@@ -5,5 +5,3 @@
 
 // Database connection startup
 include_once "../shared/classDataManager_reorderItems.php";
-
-?>

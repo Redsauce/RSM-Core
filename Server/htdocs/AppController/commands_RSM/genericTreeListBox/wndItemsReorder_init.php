@@ -25,7 +25,9 @@ $descendants = getDescendantsLevel($clientID, $itemTypeID, array($itemTypeID));
 
 // check if is recursive itemtype and get recursive parent in this case
 $recursivePropertyPos = arraySearchID($itemTypeID, $descendants, "itemTypeID");
-if ($recursivePropertyPos !== false) $returnProperties[] = array('ID' => $descendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
+if ($recursivePropertyPos !== false) {
+    $returnProperties[] = array('ID' => $descendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
+}
 
 if ($propertyID != '0') {
     //not base itemtype so add parent filter and return property order
@@ -35,25 +37,29 @@ if ($propertyID != '0') {
 
 // get items
 $auxArr = array();
-$result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties,'','','',"AND",$auxArr,'1');
+$result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, '1');
 
 $results = array();
 
 if ($result) {
     while ($item = $result->fetch_assoc()) {
         // check if it is a recursive itemtype and has a parent of its own itemtype in another branch (don't add in that case)
-        if (!isset($item['recursiveProperty'])) $item['recursiveProperty'] = '';
+        if (!isset($item['recursiveProperty'])) {
+            $item['recursiveProperty'] = '';
+        }
 
         // We must explode $item['recursiveProperty'] because it could be multiidentifier
         $recursiveProperties = explode(",", $item['recursiveProperty']);
-        foreach($recursiveProperties as $recursiveProperty) {
+        foreach ($recursiveProperties as $recursiveProperty) {
             if ($recursiveProperty == '' || $recursiveProperty == "0" || ($recursiveProperty == $parentID && $itemTypeID == $parentItemTypeID)) {
                 //for mutiple value multi identifiers, take only relevant order value
                 if ($propertyID != '0' && strpos($item['parentID'], ',') !== false) {
                     $orders = explode(',', $item['parentID_ord']);
                     $item['parentID_ord'] = $orders[array_search($parentID, explode(',', $item['parentID']))];
                 }
-                if (!is_numeric($item['parentID_ord'])) $item['parentID_ord'] = "0";
+                if (!is_numeric($item['parentID_ord'])) {
+                  $item['parentID_ord'] = "0";
+                }
                 $results[] = $item;
             }
         }
@@ -62,5 +68,3 @@ if ($result) {
 
 // Return data
 RSReturnArrayQueryResults($results);
-
-?>
