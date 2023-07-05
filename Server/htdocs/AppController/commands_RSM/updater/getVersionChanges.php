@@ -29,23 +29,45 @@ isset($GLOBALS['RS_POST']['RSlanguage'  ]) ? $lang         = $GLOBALS['RS_POST']
 
 $result       = array();
 
-$fixedBugs      = getFixedBugs    ($RSuserID, $clientID, $startVersion, $endVersion, $lang);
+$fixedBugs      = getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang);
 $changeRequests = getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lang);
-$requirements   = getRequirements ($RSuserID, $clientID, $startVersion, $endVersion, $lang);
+$requirements   = getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang);
 
 // Save all different modules in one array
 $differentModules = array();
-foreach ($fixedBugs      as $fixedBug     ) $differentModules[] = $fixedBug     ['module'];    
-foreach ($changeRequests as $changeRequest) $differentModules[] = $changeRequest['module'];    
-foreach ($requirements   as $requirement  ) $differentModules[] = $requirement  ['module'];    
-$differentModules = array_unique($differentModules); 
+foreach ($fixedBugs as $fixedBug) {
+    $differentModules[] = $fixedBug['module'];
+}
 
-foreach ($differentModules as $module){
-    foreach ($requirements   as $requirement  ) if ($requirement  ['module'] == $module) $result[] = array('type'=>$requirement  ['type'], 'description'=>$requirement  ['description'], 'module'=>$module);          
-    foreach ($changeRequests as $changeRequest) if ($changeRequest['module'] == $module) $result[] = array('type'=>$changeRequest['type'], 'description'=>$changeRequest['description'], 'module'=>$module);    
-    foreach ($fixedBugs      as $fixedBug     ) if ($fixedBug     ['module'] == $module) $result[] = array('type'=>$fixedBug     ['type'], 'description'=>$fixedBug     ['description'], 'module'=>$module);  
+foreach ($changeRequests as $changeRequest) {
+    $differentModules[] = $changeRequest['module'];
+}
+
+foreach ($requirements as $requirement) {
+    $differentModules[] = $requirement['module'];
+}
+
+$differentModules = array_unique($differentModules);
+
+foreach ($differentModules as $module) {
+    foreach ($requirements as $requirement) {
+        if ($requirement['module'] == $module) {
+            $result[] = array('type'=>$requirement['type'], 'description'=>$requirement['description'], 'module'=>$module);
+        }
+    }
+
+    foreach ($changeRequests as $changeRequest) {
+        if ($changeRequest['module'] == $module) {
+            $result[] = array('type'=>$changeRequest['type'], 'description'=>$changeRequest['description'], 'module'=>$module);
+        }
+    }
+
+    foreach ($fixedBugs as $fixedBug) {
+        if ($fixedBug['module'] == $module) {
+            $result[] = array('type'=>$fixedBug['type'], 'description'=>$fixedBug['description'], 'module'=>$module);
+        }
+    }
 }
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($result);
-?>
