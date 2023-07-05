@@ -773,11 +773,19 @@ function getRecursivePropertyID($itemTypeID, $clientID) {
 
 
 //
-function normaliza ($cadena){
+function normaliza ($cadena) {
+    // Definition of original characters and their corresponding replacements.
+
     $originales =  'ÀÁÂÃÄÅÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåèéêëìíîïòóôõöùúûýýÿŔŕ';
     $modificadas = 'AAAAAAEEEEIIIIOOOOOUUUUYaaaaaaeeeeiiiiooooouuuyyyRr';
-    $cadena = utf8_decode($cadena);
-    $cadena = strtr($cadena, utf8_decode($originales), $modificadas);
-    return utf8_encode($cadena);
+   
+    // Convert the input string from UTF-8 to ISO-8859-1
+    $cadena = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $cadena);
+    // Replace the original characters with their corresponding replacements
+    $cadena = strtr($cadena, $originales, $modificadas);
+    // Convert the modified string from ISO-8859-1 back to UTF-8
+    $cadena = iconv('ISO-8859-1', 'UTF-8', $cadena);
+
+    return $cadena;
 }
 ?>
