@@ -97,7 +97,7 @@ if ($year != '0') {
 
 //check filter parameter sent
 if($filterList!=""){
-	$filterArray=split(",",$filterList);
+	$filterArray=explode(",",$filterList);
 	foreach($filterArray as $filterElement){
 		$auxFilter=explode("=",$filterElement);
 
