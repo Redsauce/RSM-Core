@@ -23,9 +23,15 @@ $clientID   = $items[0];
 $itemTypeID = $items[1];
 $itemID     = $items[2];
 
-if ($clientID   == "") RSReturnError("EMPTY CLIENT ID"   , 1, false);
-if ($itemTypeID == "") RSReturnError("EMPTY ITEM TYPE ID", 1, false);
-if ($itemID     == "") RSReturnError("EMPTY ITEM ID"     , 1, false);
+if ($clientID == "") {
+  RSReturnError("EMPTY CLIENT ID", 1);
+}
+if ($itemTypeID == "") {
+  RSReturnError("EMPTY ITEM TYPE ID", 1);
+}
+if ($itemID == "") {
+  RSReturnError("EMPTY ITEM ID", 1);
+}
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
@@ -41,4 +47,3 @@ foreach ($actionIDs as $actionID) {
 
 // And return XML response back to application
 RSReturnArrayResults($actions, false);
-?>
