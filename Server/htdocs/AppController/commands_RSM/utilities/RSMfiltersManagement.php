@@ -457,10 +457,8 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
                 foreach ($fastFilterArr as $fastFilterVal) {
                     //check filter not empty. This can be caused by encoding mismatch in html_entity_decode
                     //TO DO: check encoding is always UTF-8 for $fastFilter
-                    if (normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8')) != '') {
-                        if (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal]) === false) {
-                            $idsForFilter[$fastFilterVal][] = $propertyItemID;
-                        }
+                    if ((normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8')) != '') && (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal]) === false)) {
+                        $idsForFilter[$fastFilterVal][] = $propertyItemID;
                     }
                 }
             }
