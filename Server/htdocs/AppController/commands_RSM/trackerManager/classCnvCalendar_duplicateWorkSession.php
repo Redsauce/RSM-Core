@@ -60,20 +60,27 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                 // build an array containing the days to cut off
                 $daysToCutOff = array();
-                if ($days[0] == '0')
+                if ($days[0] == '0') {
                     $daysToCutOff[] = 'Monday';
-                if ($days[1] == '0')
+                }
+                if ($days[1] == '0') {
                     $daysToCutOff[] = 'Tuesday';
-                if ($days[2] == '0')
+                }
+                if ($days[2] == '0') {
                     $daysToCutOff[] = 'Wednesday';
-                if ($days[3] == '0')
+                }
+                if ($days[3] == '0') {
                     $daysToCutOff[] = 'Thursday';
-                if ($days[4] == '0')
+                }
+                if ($days[4] == '0') {
                     $daysToCutOff[] = 'Friday';
-                if ($days[5] == '0')
+                }
+                if ($days[5] == '0') {
                     $daysToCutOff[] = 'Saturday';
-                if ($days[6] == '0')
+                }
+                if ($days[6] == '0') {
                     $daysToCutOff[] = 'Sunday';
+                }
 
                 // get properties values
                 $wsUser = getItemPropertyValue($wsID, $wsUserPropertyID, $clientID);
