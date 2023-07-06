@@ -50,12 +50,12 @@ $returnProperties[] = array('ID' => $accountPropertyID, 'name' => 'accountID');
 $subAccounts = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 // add accountType property to subAccounts list
-for ($i=0; $i<count($subAccounts); $i++) {
-    $j=arraySearchID($subAccounts[$i]['accountID'], $accounts);
-    if ($j!==false) {
-        $subAccounts[$i]['accountType']=$accounts[$j]['accountType'];
+for ($i = 0; $i < count($subAccounts); $i++) {
+    $j = arraySearchID($subAccounts[$i]['accountID'], $accounts);
+    if ($j !== false) {
+        $subAccounts[$i]['accountType'] = $accounts[$j]['accountType'];
     }
 }
 
 // Return results
-RSReturnArrayQueryResults($subAccounts);
+RSreturnArrayQueryResults($subAccounts);

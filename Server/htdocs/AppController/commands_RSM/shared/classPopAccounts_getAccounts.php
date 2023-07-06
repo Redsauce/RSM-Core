@@ -11,4 +11,4 @@ $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $
 $accounts = IQ_getItems($itemTypeID, $clientID);
 
 // Return results
-RSReturnQueryResults($accounts);
+RSreturnQueryResults($accounts);

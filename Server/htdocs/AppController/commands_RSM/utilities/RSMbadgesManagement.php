@@ -19,7 +19,7 @@ function RSbadgeExists($RSbadge, $RSclientID = null) {
         $query .= " AND RS_CLIENT_ID = '$RSclientID'";
     }
     
-    $results = RSQuery($query);
+    $results = RSquery($query);
     if ($results->num_rows > 0) {
         return true;
     }
@@ -31,7 +31,7 @@ function RSbadgeExists($RSbadge, $RSclientID = null) {
 // Update the badge for a specific customer of a given user.
 function RSupdateBadgeForUser($userID, $RSclientID) {
     $uniqueBadge = RScreateBadge($RSclientID);
-    $results = RSQuery("UPDATE rs_users SET RS_BADGE = '".$uniqueBadge."' 
+    $results = RSquery("UPDATE rs_users SET RS_BADGE = '".$uniqueBadge."' 
                         WHERE RS_USER_ID = " . $userID . " AND 
                         RS_CLIENT_ID = " . $RSclientID . ";");
     return $results;
@@ -53,7 +53,7 @@ function RScreateBadge($RSclientID = null){
 
 // Retrieve the badge of a user from a specific client.
 function RSgetBadgeFromUser($userID, $RSclientID){
-    $results = RSQuery("SELECT RS_BADGE FROM rs_users' 
+    $results = RSquery("SELECT RS_BADGE FROM rs_users' 
     WHERE RS_USER_ID = " . $userID . " AND 
     RS_CLIENT_ID = " . $RSclientID . ";");
     
@@ -66,5 +66,3 @@ function RSgetBadgeFromUser($userID, $RSclientID){
     // Query failed or badge not found
     return "";
 }
-
-?>

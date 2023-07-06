@@ -12,8 +12,8 @@ if ($clientID != 0 && $RSuserID != 0) {
     $filteredResults = getItemIDsRelatedWithItemIDusingFilter($clientID, $RSuserID, $itemTypeID, $textFilter);
     //$filteredResults = filterItems($clientID, $itemTypeID, 0, $textFilter, 0, "MAIN");
     // And write XML Response back to the application
-    RSReturnArrayQueryResults($filteredResults, false);
+    RSreturnArrayQueryResults($filteredResults, false);
 } else {
     $results['result'] = "NOK";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
 }

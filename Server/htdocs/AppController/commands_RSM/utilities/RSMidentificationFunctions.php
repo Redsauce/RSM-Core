@@ -33,7 +33,7 @@
 		$extraReqs = _buildExtraRequestsString($extraRequests);
 
 		//query db
-		$query = RSQuery("SELECT MAX(".$columnName.") as MAX FROM ".$tableName." WHERE RS_CLIENT_ID = ".$clientID.$extraReqs);
+		$query = RSquery("SELECT MAX(".$columnName.") as MAX FROM ".$tableName." WHERE RS_CLIENT_ID = ".$clientID.$extraReqs);
 
 		// TODO: Validate that the $query object is a valid one and return -1 if it isn't
 
@@ -63,7 +63,7 @@
 	//************************************************************************************************************
 		function getNextItemTypeIdentification($itemTypeID,$clientID) {
 			// get last ID
-			$query = RSQuery("SELECT RS_LAST_ITEM_ID FROM rs_item_types WHERE RS_ITEMTYPE_ID=" . $itemTypeID . " AND RS_CLIENT_ID = " . $clientID);
+			$query = RSquery("SELECT RS_LAST_ITEM_ID FROM rs_item_types WHERE RS_ITEMTYPE_ID=" . $itemTypeID . " AND RS_CLIENT_ID = " . $clientID);
 
 			$results = $query->fetch_assoc();
 
@@ -80,7 +80,7 @@
 	// cuya referencia de $campo sea $valueCampo
 
 	function getNextOrder($tableName,$campoName,$webID,$valueCampo) {
-		$queryMaxOrder= RSQuery("SELECT MAX(`HB_ORDER`) as MAX FROM `".$tableName."` WHERE `HB_WEBSITE_ID` = '".$webID."' AND `".$campoName."` = ".$valueCampo);
+		$queryMaxOrder= RSquery("SELECT MAX(`HB_ORDER`) as MAX FROM `".$tableName."` WHERE `HB_WEBSITE_ID` = '".$webID."' AND `".$campoName."` = ".$valueCampo);
 		if($queryMaxOrder->num_rows==0) return 0;
 
 		$orig=$queryMaxOrder->fetch_assoc();
@@ -106,7 +106,7 @@
 			$theQuery=substr($theQuery,0,strlen($theQuery)-3);
 		}
 		//execute query
-		$queryMax= RSQuery($theQuery);
+		$queryMax= RSquery($theQuery);
 
 		//check value returned
 		if($queryMax->num_rows==0){
@@ -125,7 +125,7 @@ function value_exists($value,$tableName,$colName,$clientID,$extraReqs=null) {
 	// build extra requests string
 	$extraReqs = _buildExtraRequestsString($extraReqs);
 
-	$query = RSQuery('SELECT '.$colName.' FROM '.$tableName.' WHERE RS_CLIENT_ID = '.$clientID.' AND '.$colName.' = "'.$value.'"'.$extraReqs);
+	$query = RSquery('SELECT '.$colName.' FROM '.$tableName.' WHERE RS_CLIENT_ID = '.$clientID.' AND '.$colName.' = "'.$value.'"'.$extraReqs);
 
 	if ($query->num_rows > 0) {
 		return true;
@@ -133,5 +133,3 @@ function value_exists($value,$tableName,$colName,$clientID,$extraReqs=null) {
 
 	return false;
 }
-
-?>

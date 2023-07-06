@@ -34,17 +34,17 @@ foreach ($its_props as $it_prop) {
 
     foreach ($pointerPropertyIDs as $pointerPropertyID) {
 
-    // get property type
-    $propertyType = getPropertyType($pointerPropertyID, $clientID);
+        // get property type
+        $propertyType = getPropertyType($pointerPropertyID, $clientID);
 
-    if (isSingleIdentifier($propertyType)) {
-        $filter = array(array('ID' => $pointerPropertyID, 'value' => $pointerItemID));
-    } else {
-        $filter = array(array('ID' => $pointerPropertyID, 'value' => $pointerItemID, 'mode' => 'IN'));
-    }
+        if (isSingleIdentifier($propertyType)) {
+            $filter = array(array('ID' => $pointerPropertyID, 'value' => $pointerItemID));
+        } else {
+            $filter = array(array('ID' => $pointerPropertyID, 'value' => $pointerItemID, 'mode' => 'IN'));
+        }
 
-    // get items
-    $items = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filter, array(array('ID' => $mainPropertyID, 'name' => 'mainValue')), 'mainValue');
+        // get items
+        $items = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filter, array(array('ID' => $mainPropertyID, 'name' => 'mainValue')), 'mainValue');
 
         while ($item = $items->fetch_assoc()) {
             for ($i = 0; $i < count($partialResults); $i++) {
@@ -66,4 +66,4 @@ foreach ($its_props as $it_prop) {
 }
 
 // Return data
-RSReturnArrayQueryResults($finalResults);
+RSreturnArrayQueryResults($finalResults);

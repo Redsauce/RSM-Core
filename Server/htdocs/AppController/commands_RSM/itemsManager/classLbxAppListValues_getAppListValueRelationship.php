@@ -9,4 +9,4 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $results['clientValueID'] = getClientListValueID_RelatedWith($appValueID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

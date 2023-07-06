@@ -33,42 +33,41 @@ require_once "RSdatabase.php";
 require_once "RStools.php";
 
 // Login is required. If the password is not passed, the login acts as the badge.
-isset($GLOBALS['RS_POST']['Login'   ]) ? $login    = $GLOBALS['RS_POST']['Login'   ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['Login']) ? $login    = $GLOBALS['RS_POST']['Login'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['Password']) ? $password = $GLOBALS['RS_POST']['Password'] : $password = "";
 
 if ($password == "") {
     // Verification with a badge
-    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_BADGE = "'.$login.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
-
+    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_BADGE = "' . $login . '" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
 } else {
     // Verification with a username and password.
-    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "'.$login.'" AND rs_users.RS_PASSWORD = "'.$password.'" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
-
+    $query = 'SELECT rs_clients.RS_LOGO AS RS_CLIENT_LOGO, rs_clients.RS_NAME AS RS_CLIENT_NAME, rs_users.RS_USER_ID, rs_users.RS_CLIENT_ID, rs_users.RS_ITEM_ID FROM rs_users, rs_clients WHERE rs_users.RS_LOGIN = "' . $login . '" AND rs_users.RS_PASSWORD = "' . $password . '" AND rs_clients.RS_ID = rs_users.RS_CLIENT_ID';
 }
 
 // Query the database
-$users = RSQuery($query);
+$users = RSquery($query);
 
 // Analyze results
 if (!$users) {
-    RSReturnError("QUERY EXECUTION ERROR.", 1);
+    RSreturnError("QUERY EXECUTION ERROR.", 1);
 }
 
 if ($users->num_rows == 0) {
     if ($password == "") {
-        RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
+        RSreturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
     } else {
-        RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
+        RSreturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
     }
 } else {
     while ($row = $users->fetch_assoc()) {
         $results[] = array(
-            "id"=>$row['RS_USER_ID'],
-            "userID"=>$row['RS_USER_ID'],
-            "clientID"=>$row['RS_CLIENT_ID'],
-            "itemID"=>$row['RS_ITEM_ID'],
-            "clientName"=>$row['RS_CLIENT_NAME'],
-            "clientLogo"=>bin2hex($row['RS_CLIENT_LOGO']));
+            "id" => $row['RS_USER_ID'],
+            "userID" => $row['RS_USER_ID'],
+            "clientID" => $row['RS_CLIENT_ID'],
+            "itemID" => $row['RS_ITEM_ID'],
+            "clientName" => $row['RS_CLIENT_NAME'],
+            "clientLogo" => bin2hex($row['RS_CLIENT_LOGO'])
+        );
     }
-    RSReturnArrayQueryResults($results);
+    RSreturnArrayQueryResults($results);
 }

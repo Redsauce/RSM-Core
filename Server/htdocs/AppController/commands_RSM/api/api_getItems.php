@@ -25,14 +25,14 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Definitions
-isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["propertyIDs"    ]) ? $pIDs            = $GLOBALS["RS_POST"]["propertyIDs"    ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"    ] : $filterRules     = "";
-isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
-isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
-isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
-isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
+isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["propertyIDs"]) ? $pIDs            = $GLOBALS["RS_POST"]["propertyIDs"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["filterRules"]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"] : $filterRules     = "";
+isset($GLOBALS["RS_POST"]["filterJoining"]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"] : $filterJoining   = "AND";
+isset($GLOBALS["RS_POST"]["extFilterRules"]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules"] : $extFilterRules  = "";
+isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"] : $RStoken         = "";
+isset($GLOBALS["RS_POST"]["IDs"]) ? $IDs             = $GLOBALS['RS_POST']['IDs'] : $IDs             = "";
+isset($GLOBALS["RS_POST"]["orderBy"]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'] : $orderBy         = "";
 
 // Don't allow empty properties to be specified
 if (strpos($pIDs, ",,") !== false) {
@@ -87,7 +87,7 @@ if ($orderPropertyID != "") {
         } else {
             $response['result'] = "NOK";
             $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";
-            RSReturnArrayResults($response, false);
+            RSreturnArrayResults($response, false);
         }
     }
 }
@@ -107,14 +107,14 @@ if (empty($propertyIDs)) {
 if ($itemTypeID <= 0) {
     $response['result'] = "NOK";
     $response['description'] = "PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE";
-    RSReturnArrayResults($response, false);
+    RSreturnArrayResults($response, false);
 }
 
 // Check if user has permissions to read properties of the item
 if (!RShasTokenPermissions($RStoken, $propertyIDs, "READ") && (!arePropertiesVisible($RSuserID, $propertyIDs, $clientID))) {
     $results['result'] = 'NOK';
     $results['description'] = 'YOU DONT HAVE PERMISSIONS TO READ THESE ITEMS';
-    RSReturnArrayResults($results, false);
+    RSreturnArrayResults($results, false);
 }
 
 // Construct returnProperties array
@@ -138,7 +138,7 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // And write XML Response back to the application without compression// Return results
 if (is_string($results)) {
-    RSReturnFileResults($results, false);
+    RSreturnFileResults($results, false);
 } else {
-    RSReturnArrayQueryResults($results, false);
+    RSreturnArrayQueryResults($results, false);
 }

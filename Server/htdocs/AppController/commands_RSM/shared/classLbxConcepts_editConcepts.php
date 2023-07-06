@@ -33,7 +33,7 @@ $operationConcepts = array();
 $description = '';
 while ($row = $operationConceptsQuery->fetch_assoc()) {
     $operationConcepts[] = $row['ID'];
-    $description .= $row['name'].'; ';
+    $description .= $row['name'] . '; ';
 }
 
 // remove last separator
@@ -52,7 +52,7 @@ if (!empty($operationConcepts)) {
 // --- INSERT NEW CONCEPTS ---
 $conceptNames = array();
 
-for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
+for ($i = 0; isset($GLOBALS['RS_POST']['concept' . $i]); $i++) {
 
     // initialize properties values array for the new concept
     $propertiesValues = array();
@@ -64,8 +64,8 @@ for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
     );
 
     // get concept passed properties
-    $properties = explode(' ', $GLOBALS['RS_POST']['concept'.$i]);
-    
+    $properties = explode(' ', $GLOBALS['RS_POST']['concept' . $i]);
+
     foreach ($properties as $property) {
         // get property name and value
         $propertyArr = explode(',', $property);
@@ -80,7 +80,7 @@ for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
 
         // update properties values array
         $propertiesValues[] = array(
-            'ID'    => getClientPropertyID_RelatedWith_byName($definitions['concept'.$propertyArr[0]], $clientID),
+            'ID'    => getClientPropertyID_RelatedWith_byName($definitions['concept' . $propertyArr[0]], $clientID),
             'value' => $value
         );
     }
@@ -107,4 +107,4 @@ if ($operationDescription == $description) {
 $results['result'] = 'OK';
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

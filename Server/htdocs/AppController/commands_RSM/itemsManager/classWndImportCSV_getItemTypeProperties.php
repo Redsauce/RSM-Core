@@ -19,4 +19,4 @@ foreach ($categoriesList as $category) {
 }
 
 // Return results
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

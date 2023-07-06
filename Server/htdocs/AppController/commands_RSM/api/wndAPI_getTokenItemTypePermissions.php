@@ -14,13 +14,13 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 $clientID = $GLOBALS['RS_POST']['clientID'];
-$RStoken  = $GLOBALS['RS_POST']['token'   ];
+$RStoken  = $GLOBALS['RS_POST']['token'];
 
 // First of all recover the tokenID pertaining to the passed token
 $tokenID = RSgetTokenID($RStoken);
 
 // Obtain the properties from table tokens_permissions and their number of assigned permissions
-$properties = RSQuery("SELECT RS_PROPERTY_ID, COUNT(RS_PERMISSION) AS numPermissions FROM rs_token_permissions WHERE RS_CLIENT_ID = " . $clientID . " AND RS_TOKEN_ID = " . $tokenID . " GROUP BY RS_PROPERTY_ID");
+$properties = RSquery("SELECT RS_PROPERTY_ID, COUNT(RS_PERMISSION) AS numPermissions FROM rs_token_permissions WHERE RS_CLIENT_ID = " . $clientID . " AND RS_TOKEN_ID = " . $tokenID . " GROUP BY RS_PROPERTY_ID");
 
 // Check the query results
 if (!$properties) {
@@ -29,7 +29,7 @@ if (!$properties) {
     $response['description'] = "ERROR EXECUTING QUERY TO GATHER PROPERTIES";
 
     // And write XML Response back to the application
-    RSReturnArrayResults($properties);
+    RSreturnArrayResults($properties);
 }
 
 // Obtain the properties and number of permissions from the query results
@@ -62,5 +62,4 @@ foreach ($itemTypesRelated as $itemTypeRelated) {
     $visibleProperties[] = array('ID' => $itemTypeRelated, 'check' => $check);
 }
 
-RSReturnArrayQueryResults($visibleProperties);
-?>
+RSreturnArrayQueryResults($visibleProperties);

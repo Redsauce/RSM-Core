@@ -21,10 +21,10 @@ if ($duplicate == 'yes') {
         // the operation pertains to the subaccount passed
         setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
     }
-    
+
     // reset operationID
     setItemPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID), $clientID), $RSuserID);
-    
+
     // reset related operations
     setItemPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), $clientID), $RSuserID);
 
@@ -34,7 +34,7 @@ if ($duplicate == 'yes') {
     setItemPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID), $clientID), $RSuserID);
     setItemPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationDomicilyDate'], $clientID), $clientID), $RSuserID);
     setItemPropertyValue($definitions['operationValueDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationValueDate'], $clientID), $clientID), $RSuserID);
-    
+
     // duplicate concepts
     $conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
 
@@ -52,10 +52,10 @@ if ($duplicate == 'yes') {
         setItemPropertyValue($definitions['conceptOperationID'], $conceptsItemTypeID, $newConceptID, $clientID, $newOperationID, $RSuserID);
     }
 } else {
-    
+
     // simply change the subAccountID to the operation
     $newOperationID = $operationID;
-    
+
     setItemPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID, $subAccountID, $RSuserID);
 }
 
@@ -81,4 +81,4 @@ $results['showNote'] = getPropertyValue($definitions['operationShowNote'], $item
 $results['status'] = getPropertyValue($definitions['operationStatus'], $itemTypeID, $newOperationID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

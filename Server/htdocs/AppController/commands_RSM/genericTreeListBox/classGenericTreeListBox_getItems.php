@@ -7,16 +7,16 @@ require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 
 // Parameters validation
-isset($GLOBALS['RS_POST']['clientID'          ]) ? $clientID          =               $GLOBALS['RS_POST']['clientID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentID'          ]) ? $parentID          =               $GLOBALS['RS_POST']['parentID'          ]  : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID          =               $GLOBALS['RS_POST']['clientID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['parentID']) ? $parentID          =               $GLOBALS['RS_POST']['parentID']  : dieWithError(400);
 isset($GLOBALS['RS_POST']['parentItemTypeID']) && $GLOBALS['RS_POST']['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS['RS_POST']['parentItemTypeID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",", $GLOBALS['RS_POST']['allowedItemTypeIDs']) : dieWithError(400);
-isset($GLOBALS['RS_POST']['fastFilter'        ]) ? $fastFilter        = base64_decode($GLOBALS['RS_POST']['fastFilter'        ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterID'          ]) ? $filterID          =               $GLOBALS['RS_POST']['filterID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['extraFilter'       ]) ? $extraFilter       =               $GLOBALS['RS_POST']['extraFilter'       ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['returnOrder'       ]) ? $returnOrder       =               $GLOBALS['RS_POST']['returnOrder'       ]  : $returnOrder = 0;
+isset($GLOBALS['RS_POST']['fastFilter']) ? $fastFilter        = base64_decode($GLOBALS['RS_POST']['fastFilter']) : dieWithError(400);
+isset($GLOBALS['RS_POST']['filterID']) ? $filterID          =               $GLOBALS['RS_POST']['filterID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['extraFilter']) ? $extraFilter       =               $GLOBALS['RS_POST']['extraFilter']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['returnOrder']) ? $returnOrder       =               $GLOBALS['RS_POST']['returnOrder']  : $returnOrder = 0;
 
-$avoidChildsInRoot = isset($GLOBALS['RS_POST']['avoidChildsInRoot' ]) ? true : false;
+$avoidChildsInRoot = isset($GLOBALS['RS_POST']['avoidChildsInRoot']) ? true : false;
 
 $parentItemTypeID = ParseITID($parentItemTypeID, $clientID);
 
@@ -37,10 +37,10 @@ $destinationItemTypes = array();
 if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
     // show only next level
     if (($avoidChildsInRoot) && ($parentID == "0")) {
-      // We are refreshing the root level, so only the parent is allowed
-    $allowedItemTypes = array($parentItemTypeID);
-  }
-  $descendants = getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes);
+        // We are refreshing the root level, so only the parent is allowed
+        $allowedItemTypes = array($parentItemTypeID);
+    }
+    $descendants = getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes);
 
     if ($parentID == 0 && arraySearchID($parentItemTypeID, $descendants, "itemTypeID") === false) {
         // getting root level from a not recursive itemtype, add to descendants
@@ -57,7 +57,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             if ($parentID == "0" || $parentID == "") {
                 $filterProperties[] = array('ID' => $descendant['propertyID'], 'value' => "0", 'mode' => 'IN');
             } else {
-              $filterProperties[] = array('ID' => $descendant['propertyID'], 'value' => $parentID, 'mode' => 'IN');
+                $filterProperties[] = array('ID' => $descendant['propertyID'], 'value' => $parentID, 'mode' => 'IN');
             }
         }
 
@@ -97,7 +97,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         // check if is recursive itemtype and get recursive parent in this case
         $recursivePropertyPos = arraySearchID($descendant['itemTypeID'], $subDescendants, "itemTypeID");
         if ($recursivePropertyPos !== false) {
-          $returnProperties[] = array('ID' => $subDescendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
+            $returnProperties[] = array('ID' => $subDescendants[$recursivePropertyPos]['propertyID'], 'name' => 'recursiveProperty');
         }
 
         // get items pertaining to the parent passed
@@ -107,45 +107,42 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         if ($result) {
             while ($item = $result->fetch_assoc()) {
 
-            // check if it is a recursive itemtype and has a parent of its own itemtype in another branch (don't add in that case)
-            if (!isset($item['recursiveProperty'])) {
-              $item['recursiveProperty'] = '';
-            }
+                // check if it is a recursive itemtype and has a parent of its own itemtype in another branch (don't add in that case)
+                if (!isset($item['recursiveProperty'])) {
+                    $item['recursiveProperty'] = '';
+                }
 
-            // We must explode $item['recursiveProperty'] because it could be multiidentifier
-            $recursiveProperties = explode(",", $item['recursiveProperty']);
-            foreach ($recursiveProperties as $recursiveProperty) {
-                if ($recursiveProperty == '' || $recursiveProperty == "0" || ($recursiveProperty == $parentID && $descendant['itemTypeID'] == $parentItemTypeID)) {
-                    $results[] = array("nodeID" => $item['ID'], "nodeItemType" => $descendant['itemTypeID'], "name" => isset($item['name'])?$item['name']:'', "parentID" => $parentID, "parentItemType" => $parentItemTypeID, "parentPropertyID" => $descendant['propertyID'], "childs" => '');
-                    if ($returnOrder) {
-                        if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
-                            if (isset($item['parentID_ord']) && $item['parentID_ord'] != '') {
-                                if (strpos($item['parentID'], ',') !== false) {
-                                    $orders = explode(',', $item['parentID_ord']);
-                                    $results[count($results)-1]["order"] = $orders[array_search($parentID, explode(',', $item['parentID']))];
-                                    if (!is_numeric($results[count($results)-1]["order"])) {
-                                      $results[count($results)-1]["order"] = "0";
+                // We must explode $item['recursiveProperty'] because it could be multiidentifier
+                $recursiveProperties = explode(",", $item['recursiveProperty']);
+                foreach ($recursiveProperties as $recursiveProperty) {
+                    if ($recursiveProperty == '' || $recursiveProperty == "0" || ($recursiveProperty == $parentID && $descendant['itemTypeID'] == $parentItemTypeID)) {
+                        $results[] = array("nodeID" => $item['ID'], "nodeItemType" => $descendant['itemTypeID'], "name" => isset($item['name']) ? $item['name'] : '', "parentID" => $parentID, "parentItemType" => $parentItemTypeID, "parentPropertyID" => $descendant['propertyID'], "childs" => '');
+                        if ($returnOrder) {
+                            if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
+                                if (isset($item['parentID_ord']) && $item['parentID_ord'] != '') {
+                                    if (strpos($item['parentID'], ',') !== false) {
+                                        $orders = explode(',', $item['parentID_ord']);
+                                        $results[count($results) - 1]["order"] = $orders[array_search($parentID, explode(',', $item['parentID']))];
+                                        if (!is_numeric($results[count($results) - 1]["order"])) {
+                                            $results[count($results) - 1]["order"] = "0";
+                                        }
+                                    } else {
+                                        $results[count($results) - 1]["order"] = $item['parentID_ord'];
                                     }
                                 } else {
-                                    $results[count($results)-1]["order"] = $item['parentID_ord'];
+                                    $results[count($results) - 1]["order"] = "0";
                                 }
-
                             } else {
-                                $results[count($results)-1]["order"] = "0";
+                                if (isset($item['ITEM_ORDER']) && $item['ITEM_ORDER'] != '') {
+                                    $results[count($results) - 1]["order"] = $item['ITEM_ORDER'];
+                                } else {
+                                    $results[count($results) - 1]["order"] = "0";
+                                }
                             }
-
-                        } else {
-                            if (isset($item['ITEM_ORDER']) && $item['ITEM_ORDER'] != '') {
-                                $results[count($results)-1]["order"] = $item['ITEM_ORDER'];
-                            } else {
-                                $results[count($results)-1]["order"] = "0";
-                            }
-
                         }
                     }
                 }
             }
-        }
         }
     }
 } else {
@@ -156,11 +153,11 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         if ($destinationItemTypes[0] <= 0) {
             $results['result'] = "NOK";
             $results['description'] = "INVALID FILTER";
-            RSReturnArrayResults($results);
-            exit ;
+            RSreturnArrayResults($results);
+            exit;
         }
     } else {
-    if (!empty($allowedItemTypes)) {
+        if (!empty($allowedItemTypes)) {
             $destinationItemTypes = $allowedItemTypes;
         } else {
             //not allowed itemtypes, get all
@@ -171,7 +168,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 
             if ($res) {
                 while ($row = $res->fetch_assoc()) {
-                  $destinationItemTypes[] = $row['ID'];
+                    $destinationItemTypes[] = $row['ID'];
                 }
             }
         }
@@ -187,29 +184,29 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 
     foreach ($destinationItemTypes as $destinationItemTypeID) {
         $treePath = array();
-        getTreePath($clientID, $treePath, array(array('itemTypeID' => $parentItemTypeID,'mainPropertyID'=>$parentItemTypeMainPropertyID,'mainPropertyType'=>$parentItemTypeMainPropertyType)), $destinationItemTypeID, $allowedItemTypes, 10);
+        getTreePath($clientID, $treePath, array(array('itemTypeID' => $parentItemTypeID, 'mainPropertyID' => $parentItemTypeMainPropertyID, 'mainPropertyType' => $parentItemTypeMainPropertyType)), $destinationItemTypeID, $allowedItemTypes, 10);
 
         //get all properties needed
         foreach ($treePath as $path) {
-          foreach ($path as $step) {
-            if (!array_key_exists($step['mainPropertyID'], $pathProperties)) {
-                $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
-            }
-            if (array_key_exists('propertyID', $step)&&!array_key_exists($step['propertyID'], $pathProperties)) {
-                $orderArray = array();
-                $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID, '', $step['propertyType'], $step['itemTypeID'], false, $returnOrder, $orderArray);
-                if ($returnOrder) {
-                    $pathOrders[$step['propertyID']] = $orderArray;
+            foreach ($path as $step) {
+                if (!array_key_exists($step['mainPropertyID'], $pathProperties)) {
+                    $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
+                }
+                if (array_key_exists('propertyID', $step) && !array_key_exists($step['propertyID'], $pathProperties)) {
+                    $orderArray = array();
+                    $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID, '', $step['propertyType'], $step['itemTypeID'], false, $returnOrder, $orderArray);
+                    if ($returnOrder) {
+                        $pathOrders[$step['propertyID']] = $orderArray;
+                    }
+                }
+                if (array_key_exists('recursivePropertyID', $step) && !array_key_exists($step['recursivePropertyID'], $pathProperties)) {
+                    $orderArray = array();
+                    $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID, '', '', $step['itemTypeID'], false, $returnOrder, $orderArray);
+                    if ($returnOrder) {
+                        $pathOrders[$step['recursivePropertyID']] = $orderArray;
+                    }
                 }
             }
-            if (array_key_exists('recursivePropertyID', $step)&&!array_key_exists($step['recursivePropertyID'], $pathProperties)) {
-                $orderArray = array();
-                $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID, '', '', $step['itemTypeID'], false, $returnOrder, $orderArray);
-                if ($returnOrder) {
-                    $pathOrders[$step['recursivePropertyID']] = $orderArray;
-                }
-            }
-          }
         }
 
         //apply filter to itemtype
@@ -219,9 +216,9 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         foreach ($filteredItems as $filteredItem) {
             $additionalProps = '';
             foreach ($filteredItem as $property => $value) {
-              if ($property != "ID" && $property != "MAINPROP" && $property != "ITEM_ORDER") {
-                $additionalProps .= base64_encode($property) . "," . base64_encode($value) . ";";
-              }
+                if ($property != "ID" && $property != "MAINPROP" && $property != "ITEM_ORDER") {
+                    $additionalProps .= base64_encode($property) . "," . base64_encode($value) . ";";
+                }
             }
 
             $additionalProps = rtrim($additionalProps, ";");
@@ -234,4 +231,4 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 array_unshift($results, array("result" => "OK", "filteredID" => implode(",", $destinationItemTypes)));
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

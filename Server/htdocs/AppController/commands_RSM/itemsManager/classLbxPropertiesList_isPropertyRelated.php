@@ -9,4 +9,4 @@ $propertyID = $GLOBALS['RS_POST']['propertyID'];
 $results['appPropertyID'] = getAppPropertyID_RelatedWith($propertyID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

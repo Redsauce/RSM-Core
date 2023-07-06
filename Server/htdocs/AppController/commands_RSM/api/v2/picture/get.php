@@ -147,7 +147,7 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
     }
 
     if ($extension !== "jpg" && $extension !== "jpeg" && $extension !== "gif" && $extension !== "png" && $extension !== "svg") {
-        RSError("api_getPicture: Unknown extension: " . $extension);
+        RSerror("api_getPicture: Unknown extension: " . $extension);
         if ($RSallowDebug) {
             returnJsonMessage(403, "Unknown extension");
         } else {
@@ -173,7 +173,7 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
 
         if ($originalImage === false) {
             // The original image is not valid
-            RSError("api_getPicture: not a valid image: " . $imageOriginal);
+            RSerror("api_getPicture: not a valid image: " . $imageOriginal);
             if ($RSallowDebug) {
                 returnJsonMessage(403, "Not a valid image");
             } else {
@@ -312,8 +312,8 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
                         break;
 
                     default:
-                    returnJsonMessage(400, "");
-                    break;
+                        returnJsonMessage(400, "");
+                        break;
                 }
             } else {
                 // Return the original image
@@ -365,7 +365,7 @@ function resizeSvg($svgdata, $w, $h, $adj)
             $widthActual = $widthActual == "" ? $viewBoxParts[2] : $widthActual;
             $heightActual = $heightActual == "" ? $viewBoxParts[3] : $heightActual;
         }
-        
+
         if ($adj == "s") {
             //show all the image inside passed dimensions
             if ($w != "" && $h != "") {
@@ -473,7 +473,7 @@ function saveImgCache($imageOriginal, $imagePath, $imagename, $extension)
 
     // Check if directory exists
     if (!file_exists($directory) && !mkdir($directory, 0775, true)) {
-        RSError("api_getPicture: Could not create directory");
+        RSerror("api_getPicture: Could not create directory");
     }
 
     switch ($extension) {

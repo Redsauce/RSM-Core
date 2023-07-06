@@ -18,10 +18,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'     ]) ? $clientID = $GLOBALS['RS_POST']['clientID'     ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['worksessionID']) ? $wsID     = $GLOBALS['RS_POST']['worksessionID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['endDate'      ]) ? $endDate  = $GLOBALS['RS_POST']['endDate'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['days'         ]) ? $days     = $GLOBALS['RS_POST']['days'         ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['endDate']) ? $endDate  = $GLOBALS['RS_POST']['endDate'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['days']) ? $days     = $GLOBALS['RS_POST']['days'] : dieWithError(400);
 
 //new switch for updating parend dates if necessary
 $updateTaskDates = 1;
@@ -132,7 +132,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                     if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date']))) {
                         continue;
-                    //  skip the rest and jump to the next worksession
+                        //  skip the rest and jump to the next worksession
                     }
 
 
@@ -151,8 +151,8 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     if (!($wsBeginTimestamp >= $uwsCompEndTimestamp || $wsEndTimestamp <= $uwsCompBeginTimestamp)) {
                         // there is a conflict...
                         $results['result'] = 'NOK';
-                        RSReturnArrayResults($results);
-                        exit ;
+                        RSreturnArrayResults($results);
+                        exit;
                     }
                 }
 
@@ -172,7 +172,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     if (!isDayCuttedOff(getDayName($currentDate))) {
                         $dates[] = $currentDate . ' ' . $wsStartTime;
                     }
-
                 } while (isDateStrictlyBetween($currentDate, $wsStartDate, $endDate));
 
                 // duplicate worksession
@@ -187,7 +186,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     setItemPropertyValue($definitions['worksessionCreationDate'], $itemTypeID, $newWsID, $clientID, date("Y-m-d H:i:s"), '', $RSuserID);
 
                     $newWsDuration = $wsDuration;
-
                 } else {
 
                     $newWsIDs = duplicateItem($itemTypeID, $wsID, $clientID, $numCopies);
@@ -251,7 +249,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 }
 
                 $results['result'] = 'OK';
-
             } else {
                 $results['result'] = "NOK";
                 $results['description'] = "WORKSESSION NOT EXISTS";
@@ -271,4 +268,4 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

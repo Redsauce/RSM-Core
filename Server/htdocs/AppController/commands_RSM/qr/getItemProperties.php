@@ -6,8 +6,8 @@ require_once "../utilities/RStools.php";
 
 $RSallowUncompressed = true;
 
-isset($GLOBALS['RS_POST']['RSdata'           ]) ? $RSdata            = $GLOBALS['RS_POST']['RSdata'           ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSLogin'          ]) ? $RSLogin           = $GLOBALS['RS_POST']['RSLogin'          ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RSdata']) ? $RSdata            = $GLOBALS['RS_POST']['RSdata'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RSLogin']) ? $RSLogin           = $GLOBALS['RS_POST']['RSLogin'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RSuserMD5Password']) ? $RSuserMD5Password = $GLOBALS['RS_POST']['RSuserMD5Password'] : dieWithError(400);
 
 // Check for encryption
@@ -31,4 +31,4 @@ $itemTypeID = parseITID($itemTypeID, $clientID);
 $results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $RSuserID);
 
 // And return XML response back to application
-RSReturnArrayQueryResults($results, false);
+RSreturnArrayQueryResults($results, false);

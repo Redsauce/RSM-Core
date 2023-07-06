@@ -9,4 +9,4 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $results = IQ_getItems($itemTypeID, $clientID);
 
 // Return data
-RSReturnQueryResults($results);
+RSreturnQueryResults($results);

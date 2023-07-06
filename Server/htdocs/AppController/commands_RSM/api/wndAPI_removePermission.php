@@ -21,5 +21,4 @@ $results = RSremovePermissionFromTokenProperty($tokenID,$GLOBALS['RS_POST']['cli
 
 $response['result'] = "OK";
 
-RSReturnArrayResults($response);
-?>
+RSreturnArrayResults($response);

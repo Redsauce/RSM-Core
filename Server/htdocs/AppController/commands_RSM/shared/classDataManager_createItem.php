@@ -4,7 +4,7 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID   =       $GLOBALS['RS_POST']['clientID'  ];
+$clientID   =       $GLOBALS['RS_POST']['clientID'];
 $itemTypeID = isset($GLOBALS['RS_POST']['itemTypeID']) ? $GLOBALS['RS_POST']['itemTypeID'] : '';
 $properties = isset($GLOBALS['RS_POST']['properties']) ? $GLOBALS['RS_POST']['properties'] : '';
 
@@ -62,4 +62,4 @@ if ($itemID != '') {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

@@ -31,4 +31,4 @@ $returnProperties[] = array('ID' => $mainPropertyID, 'name' => 'mainValue');
 $subAccounts = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 // Return results
-RSReturnQueryResults($subAccounts);
+RSreturnQueryResults($subAccounts);

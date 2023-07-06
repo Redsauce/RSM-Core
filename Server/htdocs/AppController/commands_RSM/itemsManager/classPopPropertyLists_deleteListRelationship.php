@@ -11,4 +11,4 @@ deleteListRelationship_appSide($appListID, $clientID);
 $result['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($result);
+RSreturnArrayResults($result);

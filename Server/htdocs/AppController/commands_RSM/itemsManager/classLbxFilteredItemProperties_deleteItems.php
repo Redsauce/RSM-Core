@@ -25,12 +25,12 @@ if ($force != 1) {
         foreach ($propertiesList as $property) {
             if (isSingleIdentifier($property['type'])) {
                 if (getClientPropertyReferredItemType($property['id'], $clientID) == $itemTypeID) {
-                    $query = RSQuery('SELECT RS_ITEM_ID FROM rs_property_identifiers WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemType['ID'] . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' AND RS_DATA IN (' . $ids . ') LIMIT 1');
+                    $query = RSquery('SELECT RS_ITEM_ID FROM rs_property_identifiers WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemType['ID'] . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' AND RS_DATA IN (' . $ids . ') LIMIT 1');
                     if ($query->num_rows > 0) {
                         $results['result'] = 'NOK';
 
                         // Write XML Response back to the application
-                        RSReturnArrayResults($results);
+                        RSreturnArrayResults($results);
                         exit;
                     }
                 }
@@ -41,12 +41,12 @@ if ($force != 1) {
                     foreach ($idsArr as $id) {
                         $conditions[] = 'FIND_IN_SET("' . $id . '", RS_DATA) > 0';
                     }
-                    $query = RSQuery('SELECT RS_ITEM_ID FROM rs_property_multiIdentifiers WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemType['ID'] . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' AND (' . implode(' OR ', $conditions) . ') LIMIT 1');
+                    $query = RSquery('SELECT RS_ITEM_ID FROM rs_property_multiIdentifiers WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemType['ID'] . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' AND (' . implode(' OR ', $conditions) . ') LIMIT 1');
                     if ($query->num_rows > 0) {
                         $results['result'] = 'NOK';
 
                         // Write XML Response back to the application
-                        RSReturnArrayResults($results);
+                        RSreturnArrayResults($results);
                         exit;
                     }
                 }
@@ -65,4 +65,4 @@ if (strpos($ids, ',') === false) {
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

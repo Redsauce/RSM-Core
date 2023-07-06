@@ -19,8 +19,8 @@ if ($clientID != 0 && $RSuserID != 0) {
   $filteredResults = getItemTypeIDs_usingFilter($RSuserID, $clientID, $textFilter);
 
   // Write XML Response back to the application
-  RSReturnArrayQueryResults($filteredResults, false);
+  RSreturnArrayQueryResults($filteredResults, false);
 } else {
   $results['result'] = "NOK";
-  RSReturnArrayResults($results);
+  RSreturnArrayResults($results);
 }

@@ -31,4 +31,4 @@ $returnProperties[] = array('ID' => $mainPropertyID, 'name' => 'mainValue');
 // get all staff
 $staff = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
-RSReturnQueryResults($staff);
+RSreturnQueryResults($staff);

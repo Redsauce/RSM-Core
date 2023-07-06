@@ -20,8 +20,8 @@ $RSallowUncompressed = true;
 
 // definitions
 isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSdata'  ]) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken' ]) ? $RStoken  = $GLOBALS['RS_POST']['RStoken' ] : $Rstoken = "";
+isset($GLOBALS['RS_POST']['RSdata']) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken  = $GLOBALS['RS_POST']['RStoken'] : $Rstoken = "";
 
 $chainValues  = array();
 $propertiesID = array();
@@ -63,7 +63,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $results['result'] = 'NOK';
         $results['description'] = 'YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM';
         error_log('YOU DONT HAVE PERMISSIONS TO CREATE THIS ITEM');
-        RSReturnArrayResults($results, false);
+        RSreturnArrayResults($results, false);
     }
 
     // Verify all properties pertain to the same item type
@@ -72,7 +72,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $results['result'] = 'NOK';
         $results['description'] = 'PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE';
         error_log('PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE');
-        RSReturnArrayResults($results, false);
+        RSreturnArrayResults($results, false);
     }
 }
 
@@ -118,4 +118,4 @@ foreach ($RSdataSplit as $RSdataRow) {
 $results['itemID'] = implode($newPropertiesID, ",");
 
 // And write XML Response back to the application without compression
-RSReturnArrayResults($results, false);
+RSreturnArrayResults($results, false);

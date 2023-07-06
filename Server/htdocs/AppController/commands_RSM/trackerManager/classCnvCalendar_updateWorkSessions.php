@@ -21,7 +21,7 @@ if ($startDate == "" || $startDate == "0" || !$startDateObj || !$endDateObj) {
     //error creating time
     $results['result'] = "NOK";
     $results['description'] = "ERROR CREATING DATETIME";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -29,7 +29,7 @@ if ($duration == "" || $duration == "0") {
     //empty duration
     $results['result'] = "NOK";
     $results['description'] = "INVALID DURATION";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -93,7 +93,7 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
             //error creating time
             $results['result'] = "NOK";
             $results['description'] = "ERROR CREATING DATETIME";
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
             exit();
         }
 
@@ -104,7 +104,7 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
 
             $results['result'] = "NOK";
             $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
             exit();
         }
     }
@@ -201,4 +201,4 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

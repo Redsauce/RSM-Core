@@ -20,4 +20,4 @@ foreach ($pointerPropertyIDs as $pointerPropertyID) {
 $results['ID'] = $itemID;
 
 // Return data
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

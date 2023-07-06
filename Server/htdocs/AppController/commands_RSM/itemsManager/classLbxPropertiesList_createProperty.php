@@ -41,7 +41,7 @@ if ($clientID != '0' && $categoryID != '0') {
           $results['result'] = 'NOK';
           $results['description'] = 'NAME_ALREADY_EXISTS';
           // And write XML Response back to the application
-          RSReturnArrayResults($results);
+          RSreturnArrayResults($results);
           // Terminate PHP execution
           exit;
         }
@@ -65,7 +65,7 @@ if ($clientID != '0' && $categoryID != '0') {
 
 
     // execute the query
-    $result = RSQuery($theQuery);
+    $result = RSquery($theQuery);
 
     if ($result) {
 
@@ -79,7 +79,7 @@ if ($clientID != '0' && $categoryID != '0') {
           '(' . $newPropertyID . ',' . $GLOBALS['RS_POST']['propertyListID'] . ',' . $clientID . ',' . $GLOBALS['RS_POST']['propertyMultiVal'] . ')';
 
         // execute the query
-        $result = RSQuery($theQuery);
+        $result = RSquery($theQuery);
       }
 
 
@@ -91,7 +91,7 @@ if ($clientID != '0' && $categoryID != '0') {
         $theQuery = 'UPDATE rs_item_types SET RS_MAIN_PROPERTY_ID = ' . $newPropertyID . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID;
 
         // execute the query
-        $result = RSQuery($theQuery);
+        $result = RSquery($theQuery);
       }
 
 
@@ -129,7 +129,7 @@ if ($clientID != '0' && $categoryID != '0') {
         }
 
         // execute the query
-        $result = RSQuery($theQuery);
+        $result = RSquery($theQuery);
       }
 
       $results['result'] = 'OK';
@@ -147,4 +147,4 @@ if ($clientID != '0' && $categoryID != '0') {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

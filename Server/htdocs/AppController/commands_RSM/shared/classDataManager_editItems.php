@@ -5,14 +5,14 @@ require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
 $clientID   = $GLOBALS['RS_POST']['clientID'];
-$entries    = $GLOBALS['RS_POST']['entries' ];
+$entries    = $GLOBALS['RS_POST']['entries'];
 
 $results = array();
 
 if ($entries == '') {
   $results['result'] = 'NOK';
   $results['description'] = 'No properties to update were received';
-  RSReturnArrayResults($results);
+  RSreturnArrayResults($results);
   die();
 }
 
@@ -31,7 +31,7 @@ $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
 if ($itemTypeID == '') {
   $results['result'] = 'NOK';
   $results['description'] = 'Could not determine the item type to return.';
-  RSReturnArrayResults($results);
+  RSreturnArrayResults($results);
   die();
 }
 
@@ -71,4 +71,4 @@ $results['result'] = 'OK';
 $results['description'] = "Successfully updated item " . $entryArr[0] . " of type " . $itemTypeID . ".";
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

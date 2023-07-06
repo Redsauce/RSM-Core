@@ -281,4 +281,3 @@ function createListsValuesRelationship($clientListValueID, $appListValueID, $cli
     // create new relationship
     RSquery("INSERT INTO rs_lists_values_relations VALUES (" . $appListValueID . "," . $clientID . "," . $clientListValueID . ",NOW())");
 }
-?>

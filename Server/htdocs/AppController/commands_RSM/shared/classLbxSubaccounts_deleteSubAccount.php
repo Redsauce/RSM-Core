@@ -5,14 +5,14 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbankCodes.php";
 
 // definitions
-$clientID     = $GLOBALS['RS_POST']['clientID'    ];
+$clientID     = $GLOBALS['RS_POST']['clientID'];
 $subAccountID = $GLOBALS['RS_POST']['subAccountID'];
 
 // get the item types
 $itemTypeID           = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
-$accountsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['accounts'   ], $clientID);
-$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations' ], $clientID);
-$conceptsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['concepts'   ], $clientID);
+$accountsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);
+$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$conceptsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
 
 // get the subaccount accountID
 $accountID = getPropertyValue($definitions['subAccountAccountID'], $itemTypeID, $subAccountID, $clientID);
@@ -26,10 +26,10 @@ if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountI
     $filterProperties = array();
     $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['userSubAccountID'], $clientID), 'value' => $subAccountID);
 
-    $usersQueryResults = IQ_getFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
+    $useRSqueryResults = IQ_getFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
 
     $users = array();
-    while ($row = $usersQueryResults->fetch_assoc()) {
+    while ($row = $useRSqueryResults->fetch_assoc()) {
         $users[] = $row['ID'];
     }
 
@@ -39,8 +39,7 @@ if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountI
     }
 
     // also delete the relationships between the user and the modules
-    RSQuery('DELETE FROM rs_extranet_modules_users WHERE RS_CLIENT_ID = '.$clientID.' AND RS_ITEM_ID IN ('.implode(',', $users).')');
-
+    RSquery('DELETE FROM rs_extranet_modules_users WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEM_ID IN (' . implode(',', $users) . ')');
 }
 
 
@@ -97,4 +96,4 @@ deleteItem($itemTypeID, $subAccountID, $clientID);
 $results['result'] = 'OK';
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

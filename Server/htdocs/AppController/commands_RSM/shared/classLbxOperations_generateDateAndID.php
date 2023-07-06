@@ -38,8 +38,8 @@ if (($currentOperationID > 0) || ($currentInvoiceDate != '')) {
     $results['result'] = 'NOK';
 
     // Write XML Response back to the application
-    RSReturnArrayResults($results);
-    exit ;
+    RSreturnArrayResults($results);
+    exit;
 }
 
 // --- calculate the internal ID the operation will be receive (the max ID for the current year and current account) ---
@@ -114,4 +114,4 @@ $results['operationID'] = getItemPropertyValue($operationID, $operationIDPropert
 $results['invoiceDate'] = getItemPropertyValue($operationID, $invoiceDatePropertyID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

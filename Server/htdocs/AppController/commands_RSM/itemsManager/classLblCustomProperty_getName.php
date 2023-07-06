@@ -16,4 +16,4 @@ $appPropertyName = $GLOBALS['RS_POST']['appItemPropertyName'];
 $results['customItemPropertyName'] = getClientPropertyName_RelatedWith_byName($definitions[$appPropertyName], $clientID);
 
 // And return XML results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

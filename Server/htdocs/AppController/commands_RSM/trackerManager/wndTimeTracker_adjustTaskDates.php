@@ -44,7 +44,7 @@ $finalDates = adjustTasksDates($subTasksTree, $taskID, $taskStartDate, $taskEndD
 $parentID = getItemPropertyValue($taskID, $tasksGroupParentPropertyID, $clientID);
 
 if (!strtotime($finalDates['startDate'])) {
-    RSError("La fecha final no es una fecha");
+    RSerror("La fecha final no es una fecha");
 }
 
 while ($parentID > 0) {
@@ -68,7 +68,7 @@ while ($parentID > 0) {
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);
 
 // A function to adjust the tasksGroup dates of a tasksGroup tree
 function adjustTasksDates($tree, $taskID, $startDate, $endDate)

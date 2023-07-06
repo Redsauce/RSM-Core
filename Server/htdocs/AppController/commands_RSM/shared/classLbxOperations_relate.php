@@ -11,10 +11,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID       = $GLOBALS['RS_POST']['clientID'    ];
-$operation_1    = $GLOBALS['RS_POST']['operation_1' ];  // a bank statement
-$operation_2    = $GLOBALS['RS_POST']['operation_2' ];  // an invoice
-$setPayDate     = $GLOBALS['RS_POST']['setPayDate'  ];
+$clientID       = $GLOBALS['RS_POST']['clientID'];
+$operation_1    = $GLOBALS['RS_POST']['operation_1'];  // a bank statement
+$operation_2    = $GLOBALS['RS_POST']['operation_2'];  // an invoice
+$setPayDate     = $GLOBALS['RS_POST']['setPayDate'];
 
 // get operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
@@ -78,4 +78,4 @@ if ($setPayDate == '1') {
 
 
 // And write XML response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

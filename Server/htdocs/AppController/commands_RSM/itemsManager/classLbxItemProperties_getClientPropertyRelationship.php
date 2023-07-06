@@ -10,4 +10,4 @@ $response = array();
 $response['propertyAppID'] = $result;
 
 // And write XML Response back to the application
-RSReturnArrayResults($response);
+RSreturnArrayResults($response);

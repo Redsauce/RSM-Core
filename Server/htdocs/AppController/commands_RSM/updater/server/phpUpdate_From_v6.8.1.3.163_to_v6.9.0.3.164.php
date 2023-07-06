@@ -21,7 +21,7 @@ if (!$result) {
 }
 
 foreach ($postSQLs as $postSQL) {
-    if (trim($postSQL)!="") {
+    if (trim($postSQL) != "") {
         echo "Executing query: " . trim($postSQL) . "\n\n";
 
         if (!$mysqli->query(trim($postSQL))) {
@@ -45,14 +45,14 @@ $mysqli->query("COMMIT");
 function RSupdateAllBadgeUsers($RSclientID = null)
 {
     $theQueryUsers = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
-    
+
     if ($RSclientID != null) {
         $theQueryUsers .= " WHERE RS_CLIENT_ID = '$RSclientID'";
     }
-    
-    $resultUsers = RSQuery($theQueryUsers);
-    
-    while ($row=$resultUsers->fetch_assoc()) {
+
+    $resultUsers = RSquery($theQueryUsers);
+
+    while ($row = $resultUsers->fetch_assoc()) {
         RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);
     }
 }

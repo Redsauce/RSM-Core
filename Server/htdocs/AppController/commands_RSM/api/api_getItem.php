@@ -95,5 +95,4 @@ foreach ($properties as $property) {
 
 
 // And write XML Response back to the application without compression
-RSReturnArrayQueryResults($results, false);
-?>
+RSreturnArrayQueryResults($results, false);

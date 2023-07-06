@@ -73,4 +73,4 @@ for ($i = 0; $i < count($propertyIDs); $i++) {
 $totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($totalData);
+RSreturnArrayQueryResults($totalData);

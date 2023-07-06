@@ -42,19 +42,19 @@ if ($GLOBALS['RS_POST']['itemIDs'] == '') {
         if (count(array_unique($itemIDs)) == count($itemIDs)) {
             // the items ids are unique
             $theQuery_conflicts = 'SELECT RS_ITEM_ID FROM rs_items WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_ITEM_ID IN (' . implode(",", $itemIDs) . ') LIMIT 1';
-            $result = RSQuery($theQuery_conflicts);
+            $result = RSquery($theQuery_conflicts);
             if ($result->num_rows > 0) {
                 // database conflict
                 $results['result'] = 'ERROR1';
                 // Write response back to application
-                RSReturnArrayResults($results);
+                RSreturnArrayResults($results);
             }
         } else {
             // id repeated
             $results['result'] = 'ERROR2';
 
             // Write response back to application
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
         }
     }
 }
@@ -122,7 +122,7 @@ if (RSquery($query)) {
             $results['query'] = $query;
 
             // Write response back to application
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
         }
     }
 
@@ -158,4 +158,4 @@ if ($trigger) {
 
 
 // Write response back to application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

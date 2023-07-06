@@ -19,16 +19,16 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Retrieve the needed variables from the request
-$clientID       = $GLOBALS['RS_POST']['clientID'  ];
+$clientID       = $GLOBALS['RS_POST']['clientID'];
 $properties     = $GLOBALS['RS_POST']['properties'];
-$filters        = $GLOBALS['RS_POST']['filters'   ];
-$orderBy        = $GLOBALS['RS_POST']['orderBy'   ];
-$limit          = $GLOBALS['RS_POST']['limit'     ];
-$join           = $GLOBALS['RS_POST']['join'      ];
-$IDs            = $GLOBALS['RS_POST']['IDs'       ];
+$filters        = $GLOBALS['RS_POST']['filters'];
+$orderBy        = $GLOBALS['RS_POST']['orderBy'];
+$limit          = $GLOBALS['RS_POST']['limit'];
+$join           = $GLOBALS['RS_POST']['join'];
+$IDs            = $GLOBALS['RS_POST']['IDs'];
 
 $extFilterRules = isset($GLOBALS['RS_POST']['extFilterRules']) ? $GLOBALS['RS_POST']['extFilterRules'] : '';
-$itemTypeID     = isset($GLOBALS['RS_POST']['itemTypeID'    ]) ? $GLOBALS['RS_POST']['itemTypeID'    ] : '';
+$itemTypeID     = isset($GLOBALS['RS_POST']['itemTypeID']) ? $GLOBALS['RS_POST']['itemTypeID'] : '';
 isset($GLOBALS['RS_POST']['orderPropertyID']) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
 
 // prepare return properties array
@@ -59,7 +59,7 @@ if ($properties == '') {
 }
 
 if ($itemTypeID == '') {
-  RSReturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
+  RSreturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
 }
 
 //creck if need to get the order from a property and add to returned properties in that case
@@ -76,7 +76,7 @@ if ($orderPropertyID != "") {
     } else {
       $response['result'] = "NOK";
       $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";
-      RSReturnArrayResults($response, false);
+      RSreturnArrayResults($response, false);
     }
   }
 }
@@ -108,7 +108,7 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // Return results
 if (is_string($results)) {
-  RSReturnFileResults($results);
+  RSreturnFileResults($results);
 } else {
-  RSReturnArrayQueryResults($results);
+  RSreturnArrayQueryResults($results);
 }

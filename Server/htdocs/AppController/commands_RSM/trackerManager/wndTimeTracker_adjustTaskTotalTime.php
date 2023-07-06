@@ -49,7 +49,7 @@ if ($totalTimeDiff != 0) {
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);
 
 // A function to adjust the tasks total time of a tasks tree
 function adjustTasksTotalTime($tree, $taskID, $totalTime)

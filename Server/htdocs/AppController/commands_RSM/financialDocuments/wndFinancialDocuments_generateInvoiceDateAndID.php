@@ -29,14 +29,14 @@ foreach ($invoiceIDs as $invoiceID) {
     $results['description'] = 'INVOICE ID OR INVOICE DATE ALREADY GENERATED';
 
     // Write XML Response back to the application
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
   }
 
   // get resetIDwithNewYear global variable value
   $theQuery = 'SELECT RS_VALUE AS "value" FROM rs_globals WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_NAME = "invoices.resetIDwithNewYear"';
 
   // execute query
-  $result = RSQuery($theQuery);
+  $result = RSquery($theQuery);
 
   // build filter properties array
   $filterProperties = array();
@@ -104,4 +104,4 @@ foreach ($invoiceIDs as $invoiceID) {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

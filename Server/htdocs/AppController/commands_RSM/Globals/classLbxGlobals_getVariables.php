@@ -9,4 +9,4 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $results = getGlobalvariables($clientID);
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

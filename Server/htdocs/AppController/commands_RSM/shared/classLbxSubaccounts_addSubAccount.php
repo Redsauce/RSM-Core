@@ -41,8 +41,8 @@ while ($row = $subAccountsQueryResults->fetch_assoc()) {
 
 // now create the new subaccount
 $values = array();
-$values[]=array('ID' => $accountPropertyID, 'value' => $accountID);
-$values[]=array('ID' => $personalIDPropertyID, 'value' => $maxID+1);
+$values[] = array('ID' => $accountPropertyID, 'value' => $accountID);
+$values[] = array('ID' => $personalIDPropertyID, 'value' => $maxID + 1);
 
 $newSubAccountID = createItem($clientID, $values);
 
@@ -51,4 +51,4 @@ $results['mainValue'] = getClientItemMainPropertyValue($newSubAccountID, $itemTy
 $results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], $itemTypeID, $newSubAccountID, $clientID);
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

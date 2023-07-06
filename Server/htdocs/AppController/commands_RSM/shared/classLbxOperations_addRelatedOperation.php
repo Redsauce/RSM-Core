@@ -103,4 +103,4 @@ $results['total'] = getItemPropertyValue($operationID, $totalPropertyID, $client
 $results['description'] = getItemPropertyValue($operationID, $descriptionPropertyID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

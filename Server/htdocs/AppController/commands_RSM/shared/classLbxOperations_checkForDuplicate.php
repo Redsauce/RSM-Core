@@ -28,8 +28,8 @@ $operationInvoiceDate = getItemPropertyValue($operationID, $invoiceDatePropertyI
 
 if ($operationInvoiceDate == '') {
     // Return OK
-    RSReturnArrayResults($results);
-    exit ;
+    RSreturnArrayResults($results);
+    exit;
 }
 
 // save the operation invoice date year
@@ -113,4 +113,4 @@ if (!empty($subAccounts)) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

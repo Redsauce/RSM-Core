@@ -15,8 +15,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID       =              $GLOBALS['RS_POST']['clientID'      ];
-$sysProperties  = explode(",", $GLOBALS['RS_POST']['properties'    ]);
+$clientID       =              $GLOBALS['RS_POST']['clientID'];
+$sysProperties  = explode(",", $GLOBALS['RS_POST']['properties']);
 $getSetOfValues =              $GLOBALS['RS_POST']['getSetOfValues'];
 
 // Get item type ID
@@ -24,7 +24,7 @@ $itemTypeID = getItemTypeIDFromProperties($sysProperties, $clientID);
 
 if ($itemTypeID <= 0) {
   // The properties does not pertain to the same item type
-  RSReturnError("PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE", 0);
+  RSreturnError("PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE", 0);
 }
 
 $itemTypeName        = getClientItemTypeName($itemTypeID, $clientID);
@@ -128,4 +128,4 @@ foreach ($properties as $property) {
 }
 
 // Return results
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

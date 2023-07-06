@@ -24,4 +24,4 @@ setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $operationI
 $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $itemTypeID, $operationID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

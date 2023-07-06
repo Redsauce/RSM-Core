@@ -6,9 +6,9 @@ require_once "../utilities/RStools.php";
 
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID     =              $GLOBALS['RS_POST']['clientID'   ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID' ]) ? $itemTypeID   =              $GLOBALS['RS_POST']['itemTypeID' ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['items'      ]) ? $items        =              $GLOBALS['RS_POST']['items'      ]  : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID     =              $GLOBALS['RS_POST']['clientID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID   =              $GLOBALS['RS_POST']['itemTypeID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['items']) ? $items        =              $GLOBALS['RS_POST']['items']  : dieWithError(400);
 isset($GLOBALS['RS_POST']['descendants']) ? $descendants  = explode(',', $GLOBALS['RS_POST']['descendants']) : $descendants = array();
 
 // organize descendants by parent itemtype
@@ -37,4 +37,4 @@ if ($items != '' && count(getUserVisiblePropertiesIDs($itemTypeID, $clientID, $R
 $results['result'] = 'OK';
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

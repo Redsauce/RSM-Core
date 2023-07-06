@@ -43,7 +43,7 @@ function RSCheckCompatibleDB($serviceMode)
         $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
     }
 
-    $versions = RSQuery($theQuery);
+    $versions = RSquery($theQuery);
 
     // Check the results
 
@@ -77,7 +77,7 @@ function RSCheckUserAccess()
         $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
     }
 
-    $users = RSQuery($theQuery);
+    $users = RSquery($theQuery);
 
     // Check the results
     if (!$users) {
@@ -100,7 +100,7 @@ function getUserStaffID($userID, $clientID)
 {
 
     $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
-    $users = RSQuery($theQuery);
+    $users = RSquery($theQuery);
 
     // Check the results
     if (!$users) {

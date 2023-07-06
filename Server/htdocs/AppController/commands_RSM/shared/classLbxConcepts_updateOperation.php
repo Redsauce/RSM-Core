@@ -37,7 +37,7 @@ while ($row = $concepts->fetch_assoc()) {
 }
 $total = $base + $VAT - $deduction;
 
- 
+
 
 // set the operation properties values
 setItemPropertyValue($definitions['operationBase'], $operationsItemTypeID, $operationID, $clientID, round($base, 2), $RSuserID);
@@ -53,4 +53,4 @@ $results['deduction'] = round($deduction, 2);
 $results['total'] = round($total, 2);
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

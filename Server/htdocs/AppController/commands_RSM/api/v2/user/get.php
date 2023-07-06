@@ -17,7 +17,7 @@ $clientID = $requestBody->clientID;
 
 $theQuery = "SELECT RS_USER_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
 
-$result = RSQuery($theQuery);
+$result = RSquery($theQuery);
 
 if ($result->num_rows == 0) {
   if ($RSallowDebug) {

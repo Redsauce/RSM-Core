@@ -9,11 +9,11 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['userID'      ]) ? $user      = $GLOBALS['RS_POST']['userID'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['startDate'   ]) ? $startDate = $GLOBALS['RS_POST']['startDate'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['duration'    ]) ? $duration  = $GLOBALS['RS_POST']['duration'    ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['userID']) ? $user      = $GLOBALS['RS_POST']['userID'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['startDate']) ? $startDate = $GLOBALS['RS_POST']['startDate'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['duration']) ? $duration  = $GLOBALS['RS_POST']['duration'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['parentTaskID']) ? $task      = $GLOBALS['RS_POST']['parentTaskID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['clientID'    ]) ? $clientID  = $GLOBALS['RS_POST']['clientID'    ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID  = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 
 //new switch for updating parent dates if necessary
 $updateTaskDates = 1;
@@ -25,7 +25,7 @@ if ($startDate == "" || $startDate == "0" || !$startDateObj) {
     //error creating time
     $results['result'] = "NOK";
     $results['description'] = "ERROR CREATING START DATETIME";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -33,7 +33,7 @@ if ($duration == "" || $duration == "0") {
     //empty duration
     $results['result'] = "NOK";
     $results['description'] = "INVALID DURATION";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -45,17 +45,17 @@ $endDate = date_format($endDateObj, 'Y-m-d H:i:s');
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
 
 // get properties
-$wsUserPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'     ], $clientID);
+$wsUserPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'], $clientID);
 $wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-$wsDurationPropertyID  = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration' ], $clientID);
-$wsTaskPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'     ], $clientID);
+$wsDurationPropertyID  = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
+$wsTaskPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
 
 // check that there are not existing worksessions beggining inside this time
 // build filter properties
 $filterProperties = array();
-$filterProperties[] = array('ID' => $wsUserPropertyID     , 'value' => $user);
+$filterProperties[] = array('ID' => $wsUserPropertyID, 'value' => $user);
 $filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $startDate, 'mode' => 'TIME_SAME_OR_AFTER');
-$filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $endDate  , 'mode' => 'TIME_BEFORE');
+$filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $endDate, 'mode' => 'TIME_BEFORE');
 
 // build return properties array
 $returnProperties = array();
@@ -64,11 +64,11 @@ $returnProperties = array();
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 if (!empty($result)) {
-  //another workssesion occupies part of this worksession's time
-  $results['result'] = "NOK";
-  $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
+    //another workssesion occupies part of this worksession's time
+    $results['result'] = "NOK";
+    $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
 
-  RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
 }
 
 //check not existing worksessions beginning before this time and lasting until inside this time
@@ -95,7 +95,7 @@ foreach ($result as $ws) {
         $results['result'] = "NOK";
         $results['description'] = "ERROR CREATING END DATETIME";
 
-        RSReturnArrayResults($results);
+        RSreturnArrayResults($results);
     }
 
     date_modify($wsEndDate, "+" . round($ws['hours'] * 60) . " minutes");
@@ -105,7 +105,7 @@ foreach ($result as $ws) {
         $results['result'] = "NOK";
         $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
 
-        RSReturnArrayResults($results);
+        RSreturnArrayResults($results);
     }
 }
 
@@ -121,17 +121,17 @@ $workSessionID = createItem($clientID, $propertiesValues);
 // Doble check that no duplicated session was created
 // build filter properties
 $filterProperties = array();
-$filterProperties[] = array('ID' => $wsUserPropertyID     , 'value' => $user);
+$filterProperties[] = array('ID' => $wsUserPropertyID, 'value' => $user);
 $filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $startDate);
 // build return properties array
 $returnProperties = array();
 // get worksessions
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 if (count($result) > 1) {
-  // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
-  for ($i=0; $i<count($result)-1; $i++) {
-    deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
-  }
+    // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
+    for ($i = 0; $i < count($result) - 1; $i++) {
+        deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
+    }
 }
 
 // Set worksession creation date
@@ -163,11 +163,11 @@ foreach ($resultRelatedWS as $RelatedWS) {
 
 
 // update parent tasks total time
-$taskParentPropertyID            = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'          ], $clientID);
-$taskCurrentTimePropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'       ], $clientID);
-$tasksStartDatePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'         ], $clientID);
-$tasksEndDatePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'           ], $clientID);
-$tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'   ], $clientID);
+$taskParentPropertyID            = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
+$taskCurrentTimePropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
+$tasksStartDatePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
+$tasksEndDatePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
+$tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
 $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
 
 //first update parent task
@@ -207,9 +207,9 @@ if ($updateTaskDates == 1) {
 }
 
 // Build results array
-$results['result'       ] = "OK";
+$results['result'] = "OK";
 $results['workSessionID'] = $workSessionID;
-$results['internalID'   ] = $GLOBALS['RS_POST']['internalID'];
+$results['internalID'] = $GLOBALS['RS_POST']['internalID'];
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

@@ -16,14 +16,14 @@ require_once "../utilities/RStools.php";
 
 // Retrieve the needed variables from the request
 isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemID"  ]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"  ] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["itemID"]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"] : dieWithError(400);
 
 $itemTypeID     = isset($GLOBALS['RS_POST']['itemTypeID']) ? $GLOBALS['RS_POST']['itemTypeID'] : '';
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
 
 if ($itemTypeID == '') {
-  RSReturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
+  RSreturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
 }
 
 // Return the IDs of the visible properties for user.
@@ -75,4 +75,4 @@ foreach ($properties as $property) {
 
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

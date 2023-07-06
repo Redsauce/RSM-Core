@@ -12,7 +12,7 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
     echo $theQuery;
   }
 
-  $result = RSQuery($theQuery);
+  $result = RSquery($theQuery);
 
   $results['result'] = "OK";
   $results['ID'] = getLastIdentification('rs_lists', 'RS_LIST_ID', $GLOBALS['RS_POST']['clientID']);
@@ -23,4 +23,4 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
 
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

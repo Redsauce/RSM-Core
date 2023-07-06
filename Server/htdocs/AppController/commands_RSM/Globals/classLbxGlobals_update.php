@@ -61,7 +61,7 @@ if (!empty($vars)) {
   $theQuery = 'SELECT RS_NAME FROM rs_globals WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_NAME IN ("' . implode('","', $vars) . '")';
 
   // execute query
-  $checkResults = RSQuery($theQuery);
+  $checkResults = RSquery($theQuery);
 
   if ($checkResults && $checkResults->num_rows > 0) {
     // one or more variables already exist... check if these variables must be deleted or renamed, in which case the update operation is still valid
@@ -72,7 +72,7 @@ if (!empty($vars)) {
         $results['var'] = $row['RS_NAME'];
 
         // Write XML Response back to the application
-        RSReturnArrayResults($results);
+        RSreturnArrayResults($results);
         exit;
       }
     }
@@ -95,7 +95,7 @@ if (!empty($vars)) {
   $theQuery = 'DELETE FROM rs_globals WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_NAME IN ("' . implode('","', $vars) . '")';
 
   // execute query
-  $queryResult = RSQuery($theQuery);
+  $queryResult = RSquery($theQuery);
 }
 
 
@@ -127,7 +127,7 @@ if (!empty($vars)) {
   $theQuery = substr($theQuery, 0, -1);
 
   // execute query
-  $queryResult = RSQuery($theQuery);
+  $queryResult = RSquery($theQuery);
 
   if (!$queryResult) {
     // return NOK
@@ -135,7 +135,7 @@ if (!empty($vars)) {
     $results['message'] = $mysqli->error;
 
     // And write XML Response back to the application
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit;
   }
 }
@@ -146,4 +146,4 @@ if (!empty($vars)) {
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

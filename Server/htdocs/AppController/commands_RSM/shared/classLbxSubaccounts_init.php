@@ -18,4 +18,4 @@ $results['mainValue'] = getClientPropertyName(getMainPropertyID($itemTypeID, $cl
 $results['personalID'] = getClientPropertyName(getClientPropertyID_RelatedWith_byName($definitions['subAccountPersonalID'], $clientID), $clientID);
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

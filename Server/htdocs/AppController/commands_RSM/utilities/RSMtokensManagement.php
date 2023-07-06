@@ -28,7 +28,7 @@ function RSclientFromToken($RStoken)
                 WHERE `RS_TOKEN` = '" . $RStoken . "'
                 AND `RS_ENABLED` = '1'";
 
-	$clients = RSQuery($theQuery);
+	$clients = RSquery($theQuery);
 
 	// Analyze results
 	if ($clients && $clients->num_rows > 0) {
@@ -44,7 +44,7 @@ function RSclientFromToken($RStoken)
 // Enable token for a clientID
 function RSenableToken($RStoken, $clientID)
 {
-	return RSQuery("UPDATE  rs_tokens
+	return RSquery("UPDATE  rs_tokens
                SET  RS_ENABLED   = 1
                WHERE  RS_TOKEN   = '" . $RStoken . "'
                AND  RS_CLIENT_ID = " . $clientID);
@@ -54,7 +54,7 @@ function RSenableToken($RStoken, $clientID)
 // Disable token for a clientID
 function RSdisableToken($RStoken, $clientID)
 {
-	return RSQuery("UPDATE  rs_tokens
+	return RSquery("UPDATE  rs_tokens
                SET  RS_ENABLED   = 0
                WHERE  RS_TOKEN   = '" . $RStoken . "'
                AND  RS_CLIENT_ID = " . $clientID);
@@ -64,7 +64,7 @@ function RSdisableToken($RStoken, $clientID)
 // Retrieve the ID pertaining to the token
 function RSgetTokenID($RStoken)
 {
-	$results = RSQuery("SELECT RS_ID as tokenID
+	$results = RSquery("SELECT RS_ID as tokenID
                FROM rs_tokens
                WHERE RS_TOKEN = '" . $RStoken . "'");
 
@@ -74,7 +74,7 @@ function RSgetTokenID($RStoken)
 		$response['description'] = "ERROR EXECUTING QUERY TO GATHER TOKEN ID";
 
 		// And write XML Response back to the application
-		RSReturnArrayResults($response);
+		RSreturnArrayResults($response);
 	}
 
 	// Obtain the token ID from the query results
@@ -86,7 +86,7 @@ function RSgetTokenID($RStoken)
 // Delete the token properties
 function RSdeleteTokenProperties($tokenID, $clientID)
 {
-	return RSQuery("DELETE FROM rs_token_permissions
+	return RSquery("DELETE FROM rs_token_permissions
                         WHERE RS_CLIENT_ID = '" . $clientID . "'
                         AND   RS_TOKEN_ID  = '" . $tokenID . "'");
 }
@@ -94,7 +94,7 @@ function RSdeleteTokenProperties($tokenID, $clientID)
 // -----------------------------
 function RSdeleteTokens($RStoken, $clientID)
 {
-	return RSQuery("DELETE FROM rs_tokens
+	return RSquery("DELETE FROM rs_tokens
                         WHERE RS_CLIENT_ID = '" . $clientID . "'
                         AND RS_TOKEN       = '" . $RStoken . "'");
 }
@@ -102,7 +102,7 @@ function RSdeleteTokens($RStoken, $clientID)
 // -----------------------------
 function RStokensFromClient($clientID)
 {
-	return RSQuery("SELECT  RS_TOKEN AS  'token',
+	return RSquery("SELECT  RS_TOKEN AS  'token',
                          RS_ENABLED       AS  'enabled'
                          FROM rs_tokens
                          WHERE RS_CLIENT_ID = '" . $clientID . "'");
@@ -111,7 +111,7 @@ function RStokensFromClient($clientID)
 // -----------------------------
 function RScountToken($RStoken)
 {
-	return RSQuery("SELECT COUNT('RS_TOKEN') as total
+	return RSquery("SELECT COUNT('RS_TOKEN') as total
 	                    FROM rs_tokens
 	                    WHERE RS_TOKEN = '" . $RStoken . "'");
 }
@@ -119,7 +119,7 @@ function RScountToken($RStoken)
 // -----------------------------
 function RScreateToken($RStoken, $clientID)
 {
-	return RSQuery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_ENABLED)
+	return RSquery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_ENABLED)
                         SELECT MAX(RS_ID)+1,
                             '" . $RStoken . "',
                             '" . $clientID . "',
@@ -130,7 +130,7 @@ function RScreateToken($RStoken, $clientID)
 // -----------------------------
 function RSremovePermissionFromTokenProperty($tokenID, $clientID, $propertyID, $permission)
 {
-	return RSQuery("DELETE FROM rs_token_permissions
+	return RSquery("DELETE FROM rs_token_permissions
                             WHERE RS_CLIENT_ID = '" . $clientID . "'" . "
                                 AND    RS_TOKEN_ID = '" . $tokenID . "'" . "
                                 AND RS_PROPERTY_ID = '" . $propertyID . "'" . "
@@ -140,7 +140,7 @@ function RSremovePermissionFromTokenProperty($tokenID, $clientID, $propertyID, $
 // -----------------------------
 function RScreateTokenPermission($tokenID, $clientID, $propertyID, $permission)
 {
-	return RSQuery("INSERT INTO rs_token_permissions (
+	return RSquery("INSERT INTO rs_token_permissions (
 						RS_CLIENT_ID  ,
 						RS_TOKEN_ID   ,
 						RS_PROPERTY_ID,
@@ -155,7 +155,7 @@ function RSgetTokenPermissions($RStoken, $propertyId)
 
 	$theQuery = "SELECT RS_PERMISSION AS 'permission', RS_PROPERTY_ID as 'propertyID' FROM rs_token_permissions WHERE RS_TOKEN_ID = " . $tokenID . " AND RS_PROPERTY_ID= " . $propertyId;
 
-	return RSQuery($theQuery);
+	return RSquery($theQuery);
 }
 
 function RShasREADTokenPermission($RStoken, $propertyId)

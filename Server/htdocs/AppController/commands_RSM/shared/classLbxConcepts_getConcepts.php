@@ -34,7 +34,7 @@ $returnProperties[] = array('ID' => $IVAPropertyID, 'name' => 'VAT');
 $returnProperties[] = array('ID' => $pricePropertyID, 'name' => 'price');
 $returnProperties[] = array('ID' => $deductionPropertyID, 'name' => 'deduction');
 
-if ($pendingStockPropertyID!=0) {
+if ($pendingStockPropertyID != 0) {
     $returnProperties[] = array('ID' => $pendingStockPropertyID, 'name' => 'pendingStockID', 'trName' => 'pendingStock');
 }
 
@@ -42,4 +42,4 @@ if ($pendingStockPropertyID!=0) {
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 // Return results
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

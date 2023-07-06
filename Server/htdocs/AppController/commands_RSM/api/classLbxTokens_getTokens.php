@@ -14,5 +14,4 @@ require_once "../utilities/RSdatabase.php";
 $results = RStokensFromClient($GLOBALS['RS_POST']['clientID']);
 
 // And write XML Response back to the application
-RSReturnQueryResults($results);
-?>
+RSreturnQueryResults($results);

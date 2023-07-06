@@ -13,4 +13,4 @@ $itemTypeID = getClientItemTypeID_RelatedWith(getAppItemTypeIDByName($definition
 $results = IQ_getItems($itemTypeID, $clientID);
 
 // And return XML response back to the application
-RSReturnQueryResults($results);
+RSreturnQueryResults($results);

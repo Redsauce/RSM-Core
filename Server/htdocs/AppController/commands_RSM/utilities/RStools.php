@@ -545,7 +545,7 @@ function dieWithError($code, $message = null)
 
     // Si hay info extra la mostramos por la salida de error
     if ($message != null) {
-        RSError("dieWithError: " . $errorString . ". " . $message);
+        RSerror("dieWithError: " . $errorString . ". " . $message);
     }
 
     die($errorString);
@@ -603,7 +603,7 @@ function getRequestBody()
         if ($RSallowDebug) {
             returnJsonMessage(400, "Invalid JSON body");
         } else {
-            RSError("getRequestBody: Invalid JSON body");
+            RSerror("getRequestBody: Invalid JSON body");
             returnJsonMessage(400, "");
         }
     }
@@ -642,7 +642,7 @@ function getClientID()
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");
         } else {
-            RSError("getClientID: clientID could not be retrieved");
+            RSerror("getClientID: clientID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -659,7 +659,7 @@ function getRStoken()
         if ($RSallowDebug) {
             returnJsonMessage(400, "RStoken could not be retrieved");
         } else {
-            RSError("getRStoken: RStoken could not be retrieved");
+            RSerror("getRStoken: RStoken could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -676,7 +676,7 @@ function getRSuserID()
         if ($RSallowDebug) {
             returnJsonMessage(400, "RSuserID could not be retrieved");
         } else {
-            RSError("getRSuserID: RSuserID could not be retrieved");
+            RSerror("getRSuserID: RSuserID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -706,7 +706,7 @@ function checkCorrectRequestMethod($requestMethod)
         if ($RSallowDebug) {
             returnJsonMessage(400, "Wrong request method");
         } else {
-            RSError("checkCorrectRequestMethod: Wrong request method");
+            RSerror("checkCorrectRequestMethod: Wrong request method");
             returnJsonMessage(400, "");
         }
     }

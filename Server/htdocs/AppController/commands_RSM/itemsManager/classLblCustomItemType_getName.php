@@ -19,4 +19,4 @@ $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions[$appItemTypeNa
 $results['customItemTypeName'] = getClientItemTypeName($itemTypeID, $clientID);
 
 // And return XML results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

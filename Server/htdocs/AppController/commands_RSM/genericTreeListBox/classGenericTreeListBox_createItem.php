@@ -4,9 +4,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID'        ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'        ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID'      ]) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentID'        ]) ? $parentID   = $GLOBALS['RS_POST']['parentID'        ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID   = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['parentID']) ? $parentID   = $GLOBALS['RS_POST']['parentID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['parentPropertyID']) ? $parentPID  = $GLOBALS['RS_POST']['parentPropertyID'] : dieWithError(400);
 
 $filterID = (($GLOBALS['RS_POST']['filterID'] == "") ? ("0") : ($GLOBALS['RS_POST']['filterID']));
@@ -28,14 +28,14 @@ if ($clientID != 0 && $clientID != "") {
               $results['result'] = "NOK";
               $results['description'] = "INVALID PARENT";
               // Return error and end execution
-              RSReturnArrayResults($results);
+              RSreturnArrayResults($results);
               exit();
             }
           } else {
             $results['result'] = "NOK";
             $results['description'] = "INVALID PARENT PROPERTY";
             // Return error and end execution
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
             exit();
           }
         }
@@ -110,4 +110,4 @@ if ($clientID != 0 && $clientID != "") {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

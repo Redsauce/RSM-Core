@@ -10,4 +10,4 @@ $response = array();
 $response['propertyClientName'] = $result;
 
 // And write XML Response back to the application
-RSReturnArrayResults($response);
+RSreturnArrayResults($response);

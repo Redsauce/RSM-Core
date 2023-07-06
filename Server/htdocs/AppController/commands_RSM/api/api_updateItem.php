@@ -18,8 +18,8 @@ $RSallowUncompressed = true;
 // definitions
 isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RSitemID']) ? $RSitemID = $GLOBALS['RS_POST']['RSitemID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSdata'  ]) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken' ]) ? $RStoken  = $GLOBALS['RS_POST']['RStoken' ] : $RStoken  = '';
+isset($GLOBALS['RS_POST']['RSdata']) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RStoken']) ? $RStoken  = $GLOBALS['RS_POST']['RStoken'] : $RStoken  = '';
 
 $values      = array();
 $chainValues = array();
@@ -95,4 +95,4 @@ if ($itemTypeID != 0) {
 }
 
 // And write XML Response back to the application without compression
-RSReturnArrayResults($results, false);
+RSreturnArrayResults($results, false);
