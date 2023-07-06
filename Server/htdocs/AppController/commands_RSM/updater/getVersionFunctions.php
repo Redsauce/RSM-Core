@@ -114,7 +114,6 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang)
             if ($result->num_rows > 0) {
 
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
                     $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if ($clientName != "") {
@@ -264,7 +263,6 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
                     $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if ($clientName != "") {
@@ -408,7 +406,6 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
                     $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if ($clientName != "") {
