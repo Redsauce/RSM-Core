@@ -22,10 +22,10 @@ require_once "../utilities/RSMmodulesManagement.php";
 require_once "../utilities/RStools.php";
 require_once "getVersionFunctions.php";
 
-isset($GLOBALS['RS_POST']['clientID'    ]) ? $clientID     = $GLOBALS['RS_POST']['clientID'    ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID     = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['startVersion']) ? $startVersion = $GLOBALS['RS_POST']['startVersion'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['endVersion'  ]) ? $endVersion   = $GLOBALS['RS_POST']['endVersion'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSlanguage'  ]) ? $lang         = $GLOBALS['RS_POST']['RSlanguage'  ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['endVersion']) ? $endVersion   = $GLOBALS['RS_POST']['endVersion'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RSlanguage']) ? $lang         = $GLOBALS['RS_POST']['RSlanguage'] : dieWithError(400);
 
 $result       = array();
 
@@ -52,22 +52,22 @@ $differentModules = array_unique($differentModules);
 foreach ($differentModules as $module) {
     foreach ($requirements as $requirement) {
         if ($requirement['module'] == $module) {
-            $result[] = array('type'=>$requirement['type'], 'description'=>$requirement['description'], 'module'=>$module);
+            $result[] = array('type' => $requirement['type'], 'description' => $requirement['description'], 'module' => $module);
         }
     }
 
     foreach ($changeRequests as $changeRequest) {
         if ($changeRequest['module'] == $module) {
-            $result[] = array('type'=>$changeRequest['type'], 'description'=>$changeRequest['description'], 'module'=>$module);
+            $result[] = array('type' => $changeRequest['type'], 'description' => $changeRequest['description'], 'module' => $module);
         }
     }
 
     foreach ($fixedBugs as $fixedBug) {
         if ($fixedBug['module'] == $module) {
-            $result[] = array('type'=>$fixedBug['type'], 'description'=>$fixedBug['description'], 'module'=>$module);
+            $result[] = array('type' => $fixedBug['type'], 'description' => $fixedBug['description'], 'module' => $module);
         }
     }
 }
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($result);
+RSreturnArrayQueryResults($result);

@@ -8,32 +8,32 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $operationID = $GLOBALS['RS_POST']['operationID'];
 
 // get the operations item type
-$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get the operation description
 $operationDescription = getPropertyValue($definitions['operationDescription'], $operationsItemTypeID, $operationID, $clientID);
 
 
 // get the concepts item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
 // --- DELETE OLD CONCEPTS ---
 // build filter properties array
 $filterProperties = array();
-$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
+$filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
 
 // build return properties array
 $returnProperties = array();
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptName'], $clientID), 'name' => 'name');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptName'], $clientID), 'name' => 'name');
 
 // get operation concepts
-$operationConceptsQuery = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'name');
+$operationConceptsQuery = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'name');
 
 $operationConcepts = array();
 $description = '';
 while ($row = $operationConceptsQuery->fetch_assoc()) {
     $operationConcepts[] = $row['ID'];
-    $description .= $row['name'].'; ';
+    $description .= $row['name'] . '; ';
 }
 
 // remove last separator
@@ -52,20 +52,20 @@ if (!empty($operationConcepts)) {
 // --- INSERT NEW CONCEPTS ---
 $conceptNames = array();
 
-for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
+for ($i = 0; isset($GLOBALS['RS_POST']['concept' . $i]); $i++) {
 
     // initialize properties values array for the new concept
     $propertiesValues = array();
 
     // the concept will pertains to the operation passed
     $propertiesValues[] = array(
-        'ID'    => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID),
+        'ID'    => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID),
         'value' => $operationID
     );
 
     // get concept passed properties
-    $properties = explode(' ', $GLOBALS['RS_POST']['concept'.$i]);
-    
+    $properties = explode(' ', $GLOBALS['RS_POST']['concept' . $i]);
+
     foreach ($properties as $property) {
         // get property name and value
         $propertyArr = explode(',', $property);
@@ -80,7 +80,7 @@ for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
 
         // update properties values array
         $propertiesValues[] = array(
-            'ID'    => getClientPropertyID_RelatedWith_byName($definitions['concept'.$propertyArr[0]], $clientID),
+            'ID'    => getClientPropertyIDRelatedWithByName($definitions['concept' . $propertyArr[0]], $clientID),
             'value' => $value
         );
     }
@@ -107,4 +107,4 @@ if ($operationDescription == $description) {
 $results['result'] = 'OK';
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

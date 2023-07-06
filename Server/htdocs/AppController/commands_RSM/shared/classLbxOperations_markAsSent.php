@@ -15,7 +15,7 @@ $operationID = $GLOBALS['RS_POST']['operationID'];
 $sendDate = $GLOBALS['RS_POST']['sendDate'];
 
 // get operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // save the domicily date
 setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $operationID, $clientID, $sendDate, $RSuserID);
@@ -24,4 +24,4 @@ setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $operationI
 $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $itemTypeID, $operationID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

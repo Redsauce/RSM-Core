@@ -8,15 +8,15 @@ $idList = explode(',', $GLOBALS['RS_POST']['ids']);
 
 for ($i = 0; $i < count($idList); $i++) {
     // reorder the element
-    $theQuery = 'UPDATE rs_property_values SET RS_ORDER = '.($i+1).' WHERE (RS_VALUE_ID = '.$idList[$i].' AND RS_CLIENT_ID = '. $GLOBALS['RS_POST']['clientID'].')';
+    $theQuery = 'UPDATE rs_property_values SET RS_ORDER = ' . ($i + 1) . ' WHERE (RS_VALUE_ID = ' . $idList[$i] . ' AND RS_CLIENT_ID = ' . $GLOBALS['RS_POST']['clientID'] . ')';
 
     // execute query
-    if (!RSQuery($theQuery)) {
+    if (!RSquery($theQuery)) {
         // return NOK
         $results['result'] = "NOK";
 
         // Write XML Response back to the application
-        RSReturnArrayResults($results);
+        RSreturnArrayResults($results);
         exit;
     }
 }
@@ -24,4 +24,4 @@ for ($i = 0; $i < count($idList); $i++) {
 $results['result'] = "OK";
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

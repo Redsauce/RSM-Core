@@ -82,4 +82,4 @@ foreach ($results as $key => $result) {
 array_unshift($results, array("result" => "OK"));
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

@@ -18,4 +18,4 @@ foreach ($pointerPropertyIDs as $pointerPropertyID) {
 $results['result'] = 'OK';
 
 // Return data
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

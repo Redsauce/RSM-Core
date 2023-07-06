@@ -12,4 +12,4 @@ createListsValuesRelationship($valueID, $appValueID, $clientID);
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

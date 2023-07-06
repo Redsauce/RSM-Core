@@ -143,15 +143,15 @@ function isAfter($startDate, $endDate)
 }
 
 // Return true if the dates are the same (Sql dates)
-function isSameDate($date1, $date2)
+function isSameDate($dateOne, $dateTwo)
 {
 
-    if ((!isValidSqlDate($date1)) || (!isValidSqlDate($date2))) {
+    if ((!isValidSqlDate($dateOne)) || (!isValidSqlDate($dateTwo))) {
         return false;
     }
 
-    $sDate = explode('-', $date1);
-    $eDate = explode('-', $date2);
+    $sDate = explode('-', $dateOne);
+    $eDate = explode('-', $dateTwo);
 
     // check years, months and days
     return ($sDate[0] == $eDate[0]) && ($sDate[1] == $eDate[1]) && ($sDate[2] == $eDate[2]);
@@ -235,11 +235,11 @@ function isTimeAfter($startTime, $endTime)
 }
 
 // Return true if the times are the same
-function isSameTime($time1, $time2)
+function isSameTime($timeOne, $timeTwo)
 {
 
-    $sTime = explode(':', $time1);
-    $eTime = explode(':', $time2);
+    $sTime = explode(':', $timeOne);
+    $eTime = explode(':', $timeTwo);
 
     // check hours, minutes and seconds
     return ($sTime[0] == $eTime[0]) && ($sTime[1] == $eTime[1]) && ($sTime[2] == $eTime[2]);
@@ -448,35 +448,35 @@ function getMonthName($date)
 }
 
 // Return an array containing hours, minutes and seconds obtained by the sum of the time strings passed
-function sumTime($time1, $time2)
+function sumTime($timeOne, $timeTwo)
 {
 
     // retrieve hours, minutes and seconds of the time1
-    $splitTime1 = splitTime($time1);
-    if ($splitTime1 == null) {
+    $splitTimeOne = splitTime($timeOne);
+    if ($splitTimeOne == null) {
         return null;
     }
     // retrieve hours, minutes and seconds of the time2
-    $splitTime2 = splitTime($time2);
-    if ($splitTime2 == null) {
+    $splitTimeTwo = splitTime($timeTwo);
+    if ($splitTimeTwo == null) {
         return null;
     }
 
     // now we have two valid time values.. sum them
-    $time1TotalSeconds = 0;
+    $timeOneTotalSeconds = 0;
     $t = 3600;
-    foreach ($splitTime1 as $st) {
-        $time1TotalSeconds = $time1TotalSeconds + ($st * $t);
+    foreach ($splitTimeOne as $st) {
+        $timeOneTotalSeconds = $timeOneTotalSeconds + ($st * $t);
         $t = $t / 60;
     }
-    $time2TotalSeconds = 0;
+    $timeTwoTotalSeconds = 0;
     $t = 3600;
-    foreach ($splitTime2 as $st) {
-        $time2TotalSeconds = $time2TotalSeconds + ($st * $t);
+    foreach ($splitTimeTwo as $st) {
+        $timeTwoTotalSeconds = $timeTwoTotalSeconds + ($st * $t);
         $t = $t / 60;
     }
 
-    $sumTimeTotalSeconds = $time1TotalSeconds + $time2TotalSeconds;
+    $sumTimeTotalSeconds = $timeOneTotalSeconds + $timeTwoTotalSeconds;
 
     $sumTimeHours = floor($sumTimeTotalSeconds / 3600);
     $sumTimeMins = floor(floor(($sumTimeTotalSeconds % 3600)) / 60);
@@ -545,7 +545,7 @@ function dieWithError($code, $message = null)
 
     // Si hay info extra la mostramos por la salida de error
     if ($message != null) {
-        RSError("dieWithError: " . $errorString . ". " . $message);
+        RSerror("dieWithError: " . $errorString . ". " . $message);
     }
 
     die($errorString);
@@ -603,7 +603,7 @@ function getRequestBody()
         if ($RSallowDebug) {
             returnJsonMessage(400, "Invalid JSON body");
         } else {
-            RSError("getRequestBody: Invalid JSON body");
+            RSerror("getRequestBody: Invalid JSON body");
             returnJsonMessage(400, "");
         }
     }
@@ -642,7 +642,7 @@ function getClientID()
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");
         } else {
-            RSError("getClientID: clientID could not be retrieved");
+            RSerror("getClientID: clientID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -659,7 +659,7 @@ function getRStoken()
         if ($RSallowDebug) {
             returnJsonMessage(400, "RStoken could not be retrieved");
         } else {
-            RSError("getRStoken: RStoken could not be retrieved");
+            RSerror("getRStoken: RStoken could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -676,7 +676,7 @@ function getRSuserID()
         if ($RSallowDebug) {
             returnJsonMessage(400, "RSuserID could not be retrieved");
         } else {
-            RSError("getRSuserID: RSuserID could not be retrieved");
+            RSerror("getRSuserID: RSuserID could not be retrieved");
             returnJsonMessage(400, "");
         }
     }
@@ -706,7 +706,7 @@ function checkCorrectRequestMethod($requestMethod)
         if ($RSallowDebug) {
             returnJsonMessage(400, "Wrong request method");
         } else {
-            RSError("checkCorrectRequestMethod: Wrong request method");
+            RSerror("checkCorrectRequestMethod: Wrong request method");
             returnJsonMessage(400, "");
         }
     }

@@ -24,4 +24,4 @@ foreach ($itemTypeIDs as $itemTypeID) {
 }
 
 // And return XML response back to application
-RSReturnArrayQueryResults($returnArray);
+RSreturnArrayQueryResults($returnArray);

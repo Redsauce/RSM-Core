@@ -17,12 +17,11 @@ $results = array();
 if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
   $results['result'] = 'NOK';
   $results['description'] = 'THIS TOKEN DOES NOT HAVE PERMISSIONS TO AUDIT THIS ITEM';
-  RSReturnArrayQueryResults($results);
+  RSreturnArrayQueryResults($results);
 }
 
 // Process response
 $results = getAuditTrail($clientID, $propertyID, $itemID);
 
 // And return XML response back to application
-RSReturnArrayQueryResults($results);
-
+RSreturnArrayQueryResults($results);

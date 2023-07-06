@@ -38,4 +38,4 @@ if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (areProperti
 }
 
 // And write XML Response back to the application without compression
-RSReturnArrayResults($results, false);
+RSreturnArrayResults($results, false);

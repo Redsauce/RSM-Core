@@ -37,9 +37,9 @@ while ($result = $results->fetch_assoc()) {
     $result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
   } elseif ($result['type'] == 'identifier') {
     //check if its an app property
-    $relatedAppPropertyID = getAppPropertyID_RelatedWith($result['ID'], $clientID);
+    $relatedAppPropertyID = getAppPropertyIDRelatedWith($result['ID'], $clientID);
     if ($relatedAppPropertyID != '0') {
-      $result['referredItemType'] = getClientItemTypeID_RelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID, $clientID), $clientID);
+      $result['referredItemType'] = getClientItemTypeIDRelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID, $clientID), $clientID);
       $result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
     }
   } else {
@@ -58,4 +58,4 @@ while ($result = $results->fetch_assoc()) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($array_res);
+RSreturnArrayQueryResults($array_res);

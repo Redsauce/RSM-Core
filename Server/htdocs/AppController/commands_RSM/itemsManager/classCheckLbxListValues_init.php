@@ -11,4 +11,4 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $results = getListValues($listID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

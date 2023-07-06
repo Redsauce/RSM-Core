@@ -13,11 +13,11 @@ require_once "../utilities/RSMitemsManagement.php";
 $clientID = $GLOBALS['RS_POST']['clientID'];
 $operationID = $GLOBALS['RS_POST']['operationID'];
 
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get the operation identifiers properties
-$subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
+$subAccountPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
 
 $results['ID'] = $operationID;
 $results['subAccount'] = translateSingleIdentifier($subAccountPropertyID, getItemPropertyValue($operationID, $subAccountPropertyID, $clientID), $clientID);
@@ -40,4 +40,4 @@ $results['showNote'] = getPropertyValue($definitions['operationShowNote'], $item
 $results['status'] = getPropertyValue($definitions['operationStatus'], $itemTypeID, $operationID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

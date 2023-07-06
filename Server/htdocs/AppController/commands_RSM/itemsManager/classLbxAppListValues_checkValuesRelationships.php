@@ -10,9 +10,9 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $appValue = getAppValue($appValueID);
 $clientValue = getValue($clientValueID, $clientID);
 
-$appValueIDRelated = getAppListValueID_RelatedWith($clientValueID, $clientID);
+$appValueIDRelated = getAppListValueIDRelatedWith($clientValueID, $clientID);
 $appValueRelated = getAppValue($appValueIDRelated);
-$clientValueIDRelated = getClientListValueID_RelatedWith($appValueID, $clientID);
+$clientValueIDRelated = getClientListValueIDRelatedWith($appValueID, $clientID);
 $clientValueRelated = getValue($clientValueIDRelated, $clientID);
 
 $results['appValue'] = $appValue;
@@ -23,4 +23,4 @@ $results['clientValueIDRelated'] = $clientValueIDRelated;
 $results['clientValueRelated'] = $clientValueRelated;
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

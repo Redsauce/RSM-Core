@@ -18,10 +18,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'     ]) ? $clientID = $GLOBALS['RS_POST']['clientID'     ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['worksessionID']) ? $wsID     = $GLOBALS['RS_POST']['worksessionID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['endDate'      ]) ? $endDate  = $GLOBALS['RS_POST']['endDate'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['days'         ]) ? $days     = $GLOBALS['RS_POST']['days'         ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['endDate']) ? $endDate  = $GLOBALS['RS_POST']['endDate'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['days']) ? $days     = $GLOBALS['RS_POST']['days'] : dieWithError(400);
 
 //new switch for updating parend dates if necessary
 $updateTaskDates = 1;
@@ -36,27 +36,27 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
         if ($wsID > 0) {
 
             // get worksessions item type
-            $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
+            $itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
 
             //check worksession exists
             if (count(getItems($itemTypeID, $clientID, true, $wsID)) > 0) {
 
                 // get tasks item types
-                $tasksItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-                $tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+                $tasksItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+                $tasksGroupItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
                 // get properties
-                $wsUserPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'], $clientID);
-                $wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-                $wsDurationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
-                $wsTaskPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
-                $wsDescriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDescription'], $clientID);
-                $taskParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-                $taskCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
-                $tasksStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-                $tasksEndDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
-                $tasksGroupParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-                $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+                $wsUserPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionUser'], $clientID);
+                $wsStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionStartDate'], $clientID);
+                $wsDurationPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDuration'], $clientID);
+                $wsTaskPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
+                $wsDescriptionPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDescription'], $clientID);
+                $taskParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+                $taskCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
+                $tasksStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+                $tasksEndDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
+                $tasksGroupParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+                $tasksGroupCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.currentTime'], $clientID);
 
                 // build an array containing the days to cut off
                 $daysToCutOff = array();
@@ -123,7 +123,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 $returnProperties[] = array('ID' => $wsDurationPropertyID, 'name' => 'duration');
 
                 // get worksessions
-                $worksessions = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
+                $worksessions = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
 
                 // check conflicts
                 while ($uws = $worksessions->fetch_assoc()) {
@@ -132,7 +132,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                     if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date']))) {
                         continue;
-                    //  skip the rest and jump to the next worksession
+                        //  skip the rest and jump to the next worksession
                     }
 
 
@@ -151,8 +151,8 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     if (!($wsBeginTimestamp >= $uwsCompEndTimestamp || $wsEndTimestamp <= $uwsCompBeginTimestamp)) {
                         // there is a conflict...
                         $results['result'] = 'NOK';
-                        RSReturnArrayResults($results);
-                        exit ;
+                        RSreturnArrayResults($results);
+                        exit;
                     }
                 }
 
@@ -172,7 +172,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     if (!isDayCuttedOff(getDayName($currentDate))) {
                         $dates[] = $currentDate . ' ' . $wsStartTime;
                     }
-
                 } while (isDateStrictlyBetween($currentDate, $wsStartDate, $endDate));
 
                 // duplicate worksession
@@ -187,7 +186,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                     setItemPropertyValue($definitions['worksessionCreationDate'], $itemTypeID, $newWsID, $clientID, date("Y-m-d H:i:s"), '', $RSuserID);
 
                     $newWsDuration = $wsDuration;
-
                 } else {
 
                     $newWsIDs = duplicateItem($itemTypeID, $wsID, $clientID, $numCopies);
@@ -251,7 +249,6 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 }
 
                 $results['result'] = 'OK';
-
             } else {
                 $results['result'] = "NOK";
                 $results['description'] = "WORKSESSION NOT EXISTS";
@@ -271,4 +268,4 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

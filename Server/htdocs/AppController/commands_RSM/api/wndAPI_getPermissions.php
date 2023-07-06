@@ -33,7 +33,7 @@ foreach ($propertyIDs as $propertyID) {
 
 $theQuery = $theQuery . ") AND  RS_TOKEN_ID = " . $tokenID;
 
-$results = RSQuery($theQuery);
+$results = RSquery($theQuery);
 
 // And write XML Response back to the application
-RSReturnQueryResults($results);
+RSreturnQueryResults($results);

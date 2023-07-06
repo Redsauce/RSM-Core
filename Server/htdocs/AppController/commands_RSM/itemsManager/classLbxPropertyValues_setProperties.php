@@ -9,9 +9,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID    = $GLOBALS['RS_POST']['clientID'   ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID' ]) ? $itemTypeID  = $GLOBALS['RS_POST']['itemTypeID' ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'     ]) ? $itemID      = $GLOBALS['RS_POST']['itemID'     ]  : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID    = $GLOBALS['RS_POST']['clientID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID  = $GLOBALS['RS_POST']['itemTypeID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['itemID']) ? $itemID      = $GLOBALS['RS_POST']['itemID']  : dieWithError(400);
 
 $err = 1;
 
@@ -53,4 +53,4 @@ $results['ID'] = $itemID;
 $results['mainPropertyValue'] = getItemPropertyValue($itemID, $mainPropertyID, $clientID, $mainPropertyType);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

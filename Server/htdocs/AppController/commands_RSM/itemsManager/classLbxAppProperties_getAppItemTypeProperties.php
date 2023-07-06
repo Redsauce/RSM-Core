@@ -7,13 +7,13 @@ require_once "../utilities/RSMitemsManagement.php";
 $theQuery = "SELECT `RS_ID` AS 'id', `RS_NAME` AS 'name', `RS_TYPE` AS 'type' FROM `rs_property_app_definitions` WHERE `RS_ITEM_TYPE_ID` = '" . $GLOBALS['RS_POST']['item_type_id'] . "' ORDER BY name";
 
 // Query the database
-$theProperties = RSQuery($theQuery);
+$theProperties = RSquery($theQuery);
 
 $data = array();
 
 if ($theProperties) {
     while ($theProperty = $theProperties->fetch_assoc()) {
-        $clientPropertyID = getClientPropertyID_RelatedWith($theProperty['id'], $GLOBALS['RS_POST']['clientID']);
+        $clientPropertyID = getClientPropertyIDRelatedWith($theProperty['id'], $GLOBALS['RS_POST']['clientID']);
         if ($clientPropertyID != '0') {
             $related = '1';
         } else {
@@ -24,5 +24,4 @@ if ($theProperties) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($data);
-
+RSreturnArrayQueryResults($data);

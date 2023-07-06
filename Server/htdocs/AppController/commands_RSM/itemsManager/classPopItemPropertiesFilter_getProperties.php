@@ -16,4 +16,4 @@ $userID = $GLOBALS['RS_POST']['userID'];
 $results = getUserProperties($userID, $clientID, $itemTypeID);
 
 // And return XML response back to application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

@@ -22,7 +22,7 @@ if (isPropertyVisible($RSuserID, $propertyID, $clientID)) {
         $theQuery = 'UPDATE rs_item_properties SET RS_CATEGORY_ID = ' . $categoryID . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $propertyID;
 
         // execute query
-        $result = RSQuery($theQuery);
+        $result = RSquery($theQuery);
 
         // Query error?
         if ($result) {
@@ -41,4 +41,4 @@ if (isPropertyVisible($RSuserID, $propertyID, $clientID)) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

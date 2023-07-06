@@ -47,7 +47,7 @@ $results = RScreateToken($token, $GLOBALS['RS_POST']['clientID']);
 $response['token'] = $token;
 
 // And write XML Response back to the application
-RSReturnArrayResults($response);
+RSreturnArrayResults($response);
 
 // This function generates a random string of the given length
 function generateRandomString($length = 10)

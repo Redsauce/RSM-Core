@@ -37,14 +37,14 @@ if ($clientID != 0 && $clientID != "") {
                     $results['result'] = "NOK";
                     $results['description'] = "INVALID PARENT";
                     // Return error and end execution
-                    RSReturnArrayResults($results);
+                    RSreturnArrayResults($results);
                     exit();
                   }
                 } else {
                   $results['result'] = "NOK";
                   $results['description'] = "INVALID PARENT PROPERTY";
                   // Return error and end execution
-                  RSReturnArrayResults($results);
+                  RSreturnArrayResults($results);
                   exit();
                 }
               }
@@ -123,4 +123,4 @@ if ($clientID != 0 && $clientID != "") {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

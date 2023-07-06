@@ -1,7 +1,6 @@
 <?php
 require_once "RSdatabase.php";
 require_once "RSMitemsManagement.php";
-// require_once "RSMtestsFunctionsLibrary.php";
 
 //******************************************************************
 //Get relations for the round and subject passed
@@ -11,13 +10,13 @@ function getRelations($theRoundID, $theSubjectID, $clientID)
     global $definitions;
 
     //get item type
-    $relationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['roundSubjectsTestRelations'], $clientID);
+    $relationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['roundSubjectsTestRelations'], $clientID);
 
     //get properties
-    $relationsRoundPropertyID          = getClientPropertyID_RelatedWith_byName($definitions['roundSubjectsTestRelationsRoundID'   ], $clientID);
-    $relationsSubjectPropertyID        = getClientPropertyID_RelatedWith_byName($definitions['roundSubjectsTestRelationsSubjectID' ], $clientID);
-    $relationsTestCasesPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['roundSubjectsTestRelationsTestID'    ], $clientID);
-    $relationsTestCategoriesPropertyID = getClientPropertyID_RelatedWith_byName($definitions['roundSubjectsTestRelationsTestCatIDs'], $clientID);
+    $relationsRoundPropertyID          = getClientPropertyIDRelatedWithByName($definitions['roundSubjectsTestRelationsRoundID'], $clientID);
+    $relationsSubjectPropertyID        = getClientPropertyIDRelatedWithByName($definitions['roundSubjectsTestRelationsSubjectID'], $clientID);
+    $relationsTestCasesPropertyID      = getClientPropertyIDRelatedWithByName($definitions['roundSubjectsTestRelationsTestID'], $clientID);
+    $relationsTestCategoriesPropertyID = getClientPropertyIDRelatedWithByName($definitions['roundSubjectsTestRelationsTestCatIDs'], $clientID);
 
     //First get the relation associated
     $returnProperties = array();
@@ -43,10 +42,10 @@ function getAllTestCategoriesInsideAGroup($groupID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
+    $itemTypeTestCasesCategoriesID = getClientItemTypeIDRelatedWithByName($definitions['testcasescategory'], $clientID);
 
     //get property
-    $testCategoryParentGroupID = getClientPropertyID_RelatedWith_byName($definitions['testcasescategoryGroupID'], $clientID);
+    $testCategoryParentGroupID = getClientPropertyIDRelatedWithByName($definitions['testcasescategoryGroupID'], $clientID);
 
     //First, we need get all the categories that has the parent groupID
     // build return properties array
@@ -77,10 +76,10 @@ function getAllTestCasesInsideAGroup($groupID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
+    $itemTypeTestCasesID = getClientItemTypeIDRelatedWithByName($definitions['testcases'], $clientID);
 
     //get property
-    $testCasesParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasesFolderID'], $clientID);
+    $testCasesParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasesFolderID'], $clientID);
 
     //get all categories inside group
     $onlyIds = getAllTestCategoriesInsideAGroup($groupID, $clientID);
@@ -117,10 +116,10 @@ function getAllTestCategoriesInsideACategory($parentCategoryID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
+    $itemTypeTestCasesCategoriesID = getClientItemTypeIDRelatedWithByName($definitions['testcasescategory'], $clientID);
 
     //get property
-    $testCategoryParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasescategoryParentID'], $clientID);
+    $testCategoryParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasescategoryParentID'], $clientID);
 
     //First, we need the tree categories
     $tree = getItemsTree($itemTypeTestCasesCategoriesID, $clientID, $testCategoryParentPropertyID, $parentCategoryID);
@@ -164,10 +163,10 @@ function getTestCategoriesInsideACategory($parentCategoryID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
+    $itemTypeTestCasesCategoriesID = getClientItemTypeIDRelatedWithByName($definitions['testcasescategory'], $clientID);
 
     //get property
-    $testCategoryParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasescategoryParentID'], $clientID);
+    $testCategoryParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasescategoryParentID'], $clientID);
 
     //Create the filter
     // build return properties array
@@ -198,10 +197,10 @@ function getAllTestCasesInsideCategory($parentCategoryID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
+    $itemTypeTestCasesID = getClientItemTypeIDRelatedWithByName($definitions['testcases'], $clientID);
 
     //get property
-    $testCasesParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasesFolderID'], $clientID);
+    $testCasesParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasesFolderID'], $clientID);
 
     //get all categories inside
     $allCategories = getAllTestCategoriesInsideACategory($parentCategoryID, $clientID);
@@ -238,10 +237,10 @@ function getTestCasesInsideCategory($parentCategoryID, $clientID)
     global $definitions;
 
     //get item type
-    $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
+    $itemTypeTestCasesID = getClientItemTypeIDRelatedWithByName($definitions['testcases'], $clientID);
 
     //get property
-    $testCasesParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasesFolderID'], $clientID);
+    $testCasesParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasesFolderID'], $clientID);
 
     // build return properties array
     $returnProperties = array();
@@ -271,10 +270,10 @@ function getParentCategoriesForCategory($categoryID, $clientID)
     global $definitions;
 
     //get item type
-    //$itemTypeTestCasesCategoriesID = getClientItemTypeID_RelatedWith_byName($definitions['testcasescategory'], $clientID);
+    //$itemTypeTestCasesCategoriesID = getClientItemTypeIDRelatedWithByName($definitions['testcasescategory'], $clientID);
 
     //get property
-    $testCategoryParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasescategoryParentID'], $clientID);
+    $testCategoryParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasescategoryParentID'], $clientID);
 
     //start loop with passed category
     $aux = $categoryID;
@@ -300,10 +299,10 @@ function getParentCategoriesForTestCase($testCaseID, $clientID)
     global $definitions;
 
     //get item type
-    // $itemTypeTestCasesID = getClientItemTypeID_RelatedWith_byName($definitions['testcases'], $clientID);
+    // $itemTypeTestCasesID = getClientItemTypeIDRelatedWithByName($definitions['testcases'], $clientID);
 
     //get property
-    $testCasesParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['testcasesFolderID'], $clientID);
+    $testCasesParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['testcasesFolderID'], $clientID);
 
     //First, get the parent test category for the test case
     $categoryID = getItemPropertyValue($testCaseID, $testCasesParentPropertyID, $clientID);
@@ -377,14 +376,14 @@ function deleteStepsResultsForATestCase($testCase, $relation, $clientID)
     global $definitions;
 
     //DEFINITIONS
-    $itemTypeStepsID = getClientItemTypeID_RelatedWith_byName($definitions['steps'], $clientID);
-    $resultsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['result'], $clientID);
+    $itemTypeStepsID = getClientItemTypeIDRelatedWithByName($definitions['steps'], $clientID);
+    $resultsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['result'], $clientID);
 
     //DEFINITIONS FOR PROPERTIES
-    $tcParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsTestCaseParentID'], $clientID);
-    $relatedStepPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsRelatedID'], $clientID);
-    $relatedRelationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsRoundSubjectRelationID'], $clientID);
-    $stepAssocPropertyID = getClientPropertyID_RelatedWith_byName($definitions['resultStepAssociatedID'], $clientID);
+    $tcParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsTestCaseParentID'], $clientID);
+    $relatedStepPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsRelatedID'], $clientID);
+    $relatedRelationPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsRoundSubjectRelationID'], $clientID);
+    $stepAssocPropertyID = getClientPropertyIDRelatedWithByName($definitions['resultStepAssociatedID'], $clientID);
 
     //build the return array
     $returnProperties = array();
@@ -441,12 +440,12 @@ function duplicateStepsForTestCase($testCase, $relation, $clientID)
     global $definitions;
 
     //DEFINITIONS
-    $itemTypeStepsID = getClientItemTypeID_RelatedWith_byName($definitions['steps'], $clientID);
+    $itemTypeStepsID = getClientItemTypeIDRelatedWithByName($definitions['steps'], $clientID);
 
     //DEFINITIONS FOR PROPERTIES
-    $tcParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsTestCaseParentID'], $clientID);
-    $relatedStepPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsRelatedID'], $clientID);
-    $relatedRelationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['stepsRoundSubjectRelationID'], $clientID);
+    $tcParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsTestCaseParentID'], $clientID);
+    $relatedStepPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsRelatedID'], $clientID);
+    $relatedRelationPropertyID = getClientPropertyIDRelatedWithByName($definitions['stepsRoundSubjectRelationID'], $clientID);
 
     //First, duplicate the steps inside the test case and set the new relation
     //build the return array

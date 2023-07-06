@@ -51,4 +51,4 @@ if ($result && $result->num_rows == 1) {
 }
 
 // And return XML response back to application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

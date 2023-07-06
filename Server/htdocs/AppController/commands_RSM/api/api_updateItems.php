@@ -125,4 +125,4 @@ if ($results['result'] != 'NOK') {
 }
 
 // And write XML Response back to the application without compression
-RSReturnArrayResults($results, false);
+RSreturnArrayResults($results, false);

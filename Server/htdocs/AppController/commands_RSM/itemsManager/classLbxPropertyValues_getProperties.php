@@ -5,10 +5,10 @@ require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
 $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$itemID     = $GLOBALS['RS_POST']['itemID'    ];
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
-$userID     = $GLOBALS['RS_POST']['loginID'   ];
-$getLists   = $GLOBALS['RS_POST']['getLists'  ];
+$itemID     = $GLOBALS['RS_POST']['itemID'];
+$clientID   = $GLOBALS['RS_POST']['clientID'];
+$userID     = $GLOBALS['RS_POST']['loginID'];
+$getLists   = $GLOBALS['RS_POST']['getLists'];
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
@@ -40,4 +40,4 @@ if ($getLists == 'true' && !empty($results)) {
 }
 
 // And return XML response back to application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

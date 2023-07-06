@@ -45,7 +45,7 @@ for ($i = 0; $i < count($propertyIDs); $i++) {
             // get property type
             $propertyType = getPropertyType($propertyIDs[$i], $clientID);
 
-            if ((isSingleIdentifier($propertyType)) || (isIdentifier2itemtype($propertyType)) || (isIdentifier2property($propertyType))) {
+            if ((isSingleIdentifier($propertyType)) || (isIdentifierToItemtype($propertyType)) || (isIdentifierToProperty($propertyType))) {
                 $filterProperties[] = array('ID' => $propertyIDs[$i], 'value' => $propertyFilters[$i]);
             } elseif (isMultiIdentifier($propertyType)) {
 
@@ -73,4 +73,4 @@ for ($i = 0; $i < count($propertyIDs); $i++) {
 $totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($totalData);
+RSreturnArrayQueryResults($totalData);

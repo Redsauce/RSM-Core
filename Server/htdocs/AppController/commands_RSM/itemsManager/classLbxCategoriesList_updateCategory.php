@@ -8,7 +8,7 @@ if ($GLOBALS['RS_POST']['clientID'] > 0) {
 
   //We check if the user already exists
   $theQuery_userExists = "SELECT RS_CATEGORY_ID FROM rs_categories WHERE RS_CATEGORY_ID='" . $GLOBALS['RS_POST']['categoryID'] . "' AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
-  $resultUsers = RSQuery($theQuery_userExists);
+  $resultUsers = RSquery($theQuery_userExists);
   $errorMessage = "ERROR WHILE UPDATING ITEMTYPE";
   if ($resultUsers->fetch_array() != 0) {
     // The user exists, so we update the user
@@ -19,17 +19,17 @@ if ($GLOBALS['RS_POST']['clientID'] > 0) {
       echo $theQuery;
     }
 
-    if ($result = RSQuery($theQuery)) {
+    if ($result = RSquery($theQuery)) {
       $results['result'] = "OK";
       $results['name'] = base64_decode($GLOBALS['RS_POST']['name']);
     } else {
-      RSReturnError($errorMessage, "15");
+      RSreturnError($errorMessage, "15");
     }
   } else {
-    RSReturnError($errorMessage, "15");
+    RSreturnError($errorMessage, "15");
   }
 } else {
-  RSReturnError($errorMessage, "15");
+  RSreturnError($errorMessage, "15");
 }
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

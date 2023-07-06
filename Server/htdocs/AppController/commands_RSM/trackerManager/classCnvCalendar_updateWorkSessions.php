@@ -21,7 +21,7 @@ if ($startDate == "" || $startDate == "0" || !$startDateObj || !$endDateObj) {
     //error creating time
     $results['result'] = "NOK";
     $results['description'] = "ERROR CREATING DATETIME";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -29,7 +29,7 @@ if ($duration == "" || $duration == "0") {
     //empty duration
     $results['result'] = "NOK";
     $results['description'] = "INVALID DURATION";
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit();
 }
 
@@ -37,21 +37,21 @@ date_modify($endDateObj, "+" . round($duration * 60) . " minutes");
 $endDate = date_format($endDateObj, 'Y-m-d H:i:s');
 
 // get worksessions,tasks and groups item types
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
-$tasksItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-$tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
+$tasksItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+$tasksGroupItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
 // get properties
-$wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-$wsDurationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
-$wsUserPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'], $clientID);
-$wsTaskPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
-$taskParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-$taskCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
-$tasksStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-$tasksEndDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
-$tasksGroupParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-$tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+$wsStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionStartDate'], $clientID);
+$wsDurationPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDuration'], $clientID);
+$wsUserPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionUser'], $clientID);
+$wsTaskPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
+$taskParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+$taskCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
+$tasksStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+$tasksEndDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
+$tasksGroupParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+$tasksGroupCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.currentTime'], $clientID);
 
 // Get the user for the worksession
 $user = getItemPropertyValue($wsID, $wsUserPropertyID, $clientID);
@@ -93,7 +93,7 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
             //error creating time
             $results['result'] = "NOK";
             $results['description'] = "ERROR CREATING DATETIME";
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
             exit();
         }
 
@@ -104,7 +104,7 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
 
             $results['result'] = "NOK";
             $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
-            RSReturnArrayResults($results);
+            RSreturnArrayResults($results);
             exit();
         }
     }
@@ -201,4 +201,4 @@ if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) 
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

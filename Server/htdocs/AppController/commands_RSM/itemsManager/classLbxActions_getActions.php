@@ -11,8 +11,8 @@ require_once "../utilities/RSdatabase.php";
 // Now we build the query
 $theQuery = "SELECT `rs_actions`.`RS_ID`, `rs_actions`.`RS_NAME`, `rs_actions`.`RS_DESCRIPTION` FROM `rs_actions`";
 
-if ($GLOBALS['RS_POST']['applicationName']!=0) {
-    $theQuery .= " WHERE `rs_actions`.`RS_APPLICATION_NAME` = '".$GLOBALS['RS_POST']['applicationName']."'";
+if ($GLOBALS['RS_POST']['applicationName'] != 0) {
+    $theQuery .= " WHERE `rs_actions`.`RS_APPLICATION_NAME` = '" . $GLOBALS['RS_POST']['applicationName'] . "'";
 }
 
 
@@ -22,4 +22,4 @@ $theQuery .= " ORDER BY `rs_actions`.`RS_NAME` DESC";
 $results = RSquery($theQuery);
 
 // And write XML Response back to the application
-RSReturnQueryResults($results);
+RSreturnQueryResults($results);

@@ -9,7 +9,7 @@ $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
 $clientID   = $GLOBALS['RS_POST']['clientID'];
 
 if ($itemTypeID == '') {
-    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
+    RSreturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
 }
 
 $returnArray = array();
@@ -22,4 +22,4 @@ if ($results) {
 }
 
 // And return XML response back to application
-RSReturnArrayQueryResults($returnArray);
+RSreturnArrayQueryResults($returnArray);

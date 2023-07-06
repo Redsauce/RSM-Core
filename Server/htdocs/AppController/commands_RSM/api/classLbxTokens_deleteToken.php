@@ -28,7 +28,7 @@ if ($tokenID != "") {
         $response['description'] = "ERROR EXECUTING QUERY TO DELETE TOKEN PROPERTIES";
 
         // And write XML Response back to the application
-        RSReturnArrayResults($response);
+        RSreturnArrayResults($response);
     }
 
     // Now we build the query to delete the tokens
@@ -41,7 +41,7 @@ if ($tokenID != "") {
         $response['description'] = "ERROR EXECUTING QUERY TO DELETE TOKEN";
 
         // And write XML Response back to the application
-        RSReturnArrayResults($response);
+        RSreturnArrayResults($response);
     }
 }
 
@@ -49,4 +49,4 @@ if ($tokenID != "") {
 $response['result'] = "OK";
 
 // And write XML Response back to the application
-RSReturnArrayResults($response);
+RSreturnArrayResults($response);

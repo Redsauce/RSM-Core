@@ -4,7 +4,7 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID   =       $GLOBALS['RS_POST']['clientID'  ];
+$clientID   =       $GLOBALS['RS_POST']['clientID'];
 $itemTypeID = isset($GLOBALS['RS_POST']['itemTypeID']) ? $GLOBALS['RS_POST']['itemTypeID'] : '';
 $properties = isset($GLOBALS['RS_POST']['properties']) ? $GLOBALS['RS_POST']['properties'] : '';
 
@@ -53,7 +53,7 @@ if ($itemID != '') {
     // append to the results
     $results[$property] = $propertyValue;
 
-    if (isSingleIdentifier($propertyType) || isIdentifier2itemtype($propertyType) || isIdentifier2property($propertyType)) {
+    if (isSingleIdentifier($propertyType) || isIdentifierToItemtype($propertyType) || isIdentifierToProperty($propertyType)) {
       $results[$property . 'trs'] = translateSingleIdentifier($property, $propertyValue, $clientID, $propertyType);
     } elseif (isMultiIdentifier($propertyType)) {
       $results[$property . 'trs'] = translateMultiIdentifier($property, $propertyValue, $clientID);
@@ -62,4 +62,4 @@ if ($itemID != '') {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

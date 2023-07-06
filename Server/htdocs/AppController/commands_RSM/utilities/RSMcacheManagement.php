@@ -10,7 +10,7 @@ function saveFileCache($fileOriginal, $path, $name, $extension)
     $dirname = dirname($file);
 
     if (!is_dir($dirname) && !mkdir($dirname, 0755, true)) {
-        RSError("api_getFile: Could not create cache directory");
+        RSerror("api_getFile: Could not create cache directory");
     }
 
     $fh = fopen($file, "w");
@@ -18,7 +18,7 @@ function saveFileCache($fileOriginal, $path, $name, $extension)
         fwrite($fh, $fileOriginal);
         fclose($fh);
     } else {
-        RSError("api_getFile: Could not create cache file");
+        RSerror("api_getFile: Could not create cache file");
     }
 
     return 0;

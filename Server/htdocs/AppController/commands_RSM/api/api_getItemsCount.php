@@ -25,12 +25,12 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Definitions
-isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemTypeID"     ]) ? $itemTypeID      = $GLOBALS["RS_POST"]["itemTypeID"     ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"    ] : $filterRules     = "";
-isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
-isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
+isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID      = $GLOBALS["RS_POST"]["itemTypeID"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["filterRules"]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"] : $filterRules     = "";
+isset($GLOBALS["RS_POST"]["filterJoining"]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"] : $filterJoining   = "AND";
+isset($GLOBALS["RS_POST"]["extFilterRules"]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules"] : $extFilterRules  = "";
+isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"] : $RStoken         = "";
 
 // Construct filterProperties using a double explode
 $rules = array();
@@ -49,7 +49,7 @@ if ($filterRules != '') {
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
         } else {
             // The value is not encoded in base64 so try to get a related property with the value
-            $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
+            $pValue = getValue(getClientListValueIDRelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
         }
         $filterProperties[] = array('ID' => parsePID($rule[0], $clientID), 'value' => $pValue, 'mode' => $rule[2]);
     }
@@ -59,7 +59,7 @@ $itemTypeID = parseITID($itemTypeID, $clientID);
 if ($itemTypeID <= 0) {
     $response['result'] = "NOK";
     $response['description'] = "INVALID ITEM TYPE";
-    RSReturnArrayResults($response, false);
+    RSreturnArrayResults($response, false);
 }
 
 // Check if user has permissions to apply the filters on the item
@@ -71,7 +71,7 @@ foreach ($filterProperties as $filterProperty) {
 if (!RShasTokenPermissions($RStoken, $filterPropertyIDs, "READ")) {
     $results['result'] = 'NOK';
     $results['description'] = 'YOU DONT HAVE PERMISSIONS TO READ THESE ITEMS';
-    RSReturnArrayResults($results, false);
+    RSreturnArrayResults($results, false);
 }
 
 // Construct returnProperties array
@@ -84,4 +84,4 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 $result = array("total" => count($results));
 
 // And write XML Response back to the application without compression
-RSReturnArrayResults($result, false);
+RSreturnArrayResults($result, false);

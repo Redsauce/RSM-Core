@@ -16,14 +16,14 @@ require_once "../utilities/RStools.php";
 
 // Retrieve the needed variables from the request
 isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemID"  ]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"  ] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["itemID"]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"] : dieWithError(400);
 
 $itemTypeID     = isset($GLOBALS['RS_POST']['itemTypeID']) ? $GLOBALS['RS_POST']['itemTypeID'] : '';
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
 
 if ($itemTypeID == '') {
-  RSReturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
+  RSreturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
 }
 
 // Return the IDs of the visible properties for user.
@@ -57,7 +57,7 @@ foreach ($properties as $property) {
         'ID'       => $property['id'],
         'name'     => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
         'value'    => $value, 'type' => $property['type'],
-        'related'  => getAppPropertyName_RelatedWith($property['id'], $clientID),
+        'related'  => getAppPropertyNameRelatedWith($property['id'], $clientID),
         'filename' => array_key_exists(0, $attributes) ? $attributes[0] : '',
         'filesize' => array_key_exists(1, $attributes) ? $attributes[1] : ''
       );
@@ -66,7 +66,7 @@ foreach ($properties as $property) {
         'ID'      => $property['id'],
         'name'    => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
         'value'   => html_entity_decode($value, ENT_COMPAT, "UTF-8"),
-        'related' => getAppPropertyName_RelatedWith($property['id'], $clientID),
+        'related' => getAppPropertyNameRelatedWith($property['id'], $clientID),
         'type'    => $property['type']
       );
     }
@@ -75,4 +75,4 @@ foreach ($properties as $property) {
 
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

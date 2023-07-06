@@ -6,4 +6,4 @@ require_once "../utilities/RSMlistsManagement.php";
 $appLists = getAppLists();
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($appLists);
+RSreturnArrayQueryResults($appLists);

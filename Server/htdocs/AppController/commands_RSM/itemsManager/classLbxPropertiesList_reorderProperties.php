@@ -11,12 +11,12 @@ for ($i = 0; $i < count($idList); $i++) {
   $theQuery = 'UPDATE rs_item_properties SET RS_ORDER = ' . ($i + 1) . ' WHERE (RS_PROPERTY_ID = ' . $idList[$i] . ' AND RS_CLIENT_ID = ' . $GLOBALS['RS_POST']['clientID'] . ')';
 
   // execute query
-  if (!RSQuery($theQuery)) {
+  if (!RSquery($theQuery)) {
     // return NOK
     $results['result'] = "NOK";
 
     // Write XML Response back to the application
-    RSReturnArrayResults($results);
+    RSreturnArrayResults($results);
     exit;
   }
 }
@@ -26,4 +26,4 @@ for ($i = 0; $i < count($idList); $i++) {
 $results['result'] = "OK";
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

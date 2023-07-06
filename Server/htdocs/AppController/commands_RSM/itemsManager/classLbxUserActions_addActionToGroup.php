@@ -14,8 +14,8 @@ include_once "../utilities/RSMusersManagement.php";
 
 if ($GLOBALS['RS_POST']['clientID'] != 0) {
     //We check if the group exists for the client
-    $theQuery_actionValidation = "SELECT RS_ID FROM rs_actions_clients WHERE RS_ID =".$GLOBALS['RS_POST']['actionID'];
-    $theQuery_groupValidation  = "SELECT RS_GROUP_ID FROM rs_groups  WHERE RS_GROUP_ID =".$GLOBALS['RS_POST']['groupID' ]." AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+    $theQuery_actionValidation = "SELECT RS_ID FROM rs_actions_clients WHERE RS_ID =" . $GLOBALS['RS_POST']['actionID'];
+    $theQuery_groupValidation  = "SELECT RS_GROUP_ID FROM rs_groups  WHERE RS_GROUP_ID =" . $GLOBALS['RS_POST']['groupID'] . " AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
     $resultActionOK = RSquery($theQuery_actionValidation);
     $resultGroupOK = RSquery($theQuery_groupValidation);
@@ -26,10 +26,9 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
     } else {
         $results["result"] = "NOK";
     }
-
 } else {
     $results["result"] = "NOK";
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

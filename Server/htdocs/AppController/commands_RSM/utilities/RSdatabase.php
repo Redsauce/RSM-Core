@@ -34,7 +34,7 @@ $RSMdeletedItemIDs = array();
 // Connect to the database using the above settings
 $mysqli = new mysqli($RShost, $RSuser, $RSpassword, $RSdatabase);
 if ($mysqli->connect_errno) {
-    RSReturnError("CANNOT CONNECT TO DATABASE SERVER", -1);
+    RSreturnError("CANNOT CONNECT TO DATABASE SERVER", -1);
 }
 
 // Check database compatibility and user permisions
@@ -320,21 +320,21 @@ function getTranslatedValue($clientID, $property, $sourceValue)
 }
 
 // Write the error message
-function RSReturnError($message, $code)
+function RSreturnError($message, $code)
 {
     global $cstClientID;
     global $cstRS_POST;
 
     $theFile = "";
     $theFile .= ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    $theFile .= ("<RSError>");
+    $theFile .= ("<RSerror>");
     $theFile .= ("<rows>");
     $theFile .= ("<row>");
     $theFile .= ("<column name=\"RSerrorMessage\">" . $message . "</column>");
     $theFile .= ("<column name=\"RSerrorCode\">" . $code . "</column>");
     $theFile .= ("</row>");
     $theFile .= ("</rows>");
-    $theFile .= ("</RSError>");
+    $theFile .= ("</RSerror>");
 
     Header('Content-type: text/xml');
     Header("Content-Length: " . strlen($theFile));
@@ -350,7 +350,7 @@ function RSReturnError($message, $code)
 }
 
 // Converts the passed array of results to XML
-function RSReturnArrayQueryResults($result, $compressed = true)
+function RSreturnArrayQueryResults($result, $compressed = true)
 {
     global $RSallowUncompressed;
     global $RStempPath;
@@ -468,7 +468,7 @@ function RSReturnArrayQueryResults($result, $compressed = true)
 }
 
 // Converts the passed database results to XML
-function RSReturnQueryResults($result, $compressed = true)
+function RSreturnQueryResults($result, $compressed = true)
 {
     global $RSallowUncompressed;
     global $RStempPath;
@@ -581,7 +581,7 @@ function RSReturnQueryResults($result, $compressed = true)
 }
 
 // Converts the passed array of results to JSON
-function RSReturnJsonQueryResults($result)
+function RSreturnJsonQueryResults($result)
 {
 
     $json = "";
@@ -615,7 +615,7 @@ function RSReturnJsonQueryResults($result)
 }
 
 // Converts the passed database results to XML
-function RSReturnArrayResults($array, $compressed = true)
+function RSreturnArrayResults($array, $compressed = true)
 {
     global $RSallowUncompressed;
     global $cstCDATAseparator;
@@ -664,7 +664,7 @@ function RSReturnArrayResults($array, $compressed = true)
 }
 
 // Returns the passed xml file
-function RSReturnFileResults($filename, $compressed = true)
+function RSreturnFileResults($filename, $compressed = true)
 {
     global $RSallowUncompressed;
     global $cstRSsendUncompressed;
@@ -755,7 +755,7 @@ function predictNumberOfFields($result)
     return 0;
 }
 
-function RSQuery($theQuery, $registerError = true)
+function RSquery($theQuery, $registerError = true)
 {
     global $RSallowDebug;
     global $queryCount;
@@ -783,7 +783,7 @@ function RSQuery($theQuery, $registerError = true)
         RSerror("RSdatabase: failed query: $theQuery");
     }
 
-    if (($RSallowDebug && $RSdebug)) {
+    if ($RSallowDebug && $RSdebug) {
         usleep(1);
         error_log($theQuery . "\n");
         error_log("Total queries executed: " . $queryCount . "\n\n");
@@ -795,7 +795,7 @@ function RSQuery($theQuery, $registerError = true)
 }
 
 //store a new error in database
-function RSError($message, $type = "")
+function RSerror($message, $type = "")
 {
     global $mysqli;
     global $cstClientID;

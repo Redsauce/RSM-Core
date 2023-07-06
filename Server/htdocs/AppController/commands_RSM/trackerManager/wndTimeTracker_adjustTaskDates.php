@@ -9,17 +9,17 @@ isset($GLOBALS['RS_POST']['clientID']) ? $clientID  = $GLOBALS['RS_POST']['clien
 isset($GLOBALS['RS_POST']['taskID']) ? $taskID    = $GLOBALS['RS_POST']['taskID'] : dieWithError(400);
 
 // get item types
-$tasksItemTypeID      = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-$tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+$tasksItemTypeID      = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+$tasksGroupItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
 // get properties
-$tasksParentPropertyID    = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-$tasksStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-$tasksEndDatePropertyID   = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
+$tasksParentPropertyID    = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+$tasksStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+$tasksEndDatePropertyID   = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
 
-$tasksGroupParentPropertyID    = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-$tasksGroupStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.startDate'], $clientID);
-$tasksGroupEndDatePropertyID   = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.endDate'], $clientID);
+$tasksGroupParentPropertyID    = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+$tasksGroupStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.startDate'], $clientID);
+$tasksGroupEndDatePropertyID   = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.endDate'], $clientID);
 
 // get task start date and end date
 $taskStartDate = getItemPropertyValue($taskID, $tasksGroupStartDatePropertyID, $clientID);
@@ -44,7 +44,7 @@ $finalDates = adjustTasksDates($subTasksTree, $taskID, $taskStartDate, $taskEndD
 $parentID = getItemPropertyValue($taskID, $tasksGroupParentPropertyID, $clientID);
 
 if (!strtotime($finalDates['startDate'])) {
-    RSError("La fecha final no es una fecha");
+    RSerror("La fecha final no es una fecha");
 }
 
 while ($parentID > 0) {
@@ -68,7 +68,7 @@ while ($parentID > 0) {
 $results['result'] = 'OK';
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);
 
 // A function to adjust the tasksGroup dates of a tasksGroup tree
 function adjustTasksDates($tree, $taskID, $startDate, $endDate)

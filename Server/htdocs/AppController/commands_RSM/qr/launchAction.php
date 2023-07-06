@@ -6,8 +6,8 @@ require_once "../utilities/RStools.php";
 
 $RSallowUncompressed = true;
 
-isset($GLOBALS['RS_POST']['RSdata'           ]) ? $RSdata            = $GLOBALS['RS_POST']['RSdata'           ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSLogin'          ]) ? $RSLogin           = $GLOBALS['RS_POST']['RSLogin'          ] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RSdata']) ? $RSdata            = $GLOBALS['RS_POST']['RSdata'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['RSLogin']) ? $RSLogin           = $GLOBALS['RS_POST']['RSLogin'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RSuserMD5Password']) ? $RSuserMD5Password = $GLOBALS['RS_POST']['RSuserMD5Password'] : dieWithError(400);
 
 // Check for encryption
@@ -26,7 +26,7 @@ $itemID         = $items[2];
 $actionID       = $items[3];
 
 //if ($clientID != $ActionClientID) {
-  // TODO: Check if the user has access to the client where he is executing the script
+// TODO: Check if the user has access to the client where he is executing the script
 //}
 
 //Get the staffID associated with the user credentials
@@ -46,4 +46,4 @@ $results = array();
 $results['result'] = "OK";
 
 // And return XML response back to application
-RSReturnArrayResults($results, false);
+RSreturnArrayResults($results, false);

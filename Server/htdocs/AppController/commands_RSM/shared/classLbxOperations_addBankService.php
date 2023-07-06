@@ -20,18 +20,18 @@ $VAT = base64_decode($GLOBALS['RS_POST']['VAT']);
 $description = base64_decode($GLOBALS['RS_POST']['description']);
 
 // get the operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get some operations properties we will need
-$subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
-$invoiceDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID);
-$payDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationPayDate'], $clientID);
-$basePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationBase'], $clientID);
-$totalPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationTotal'], $clientID);
-$VATPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationIVA'], $clientID);
-$deductionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationDeduction'], $clientID);
-$descriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationDescription'], $clientID);
+$subAccountPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
+$invoiceDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationInvoiceDate'], $clientID);
+$payDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationPayDate'], $clientID);
+$basePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationBase'], $clientID);
+$totalPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationTotal'], $clientID);
+$VATPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationIVA'], $clientID);
+$deductionPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationDeduction'], $clientID);
+$descriptionPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationDescription'], $clientID);
 
 $propertiesValues = array(array('ID' => $subAccountPropertyID, 'value' => $subAccountID), array('ID' => $invoiceDatePropertyID, 'value' => $date), array('ID' => $payDatePropertyID, 'value' => $date), array('ID' => $basePropertyID, 'value' => $amount - $VAT), array('ID' => $deductionPropertyID, 'value' => 0), array('ID' => $totalPropertyID, 'value' => $amount), array('ID' => $VATPropertyID, 'value' => $VAT), array('ID' => $descriptionPropertyID, 'value' => $description));
 
@@ -65,7 +65,7 @@ foreach ($transactionRelatedOperations as $operation) {
 
 if ($total == $transactionTotal) {
     // get the closed status
-    $closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+    $closedStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
 
     // close operation_1
     setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $transactionID, $clientID, $closedStatus, $RSuserID);
@@ -102,4 +102,4 @@ $results['total'] = getItemPropertyValue($operationID, $totalPropertyID, $client
 $results['description'] = getItemPropertyValue($operationID, $descriptionPropertyID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

@@ -26,7 +26,7 @@
 //*****************************************************************************
 
 // Check if the current application is compatible with the current database
-function RSCheckCompatibleDB($serviceMode)
+function RScheckCompatibleDB($serviceMode)
 {
     $result = 1;
     if (
@@ -43,7 +43,7 @@ function RSCheckCompatibleDB($serviceMode)
         $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
     }
 
-    $versions = RSQuery($theQuery);
+    $versions = RSquery($theQuery);
 
     // Check the results
 
@@ -63,7 +63,7 @@ function RSCheckCompatibleDB($serviceMode)
 
 
 // Check if the current user has access to work with the selected database
-function RSCheckUserAccess()
+function RScheckUserAccess()
 {
     if (!isset($GLOBALS['RS_POST']['RSLogin'])) {
         return 0;
@@ -77,7 +77,7 @@ function RSCheckUserAccess()
         $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
     }
 
-    $users = RSQuery($theQuery);
+    $users = RSquery($theQuery);
 
     // Check the results
     if (!$users) {
@@ -100,7 +100,7 @@ function getUserStaffID($userID, $clientID)
 {
 
     $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
-    $users = RSQuery($theQuery);
+    $users = RSquery($theQuery);
 
     // Check the results
     if (!$users) {

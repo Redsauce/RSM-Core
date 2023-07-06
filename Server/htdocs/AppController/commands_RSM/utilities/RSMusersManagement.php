@@ -10,14 +10,14 @@ function removeUserFromGroup($userID, $clientID, $groupID)
         //We check if the user is already into the group
         $theQueryUserAlreadyNotinGroup = "SELECT RS_GROUP_ID FROM rs_users_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID;
 
-        $result = RSQuery($theQueryUserAlreadyNotinGroup);
+        $result = RSquery($theQueryUserAlreadyNotinGroup);
 
         if ($result->fetch_array() == 0) {
             $status = 'OK';
         } else {
             $theQuery = "DELETE FROM rs_users_groups WHERE (RS_GROUP_ID=" . $groupID . " AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID . ")";
 
-            if ($result == RSQuery($theQuery)) {
+            if ($result == RSquery($theQuery)) {
                 $status = 'OK';
             } else {
                 $status = 'NOK';
@@ -35,14 +35,14 @@ function addUserToGroup($userID, $clientID, $groupID)
         //We check if the user is already into the group
         $theQueryUserAlreadyinGroup = "SELECT RS_GROUP_ID FROM rs_users_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_USER_ID=" . $userID . " AND RS_CLIENT_ID=" . $clientID;
 
-        $result = RSQuery($theQueryUserAlreadyinGroup);
+        $result = RSquery($theQueryUserAlreadyinGroup);
 
         if ($result->fetch_array() != 0) {
             $status = 'OK';
         } else {
             $theQuery = "INSERT INTO rs_users_groups (RS_GROUP_ID,RS_USER_ID,RS_CLIENT_ID) VALUES ('" . $groupID . "', '" . $userID . "', '" . $clientID . "')";
 
-            if ($result == RSQuery($theQuery)) {
+            if ($result == RSquery($theQuery)) {
                 $status = 'OK';
             } else {
                 $status = 'NOK';
@@ -60,14 +60,14 @@ function addPropertyToGroup($propertyID, $groupID, $clientID)
         //We check if the property is already into the group
         $theQueryPropertyAlreadyinGroup = "SELECT RS_GROUP_ID FROM rs_properties_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_PROPERTY_ID=" . $propertyID . " AND RS_CLIENT_ID=" . $clientID;
 
-        $result = RSQuery($theQueryPropertyAlreadyinGroup);
+        $result = RSquery($theQueryPropertyAlreadyinGroup);
 
         if ($result->fetch_array() != 0) {
             $status = 'OK';
         } else {
             $theQuery = "INSERT INTO rs_properties_groups (RS_GROUP_ID,RS_PROPERTY_ID,RS_CLIENT_ID) VALUES (" . $groupID . ", " . $propertyID . ", " . $clientID . ")";
 
-            if ($result == RSQuery($theQuery)) {
+            if ($result == RSquery($theQuery)) {
                 $status = 'OK';
             } else {
                 $status = 'NOK';
@@ -86,14 +86,14 @@ function removePropertyFromGroup($propertyID, $groupID, $clientID)
         //We check if the property is already into the group
         $theQueryPropertyAlreadyNotinGroup = "SELECT RS_GROUP_ID FROM rs_properties_groups WHERE RS_GROUP_ID=" . $groupID . " AND RS_PROPERTY_ID=" . $propertyID . " AND RS_CLIENT_ID=" . $clientID;
 
-        $result = RSQuery($theQueryPropertyAlreadyNotinGroup);
+        $result = RSquery($theQueryPropertyAlreadyNotinGroup);
 
         if ($result->fetch_array() == 0) {
             $status = 'OK';
         } else {
             $theQuery = "DELETE FROM rs_properties_groups WHERE (RS_GROUP_ID=" . $groupID . " AND RS_PROPERTY_ID=" . $propertyID . " AND RS_CLIENT_ID=" . $clientID . ")";
 
-            if ($result == RSQuery($theQuery)) {
+            if ($result == RSquery($theQuery)) {
                 $status = 'OK';
             } else {
                 $status = 'NOK';
@@ -146,7 +146,7 @@ function removeActionFromGroup($actionClientID, $groupID, $clientID)
         } else {
             $theQuery = "DELETE FROM rs_actions_groups WHERE (RS_GROUP_ID=" . $groupID . " AND RS_ACTION_CLIENT_ID=" . $actionClientID . " AND RS_CLIENT_ID=" . $clientID . ")";
 
-            if ($result == RSQuery($theQuery)) {
+            if ($result == RSquery($theQuery)) {
                 $status = 'OK';
             } else {
                 $status = 'NOK';
@@ -176,5 +176,5 @@ function getItemPropertyLists($clientID)
 
     $theQuery = "SELECT rs_properties_lists.`RS_PROPERTY_ID`,rs_properties_lists.`RS_MULTIVALUES`,rs_lists.`RS_LIST_ID`,rs_lists.`RS_NAME`,rs_property_values.`RS_VALUE` FROM `rs_property_values` INNER JOIN (rs_lists INNER JOIN rs_properties_lists ON rs_lists.RS_LIST_ID=rs_properties_lists.RS_LIST_ID AND rs_lists.RS_CLIENT_ID=rs_properties_lists.RS_CLIENT_ID) ON rs_lists.RS_LIST_ID=rs_property_values.RS_LIST_ID AND rs_lists.RS_CLIENT_ID=rs_property_values.RS_CLIENT_ID WHERE rs_properties_lists.`RS_CLIENT_ID`=" . $clientID . " ORDER BY rs_properties_lists.`RS_PROPERTY_ID`,rs_property_values.`RS_ORDER`";
 
-    return RSQuery($theQuery);
+    return RSquery($theQuery);
 }

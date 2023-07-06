@@ -9,11 +9,11 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Parameters validation
-isset($GLOBALS['RS_POST']['clientID'          ]) ? $clientID          =               $GLOBALS['RS_POST']['clientID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID'        ]) ? $itemTypeID        =               $GLOBALS['RS_POST']['itemTypeID'        ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentID'          ]) ? $parentID          =               $GLOBALS['RS_POST']['parentID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentItemTypeID'  ]) ? $parentItemTypeID  =               $GLOBALS['RS_POST']['parentItemTypeID'  ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyID'        ]) ? $propertyID        =               $GLOBALS['RS_POST']['propertyID'        ]  : dieWithError(400);
+isset($GLOBALS['RS_POST']['clientID']) ? $clientID          =               $GLOBALS['RS_POST']['clientID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID        =               $GLOBALS['RS_POST']['itemTypeID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['parentID']) ? $parentID          =               $GLOBALS['RS_POST']['parentID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['parentItemTypeID']) ? $parentItemTypeID  =               $GLOBALS['RS_POST']['parentItemTypeID']  : dieWithError(400);
+isset($GLOBALS['RS_POST']['propertyID']) ? $propertyID        =               $GLOBALS['RS_POST']['propertyID']  : dieWithError(400);
 
 // prepare arrays
 $filterProperties   = array();
@@ -37,7 +37,7 @@ if ($propertyID != '0') {
 
 // get items
 $auxArr = array();
-$result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, '1');
+$result = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, '1');
 
 $results = array();
 
@@ -58,7 +58,7 @@ if ($result) {
                     $item['parentID_ord'] = $orders[array_search($parentID, explode(',', $item['parentID']))];
                 }
                 if (!is_numeric($item['parentID_ord'])) {
-                  $item['parentID_ord'] = "0";
+                    $item['parentID_ord'] = "0";
                 }
                 $results[] = $item;
             }
@@ -67,4 +67,4 @@ if ($result) {
 }
 
 // Return data
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

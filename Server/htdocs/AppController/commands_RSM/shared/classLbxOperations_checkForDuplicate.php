@@ -18,29 +18,29 @@ $accountID = $GLOBALS['RS_POST']['accountID'];
 $results['check'] = 'OK';
 
 // get operation item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get operation invoice date property ID
-$invoiceDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID);
+$invoiceDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationInvoiceDate'], $clientID);
 
 // get operation invoice date
 $operationInvoiceDate = getItemPropertyValue($operationID, $invoiceDatePropertyID, $clientID);
 
 if ($operationInvoiceDate == '') {
     // Return OK
-    RSReturnArrayResults($results);
-    exit ;
+    RSreturnArrayResults($results);
+    exit;
 }
 
 // save the operation invoice date year
 $operationInvoiceDateYear = substr($operationInvoiceDate, 0, 4);
 
 // get accounts and subaccounts item types
-$accountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);
-$subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
+$accountsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['accounts'], $clientID);
+$subAccountsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['subAccounts'], $clientID);
 
 // retrieve the accountType property ID
-$accountTypePropertyID = getClientPropertyID_RelatedWith_byName($definitions['accountType'], $clientID);
+$accountTypePropertyID = getClientPropertyIDRelatedWithByName($definitions['accountType'], $clientID);
 
 // retrieve the account type
 $accountType = getItemPropertyValue($accountID, $accountTypePropertyID, $clientID);
@@ -49,7 +49,7 @@ $accountType = getItemPropertyValue($accountID, $accountTypePropertyID, $clientI
 $filterProperties = array();
 $filterProperties[] = array('ID' => $accountTypePropertyID, 'value' => substr($accountType, 0, 2) . '%', 'mode' => 'LIKE');
 
-$accountsQueryResults = IQ_getFilteredItemsIDs($accountsItemTypeID, $clientID, $filterProperties, array());
+$accountsQueryResults = iqGetFilteredItemsIDs($accountsItemTypeID, $clientID, $filterProperties, array());
 
 $accounts = array();
 while ($row = $accountsQueryResults->fetch_assoc()) {
@@ -59,12 +59,12 @@ while ($row = $accountsQueryResults->fetch_assoc()) {
 // get subaccounts pertaining to these accounts
 $filterProperties = array();
 if (count($accounts) > 1) {
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => implode(',', $accounts), 'mode' => '<-IN');
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['subAccountAccountID'], $clientID), 'value' => implode(',', $accounts), 'mode' => '<-IN');
 } else {
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accounts[0]);
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['subAccountAccountID'], $clientID), 'value' => $accounts[0]);
 }
 
-$subAccountsQueryResults = IQ_getFilteredItemsIDs($subAccountsItemTypeID, $clientID, $filterProperties, array());
+$subAccountsQueryResults = iqGetFilteredItemsIDs($subAccountsItemTypeID, $clientID, $filterProperties, array());
 
 $subAccounts = array();
 while ($row = $subAccountsQueryResults->fetch_assoc()) {
@@ -74,13 +74,13 @@ while ($row = $subAccountsQueryResults->fetch_assoc()) {
 if (!empty($subAccounts)) {
 
     // get subAccountID property ID
-    $subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
+    $subAccountPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID);
 
     // get operation subAccountID
     $operationSubAccountID = getItemPropertyValue($operationID, $subAccountPropertyID, $clientID);
 
     // get operationID property ID
-    $operationIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID);
+    $operationIDPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationOperationID'], $clientID);
 
     // get operation operationID
     $operationOperationID = getItemPropertyValue($operationID, $operationIDPropertyID, $clientID);
@@ -98,7 +98,7 @@ if (!empty($subAccounts)) {
         $filterProperties[] = array('ID' => $operationIDPropertyID, 'value' => $operationOperationID);
 
         // get current year's operations for the account
-        $operationsQuery = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, array());
+        $operationsQuery = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, array());
 
         if ($operationsQuery->num_rows > 0) {
             while ($row = $operationsQuery->fetch_assoc()) {
@@ -113,4 +113,4 @@ if (!empty($subAccounts)) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

@@ -5,7 +5,7 @@ require_once "../utilities/RSMitemsManagement.php";
 
 // Definitions
 $clientID   = $GLOBALS['RS_POST']['clientID'];
-$entries    = $GLOBALS['RS_POST']['entries' ];
+$entries    = $GLOBALS['RS_POST']['entries'];
 $results    = array();
 
 if ($entries != '') {
@@ -34,4 +34,4 @@ if ($entries != '') {
 }
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

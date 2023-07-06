@@ -7,10 +7,10 @@ require_once "../utilities/RSMitemsManagement.php";
 $clientID = $GLOBALS['RS_POST']['clientID'];
 
 // get the item type and the main value
-$itemTypeID = getClientItemTypeID_RelatedWith(getAppItemTypeIDByName($definitions['tasks']), $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWith(getAppItemTypeIDByName($definitions['tasks']), $clientID);
 
 // get tasks list
-$results = IQ_getItems($itemTypeID, $clientID);
+$results = iqGetItems($itemTypeID, $clientID);
 
 // And return XML response back to the application
-RSReturnQueryResults($results);
+RSreturnQueryResults($results);

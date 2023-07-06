@@ -24,4 +24,4 @@ $results = RScreateTokenPermission($tokenID, $GLOBALS['RS_POST']['clientID'], $G
 
 $response['result'] = "OK";
 
-RSReturnArrayResults($response);
+RSreturnArrayResults($response);

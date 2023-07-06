@@ -8,17 +8,17 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $operationID = $GLOBALS['RS_POST']['operationID'];
 
 // get the item type and the properties
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
-$stockItemPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptStockItemID'], $clientID);
-$namePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['conceptName'], $clientID);
-$projectPropertyID       = getClientPropertyID_RelatedWith_byName($definitions['conceptProjectID'], $clientID);
-$unitsPropertyID         = getClientPropertyID_RelatedWith_byName($definitions['conceptUnits'], $clientID);
-$IVAPropertyID           = getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID);
-$pricePropertyID         = getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID);
-$deductionPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID);
-$operationPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID);
-$pendingStockPropertyID  = getClientPropertyID_RelatedWith_byName($definitions['conceptPendingStockID'], $clientID);
+$stockItemPropertyID     = getClientPropertyIDRelatedWithByName($definitions['conceptStockItemID'], $clientID);
+$namePropertyID          = getClientPropertyIDRelatedWithByName($definitions['conceptName'], $clientID);
+$projectPropertyID       = getClientPropertyIDRelatedWithByName($definitions['conceptProjectID'], $clientID);
+$unitsPropertyID         = getClientPropertyIDRelatedWithByName($definitions['conceptUnits'], $clientID);
+$IVAPropertyID           = getClientPropertyIDRelatedWithByName($definitions['conceptIVA'], $clientID);
+$pricePropertyID         = getClientPropertyIDRelatedWithByName($definitions['conceptPrice'], $clientID);
+$deductionPropertyID     = getClientPropertyIDRelatedWithByName($definitions['conceptDeduction'], $clientID);
+$operationPropertyID     = getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID);
+$pendingStockPropertyID  = getClientPropertyIDRelatedWithByName($definitions['conceptPendingStockID'], $clientID);
 
 // build filter properties array
 $filterProperties = array();
@@ -34,7 +34,7 @@ $returnProperties[] = array('ID' => $IVAPropertyID, 'name' => 'VAT');
 $returnProperties[] = array('ID' => $pricePropertyID, 'name' => 'price');
 $returnProperties[] = array('ID' => $deductionPropertyID, 'name' => 'deduction');
 
-if ($pendingStockPropertyID!=0) {
+if ($pendingStockPropertyID != 0) {
     $returnProperties[] = array('ID' => $pendingStockPropertyID, 'name' => 'pendingStockID', 'trName' => 'pendingStock');
 }
 
@@ -42,4 +42,4 @@ if ($pendingStockPropertyID!=0) {
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 // Return results
-RSReturnArrayQueryResults($results);
+RSreturnArrayQueryResults($results);

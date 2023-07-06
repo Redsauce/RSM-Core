@@ -4,7 +4,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 
 isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["login"   ]) ? $login    = $GLOBALS["RS_POST"]["login"   ] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["login"]) ? $login    = $GLOBALS["RS_POST"]["login"] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["password"]) ? $password = $GLOBALS["RS_POST"]['password'] : $password = "";
 
 if ($password === "") {
@@ -16,4 +16,4 @@ if ($password === "") {
 }
 
 // Write back the XML Response to the application without compression
-RSReturnQueryResults(RSQuery($theQuery));
+RSreturnQueryResults(RSquery($theQuery));

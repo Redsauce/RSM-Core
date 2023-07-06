@@ -8,17 +8,17 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $accountID = $GLOBALS['RS_POST']['accountID'];  // this one can be one account ID or a list of accounts separated by coma
 
 // get the subaccounts item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['subAccounts'], $clientID);
 
-$accountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);
+$accountsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['accounts'], $clientID);
 
 
 // get the main property and the account property
 $mainPropertyID = getMainPropertyID($itemTypeID, $clientID);
-$accountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID);
-$personalIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['subAccountPersonalID'], $clientID);
+$accountPropertyID = getClientPropertyIDRelatedWithByName($definitions['subAccountAccountID'], $clientID);
+$personalIDPropertyID = getClientPropertyIDRelatedWithByName($definitions['subAccountPersonalID'], $clientID);
 
-$accountTypePropertyID = getClientPropertyID_RelatedWith_byName($definitions['accountType'], $clientID);
+$accountTypePropertyID = getClientPropertyIDRelatedWithByName($definitions['accountType'], $clientID);
 
 // get all accounts with type
 $filterProperties = array();
@@ -50,12 +50,12 @@ $returnProperties[] = array('ID' => $accountPropertyID, 'name' => 'accountID');
 $subAccounts = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 // add accountType property to subAccounts list
-for ($i=0; $i<count($subAccounts); $i++) {
-    $j=arraySearchID($subAccounts[$i]['accountID'], $accounts);
-    if ($j!==false) {
-        $subAccounts[$i]['accountType']=$accounts[$j]['accountType'];
+for ($i = 0; $i < count($subAccounts); $i++) {
+    $j = arraySearchID($subAccounts[$i]['accountID'], $accounts);
+    if ($j !== false) {
+        $subAccounts[$i]['accountType'] = $accounts[$j]['accountType'];
     }
 }
 
 // Return results
-RSReturnArrayQueryResults($subAccounts);
+RSreturnArrayQueryResults($subAccounts);

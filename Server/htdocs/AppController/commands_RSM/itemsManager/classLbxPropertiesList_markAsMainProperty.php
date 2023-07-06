@@ -16,7 +16,7 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
   //We check if the itemtype exists into the client
   $theQuery = "SELECT rs_item_types.RS_ITEMTYPE_ID FROM rs_item_types INNER JOIN rs_categories ON rs_item_types.RS_ITEMTYPE_ID=rs_categories.RS_ITEMTYPE_ID AND rs_item_types.RS_CLIENT_ID=rs_categories.RS_CLIENT_ID WHERE rs_categories.RS_CATEGORY_ID =" . $GLOBALS['RS_POST']['categoryID'] . " AND rs_categories.RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-  $result = RSQuery($theQuery);
+  $result = RSquery($theQuery);
 
   if (isset($GLOBALS['RS_POST']['RSdebug']) && $GLOBALS['RS_POST']['RSdebug']) {
     echo $theQuery;
@@ -27,7 +27,7 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
     //We check if the property exists into the client
     $theQuery = "SELECT RS_PROPERTY_ID, RS_TYPE FROM rs_item_properties WHERE RS_PROPERTY_ID =" . $GLOBALS['RS_POST']['propertyID'] . " AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-    $result = RSQuery($theQuery);
+    $result = RSquery($theQuery);
 
     if (isset($GLOBALS['RS_POST']['RSdebug']) && $GLOBALS['RS_POST']['RSdebug']) {
       echo $theQuery;
@@ -43,7 +43,7 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
           echo $theQueryItem;
         }
 
-        if ($result = RSQuery($theQueryItem)) {
+        if ($result = RSquery($theQueryItem)) {
           $results['result'] = "OK";
         } else {
           $results["result"] = "NOK";
@@ -61,4 +61,4 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
   $results["result"] = "NOK";
 }
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

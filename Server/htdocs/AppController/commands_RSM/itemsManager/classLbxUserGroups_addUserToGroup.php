@@ -14,11 +14,11 @@ include_once "../utilities/RSMusersManagement.php";
 if ($GLOBALS['RS_POST']['clientID'] != 0) {
     //We check if the user exists into the client
 
-    $theQuery_userValidation = "SELECT RS_USER_ID FROM rs_users WHERE RS_USER_ID ='".$GLOBALS['RS_POST']['userID']."' AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
-    $theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_ID ='".$GLOBALS['RS_POST']['groupID']."' AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+    $theQuery_userValidation = "SELECT RS_USER_ID FROM rs_users WHERE RS_USER_ID ='" . $GLOBALS['RS_POST']['userID'] . "' AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
+    $theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_ID ='" . $GLOBALS['RS_POST']['groupID'] . "' AND RS_CLIENT_ID=" . $GLOBALS['RS_POST']['clientID'];
 
-    $resultUserOK = RSQuery($theQuery_userValidation);
-    $resultGroupOK = RSQuery($theQuery_userValidation);
+    $resultUserOK = RSquery($theQuery_userValidation);
+    $resultGroupOK = RSquery($theQuery_userValidation);
 
     if (($resultUserOK->num_rows != 0) && ($resultGroupOK->num_rows != 0)) {
         //The users exists, so perform the action
@@ -31,4 +31,4 @@ if ($GLOBALS['RS_POST']['clientID'] != 0) {
 }
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

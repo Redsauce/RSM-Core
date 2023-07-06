@@ -9,11 +9,11 @@ $accountID = $GLOBALS['RS_POST']['accountID'];
 
 
 // get the subaccounts item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['subAccounts'], $clientID);
 
 // get the subaccounts accountID property ID
-$accountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID);
-$personalIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['subAccountPersonalID'], $clientID);
+$accountPropertyID = getClientPropertyIDRelatedWithByName($definitions['subAccountAccountID'], $clientID);
+$personalIDPropertyID = getClientPropertyIDRelatedWithByName($definitions['subAccountPersonalID'], $clientID);
 
 
 
@@ -29,7 +29,7 @@ $returnProperties = array();
 $returnProperties[] = array('ID' => $personalIDPropertyID, 'name' => 'personalID');
 
 // get subaccounts
-$subAccountsQueryResults = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
+$subAccountsQueryResults = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
 
 while ($row = $subAccountsQueryResults->fetch_assoc()) {
     if ($row['personalID'] > $maxID) {
@@ -41,14 +41,14 @@ while ($row = $subAccountsQueryResults->fetch_assoc()) {
 
 // now create the new subaccount
 $values = array();
-$values[]=array('ID' => $accountPropertyID, 'value' => $accountID);
-$values[]=array('ID' => $personalIDPropertyID, 'value' => $maxID+1);
+$values[] = array('ID' => $accountPropertyID, 'value' => $accountID);
+$values[] = array('ID' => $personalIDPropertyID, 'value' => $maxID + 1);
 
 $newSubAccountID = createItem($clientID, $values);
 
 $results['ID'] = $newSubAccountID;
-$results['mainValue'] = getClientItemMainPropertyValue($newSubAccountID, $itemTypeID, $clientID);
+$results['mainValue'] = getMainPropertyValue($newSubAccountID, $itemTypeID, $clientID);
 $results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], $itemTypeID, $newSubAccountID, $clientID);
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

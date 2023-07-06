@@ -43,4 +43,4 @@ switch ($identifierType) {
 }
 
 // Return data
-RSReturnArrayQueryResults($data);
+RSreturnArrayQueryResults($data);

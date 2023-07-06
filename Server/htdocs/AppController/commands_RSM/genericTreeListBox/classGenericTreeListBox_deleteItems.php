@@ -79,7 +79,7 @@ function relocateDescendants($clientID, $parentID, $parentItemTypeID, $newParent
       $returnProperties = array();
 
       // get items pertaining to the parent passed
-      $result = IQ_getFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties);
+      $result = iqGetFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties);
 
       if ($result) {
         while ($item = $result->fetch_assoc()) {
@@ -238,4 +238,4 @@ if (isset($_POST['recursiveDelete']) && isset($_POST['newParentID'])) {
 
 
 // Return results
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);

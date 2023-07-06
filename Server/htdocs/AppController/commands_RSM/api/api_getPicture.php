@@ -114,7 +114,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     }
 
     if ($extension !== "jpg" && $extension !== "jpeg" && $extension !== "gif" && $extension !== "png" && $extension !== "svg") {
-        RSError("api_getPicture: Unknown extension: " . $extension);
+        RSerror("api_getPicture: Unknown extension: " . $extension);
         dieWithError(400);
     }
 
@@ -130,7 +130,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         
 		if ($originalImage === false) {
 			// The original image is not valid
-			RSError("api_getPicture: not a valid image: ". $imageOriginal);
+			RSerror("api_getPicture: not a valid image: ". $imageOriginal);
 			dieWithError(400);
 			
 		} else {
@@ -417,7 +417,7 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
     // Check if directory exists
     if (!file_exists($directory)) {
         if(!mkdir($directory, 0775, true)){
-            RSError("api_getPicture: Could not create directory");
+            RSerror("api_getPicture: Could not create directory");
         }
     }
 
@@ -440,4 +440,3 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
-?>

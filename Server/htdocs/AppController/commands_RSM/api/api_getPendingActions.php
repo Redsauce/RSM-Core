@@ -14,9 +14,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "./api_headers.php";
 
 // Definitions
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["nodeID"         ]) ? $nodeID          = $GLOBALS['RS_POST']['nodeID'         ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["numActions"     ]) ? $numActions      = $GLOBALS['RS_POST']['numActions'     ] : $numActions = "5";
+isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["nodeID"]) ? $nodeID          = $GLOBALS['RS_POST']['nodeID'] : dieWithError(400);
+isset($GLOBALS["RS_POST"]["numActions"]) ? $numActions      = $GLOBALS['RS_POST']['numActions'] : $numActions = "5";
 
 $clientID = RSclientFromToken($RStoken);
 $itemTypeID = parseITID("scheduledEvents", $clientID);
@@ -29,12 +29,12 @@ $propertyIDs = array("scheduledEvents.event", "scheduledEvents.parameters", "sch
 if (!RShasTokenPermissions($RStoken, $propertyIDs, "READ")) {
     $results['result'] = 'NOK';
     $results['description'] = 'YOU DONT HAVE PERMISSIONS TO READ THESE ITEMS';
-    RSReturnArrayResults($results, false);
+    RSreturnArrayResults($results, false);
 }
 if (!RShasTokenPermissions($RStoken, array("scheduledEvents.node"), "WRITE")) {
     $results['result'] = 'NOK';
     $results['description'] = 'YOU DONT HAVE PERMISSIONS TO UPDATE THESE ITEMS';
-    RSReturnArrayResults($results, false);
+    RSreturnArrayResults($results, false);
 }
 
 // First we need to check the events allowed for current node (not assigned to a specific node or assigned to current one)
@@ -84,4 +84,4 @@ foreach ($results as $row) {
 }
 
 // And write XML Response back to the application without compression// Return results
-RSReturnArrayQueryResults($results, false);
+RSreturnArrayQueryResults($results, false);

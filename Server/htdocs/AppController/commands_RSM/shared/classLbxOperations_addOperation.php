@@ -14,11 +14,11 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $subAccountID = $GLOBALS['RS_POST']['subAccountID'];
 
 // get the operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName('operations', $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName('operations', $clientID);
 
 // get some operations properties we will need
-$subAccountPropertyID = getClientPropertyID_RelatedWith_byName('operations.subAccountID', $clientID);
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
+$subAccountPropertyID = getClientPropertyIDRelatedWithByName('operations.subAccountID', $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
 
 // create a new operation
 $values = array();
@@ -48,4 +48,4 @@ $results['showNote'] = getPropertyValue($definitions['operationShowNote'], $item
 $results['status'] = getPropertyValue($definitions['operationStatus'], $itemTypeID, $operationID, $clientID);
 
 // And write XML Response back to the application
-RSReturnArrayResults($results);
+RSreturnArrayResults($results);
