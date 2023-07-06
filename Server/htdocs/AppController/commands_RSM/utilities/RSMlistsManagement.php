@@ -217,8 +217,9 @@ function getAppListIDRelatedWith($clientListID, $clientID)
 
     $result = RSquery("SELECT RS_LIST_APP_ID FROM rs_lists_relations WHERE RS_LIST_ID = " . $clientListID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if ($result && $appList = $result->fetch_assoc())
+    if ($result && $appList = $result->fetch_assoc()) {
         return $appList['RS_LIST_APP_ID'];
+    }
 
     return '0';
 }
@@ -265,8 +266,10 @@ function getClientListValueIDRelatedWith($appListValueID, $clientID)
 {
     $result = RSquery("SELECT RS_VALUE_ID FROM rs_lists_values_relations WHERE RS_VALUE_APP_ID = " . $appListValueID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if ($result && $clientListValue = $result->fetch_assoc())
+    if ($result && $clientListValue = $result->fetch_assoc()) {
         return $clientListValue['RS_VALUE_ID'];
+    }
+
 
     return '0';
 }
@@ -276,8 +279,9 @@ function getAppListValueIDRelatedWith($clientListValueID, $clientID)
 {
     $result = RSquery("SELECT RS_VALUE_APP_ID FROM rs_lists_values_relations WHERE RS_VALUE_ID = " . $clientListValueID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if ($result && $appListValue = $result->fetch_assoc())
+    if ($result && $appListValue = $result->fetch_assoc()) {
         return $appListValue['RS_VALUE_APP_ID'];
+    }
 
     return '0';
 }
