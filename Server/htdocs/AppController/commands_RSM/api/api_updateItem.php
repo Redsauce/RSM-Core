@@ -61,7 +61,7 @@ if ($itemTypeID != 0) {
                 if ($value == "") {
                     deleteItemPropertyValue($itemTypeID, $RSitemID, $id, $clientID, $propertyType);
                 } else {
-                    $result = setDataPropertyValueByID($id, $itemTypeID, $RSitemID, $clientID, $name, $value, $propertyType, $RSuserID);
+                    $result = setDataPropertyValueByID($id, $itemTypeID, $RSitemID, $clientID, $name, $value, $propertyType);
                 }
             } else {
 

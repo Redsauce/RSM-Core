@@ -37,7 +37,7 @@ for ($i = 0; isset($GLOBALS['RS_POST']['propertyID' . $i]); $i++) {
         $result = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $data, $propertyType, $RSuserID);
     } else {
         // set property value
-        $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $propertyName, $propertyData, $propertyType, $RSuserID);
+        $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $propertyName, $propertyData, $propertyType);
     }
 
     if ($result != 0) {

@@ -495,7 +495,7 @@ function setDataPropertyValue($propertyName, $itemTypeID, $itemID, $clientID, $n
     // Get filter property id and type
     $propertyID = getClientPropertyIDRelatedWithByName($propertyName, $clientID);
 
-    return setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, '', $userID);
+    return setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, '');
 }
 
 // Return an associative array with two elements: "auditTrail" (0/1), "auditTrailDescription" (0/1)

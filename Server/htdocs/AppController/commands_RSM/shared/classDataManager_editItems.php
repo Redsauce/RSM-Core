@@ -56,7 +56,7 @@ foreach ($entries as $entry) {
     // save the property value
     $propertyType = getPropertyType($propertyID, $clientID);
     if ($propertyType == 'image' || $propertyType == 'file') {
-      setDataPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[3]), base64_decode($entryArr[2]), $propertyType, $RSuserID);
+      setDataPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[3]), base64_decode($entryArr[2]), $propertyType);
     } else {
       setPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[2]), $propertyType, $RSuserID);
     }
