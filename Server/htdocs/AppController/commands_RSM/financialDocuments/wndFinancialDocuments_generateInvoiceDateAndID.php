@@ -20,7 +20,7 @@ $invoiceClientIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions
 
 foreach ($invoiceIDs as $invoiceID) {
   // check if the invoice ID was already generated
-  $currentInvoiceID   = getItemPropertyValue($invoiceID, $invoiceIDPropertyID  , $clientID);
+  $currentInvoiceID   = getItemPropertyValue($invoiceID, $invoiceIDPropertyID, $clientID);
   $currentInvoiceDate = getItemPropertyValue($invoiceID, $invoiceDatePropertyID, $clientID);
 
   if ($currentInvoiceID > 0 || $currentInvoiceDate != '') {
@@ -58,7 +58,11 @@ foreach ($invoiceIDs as $invoiceID) {
   $maxID = 0;
     
   if ($currentYearInvoices) {
-    while ($row = $currentYearInvoices->fetch_assoc()) if ($row['invoiceID'] > $maxID) $maxID = $row['invoiceID'];
+    while ($row = $currentYearInvoices->fetch_assoc()) {
+      if ($row['invoiceID'] > $maxID) {
+        $maxID = $row['invoiceID'];
+      }
+    }
   }
 
   // update invoiceID property
@@ -75,7 +79,7 @@ foreach ($invoiceIDs as $invoiceID) {
 
   // If the item 'default Invoice Address' exists
   if ($currentDefaultInvoiceAddressID <> 0) {
-      // Set the invoice address, only if each App property is related with a user property    
+      // Set the invoice address, only if each App property is related with a user property
       if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingAddress' ],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID), $clientID), '', $RSuserID);
       if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCity' ],     $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID), $clientID), '', $RSuserID);
       if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCountry' ],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID), $clientID), '', $RSuserID);
@@ -91,4 +95,3 @@ foreach ($invoiceIDs as $invoiceID) {
 
 // Return results
 RSReturnArrayResults($results);
-?>

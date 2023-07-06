@@ -41,7 +41,11 @@ $currentYearTickets = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProp
 $maxID = 0;
 
 if ($currentYearTickets) {
-    while ($row = $currentYearTickets->fetch_assoc()) if ($row['ticketID'] > $maxID) $maxID = $row['ticketID'];
+    while ($row = $currentYearTickets->fetch_assoc()) {
+        if ($row['ticketID'] > $maxID) {
+            $maxID = $row['ticketID'];
+        }
+    }
 }
 
 // update ticketID property
@@ -57,4 +61,3 @@ $results['ticketIDpID'] = $ticketIDPropertyID;
 
 // Return results
 RSReturnArrayResults($results);
-?>

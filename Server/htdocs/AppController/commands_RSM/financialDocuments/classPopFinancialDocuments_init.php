@@ -21,7 +21,7 @@ $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('fina
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.vat'           , $clientID), 'name' => 'vat'                     , 'trName' => 'vatName'                   );
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.ret'           , $clientID), 'name' => 'ret'                     , 'trName' => 'retName'                   );
 
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.conceptID'            , $clientID), 'name' => 'conceptsItemTypeID'    , 'trName' => 'conceptsItemTypeName'      );
+$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.conceptID'            , $clientID), 'name' => 'conceptsItemTypeID'    , 'trName' => 'conceptsItemTypeName');
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.conceptFilterCriteria', $clientID), 'name' => 'conceptsFilterCriteriaID', 'trName' => 'conceptsFilterCriteriaName');
 
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concept.%discount'   , $clientID), 'name' => 'concepts%discountPID'  , 'trName' => 'concepts%discountName' );
@@ -34,11 +34,15 @@ $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('fina
 $returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.units'      , $clientID), 'name' => 'conceptsUnitsPID'      , 'trName' => 'conceptUnitsName'      );
 
 
-$documentEquiv=getClientPropertyID_RelatedWith_byName('financial.documents.equiv'      , $clientID);
-if($documentEquiv!=-1) $returnProperties[] = array('ID' => $documentEquiv, 'name' => 'equiv'            , 'trName' => 'equivName'       );
+$documentEquiv = getClientPropertyID_RelatedWith_byName('financial.documents.equiv', $clientID);
+if ($documentEquiv != -1) {
+    $returnProperties[] = array('ID' => $documentEquiv, 'name' => 'equiv', 'trName' => 'equivName');
+}
 
-$conceptsEquiv=getClientPropertyID_RelatedWith_byName('financial.documents.concepts.equiv', $clientID);
-if($conceptsEquiv!=-1) $returnProperties[] = array('ID' => $conceptsEquiv, 'name' => 'conceptsEquivPID' , 'trName' => 'conceptEquivName');
+$conceptsEquiv = getClientPropertyID_RelatedWith_byName('financial.documents.concepts.equiv', $clientID);
+if ($conceptsEquiv != -1) {
+    $returnProperties[] = array('ID' => $conceptsEquiv, 'name' => 'conceptsEquivPID', 'trName' => 'conceptEquivName');
+}
 
 // get financial documents
 $fds = getFilteredItemsIDs($itemTypeID, $clientID, array(), $returnProperties, '', true);
@@ -73,4 +77,3 @@ for ($i = 0; $i < count($fds); $i++) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($fds);
-?>

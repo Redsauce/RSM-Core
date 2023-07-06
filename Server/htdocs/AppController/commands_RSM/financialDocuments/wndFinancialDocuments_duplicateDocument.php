@@ -40,7 +40,7 @@ if ($docITID == getClientItemTypeID_RelatedWith_byName($definitions['invoiceClie
 }
 
 // Clear the related operations
-$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $documentsITID, $docTypeID, $clientID);    
+$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $documentsITID, $docTypeID, $clientID);
 setPropertyValueByID($relatedOperationsPID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
     
 // Now we must duplicate the associated concepts, if they exist.
@@ -69,4 +69,3 @@ $results['newDocID'    ] = $newDocID;
 
 // Return results
 RSReturnArrayResults($results);
-?>
