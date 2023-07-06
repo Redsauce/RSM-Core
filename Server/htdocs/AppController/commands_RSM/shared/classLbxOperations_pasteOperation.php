@@ -61,24 +61,24 @@ if ($duplicate == 'yes') {
 
 
 $results['ID'] = $newOperationID;
-$results['subAccount'] = translateSingleIdentifier(getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID), getPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID), $clientID);
-$results['operationID'] = getPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID);
-$results['relatedOperations'] = translateMultiIdentifier(getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID), getPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID), $clientID);
-$results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID);
-$results['payDate'] = getPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID);
-$results['invoiceDate'] = getPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID);
-$results['domicilyDate'] = getPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID);
-$results['valueDate'] = getPropertyValue($definitions['valueDomicilyDate'], $itemTypeID, $newOperationID, $clientID);
-$results['base'] = getPropertyValue($definitions['operationBase'], $itemTypeID, $newOperationID, $clientID);
-$results['IVA'] = getPropertyValue($definitions['operationIVA'], $itemTypeID, $newOperationID, $clientID);
-$results['deduction'] = getPropertyValue($definitions['operationDeduction'], $itemTypeID, $newOperationID, $clientID);
-$results['total'] = getPropertyValue($definitions['operationTotal'], $itemTypeID, $newOperationID, $clientID);
-$results['description'] = getPropertyValue($definitions['operationDescription'], $itemTypeID, $newOperationID, $clientID);
-$results['payMethod'] = getPropertyValue($definitions['operationPayMethod'], $itemTypeID, $newOperationID, $clientID);
-$results['bankAccount'] = getPropertyValue($definitions['operationBankAccount'], $itemTypeID, $newOperationID, $clientID);
-$results['note'] = getPropertyValue($definitions['operationNote'], $itemTypeID, $newOperationID, $clientID);
-$results['showNote'] = getPropertyValue($definitions['operationShowNote'], $itemTypeID, $newOperationID, $clientID);
-$results['status'] = getPropertyValue($definitions['operationStatus'], $itemTypeID, $newOperationID, $clientID);
+$results['subAccount'] = translateSingleIdentifier(getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID), getPropertyValue($definitions['operationSubAccountID'], $newOperationID, $clientID), $clientID);
+$results['operationID'] = getPropertyValue($definitions['operationOperationID'], $newOperationID, $clientID);
+$results['relatedOperations'] = translateMultiIdentifier(getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID), getPropertyValue('operations.relatedOperations', $newOperationID, $clientID), $clientID);
+$results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $newOperationID, $clientID);
+$results['payDate'] = getPropertyValue($definitions['operationPayDate'], $newOperationID, $clientID);
+$results['invoiceDate'] = getPropertyValue($definitions['operationInvoiceDate'], $newOperationID, $clientID);
+$results['domicilyDate'] = getPropertyValue($definitions['operationDomicilyDate'], $newOperationID, $clientID);
+$results['valueDate'] = getPropertyValue($definitions['valueDomicilyDate'], $newOperationID, $clientID);
+$results['base'] = getPropertyValue($definitions['operationBase'], $newOperationID, $clientID);
+$results['IVA'] = getPropertyValue($definitions['operationIVA'], $newOperationID, $clientID);
+$results['deduction'] = getPropertyValue($definitions['operationDeduction'], $newOperationID, $clientID);
+$results['total'] = getPropertyValue($definitions['operationTotal'], $newOperationID, $clientID);
+$results['description'] = getPropertyValue($definitions['operationDescription'], $newOperationID, $clientID);
+$results['payMethod'] = getPropertyValue($definitions['operationPayMethod'], $newOperationID, $clientID);
+$results['bankAccount'] = getPropertyValue($definitions['operationBankAccount'], $newOperationID, $clientID);
+$results['note'] = getPropertyValue($definitions['operationNote'], $newOperationID, $clientID);
+$results['showNote'] = getPropertyValue($definitions['operationShowNote'], $newOperationID, $clientID);
+$results['status'] = getPropertyValue($definitions['operationStatus'], $newOperationID, $clientID);
 
 // And write XML Response back to the application
 RSreturnArrayResults($results);

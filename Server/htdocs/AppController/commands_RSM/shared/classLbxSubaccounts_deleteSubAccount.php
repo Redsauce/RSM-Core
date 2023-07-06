@@ -15,10 +15,10 @@ $operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['opera
 $conceptsItemTypeID   = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
 // get the subaccount accountID
-$accountID = getPropertyValue($definitions['subAccountAccountID'], $itemTypeID, $subAccountID, $clientID);
+$accountID = getPropertyValue($definitions['subAccountAccountID'], $subAccountID, $clientID);
 
 // get the account type
-if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountID, $clientID) == '430') {
+if (getPropertyValue($definitions['accountType'], $accountID, $clientID) == '430') {
     // delete associated users
     $usersItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['users'], $clientID);
 

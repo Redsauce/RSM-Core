@@ -27,7 +27,7 @@ if ($action == 'open') {
 
 
 
-$results['status'] = getPropertyValue($definitions['operationStatus'], $itemTypeID, $operationID, $clientID);
+$results['status'] = getPropertyValue($definitions['operationStatus'], $operationID, $clientID);
 
 // And write XML Response back to the application
 RSreturnArrayResults($results);

@@ -19,8 +19,8 @@ $results = array();
 foreach ($itemIDs as $itemID) {
     $result = array();
 
-    $result["name"] = getPropertyValue("catalogItem.name", "catalogItem", $itemID, $clientID);
-    $result["price"] = getPropertyValue("catalogItem.price", "catalogItem", $itemID, $clientID);
+    $result["name"] = getPropertyValue("catalogItem.name", $itemID, $clientID);
+    $result["price"] = getPropertyValue("catalogItem.price", $itemID, $clientID);
 
     $results[] = $result;
 }

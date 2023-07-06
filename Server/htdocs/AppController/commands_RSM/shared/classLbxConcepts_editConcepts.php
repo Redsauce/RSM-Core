@@ -11,7 +11,7 @@ $operationID = $GLOBALS['RS_POST']['operationID'];
 $operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get the operation description
-$operationDescription = getPropertyValue($definitions['operationDescription'], $operationsItemTypeID, $operationID, $clientID);
+$operationDescription = getPropertyValue($definitions['operationDescription'], $operationID, $clientID);
 
 
 // get the concepts item type

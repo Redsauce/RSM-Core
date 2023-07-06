@@ -11,7 +11,7 @@ $docID     = $GLOBALS['RS_POST']['docID']; // ID of the document to duplicate
 $RSuserID = RScheckUserAccess();
 
 $documentsITID = getClientItemTypeIDRelatedWithByName($definitions['financialDocuments'], $clientID);
-$docITID       = getPropertyValue($definitions['financialDocumentsItemTypeID'], $documentsITID, $docTypeID, $clientID);
+$docITID       = getPropertyValue($definitions['financialDocumentsItemTypeID'], $docTypeID, $clientID);
 
 // Duplicate the document
 $newDocID = duplicateItem($docITID, $docID, $clientID);
@@ -40,12 +40,12 @@ if ($docITID == getClientItemTypeIDRelatedWithByName($definitions['invoiceClient
 }
 
 // Clear the related operations
-$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $documentsITID, $docTypeID, $clientID);
+$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $docTypeID, $clientID);
 setPropertyValueByID($relatedOperationsPID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 
 // Now we must duplicate the associated concepts, if they exist.
-$conceptsITID      = getPropertyValue($definitions['financialDocumentsConceptID'], $documentsITID, $docTypeID, $clientID);
-$parentDocumentPID = getPropertyValue($definitions['financialDocumentsConceptFilterCriteria'], $documentsITID, $docTypeID, $clientID);
+$conceptsITID      = getPropertyValue($definitions['financialDocumentsConceptID'], $docTypeID, $clientID);
+$parentDocumentPID = getPropertyValue($definitions['financialDocumentsConceptFilterCriteria'], $docTypeID, $clientID);
 
 if ($conceptsITID != '') {
     // Get a list of the associated concepts

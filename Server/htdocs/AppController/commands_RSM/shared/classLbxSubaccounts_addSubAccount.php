@@ -48,7 +48,7 @@ $newSubAccountID = createItem($clientID, $values);
 
 $results['ID'] = $newSubAccountID;
 $results['mainValue'] = getMainPropertyValue($newSubAccountID, $itemTypeID, $clientID);
-$results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], $itemTypeID, $newSubAccountID, $clientID);
+$results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], $newSubAccountID, $clientID);
 
 // Return results
 RSreturnArrayResults($results);
