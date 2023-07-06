@@ -65,7 +65,7 @@ if ($wsID > 0) {
         // Set initial values
         $sumHours = 0;
         $realStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
-        $realEndDate   = getItemPropertyValue($wsTask, $tasksEndDatePropertyID,   $clientID);
+        $realEndDate   = getItemPropertyValue($wsTask, $tasksEndDatePropertyID, $clientID);
 
         foreach ($resultRelatedWS as $RelatedWS) {
             // Acumulate the total time
@@ -73,10 +73,10 @@ if ($wsID > 0) {
 
             //recalculate parent task dates if required
             if ($updateTaskDates == 1) {
-                $startDate = explode(' ',trim($RelatedWS['start']))[0];
+                $startDate = explode(' ', trim($RelatedWS['start']))[0];
 
                 //Check if WS start date lower than stored
-                if($realStartDate == "" || ($realStartDate != "" && isBefore($startDate, $realStartDate))){
+                if ($realStartDate == "" || ($realStartDate != "" && isBefore($startDate, $realStartDate))) {
                     $realStartDate = $startDate;
                 }
 
@@ -86,12 +86,11 @@ if ($wsID > 0) {
                 $endDate = date_format($endDateObj, 'Y-m-d');
 
                 //Check if WS end date higher than stored
-                if($realEndDate == "" || ($realStartDate != "" && isAfter($endDate, $realEndDate))){
+                if ($realEndDate == "" || ($realStartDate != "" && isAfter($endDate, $realEndDate))) {
                     $realEndDate = $endDate;
                 }
             }
         }
-
 
         //first update parent task
         // update task current time
@@ -122,7 +121,6 @@ if ($wsID > 0) {
         }
 
         $results['workSessionID'] = $wsID;
-        //$results['taskID'] = $wsTask;
 
     } else {
         $results['result'] = "NOK";
@@ -136,4 +134,3 @@ if ($wsID > 0) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

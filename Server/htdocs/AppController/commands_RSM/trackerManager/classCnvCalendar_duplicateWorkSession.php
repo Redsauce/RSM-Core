@@ -1,11 +1,13 @@
 <?php
 // A little function that returns true if the day passed is cutted off the interval...
-function isDayCuttedOff($dayName) {
+function isDayCuttedOff($dayName)
+{
     global $daysToCutOff;
 
     foreach ($daysToCutOff as $dayCuttedOff) {
-        if ($dayName == $dayCuttedOff)
+        if ($dayName == $dayCuttedOff) {
             return true;
+        }
     }
     return false;
 }
@@ -121,9 +123,11 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                     $uwsStartDateAndTime = splitDatetime($uws['startDate']);
 
-                    if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date'])))
+                    if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date']))) {
                         continue;
-                    // skip the rest and jump to the next worksession
+                    //  skip the rest and jump to the next worksession
+                    }
+
 
                     // retrieve worksession start date timestamp
                     $uwsBeginArr = parseDatetime($uws['startDate']);
@@ -217,7 +221,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 }
 
                 //update parent task dates if required
-                if($updateTaskDates == 1){
+                if ($updateTaskDates == 1) {
                     // get parent task start date and end date
                     $parentStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
                     $parentEndDate = getItemPropertyValue($wsTask, $tasksEndDatePropertyID, $clientID);
@@ -261,4 +265,3 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

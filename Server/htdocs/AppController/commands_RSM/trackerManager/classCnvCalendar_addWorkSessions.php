@@ -63,7 +63,7 @@ $returnProperties = array();
 // get worksessions
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
-if (count($result) > 0) {
+if (!empty($result)) {
   //another workssesion occupies part of this worksession's time
   $results['result'] = "NOK";
   $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
@@ -113,7 +113,7 @@ foreach ($result as $ws) {
 // so we can create it
 
 // get the properties IDs
-$propertiesValues = array( array('ID' => $wsStartDatePropertyID, 'value' => $startDate), array('ID' => $wsDurationPropertyID, 'value' => $duration), array('ID' => $wsTaskPropertyID, 'value' => $task), array('ID' => $wsUserPropertyID, 'value' => $user));
+$propertiesValues = array(array('ID' => $wsStartDatePropertyID, 'value' => $startDate), array('ID' => $wsDurationPropertyID, 'value' => $duration), array('ID' => $wsTaskPropertyID, 'value' => $task), array('ID' => $wsUserPropertyID, 'value' => $user));
 
 // create new worksession
 $workSessionID = createItem($clientID, $propertiesValues);
@@ -129,7 +129,7 @@ $returnProperties = array();
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 if (count($result) > 1) {
   // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
-  for($i=0;$i<count($result)-1;$i++){
+  for ($i=0; $i<count($result)-1; $i++) {
     deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
   }
 }
@@ -195,12 +195,12 @@ if ($updateTaskDates == 1) {
     $parentStartDate = getItemPropertyValue($task, $tasksStartDatePropertyID, $clientID);
     $parentEndDate = getItemPropertyValue($task, $tasksEndDatePropertyID, $clientID);
 
-    if ($startDate == "" || isBefore(explode(' ',trim($startDate))[0], $parentStartDate)) {
+    if ($startDate == "" || isBefore(explode(' ', trim($startDate))[0], $parentStartDate)) {
         // change the value into the database
         setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $task, $clientID, $startDate, '', $RSuserID);
     }
 
-    if ($endDate == "" || isAfter(explode(' ',trim($endDate))[0], $parentEndDate)) {
+    if ($endDate == "" || isAfter(explode(' ', trim($endDate))[0], $parentEndDate)) {
         // change the value into the database
         setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $task, $clientID, $endDate, '', $RSuserID);
     }
@@ -210,8 +210,6 @@ if ($updateTaskDates == 1) {
 $results['result'       ] = "OK";
 $results['workSessionID'] = $workSessionID;
 $results['internalID'   ] = $GLOBALS['RS_POST']['internalID'];
-//$results['taskID'] = $task;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -69,7 +69,7 @@ $returnProperties = array();
 // get worksessions
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
-if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) {// the only returned worksesssion could be the one we are updating
+if ((empty($result)) || ((count($result) == 1) && ($result[0]['ID'] == $wsID))) { // the only returned worksesssion could be the one we are updating
     // check that no existing worksessions beginning before this time and lasting until inside this time
     // build filter properties
     $filterProperties = array();
@@ -110,7 +110,7 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
     }
 
     // get the properties IDs
-    $propertiesValues = array( array('ID' => $wsStartDatePropertyID, 'value' => $startDate), array('ID' => $wsDurationPropertyID, 'value' => $duration));
+    $propertiesValues = array(array('ID' => $wsStartDatePropertyID, 'value' => $startDate), array('ID' => $wsDurationPropertyID, 'value' => $duration));
 
     // Set worksession creation date
     setItemPropertyValue($definitions['worksessionStartDate'], $itemTypeID, $wsID, $clientID, $startDate, $RSuserID);
@@ -147,10 +147,10 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
         //recalculate parent task dates if required
         if ($updateTaskDates == 1) {
-            $startDate = explode(' ',trim($RelatedWS['start']))[0];
+            $startDate = explode(' ', trim($RelatedWS['start']))[0];
 
             //Check if WS start date lower than stored
-            if($realStartDate == "" || isBefore($startDate, $realStartDate)){
+            if ($realStartDate == "" || isBefore($startDate, $realStartDate)) {
                 $realStartDate = $startDate;
             }
 
@@ -160,7 +160,7 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
             $endDate = date_format($endDateObj, 'Y-m-d');
 
             //Check if WS end date higher than stored
-            if($realEndDate == "" || isAfter($endDate, $realEndDate)){
+            if ($realEndDate == "" || isAfter($endDate, $realEndDate)) {
                 $realEndDate = $endDate;
             }
         }
@@ -182,7 +182,6 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
         // get taskGroup parent
         $taskGroup = getItemPropertyValue($taskGroup, $tasksGroupParentPropertyID, $clientID);
-
     }
     //update parent task dates if required
     if ($updateTaskDates == 1) {
@@ -195,7 +194,6 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
     // Build results array
     $results['result'] = "OK";
-
 } else {
     //another workssesion occupies part of this worksession's time
     $results['result'] = "NOK";
@@ -204,4 +202,3 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>
