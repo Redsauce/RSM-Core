@@ -2983,7 +2983,7 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
     $filterPropertyIds = array();
     $rejectedFilterPropertyIds = array();
 
-    // Process filter conditions only if $filterProperties is an array and has any filter condition on it 
+    // Process filter conditions only if $filterProperties is an array and has any filter condition on it
     if (is_array($filterProperties) && count($filterProperties) > 0) {
         //filter clauses that accept equal value
         $arrEquals = array('IN','<-IN','=','>=','<=','SAME_OR_BEFORE','SAME_OR_AFTER','TIME_SAME_OR_BEFORE','TIME_SAME_OR_AFTER','LIKE','GE','LE');
