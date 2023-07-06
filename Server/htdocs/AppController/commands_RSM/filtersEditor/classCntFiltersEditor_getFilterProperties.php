@@ -8,10 +8,11 @@ require_once "../utilities/RSMfiltersManagement.php";
 isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['filterID'   ]) ? $filterID = $GLOBALS['RS_POST']['filterID'] : dieWithError(400);
 
-if ($filterID == "") $filterID = "0";
- 
-$results = getFilterProperties($clientID,$filterID);
+if ($filterID == "") {
+    $filterID = "0";
+}
 
-// And return XML response back to application			
+$results = getFilterProperties($clientID, $filterID);
+
+// And return XML response back to application
 RSReturnArrayQueryResults($results);
-?>
