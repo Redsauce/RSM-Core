@@ -9,10 +9,10 @@ $clientID     = $GLOBALS['RS_POST']['clientID'];
 $subAccountID = $GLOBALS['RS_POST']['subAccountID'];
 
 // get the item types
-$itemTypeID           = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
-$accountsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);
-$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
-$conceptsItemTypeID   = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+$itemTypeID           = getClientItemTypeIDRelatedWithByName($definitions['subAccounts'], $clientID);
+$accountsItemTypeID   = getClientItemTypeIDRelatedWithByName($definitions['accounts'], $clientID);
+$operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
+$conceptsItemTypeID   = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
 // get the subaccount accountID
 $accountID = getPropertyValue($definitions['subAccountAccountID'], $itemTypeID, $subAccountID, $clientID);
@@ -20,13 +20,13 @@ $accountID = getPropertyValue($definitions['subAccountAccountID'], $itemTypeID, 
 // get the account type
 if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountID, $clientID) == '430') {
     // delete associated users
-    $usersItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['users'], $clientID);
+    $usersItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['users'], $clientID);
 
     // build filter properties array
     $filterProperties = array();
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['userSubAccountID'], $clientID), 'value' => $subAccountID);
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['userSubAccountID'], $clientID), 'value' => $subAccountID);
 
-    $useRSqueryResults = IQ_getFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
+    $useRSqueryResults = iqGetFilteredItemsIDs($usersItemTypeID, $clientID, $filterProperties, array());
 
     $users = array();
     while ($row = $useRSqueryResults->fetch_assoc()) {
@@ -45,12 +45,12 @@ if (getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountI
 
 // get subaccount operations
 $filterProperties = array();
-$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID);
+$filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID), 'value' => $subAccountID);
 
-$operationsQueryResults = IQ_getFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
+$operationsQueryResults = iqGetFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
 
 // get operations "related operations" property ID
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
 
 $operations = array();
 while ($row = $operationsQueryResults->fetch_assoc()) {
@@ -60,7 +60,7 @@ while ($row = $operationsQueryResults->fetch_assoc()) {
     $filterProperties = array();
     $filterProperties[] = array('ID' => $relatedOperationsPropertyID, 'value' => $row['ID'], 'mode' => 'IN');
 
-    $relatedOperations = IQ_getFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
+    $relatedOperations = iqGetFilteredItemsIDs($operationsItemTypeID, $clientID, $filterProperties, array());
 
     // delete the relationships
     while ($operation = $relatedOperations->fetch_assoc()) {
@@ -71,9 +71,9 @@ while ($row = $operationsQueryResults->fetch_assoc()) {
 if (!empty($operations)) {
     // get operations concepts
     $filterProperties = array();
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => implode(',', $operations), 'mode' => '<-IN');
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID), 'value' => implode(',', $operations), 'mode' => '<-IN');
 
-    $conceptsQueryResults = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
+    $conceptsQueryResults = iqGetFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
 
     $concepts = array();
     while ($row = $conceptsQueryResults->fetch_assoc()) {

@@ -17,11 +17,11 @@ $operation_2    = $GLOBALS['RS_POST']['operation_2'];  // an invoice
 $setPayDate     = $GLOBALS['RS_POST']['setPayDate'];
 
 // get operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get some properties we will need
-$relOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
-$totalPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationTotal'], $clientID);
+$relOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
+$totalPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationTotal'], $clientID);
 $totalPropertyType = getPropertyType($totalPropertyID, $clientID);
 
 // --- RELATIONSHIP ---
@@ -43,7 +43,7 @@ foreach ($op1RelatedOperations as $operation) {
 
 if ($total == $op1Total) {
     // get the closed status
-    $closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+    $closedStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
 
     // close operation_1
     setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $operation_1, $clientID, $closedStatus, $RSuserID);
@@ -64,7 +64,7 @@ $results['setPayDate'] = $setPayDate;
 
 if ($setPayDate == '1') {
     // get invoice date property ID
-    $invoiceDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID);
+    $invoiceDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationInvoiceDate'], $clientID);
 
     // get operation_1 invoice date
     $invoiceDate = getItemPropertyValue($operation_1, $invoiceDatePropertyID, $clientID);

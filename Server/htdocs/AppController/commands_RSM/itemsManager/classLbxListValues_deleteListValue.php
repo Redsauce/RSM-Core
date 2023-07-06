@@ -8,7 +8,7 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $valueID = $GLOBALS['RS_POST']['valueID'];
 $listID = $GLOBALS['RS_POST']['listID'];
 
-if (getAppListValueID_RelatedWith($valueID, $clientID) == '0') {
+if (getAppListValueIDRelatedWith($valueID, $clientID) == '0') {
 
     // value not related... remove it
     RSquery("DELETE FROM rs_property_values WHERE RS_VALUE_ID = " . $valueID . " AND RS_LIST_ID = " . $listID . " AND RS_CLIENT_ID = " . $clientID);

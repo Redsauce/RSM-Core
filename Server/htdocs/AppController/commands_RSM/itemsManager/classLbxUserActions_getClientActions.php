@@ -15,7 +15,7 @@ $results = array();
 
 while ($row = $result->fetch_assoc()) {
     //get client name for module
-    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID), $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID), $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
     //if client name exists return it, otherwise return generic action name
     $results[] = array("actionID" => $row["actionID"], "actionName" => ($clientName != "" ? $clientName : $row["actionName"]));
 }

@@ -78,7 +78,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
                     $pValue = base64_decode($theProperties[1]);
                 } else {
                     // The value is not encoded in base64 so try to get a related property with the value
-                    $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($theProperties[1]), $clientID), $clientID);
+                    $pValue = getValue(getClientListValueIDRelatedWith(getAppListValueID($theProperties[1]), $clientID), $clientID);
                 }
 
                 if (in_array($pID, $itemTypeProperties)) {
@@ -102,7 +102,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 
         // get items pertaining to the parent passed
         $auxArr = array();
-        $result = IQ_getFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, $returnOrder);
+        $result = iqGetFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, $returnOrder);
 
         if ($result) {
             while ($item = $result->fetch_assoc()) {

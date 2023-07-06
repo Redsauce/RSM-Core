@@ -6,7 +6,7 @@ require_once "../utilities/RSMitemsManagement.php";
 $clientID = $GLOBALS['RS_POST']['clientID'];
 $propertyID = $GLOBALS['RS_POST']['propertyID'];
 
-$results['appPropertyID'] = getAppPropertyID_RelatedWith($propertyID, $clientID);
+$results['appPropertyID'] = getAppPropertyIDRelatedWith($propertyID, $clientID);
 
 // And write XML Response back to the application
 RSreturnArrayResults($results);

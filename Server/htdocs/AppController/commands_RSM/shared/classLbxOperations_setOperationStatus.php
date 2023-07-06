@@ -11,16 +11,16 @@ $action = $GLOBALS['RS_POST']['action'];
 
 
 // get the operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 if ($action == 'open') {
     // retrieve the status
-    $openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
+    $openStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
     // set new status
     setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $operationID, $clientID, $openStatus, $RSuserID);
 } else {
     // retrieve the status
-    $closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+    $closedStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
     // set new status
     setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $operationID, $clientID, $closedStatus, $RSuserID);
 }

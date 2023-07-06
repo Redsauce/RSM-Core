@@ -36,27 +36,27 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
         if ($wsID > 0) {
 
             // get worksessions item type
-            $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
+            $itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
 
             //check worksession exists
             if (count(getItems($itemTypeID, $clientID, true, $wsID)) > 0) {
 
                 // get tasks item types
-                $tasksItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-                $tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+                $tasksItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+                $tasksGroupItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
                 // get properties
-                $wsUserPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'], $clientID);
-                $wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-                $wsDurationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
-                $wsTaskPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
-                $wsDescriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDescription'], $clientID);
-                $taskParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-                $taskCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
-                $tasksStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-                $tasksEndDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
-                $tasksGroupParentPropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-                $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+                $wsUserPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionUser'], $clientID);
+                $wsStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionStartDate'], $clientID);
+                $wsDurationPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDuration'], $clientID);
+                $wsTaskPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
+                $wsDescriptionPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDescription'], $clientID);
+                $taskParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+                $taskCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
+                $tasksStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+                $tasksEndDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
+                $tasksGroupParentPropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+                $tasksGroupCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.currentTime'], $clientID);
 
                 // build an array containing the days to cut off
                 $daysToCutOff = array();
@@ -123,7 +123,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 $returnProperties[] = array('ID' => $wsDurationPropertyID, 'name' => 'duration');
 
                 // get worksessions
-                $worksessions = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
+                $worksessions = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
 
                 // check conflicts
                 while ($uws = $worksessions->fetch_assoc()) {

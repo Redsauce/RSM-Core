@@ -38,14 +38,14 @@ if ($result->num_rows > 0) {
 
     if ($registro && $registro['RS_BUILD'] != $_POST['RSbuild']) {
         //write into the data array
-        $data[] = array("build" => $registro['RS_BUILD'], "url" => $registro['RS_URL'], "signature" => $registro['RS_SIGNATURE'], "compatible" => RSCheckCompatibleDB($serviceMode));
+        $data[] = array("build" => $registro['RS_BUILD'], "url" => $registro['RS_URL'], "signature" => $registro['RS_SIGNATURE'], "compatible" => RScheckCompatibleDB($serviceMode));
     } else {
         //write into the data array
-        $data[] = array("compatible" => RSCheckCompatibleDB($serviceMode));
+        $data[] = array("compatible" => RScheckCompatibleDB($serviceMode));
     }
 } else {
     //write into the data array
-    $data[] = array("compatible" => RSCheckCompatibleDB($serviceMode));
+    $data[] = array("compatible" => RScheckCompatibleDB($serviceMode));
 }
 
 // And write XML Response back to the application

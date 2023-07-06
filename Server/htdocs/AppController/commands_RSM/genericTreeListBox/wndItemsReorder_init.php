@@ -37,7 +37,7 @@ if ($propertyID != '0') {
 
 // get items
 $auxArr = array();
-$result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, '1');
+$result = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, '1');
 
 $results = array();
 

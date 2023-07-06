@@ -10,7 +10,7 @@ $appListValues = getAppListValues($appListID);
 
 $results = array();
 foreach ($appListValues as $value) {
-    $clientValueIDRelated = getClientListValueID_RelatedWith($value['valueID'], $clientID);
+    $clientValueIDRelated = getClientListValueIDRelatedWith($value['valueID'], $clientID);
     if ($clientValueIDRelated == '0') {
         $related = '0';
     } else {

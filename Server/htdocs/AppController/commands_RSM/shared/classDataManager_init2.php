@@ -25,7 +25,7 @@ $itemTypeID   = parseITID($itemType, $clientID);
 $itemTypeName        = getClientItemTypeName($itemTypeID, $clientID);
 $mainPropertyID      = getMainPropertyID($itemTypeID, $clientID);
 $mainPropertyName    = getClientPropertyName($mainPropertyID, $clientID);
-$mainPropertyAppName = getAppPropertyName_RelatedWith($mainPropertyID, $clientID);
+$mainPropertyAppName = getAppPropertyNameRelatedWith($mainPropertyID, $clientID);
 
 // prepare results array
 $results   = array();
@@ -42,7 +42,7 @@ foreach ($visibleProperties as $property) {
   unset($property['categoryName']);
 
   // Add the propertyName in the results, if found
-  $property["appName"] = getAppPropertyName_RelatedWith($property["propertyID"], $clientID);
+  $property["appName"] = getAppPropertyNameRelatedWith($property["propertyID"], $clientID);
 
   $results[] = $property;
 
@@ -73,12 +73,12 @@ foreach ($visibleProperties as $property) {
         $returnProperties   = array();
         $referredItemTypeID = getClientPropertyReferredItemType($property['propertyID'], $clientID);
         $returnProperties[] = array('ID' => getMainPropertyID($referredItemTypeID, $clientID), 'name' => 'mainValue');
-        $referredItems      = IQ_getFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+        $referredItems      = iqGetFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
         while ($row = $referredItems->fetch_assoc()) {
           $results[] = $row;
         }
-      } elseif (isIdentifier2itemtype($property['propertyType'])) {
+      } elseif (isIdentifierToItemtype($property['propertyType'])) {
 
         // add mode (0) to the results
         $results[] = array('idsValues' => '0');
@@ -89,7 +89,7 @@ foreach ($visibleProperties as $property) {
         foreach ($itemTypes as $itemType) {
           $results[] = array('ID' => $itemType['ID'], 'mainValue' => $itemType['name']);
         }
-      } elseif (isIdentifier2property($property['propertyType'])) {
+      } elseif (isIdentifierToProperty($property['propertyType'])) {
 
         // add mode (0) to the results
         $results[] = array('idsValues' => '0');

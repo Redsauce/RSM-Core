@@ -60,14 +60,14 @@ function checkParamsContains($params, $item)
   }
 }
 
-function checkBodyContainsAtLeastOne($body, $item1, $item2)
+function checkBodyContainsAtLeastOne($body, $itemOne, $itemTwo)
 {
   global $RSallowDebug;
-  if (!(isset($body->$item1) || isset($body->$item2))) {
+  if (!(isset($body->$itemOne) || isset($body->$itemTwo))) {
     if ($RSallowDebug) {
-      returnJsonMessage(400, "Request body must contain at least field '{$item1}' or field '{$item2}'");
+      returnJsonMessage(400, "Request body must contain at least field '{$itemOne}' or field '{$itemTwo}'");
     } else {
-      RSerror("checkBodyContainsAtLeastOne: Request body must contain at least field '{$item1}' or field '{$item2}'");
+      RSerror("checkBodyContainsAtLeastOne: Request body must contain at least field '{$itemOne}' or field '{$itemTwo}'");
       returnJsonMessage(400, "");
     }
   }

@@ -66,7 +66,7 @@ if ($filterRules != '') {
             }
         } else {
             // The value is not encoded in base64 so try to get a related property with the value
-            $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
+            $pValue = getValue(getClientListValueIDRelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
         }
         $filterProperties[] = array('ID' => parsePID($rule[0], $clientID), 'value' => $pValue, 'mode' => $rule[2]);
     }

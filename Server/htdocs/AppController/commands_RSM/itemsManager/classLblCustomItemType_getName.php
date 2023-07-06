@@ -13,7 +13,7 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $appItemTypeName = $GLOBALS['RS_POST']['appItemTypeName'];
 
 // get client itemTypeID related with received appItemTypeName
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions[$appItemTypeName], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions[$appItemTypeName], $clientID);
 
 // get itemtype name
 $results['customItemTypeName'] = getClientItemTypeName($itemTypeID, $clientID);

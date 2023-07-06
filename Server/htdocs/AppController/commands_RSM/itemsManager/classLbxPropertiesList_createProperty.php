@@ -97,7 +97,7 @@ if ($clientID != '0' && $categoryID != '0') {
 
 
       // insert the new property for the items that already exists
-      $itemIDs = IQ_getItemIDs($itemTypeID, $clientID);
+      $itemIDs = iqGetItemIDs($itemTypeID, $clientID);
 
       if ($itemIDs && $itemIDs->num_rows > 0) {
 

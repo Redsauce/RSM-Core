@@ -6,7 +6,7 @@ require_once "../utilities/RSMlistsManagement.php";
 $appListID = $GLOBALS['RS_POST']['appListID'];
 $clientID = $GLOBALS['RS_POST']['clientID'];
 
-$clientListID = getClientListID_RelatedWith($appListID, $clientID);
+$clientListID = getClientListIDRelatedWith($appListID, $clientID);
 
 $result['clientListID'] = $clientListID;
 

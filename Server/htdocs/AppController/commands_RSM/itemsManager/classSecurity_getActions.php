@@ -30,10 +30,10 @@ if ($clientID != 0) {
                 $results[$row['RS_ID']]['description'] = $row['RS_DESCRIPTION'];
                 $results[$row['RS_ID']]['logo'] = bin2hex($row['RS_APPLICATION_LOGO']);
 
-                $clientItemTypeID  = getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
+                $clientItemTypeID  = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
                 $clientName        = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
                 $clientDescription = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.description', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
-                $propertyID        = getClientPropertyID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'] . '.logo', $clientID);
+                $propertyID        = getClientPropertyIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'] . '.logo', $clientID);
                 $clientLogo        = getItemDataPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID);
 
                 if ($clientName        != '') {
@@ -48,7 +48,7 @@ if ($clientID != 0) {
 
                 $additionalProperties = getAppItemTypeProperties(getAppItemTypeIDByName($row['RS_CONFIGURATION_ITEMTYPE']));
                 foreach ($additionalProperties as $additionalProperty) {
-                    $propertyID   = getClientPropertyID_RelatedWith_byName($additionalProperty['propertyName'], $clientID);
+                    $propertyID   = getClientPropertyIDRelatedWithByName($additionalProperty['propertyName'], $clientID);
 
                     //continue proccessing only if the property exists (app_property is related)
                     if ($propertyID != 0) {

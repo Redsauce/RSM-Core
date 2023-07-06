@@ -19,22 +19,22 @@ $operation_2 = $GLOBALS['RS_POST']['operation_2'];
 $resetPayDate = $GLOBALS['RS_POST']['resetPayDate'];
 
 // get the operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // get properties
-$propertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
-$statusPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationStatus'], $clientID);
+$propertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
+$statusPropertyID = getClientPropertyIDRelatedWithByName($definitions['operationStatus'], $clientID);
 
 // remove the operations from the lists
 removeIdentifier($operation_2, $itemTypeID, $operation_1, $propertyID, $clientID, $RSuserID);
 removeIdentifier($operation_1, $itemTypeID, $operation_2, $propertyID, $clientID, $RSuserID);
 
 // get the closed status
-$closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+$closedStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
 
 if (getItemPropertyValue($operation_1, $statusPropertyID, $clientID) == $closedStatus) {
     // get the open status
-    $openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
+    $openStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
 
     // open operation_1
     setPropertyValueByID($statusPropertyID, $itemTypeID, $operation_1, $clientID, $openStatus, '', $RSuserID);
@@ -47,7 +47,7 @@ $results['resetPayDate'] = $resetPayDate;
 
 if ($resetPayDate == '1') {
     // reset pay date to default value
-    $payDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationPayDate'], $clientID);
+    $payDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['operationPayDate'], $clientID);
 
     setPropertyValueByID($payDatePropertyID, $itemTypeID, $operation_2, $clientID, getClientPropertyDefaultValue($payDatePropertyID, $clientID), '', $RSuserID);
 

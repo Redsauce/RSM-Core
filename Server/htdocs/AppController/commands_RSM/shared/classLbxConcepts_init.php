@@ -12,16 +12,16 @@ $subAccountID = $GLOBALS['RS_POST']['subAccountID'];
 
 
 // get concepts item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
 // get concepts properties IDs
-$conceptNamePropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptName'], $clientID);
-$conceptProjectPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptProjectID'], $clientID);
-$conceptUnitsPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptUnits'], $clientID);
-$conceptIVAPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID);
-$conceptPricePropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID);
-$conceptDeductionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID);
-$conceptStockItemPropertyID = getClientPropertyID_RelatedWith_byName($definitions['conceptStockItemID'], $clientID);
+$conceptNamePropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptName'], $clientID);
+$conceptProjectPropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptProjectID'], $clientID);
+$conceptUnitsPropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptUnits'], $clientID);
+$conceptIVAPropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptIVA'], $clientID);
+$conceptPricePropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptPrice'], $clientID);
+$conceptDeductionPropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptDeduction'], $clientID);
+$conceptStockItemPropertyID = getClientPropertyIDRelatedWithByName($definitions['conceptStockItemID'], $clientID);
 
 // get concepts properties allowed
 $propertiesAllowed = getVisibleProperties($itemTypeID, $clientID, $userID);
@@ -88,9 +88,9 @@ $results[0]['projectDefValue'] = translateSingleIdentifier($conceptProjectProper
 $results[0]['stockItemDefValue'] = getClientPropertyDefaultValue($conceptStockItemPropertyID, $clientID);
 
 // get operations and projects item types
-$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
-$projectsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['projects'], $clientID);
-$subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
+$operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
+$projectsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['projects'], $clientID);
+$subAccountsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['subAccounts'], $clientID);
 
 // get operation subAccountID
 if ($subAccountID == "") {
@@ -101,21 +101,21 @@ $results[0]['subAccountName'] = getMainPropertyValue($subAccountsItemTypeID, $su
 
 // build filter properties array
 $filterProperties = array();
-$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['projectClient'], $clientID), 'value' => $subAccountID, 'mode' => 'IN');
+$filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['projectClient'], $clientID), 'value' => $subAccountID, 'mode' => 'IN');
 
 // build return properties array
 $returnProperties = array();
 $returnProperties[] = array('ID' => getMainPropertyID($projectsItemTypeID, $clientID), 'name' => 'mainValue');
 
 // get projects
-$projectsQueryResults = IQ_getFilteredItemsIDs($projectsItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+$projectsQueryResults = iqGetFilteredItemsIDs($projectsItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 if ($projectsQueryResults->num_rows == 0) {
     // If there were no results returned, we will list all the open projects
-    $openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
+    $openStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
     $filterProperties = array();
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
-    $projectsQueryResults = IQ_getFilteredItemsIDs($projectsItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
+    $projectsQueryResults = iqGetFilteredItemsIDs($projectsItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 }
 
 // --- SECOND PART RESULTS ---

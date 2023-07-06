@@ -8,34 +8,34 @@ $clientID  = $GLOBALS['RS_POST']['clientID'];
 $docTypeID = $GLOBALS['RS_POST']['docTypeID']; // ID of the financial document type to duplicate
 $docID     = $GLOBALS['RS_POST']['docID']; // ID of the document to duplicate
 
-$RSuserID = RSCheckUserAccess();
+$RSuserID = RScheckUserAccess();
 
-$documentsITID = getClientItemTypeID_RelatedWith_byName($definitions['financialDocuments'], $clientID);
+$documentsITID = getClientItemTypeIDRelatedWithByName($definitions['financialDocuments'], $clientID);
 $docITID       = getPropertyValue($definitions['financialDocumentsItemTypeID'], $documentsITID, $docTypeID, $clientID);
 
 // Duplicate the document
 $newDocID = duplicateItem($docITID, $docID, $clientID);
 
 // If the document is an invoice, clear the dates and ID
-if ($docITID == getClientItemTypeID_RelatedWith_byName($definitions['invoiceClient'], $clientID)) {
+if ($docITID == getClientItemTypeIDRelatedWithByName($definitions['invoiceClient'], $clientID)) {
     // Clear the ID
-    $invoiceIDPID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceID'], $clientID);
+    $invoiceIDPID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientInvoiceID'], $clientID);
     $result = setPropertyValueByID($invoiceIDPID, $docITID, $newDocID, $clientID, '0', '', $RSuserID);
 
     // Clear the invoice date
-    $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceDate'], $clientID);
+    $invoiceDatePID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientInvoiceDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 
     // Clear the direct debit date
-    $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientDebitDate'], $clientID);
+    $invoiceDatePID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientDebitDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 
     // Clear the payment date
-    $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientPaymentDate'], $clientID);
+    $invoiceDatePID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientPaymentDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 
     // Clear the sent date
-    $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientSentDate'], $clientID);
+    $invoiceDatePID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientSentDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 }
 

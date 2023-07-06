@@ -783,7 +783,7 @@ function RSquery($theQuery, $registerError = true)
         RSerror("RSdatabase: failed query: $theQuery");
     }
 
-    if (($RSallowDebug && $RSdebug)) {
+    if ($RSallowDebug && $RSdebug) {
         usleep(1);
         error_log($theQuery . "\n");
         error_log("Total queries executed: " . $queryCount . "\n\n");

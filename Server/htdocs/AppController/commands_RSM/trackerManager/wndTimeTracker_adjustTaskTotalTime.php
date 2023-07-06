@@ -9,15 +9,15 @@ isset($GLOBALS['RS_POST']['clientID']) ? $clientID  = $GLOBALS['RS_POST']['clien
 isset($GLOBALS['RS_POST']['taskID']) ? $taskID    = $GLOBALS['RS_POST']['taskID'] : dieWithError(400);
 
 // get item types
-$tasksItemTypeID      = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-$tasksGroupItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+$tasksItemTypeID      = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+$tasksGroupItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
 // get properties
-$tasksParentPropertyID    = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-$tasksTotalTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
+$tasksParentPropertyID    = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+$tasksTotalTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
 
-$tasksGroupParentPropertyID    = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-$tasksGroupTotalTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+$tasksGroupParentPropertyID    = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+$tasksGroupTotalTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.currentTime'], $clientID);
 
 // get task total time
 $taskTotalTime = getItemPropertyValue($taskID, $tasksGroupTotalTimePropertyID, $clientID);

@@ -10,14 +10,14 @@ $clientID  = $GLOBALS['RS_POST']['clientID'];
 
 
 // get worksessions item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
 
 // get properties
-$wsUserPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionUser'], $clientID);
-$wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-$wsDurationPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
-$wsTaskPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
-$wsDescriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionDescription'], $clientID);
+$wsUserPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionUser'], $clientID);
+$wsStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionStartDate'], $clientID);
+$wsDurationPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDuration'], $clientID);
+$wsTaskPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
+$wsDescriptionPropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionDescription'], $clientID);
 
 
 // build filter properties

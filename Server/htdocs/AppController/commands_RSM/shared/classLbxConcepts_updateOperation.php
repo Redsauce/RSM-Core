@@ -8,22 +8,22 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $operationID = $GLOBALS['RS_POST']['operationID'];
 
 // get the item types
-$conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
-$operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$conceptsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
+$operationsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 // build filter properties array
 $filterProperties = array();
-$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
+$filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
 
 // build return properties array
 $returnProperties = array();
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptUnits'], $clientID), 'name' => 'units');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID), 'name' => 'VAT');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID), 'name' => 'price');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID), 'name' => 'deduction');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptUnits'], $clientID), 'name' => 'units');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptIVA'], $clientID), 'name' => 'VAT');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptPrice'], $clientID), 'name' => 'price');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptDeduction'], $clientID), 'name' => 'deduction');
 
 // get operation concepts info
-$concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, $returnProperties);
+$concepts = iqGetFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, $returnProperties);
 
 // calculate the operation properties values
 $base = 0;

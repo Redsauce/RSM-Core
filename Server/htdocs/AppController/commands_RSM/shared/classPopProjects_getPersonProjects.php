@@ -10,10 +10,10 @@ $personID = $GLOBALS['RS_POST']['personID'];
 $onlyOpen = $GLOBALS['RS_POST']['onlyOpen'];
 
 // Get the item type and the main value
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['projects'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['projects'], $clientID);
 
 // get staff property ID
-$staffPropertyID = getClientPropertyID_RelatedWith_byName($definitions['projectStaff'], $clientID);
+$staffPropertyID = getClientPropertyIDRelatedWithByName($definitions['projectStaff'], $clientID);
 
 // build filter properties array
 $filterProperties = array();
@@ -21,9 +21,9 @@ $filterProperties[] = array('ID' => $staffPropertyID, 'value' => $personID, 'mod
 
 if ($onlyOpen == '1') {
     // retrieve the open status
-    $openStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
+    $openStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('projectStatusOpen'), $clientID), $clientID);
 
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['projectStatus'], $clientID), 'value' => $openStatus);
 }
 
 // build return properties array
@@ -32,7 +32,7 @@ $returnProperties[] = array('ID' => getMainPropertyID($itemTypeID, $clientID), '
 $returnProperties[] = array('ID' => $staffPropertyID, 'name' => 'staff');
 
 // get projects list
-$projectsList = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+$projectsList = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 
 // And return XML response back to the application

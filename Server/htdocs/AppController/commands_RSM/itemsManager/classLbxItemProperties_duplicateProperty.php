@@ -23,7 +23,7 @@ require_once "../utilities/RSMmediaManagement.php";
 $propertyIDstart    = $GLOBALS['RS_POST']['propertyIDstart'];
 $propertyIDend      = $GLOBALS['RS_POST']['propertyIDend'];
 $clientID           = $GLOBALS['RS_POST']['clientID'];
-$userID             = RSCheckUserAccess();
+$userID             = RScheckUserAccess();
 
 // The user must to have permission to access to both properties
 if (isPropertyVisible($userID, $propertyIDstart, $clientID) && isPropertyVisible($userID, $propertyIDend, $clientID)) {

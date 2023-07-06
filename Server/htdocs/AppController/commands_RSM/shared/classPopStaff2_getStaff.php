@@ -9,14 +9,14 @@ $clientID = $GLOBALS['RS_POST']['clientID'];
 $onlyActive = $GLOBALS['RS_POST']['onlyActive'];
 
 // get the item type and the main value
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['staff'], $clientID);
 $mainPropertyID = getMainPropertyID($itemTypeID, $clientID);
 
 // get person status property ID
-$personStatusPropertyID = getClientPropertyID_RelatedWith_byName($definitions['staffStatus'], $clientID);
+$personStatusPropertyID = getClientPropertyIDRelatedWithByName($definitions['staffStatus'], $clientID);
 
 // retrieve the active status value
-$inactiveStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('staffStatusInactive'), $clientID), $clientID);
+$inactiveStatus = getValue(getClientListValueIDRelatedWith(getAppListValueID('staffStatusInactive'), $clientID), $clientID);
 
 // build filter properties array
 $filterProperties = array();
@@ -29,6 +29,6 @@ $returnProperties = array();
 $returnProperties[] = array('ID' => $mainPropertyID, 'name' => 'mainValue');
 
 // get all staff
-$staff = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+$staff = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 RSreturnQueryResults($staff);

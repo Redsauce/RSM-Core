@@ -9,17 +9,17 @@ $operationID = $GLOBALS['RS_POST']['operationID'];
 
 
 // get operation item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 
 
 // get operation concepts...
-$conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+$conceptsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
 $filterProperties = array();
-$filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
+$filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
 
-$concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
+$concepts = iqGetFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
 
 // ... and delete them
 while ($row = $concepts->fetch_assoc()) {
@@ -30,12 +30,12 @@ while ($row = $concepts->fetch_assoc()) {
 
 
 // ... get the operation's related operations...
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
 
 $filterProperties = array();
 $filterProperties[] = array('ID' => $relatedOperationsPropertyID, 'value' => $operationID, 'mode' => 'IN');
 
-$relatedOperations = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, array());
+$relatedOperations = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, array());
 
 // ... and delete the relations
 while ($row = $relatedOperations->fetch_assoc()) {

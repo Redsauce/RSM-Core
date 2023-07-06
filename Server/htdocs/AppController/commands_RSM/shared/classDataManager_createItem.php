@@ -53,7 +53,7 @@ if ($itemID != '') {
     // append to the results
     $results[$property] = $propertyValue;
 
-    if (isSingleIdentifier($propertyType) || isIdentifier2itemtype($propertyType) || isIdentifier2property($propertyType)) {
+    if (isSingleIdentifier($propertyType) || isIdentifierToItemtype($propertyType) || isIdentifierToProperty($propertyType)) {
       $results[$property . 'trs'] = translateSingleIdentifier($property, $propertyValue, $clientID, $propertyType);
     } elseif (isMultiIdentifier($propertyType)) {
       $results[$property . 'trs'] = translateMultiIdentifier($property, $propertyValue, $clientID);

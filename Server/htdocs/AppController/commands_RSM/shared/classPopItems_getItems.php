@@ -6,7 +6,7 @@ require_once "../utilities/RSMitemsManagement.php";
 $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
 $clientID = $GLOBALS['RS_POST']['clientID'];
 
-$results = IQ_getItems($itemTypeID, $clientID);
+$results = iqGetItems($itemTypeID, $clientID);
 
 // Return data
 RSreturnQueryResults($results);

@@ -45,7 +45,7 @@ if (isset($GLOBALS['RS_GET']['r'])) {
 // If a clientID is given...
 if (isset($GLOBALS['RS_POST']['clientID'])) {
     // and a token is given too...
-    $RSuserID = RSCheckUserAccess();
+    $RSuserID = RScheckUserAccess();
 
     if (isset($GLOBALS['RS_POST']['RStoken'])) {
         // validates if their associated clients match.
@@ -54,7 +54,7 @@ if (isset($GLOBALS['RS_POST']['clientID'])) {
         }
     } else {
         // We don't have a token so validate user permissions
-        if (RSCheckCompatibleDB(0) == 0) {
+        if (RScheckCompatibleDB(0) == 0) {
             RSreturnError("INCOMPATIBLE VERSION", -4);
         }
         if ($RSuserID == 0) {
@@ -75,7 +75,7 @@ if (isset($GLOBALS['RS_POST']['clientID'])) {
     }
 } else {
     // By default we check if the database is compatible
-    if (RSCheckCompatibleDB(0) == 0) {
+    if (RScheckCompatibleDB(0) == 0) {
         RSreturnError("INCOMPATIBLE VERSION", -4);
     }
 }

@@ -10,7 +10,7 @@ $subAccountID = $GLOBALS['RS_POST']['subAccountID'];
 $duplicate = $GLOBALS['RS_POST']['duplicate'];
 
 // get item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['operations'], $clientID);
 
 if ($duplicate == 'yes') {
     // duplicate operation
@@ -23,27 +23,27 @@ if ($duplicate == 'yes') {
     }
 
     // reset operationID
-    setItemPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationOperationID'], $clientID), $clientID), $RSuserID);
 
     // reset related operations
-    setItemPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), $clientID), $RSuserID);
+    setItemPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID), $clientID), $RSuserID);
 
     // reset dates
-    setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationSendDate'], $clientID), $clientID), $RSuserID);
-    setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationPayDate'], $clientID), $clientID), $RSuserID);
-    setItemPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID), $clientID), $RSuserID);
-    setItemPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationDomicilyDate'], $clientID), $clientID), $RSuserID);
-    setItemPropertyValue($definitions['operationValueDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyID_RelatedWith_byName($definitions['operationValueDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationSendDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationPayDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationInvoiceDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationDomicilyDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationDomicilyDate'], $clientID), $clientID), $RSuserID);
+    setItemPropertyValue($definitions['operationValueDate'], $itemTypeID, $newOperationID, $clientID, getClientPropertyDefaultValue(getClientPropertyIDRelatedWithByName($definitions['operationValueDate'], $clientID), $clientID), $RSuserID);
 
     // duplicate concepts
-    $conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
+    $conceptsItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['concepts'], $clientID);
 
     // build filter properties array
     $filterProperties = array();
-    $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
+    $filterProperties[] = array('ID' => getClientPropertyIDRelatedWithByName($definitions['conceptOperationID'], $clientID), 'value' => $operationID);
 
     // get invoice concepts
-    $concepts = IQ_getFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
+    $concepts = iqGetFilteredItemsIDs($conceptsItemTypeID, $clientID, $filterProperties, array());
 
     // duplicate
     while ($row = $concepts->fetch_assoc()) {
@@ -61,9 +61,9 @@ if ($duplicate == 'yes') {
 
 
 $results['ID'] = $newOperationID;
-$results['subAccount'] = translateSingleIdentifier(getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID), getPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID), $clientID);
+$results['subAccount'] = translateSingleIdentifier(getClientPropertyIDRelatedWithByName($definitions['operationSubAccountID'], $clientID), getPropertyValue($definitions['operationSubAccountID'], $itemTypeID, $newOperationID, $clientID), $clientID);
 $results['operationID'] = getPropertyValue($definitions['operationOperationID'], $itemTypeID, $newOperationID, $clientID);
-$results['relatedOperations'] = translateMultiIdentifier(getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID), getPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID), $clientID);
+$results['relatedOperations'] = translateMultiIdentifier(getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID), getPropertyValue('operations.relatedOperations', $itemTypeID, $newOperationID, $clientID), $clientID);
 $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $itemTypeID, $newOperationID, $clientID);
 $results['payDate'] = getPropertyValue($definitions['operationPayDate'], $itemTypeID, $newOperationID, $clientID);
 $results['invoiceDate'] = getPropertyValue($definitions['operationInvoiceDate'], $itemTypeID, $newOperationID, $clientID);

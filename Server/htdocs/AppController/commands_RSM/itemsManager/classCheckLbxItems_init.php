@@ -8,7 +8,7 @@ isset($GLOBALS['RS_POST']['clientID']) ? $clientID   = $GLOBALS['RS_POST']['clie
 isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'] : dieWithError(400);
 
 // get items
-$data = IQ_getItems($itemTypeID, $clientID);
+$data = iqGetItems($itemTypeID, $clientID);
 
 // check response
 if (!$data) {

@@ -6,7 +6,7 @@ require_once "../utilities/RSMlistsManagement.php";
 $clientID = $GLOBALS['RS_POST']['clientID'];
 $appListID = $GLOBALS['RS_POST']['appListID'];
 
-deleteListRelationship_appSide($appListID, $clientID);
+deleteListRelationshipAppSide($appListID, $clientID);
 
 $result['result'] = 'OK';
 

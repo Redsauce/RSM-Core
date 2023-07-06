@@ -34,7 +34,7 @@ if ($clientID != "") {
     if (empty($staffID)) {
 
         // Get staff item type
-        $staffItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
+        $staffItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['staff'], $clientID);
 
         // Add new entry
         $staffID = createEmptyItem($staffItemTypeID, $clientID);

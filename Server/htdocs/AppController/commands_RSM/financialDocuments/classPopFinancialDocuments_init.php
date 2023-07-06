@@ -6,40 +6,40 @@ require_once '../utilities/RSMitemsManagement.php';
 isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 
 // get the operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName('financial.documents', $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName('financial.documents', $clientID);
 
 // build return properties array
 $returnProperties = array();
 
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.itemTypeID', $clientID), 'name' => 'itemTypeID', 'trName' => 'itemTypeName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.subItemTypeID', $clientID), 'name' => 'subItemTypeID', 'trName' => 'subItemTypeName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.filterCriteria', $clientID), 'name' => 'filterCriteriaID', 'trName' => 'filterCriteriaName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.previewURL', $clientID), 'name' => 'previewURL', 'trName' => 'previewURLName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.date', $clientID), 'name' => 'date', 'trName' => 'dateName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.base', $clientID), 'name' => 'base', 'trName' => 'baseName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.total', $clientID), 'name' => 'total', 'trName' => 'totalName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.vat', $clientID), 'name' => 'vat', 'trName' => 'vatName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.ret', $clientID), 'name' => 'ret', 'trName' => 'retName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.itemTypeID', $clientID), 'name' => 'itemTypeID', 'trName' => 'itemTypeName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.subItemTypeID', $clientID), 'name' => 'subItemTypeID', 'trName' => 'subItemTypeName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.filterCriteria', $clientID), 'name' => 'filterCriteriaID', 'trName' => 'filterCriteriaName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.previewURL', $clientID), 'name' => 'previewURL', 'trName' => 'previewURLName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.date', $clientID), 'name' => 'date', 'trName' => 'dateName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.base', $clientID), 'name' => 'base', 'trName' => 'baseName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.total', $clientID), 'name' => 'total', 'trName' => 'totalName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.vat', $clientID), 'name' => 'vat', 'trName' => 'vatName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.ret', $clientID), 'name' => 'ret', 'trName' => 'retName');
 
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.conceptID', $clientID), 'name' => 'conceptsItemTypeID', 'trName' => 'conceptsItemTypeName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.conceptFilterCriteria', $clientID), 'name' => 'conceptsFilterCriteriaID', 'trName' => 'conceptsFilterCriteriaName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.conceptID', $clientID), 'name' => 'conceptsItemTypeID', 'trName' => 'conceptsItemTypeName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.conceptFilterCriteria', $clientID), 'name' => 'conceptsFilterCriteriaID', 'trName' => 'conceptsFilterCriteriaName');
 
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concept.%discount', $clientID), 'name' => 'concepts%discountPID', 'trName' => 'concepts%discountName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.vat', $clientID), 'name' => 'conceptsVATpID', 'trName' => 'conceptVATName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.ret', $clientID), 'name' => 'conceptsRETpID', 'trName' => 'conceptRETName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.base', $clientID), 'name' => 'conceptsBasePID', 'trName' => 'conceptBaseName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.description', $clientID), 'name' => 'conceptsDescriptionPID', 'trName' => 'conceptDescriptionName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.project', $clientID), 'name' => 'conceptsProjectPID', 'trName' => 'conceptProjectName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.stock', $clientID), 'name' => 'conceptsStockPID', 'trName' => 'conceptStockName');
-$returnProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName('financial.documents.concepts.units', $clientID), 'name' => 'conceptsUnitsPID', 'trName' => 'conceptUnitsName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concept.%discount', $clientID), 'name' => 'concepts%discountPID', 'trName' => 'concepts%discountName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.vat', $clientID), 'name' => 'conceptsVATpID', 'trName' => 'conceptVATName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.ret', $clientID), 'name' => 'conceptsRETpID', 'trName' => 'conceptRETName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.base', $clientID), 'name' => 'conceptsBasePID', 'trName' => 'conceptBaseName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.description', $clientID), 'name' => 'conceptsDescriptionPID', 'trName' => 'conceptDescriptionName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.project', $clientID), 'name' => 'conceptsProjectPID', 'trName' => 'conceptProjectName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.stock', $clientID), 'name' => 'conceptsStockPID', 'trName' => 'conceptStockName');
+$returnProperties[] = array('ID' => getClientPropertyIDRelatedWithByName('financial.documents.concepts.units', $clientID), 'name' => 'conceptsUnitsPID', 'trName' => 'conceptUnitsName');
 
 
-$documentEquiv = getClientPropertyID_RelatedWith_byName('financial.documents.equiv', $clientID);
+$documentEquiv = getClientPropertyIDRelatedWithByName('financial.documents.equiv', $clientID);
 if ($documentEquiv != -1) {
     $returnProperties[] = array('ID' => $documentEquiv, 'name' => 'equiv', 'trName' => 'equivName');
 }
 
-$conceptsEquiv = getClientPropertyID_RelatedWith_byName('financial.documents.concepts.equiv', $clientID);
+$conceptsEquiv = getClientPropertyIDRelatedWithByName('financial.documents.concepts.equiv', $clientID);
 if ($conceptsEquiv != -1) {
     $returnProperties[] = array('ID' => $conceptsEquiv, 'name' => 'conceptsEquivPID', 'trName' => 'conceptEquivName');
 }
@@ -48,10 +48,10 @@ if ($conceptsEquiv != -1) {
 $fds = getFilteredItemsIDs($itemTypeID, $clientID, array(), $returnProperties, '', true);
 
 // get financial documents item types
-$clientInvoicesItemType   = getClientItemTypeID_RelatedWith_byName('invoice.client', $clientID);
-$payrollItemType          = getClientItemTypeID_RelatedWith_byName('payroll', $clientID);
-$bankOperationItemType    = getClientItemTypeID_RelatedWith_byName('operations', $clientID);
-$ticketItemType           = getClientItemTypeID_RelatedWith_byName('ticket', $clientID);
+$clientInvoicesItemType   = getClientItemTypeIDRelatedWithByName('invoice.client', $clientID);
+$payrollItemType          = getClientItemTypeIDRelatedWithByName('payroll', $clientID);
+$bankOperationItemType    = getClientItemTypeIDRelatedWithByName('operations', $clientID);
+$ticketItemType           = getClientItemTypeIDRelatedWithByName('ticket', $clientID);
 
 for ($i = 0; $i < count($fds); $i++) {
 

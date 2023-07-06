@@ -30,7 +30,7 @@ if ($itemTypeID <= 0) {
 $itemTypeName        = getClientItemTypeName($itemTypeID, $clientID);
 $mainPropertyID      = getMainPropertyID($itemTypeID, $clientID);
 $mainPropertyName    = getClientPropertyName($mainPropertyID, $clientID);
-$mainPropertyAppName = getAppPropertyName_RelatedWith($mainPropertyID, $clientID);
+$mainPropertyAppName = getAppPropertyNameRelatedWith($mainPropertyID, $clientID);
 
 // prepare results array
 $results   = array();
@@ -62,7 +62,7 @@ foreach ($properties as $property) {
   }
 
   // Add the propertyName in the results, if found
-  $property["appName"] = getAppPropertyName_RelatedWith($property["ID"], $clientID);
+  $property["appName"] = getAppPropertyNameRelatedWith($property["ID"], $clientID);
 
   // add the property to the results
   $results[] = $property;
@@ -70,14 +70,14 @@ foreach ($properties as $property) {
   if ($list = getPropertyList($property['ID'], $clientID)) {
     // add mode (multivalues: 0-1) to the results
     // If the property is related with an app list, return the appList ID and name
-    $results[] = array('listID' => $list['listID'], 'listValues' => $list['multiValues'], 'appListName' => getAppListName(getAppListID_RelatedWith($list['listID'], $clientID)));
+    $results[] = array('listID' => $list['listID'], 'listValues' => $list['multiValues'], 'appListName' => getAppListName(getAppListIDRelatedWith($list['listID'], $clientID)));
 
     if ($getSetOfValues == '1') {
       // get list values
       $listValues = getListValues($list['listID'], $clientID);
 
       foreach ($listValues as $value) {
-        $results[] = array('value' => $value['value'], 'id' => $value['valueID'], 'appName' => getAppValue(getAppListValueID_RelatedWith($value['valueID'], $clientID)));
+        $results[] = array('value' => $value['value'], 'id' => $value['valueID'], 'appName' => getAppValue(getAppListValueIDRelatedWith($value['valueID'], $clientID)));
       }
     }
   } else {
@@ -95,12 +95,12 @@ foreach ($properties as $property) {
         $returnProperties   = array();
         $referredItemTypeID = getClientPropertyReferredItemType($property['ID'], $clientID);
         $returnProperties[] = array('ID' => getMainPropertyID($referredItemTypeID, $clientID), 'name' => 'mainValue');
-        $referredItems      = IQ_getFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
+        $referredItems      = iqGetFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
         while ($row = $referredItems->fetch_assoc()) {
           $results[] = $row;
         }
-      } elseif (isIdentifier2itemtype($property['type'])) {
+      } elseif (isIdentifierToItemtype($property['type'])) {
 
         // add mode (0) to the results
         $results[] = array('idsValues' => '0');
@@ -111,7 +111,7 @@ foreach ($properties as $property) {
         foreach ($itemTypes as $itemType) {
           $results[] = array('ID' => $itemType['ID'], 'mainValue' => $itemType['name']);
         }
-      } elseif (isIdentifier2property($property['type'])) {
+      } elseif (isIdentifierToProperty($property['type'])) {
 
         // add mode (0) to the results
         $results[] = array('idsValues' => '0');

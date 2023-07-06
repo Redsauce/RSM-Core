@@ -27,7 +27,7 @@ foreach ($pointerPropertyIDs as $pointerPropertyID) {
     }
 
     // get items
-    $items = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filter, array(array('ID' => $mainPropertyID, 'name' => 'mainValue')), 'mainValue');
+    $items = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filter, array(array('ID' => $mainPropertyID, 'name' => 'mainValue')), 'mainValue');
 
     while ($item = $items->fetch_assoc()) {
         for ($i = 0; $i < count($results); $i++) {

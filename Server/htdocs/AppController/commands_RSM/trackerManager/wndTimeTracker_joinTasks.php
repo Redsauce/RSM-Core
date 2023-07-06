@@ -19,19 +19,19 @@ if ($tasks == '') {
 }
 
 // get item type
-$tasksItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
+$tasksItemTypeID = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
 
 // get properties
-$namePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskName'], $clientID);
-$descriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskDescription'], $clientID);
-$projectPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['taskProjectID'], $clientID);
-$parentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-$startDatePropertyID   = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-$endDatePropertyID     = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
-$staffPropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskStaff'], $clientID);
-$currentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
-$totalTimePropertyID   = getClientPropertyID_RelatedWith_byName($definitions['taskTotalTime'], $clientID);
-$statusPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['taskStatus'], $clientID);
+$namePropertyID        = getClientPropertyIDRelatedWithByName($definitions['taskName'], $clientID);
+$descriptionPropertyID = getClientPropertyIDRelatedWithByName($definitions['taskDescription'], $clientID);
+$projectPropertyID     = getClientPropertyIDRelatedWithByName($definitions['taskProjectID'], $clientID);
+$parentPropertyID      = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+$startDatePropertyID   = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+$endDatePropertyID     = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
+$staffPropertyID       = getClientPropertyIDRelatedWithByName($definitions['taskStaff'], $clientID);
+$currentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
+$totalTimePropertyID   = getClientPropertyIDRelatedWithByName($definitions['taskTotalTime'], $clientID);
+$statusPropertyID      = getClientPropertyIDRelatedWithByName($definitions['taskStatus'], $clientID);
 $parentPropertyType    = getPropertyType($parentPropertyID, $clientID);
 
 // get tasks properties
@@ -107,8 +107,8 @@ $staff = implode(',', array_merge(array_unique(explode(',', trim($staff, ','))))
 
 
 // get worksessions
-$worksessionsItemTypeID       = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
-$worksessionsTaskPropertyID   = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
+$worksessionsItemTypeID       = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
+$worksessionsTaskPropertyID   = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
 $worksessionsTaskPropertyType = getPropertyType($worksessionsTaskPropertyID, $clientID);
 
 $worksArray = getFilteredItemsIDs(
@@ -120,7 +120,7 @@ $worksArray = getFilteredItemsIDs(
   array()
 );
 
-$status = getValue(getClientListValueID_RelatedWith(getAppListValueID("taskStatusOpen"), $clientID), $clientID);
+$status = getValue(getClientListValueIDRelatedWith(getAppListValueID("taskStatusOpen"), $clientID), $clientID);
 
 // create new task after joining the others
 $values = array();

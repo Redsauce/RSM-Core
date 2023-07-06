@@ -26,7 +26,7 @@
 //*****************************************************************************
 
 // Check if the current application is compatible with the current database
-function RSCheckCompatibleDB($serviceMode)
+function RScheckCompatibleDB($serviceMode)
 {
     $result = 1;
     if (
@@ -63,7 +63,7 @@ function RSCheckCompatibleDB($serviceMode)
 
 
 // Check if the current user has access to work with the selected database
-function RSCheckUserAccess()
+function RScheckUserAccess()
 {
     if (!isset($GLOBALS['RS_POST']['RSLogin'])) {
         return 0;

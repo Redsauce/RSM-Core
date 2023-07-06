@@ -6,9 +6,9 @@ require_once "../utilities/RSMitemsManagement.php";
 $clientID = $GLOBALS['RS_POST']['clientID'];
 
 // get the accounts item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName($definitions['accounts'], $clientID);
 
-$accounts = IQ_getItems($itemTypeID, $clientID);
+$accounts = iqGetItems($itemTypeID, $clientID);
 
 // Return results
 RSreturnQueryResults($accounts);

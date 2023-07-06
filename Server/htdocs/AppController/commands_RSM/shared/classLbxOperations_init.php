@@ -10,27 +10,27 @@ isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['client
 isset($GLOBALS['RS_POST']['userID']) ? $userID   = $GLOBALS['RS_POST']['userID']  : dieWithError(400);
 
 // get operations item type
-$itemTypeID = getClientItemTypeID_RelatedWith_byName('operations', $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName('operations', $clientID);
 
 // get operations properties IDs
-$subAccountPropertyID        = getClientPropertyID_RelatedWith_byName('operations.subAccountID', $clientID);
-$operationPropertyID         = getClientPropertyID_RelatedWith_byName('operations.operationID', $clientID);
-$sendDatePropertyID          = getClientPropertyID_RelatedWith_byName('operations.sendDate', $clientID);
-$payDatePropertyID           = getClientPropertyID_RelatedWith_byName('operations.payDate', $clientID);
-$invoiceDatePropertyID       = getClientPropertyID_RelatedWith_byName('operations.invoiceDate', $clientID);
-$valueDatePropertyID         = getClientPropertyID_RelatedWith_byName('operations.valueDate', $clientID);
-$domicilyDatePropertyID      = getClientPropertyID_RelatedWith_byName('operations.domicilyDate', $clientID);
-$basePropertyID              = getClientPropertyID_RelatedWith_byName('operations.base', $clientID);
-$IVAPropertyID               = getClientPropertyID_RelatedWith_byName('operations.IVA', $clientID);
-$deductionPropertyID         = getClientPropertyID_RelatedWith_byName('operations.deduction', $clientID);
-$totalPropertyID             = getClientPropertyID_RelatedWith_byName('operations.total', $clientID);
-$descriptionPropertyID       = getClientPropertyID_RelatedWith_byName('operations.description', $clientID);
-$payMethodPropertyID         = getClientPropertyID_RelatedWith_byName('operations.payMethod', $clientID);
-$bankAccountPropertyID       = getClientPropertyID_RelatedWith_byName('operations.bankAccount', $clientID);
-$notePropertyID              = getClientPropertyID_RelatedWith_byName('operations.note', $clientID);
-$showNotePropertyID          = getClientPropertyID_RelatedWith_byName('operations.showNote', $clientID);
-$relatedOperationsPropertyID = getClientPropertyID_RelatedWith_byName('operations.relatedOperations', $clientID);
-$statusPropertyID            = getClientPropertyID_RelatedWith_byName('operations.status', $clientID);
+$subAccountPropertyID        = getClientPropertyIDRelatedWithByName('operations.subAccountID', $clientID);
+$operationPropertyID         = getClientPropertyIDRelatedWithByName('operations.operationID', $clientID);
+$sendDatePropertyID          = getClientPropertyIDRelatedWithByName('operations.sendDate', $clientID);
+$payDatePropertyID           = getClientPropertyIDRelatedWithByName('operations.payDate', $clientID);
+$invoiceDatePropertyID       = getClientPropertyIDRelatedWithByName('operations.invoiceDate', $clientID);
+$valueDatePropertyID         = getClientPropertyIDRelatedWithByName('operations.valueDate', $clientID);
+$domicilyDatePropertyID      = getClientPropertyIDRelatedWithByName('operations.domicilyDate', $clientID);
+$basePropertyID              = getClientPropertyIDRelatedWithByName('operations.base', $clientID);
+$IVAPropertyID               = getClientPropertyIDRelatedWithByName('operations.IVA', $clientID);
+$deductionPropertyID         = getClientPropertyIDRelatedWithByName('operations.deduction', $clientID);
+$totalPropertyID             = getClientPropertyIDRelatedWithByName('operations.total', $clientID);
+$descriptionPropertyID       = getClientPropertyIDRelatedWithByName('operations.description', $clientID);
+$payMethodPropertyID         = getClientPropertyIDRelatedWithByName('operations.payMethod', $clientID);
+$bankAccountPropertyID       = getClientPropertyIDRelatedWithByName('operations.bankAccount', $clientID);
+$notePropertyID              = getClientPropertyIDRelatedWithByName('operations.note', $clientID);
+$showNotePropertyID          = getClientPropertyIDRelatedWithByName('operations.showNote', $clientID);
+$relatedOperationsPropertyID = getClientPropertyIDRelatedWithByName('operations.relatedOperations', $clientID);
+$statusPropertyID            = getClientPropertyIDRelatedWithByName('operations.status', $clientID);
 
 // get operations properties allowed
 $propertiesAllowed = getVisibleProperties($itemTypeID, $clientID, $userID);
@@ -144,8 +144,8 @@ if ($GlobalInvoicerResult) {
 $results['itemTypeID'] = $itemTypeID;
 
 // return the operation status
-$results['openStatus'] = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
-$results['closedStatus'] = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+$results['openStatus'] = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusOpen'), $clientID), $clientID);
+$results['closedStatus'] = getValue(getClientListValueIDRelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
 
 
 // return the columns names

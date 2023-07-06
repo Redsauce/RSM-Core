@@ -6,7 +6,8 @@ require_once "RSMlistsDefinitions.php";
 // -----------------------------------------------
 
 // Return the name of the list passed
-function getListName($listID, $clientID) {
+function getListName($listID, $clientID)
+{
 
     $result = RSquery("SELECT RS_NAME FROM rs_lists WHERE RS_LIST_ID = " . $listID . " AND RS_CLIENT_ID = " . $clientID);
     if ($result) {
@@ -19,17 +20,17 @@ function getListName($listID, $clientID) {
 }
 
 // Return the client lists
-function getLists($clientID) {
+function getLists($clientID)
+{
 
     $theQuery = "SELECT RS_LIST_ID as 'ID', RS_NAME as 'name' FROM rs_lists WHERE RS_CLIENT_ID = " . $clientID . " ORDER BY RS_NAME";
 
-    $results = RSquery($theQuery);
-
-    return $results;
+    return RSquery($theQuery);
 }
 
 // Return the name of the client value passed
-function getValue($valueID, $clientID) {
+function getValue($valueID, $clientID)
+{
 
     $result = RSquery("SELECT RS_VALUE FROM rs_property_values WHERE RS_VALUE_ID = " . $valueID . " AND RS_CLIENT_ID = " . $clientID);
     if ($result) {
@@ -42,7 +43,8 @@ function getValue($valueID, $clientID) {
 }
 
 // Return the client list values of the list passed
-function getListValues($listID, $clientID) {
+function getListValues($listID, $clientID)
+{
     $theQuery = "SELECT RS_VALUE_ID AS 'valueID', RS_VALUE AS 'value' FROM rs_property_values WHERE RS_LIST_ID = " . $listID . " AND RS_CLIENT_ID = " . $clientID . " ORDER BY RS_ORDER";
 
     $results = RSquery($theQuery);
@@ -57,19 +59,22 @@ function getListValues($listID, $clientID) {
 }
 
 // Return the client properties that use list values
-function getPropertiesUsingLists($listID, $clientID) {
+function getPropertiesUsingLists($listID, $clientID)
+{
     $results = RSquery("SELECT RS_PROPERTY_ID FROM rs_properties_lists WHERE RS_LIST_ID = " . $listID . " AND RS_CLIENT_ID = " . $clientID);
 
     $propertiesList = array();
     if ($results) {
-        while ($row = $results->fetch_assoc())
+        while ($row = $results->fetch_assoc()) {
             $propertiesList[] = $row['RS_PROPERTY_ID'];
+        }
     }
     return $propertiesList;
 }
 
 // Return the list and the associates with the property passed (with the mode 'multiValues')
-function getPropertyList($propertyID, $clientID) {
+function getPropertyList($propertyID, $clientID)
+{
     $result = RSquery('SELECT RS_LIST_ID AS "listID", RS_MULTIVALUES AS "multiValues" FROM rs_properties_lists WHERE RS_PROPERTY_ID = ' . $propertyID . ' AND RS_CLIENT_ID = ' . $clientID);
     if ($result) {
         return $result->fetch_assoc();
@@ -79,14 +84,16 @@ function getPropertyList($propertyID, $clientID) {
 }
 
 //Return the ID of a list selected by their name
-function getListID($listName, $clientID) {
+function getListID($listName, $clientID)
+{
     $result = RSquery('SELECT RS_LIST_ID AS "listID" FROM rs_lists WHERE RS_NAME="' . $listName . '" AND RS_CLIENT_ID=' . $clientID);
 
     $ids = array();
 
     if ($result) {
-        while ($id = $result->fetch_assoc())
+        while ($id = $result->fetch_assoc()) {
             $ids[] = $id['listID'];
+        }
     }
 
     return $ids;
@@ -97,7 +104,8 @@ function getListID($listName, $clientID) {
 // -----------------------------------------------
 
 // Return the name of the application list passed
-function getAppListName($appListID) {
+function getAppListName($appListID)
+{
 
     $result = RSquery("SELECT RS_NAME FROM rs_lists_app WHERE RS_ID = " . $appListID);
 
@@ -110,7 +118,8 @@ function getAppListName($appListID) {
 }
 
 // Return the ID of the application list passed by definition
-function getAppListID($appListDef) {
+function getAppListID($appListDef)
+{
     global $listDefs;
 
     $result = RSquery("SELECT RS_ID FROM rs_lists_app WHERE RS_NAME = '" . $listDefs[$appListDef] . "'");
@@ -124,7 +133,8 @@ function getAppListID($appListDef) {
 }
 
 // Return the application lists
-function getAppLists() {
+function getAppLists()
+{
 
     $results = RSquery("SELECT RS_ID AS 'ID', RS_NAME AS 'name' FROM rs_lists_app ORDER BY RS_NAME");
 
@@ -138,7 +148,8 @@ function getAppLists() {
 }
 
 // Return the name of the application value passed
-function getAppValue($appValueID) {
+function getAppValue($appValueID)
+{
 
     $result = RSquery("SELECT RS_VALUE FROM rs_lists_values_app WHERE RS_ID = " . $appValueID);
 
@@ -151,7 +162,8 @@ function getAppValue($appValueID) {
 }
 
 // Return the application list values of the list passed
-function getAppListValues($appListID) {
+function getAppListValues($appListID)
+{
 
     $results = RSquery("SELECT RS_ID, RS_VALUE FROM rs_lists_values_app WHERE RS_LIST_APP_ID = " . $appListID . " ORDER BY RS_VALUE");
 
@@ -166,7 +178,8 @@ function getAppListValues($appListID) {
 }
 
 // Return the ID of the application list value passed by definition
-function getAppListValueID($appListValueDef) {
+function getAppListValueID($appListValueDef)
+{
     global $listDefs;
 
     isset($listDefs[$appListValueDef]) ? $value = $listDefs[$appListValueDef] : $value = $appListValueDef;
@@ -186,7 +199,8 @@ function getAppListValueID($appListValueDef) {
 // -----------------------------------------------
 
 // Return the ID of the client list related with the application list passed
-function getClientListID_RelatedWith($appListID, $clientID) {
+function getClientListIDRelatedWith($appListID, $clientID)
+{
 
     $result = RSquery("SELECT RS_LIST_ID FROM rs_lists_relations WHERE RS_LIST_APP_ID = " . $appListID . " AND RS_CLIENT_ID = " . $clientID);
 
@@ -198,7 +212,8 @@ function getClientListID_RelatedWith($appListID, $clientID) {
 }
 
 // Return the ID of the application list related with the client list passed
-function getAppListID_RelatedWith($clientListID, $clientID) {
+function getAppListIDRelatedWith($clientListID, $clientID)
+{
 
     $result = RSquery("SELECT RS_LIST_APP_ID FROM rs_lists_relations WHERE RS_LIST_ID = " . $clientListID . " AND RS_CLIENT_ID = " . $clientID);
 
@@ -209,31 +224,34 @@ function getAppListID_RelatedWith($clientListID, $clientID) {
 }
 
 // Delete list relationship (client side)
-function deleteListRelationship_clientSide($clientListID, $clientID) {
+function deleteListRelationshipClientSide($clientListID, $clientID)
+{
     RSquery("DELETE FROM rs_lists_relations WHERE RS_LIST_ID = " . $clientListID . " AND RS_CLIENT_ID = " . $clientID);
     // Delete values relationships
     $listValues = getListValues($clientListID, $clientID);
     foreach ($listValues as $value) {
-        deleteListValueRelationship_clientSide($value['valueID'], $clientID);
+        deleteListValueRelationshipClientSide($value['valueID'], $clientID);
     }
 }
 
 // Delete list relationship (app side)
-function deleteListRelationship_appSide($appListID, $clientID) {
+function deleteListRelationshipAppSide($appListID, $clientID)
+{
     RSquery("DELETE FROM rs_lists_relations WHERE RS_LIST_APP_ID = " . $appListID . " AND RS_CLIENT_ID = " . $clientID);
     // Delete values relationships
     $listValues = getAppListValues($appListID);
     foreach ($listValues as $value) {
-        deleteListValueRelationship_appSide($value['valueID'], $clientID);
+        deleteListValueRelationshipAppSide($value['valueID'], $clientID);
     }
 }
 
 // Create a lists relationship
-function createListsRelationship($clientListID, $appListID, $clientID) {
+function createListsRelationship($clientListID, $appListID, $clientID)
+{
     // delete previous client list relationship if any
-    deleteListRelationship_clientSide($clientListID, $clientID);
+    deleteListRelationshipClientSide($clientListID, $clientID);
     // delete previous application list relationship if any
-    deleteListRelationship_appSide($appListID, $clientID);
+    deleteListRelationshipAppSide($appListID, $clientID);
     // create new relationship
     RSquery("INSERT INTO rs_lists_relations VALUES (" . $appListID . "," . $clientID . "," . $clientListID . ",NOW())");
 }
@@ -243,7 +261,8 @@ function createListsRelationship($clientListID, $appListID, $clientID) {
 // -----------------------------------------------
 
 // Return the ID of the client list value related with the application list value passed
-function getClientListValueID_RelatedWith($appListValueID, $clientID) {
+function getClientListValueIDRelatedWith($appListValueID, $clientID)
+{
     $result = RSquery("SELECT RS_VALUE_ID FROM rs_lists_values_relations WHERE RS_VALUE_APP_ID = " . $appListValueID . " AND RS_CLIENT_ID = " . $clientID);
 
     if ($result && $clientListValue = $result->fetch_assoc())
@@ -253,7 +272,8 @@ function getClientListValueID_RelatedWith($appListValueID, $clientID) {
 }
 
 // Return the ID of the application list value related with the client list value passed
-function getAppListValueID_RelatedWith($clientListValueID, $clientID) {
+function getAppListValueIDRelatedWith($clientListValueID, $clientID)
+{
     $result = RSquery("SELECT RS_VALUE_APP_ID FROM rs_lists_values_relations WHERE RS_VALUE_ID = " . $clientListValueID . " AND RS_CLIENT_ID = " . $clientID);
 
     if ($result && $appListValue = $result->fetch_assoc())
@@ -263,21 +283,24 @@ function getAppListValueID_RelatedWith($clientListValueID, $clientID) {
 }
 
 // Delete list value relationship (client side)
-function deleteListValueRelationship_clientSide($clientListValueID, $clientID) {
+function deleteListValueRelationshipClientSide($clientListValueID, $clientID)
+{
     RSquery("DELETE FROM rs_lists_values_relations WHERE RS_VALUE_ID = " . $clientListValueID . " AND RS_CLIENT_ID = " . $clientID);
 }
 
 // Delete list value relationship (app side)
-function deleteListValueRelationship_appSide($appListValueID, $clientID) {
+function deleteListValueRelationshipAppSide($appListValueID, $clientID)
+{
     RSquery("DELETE FROM rs_lists_values_relations WHERE RS_VALUE_APP_ID = " . $appListValueID . " AND RS_CLIENT_ID = " . $clientID);
 }
 
 // Create a lists values relationship
-function createListsValuesRelationship($clientListValueID, $appListValueID, $clientID) {
+function createListsValuesRelationship($clientListValueID, $appListValueID, $clientID)
+{
     // delete previous client list value relationship if any
-    deleteListValueRelationship_clientSide($clientListValueID, $clientID);
+    deleteListValueRelationshipClientSide($clientListValueID, $clientID);
     // delete previous application list value relationship if any
-    deleteListValueRelationship_appSide($appListValueID, $clientID);
+    deleteListValueRelationshipAppSide($appListValueID, $clientID);
     // create new relationship
     RSquery("INSERT INTO rs_lists_values_relations VALUES (" . $appListValueID . "," . $clientID . "," . $clientListValueID . ",NOW())");
 }

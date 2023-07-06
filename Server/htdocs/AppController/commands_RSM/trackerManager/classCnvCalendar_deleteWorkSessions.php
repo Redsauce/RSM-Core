@@ -20,14 +20,14 @@ $updateTaskDates = 1;
 if ($wsID > 0) {
 
     // get the item types
-    $worksItemTypeID       = getClientItemTypeID_RelatedWith_byName($definitions['worksessions'], $clientID);
-    $tasksItemTypeID       = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
-    $tasksGroupItemTypeID  = getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID);
+    $worksItemTypeID       = getClientItemTypeIDRelatedWithByName($definitions['worksessions'], $clientID);
+    $tasksItemTypeID       = getClientItemTypeIDRelatedWithByName($definitions['tasks'], $clientID);
+    $tasksGroupItemTypeID  = getClientItemTypeIDRelatedWithByName($definitions['tasksGroup'], $clientID);
 
     // get properties
-    $wsDurationPropertyID  = getClientPropertyID_RelatedWith_byName($definitions['worksessionDuration'], $clientID);
-    $wsStartDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['worksessionStartDate'], $clientID);
-    $wsTaskPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['worksessionTask'], $clientID);
+    $wsDurationPropertyID  = getClientPropertyIDRelatedWithByName($definitions['worksessionDuration'], $clientID);
+    $wsStartDatePropertyID = getClientPropertyIDRelatedWithByName($definitions['worksessionStartDate'], $clientID);
+    $wsTaskPropertyID      = getClientPropertyIDRelatedWithByName($definitions['worksessionTask'], $clientID);
 
     //check worksession exists
     if (count(getItems($worksItemTypeID, $clientID, true, $wsID)) > 0) {
@@ -55,12 +55,12 @@ if ($wsID > 0) {
         $resultRelatedWS = getFilteredItemsIDs($worksItemTypeID, $clientID, $filterPropertiesRelatedWS, $returnPropertiesRelatedWS, '', true);
 
         // get parent tasks related properties
-        $taskParentPropertyID            = getClientPropertyID_RelatedWith_byName($definitions['taskParentID'], $clientID);
-        $taskCurrentTimePropertyID       = getClientPropertyID_RelatedWith_byName($definitions['taskCurrentTime'], $clientID);
-        $tasksStartDatePropertyID        = getClientPropertyID_RelatedWith_byName($definitions['taskStartDate'], $clientID);
-        $tasksEndDatePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['taskEndDate'], $clientID);
-        $tasksGroupParentPropertyID      = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.parentID'], $clientID);
-        $tasksGroupCurrentTimePropertyID = getClientPropertyID_RelatedWith_byName($definitions['tasksGroup.currentTime'], $clientID);
+        $taskParentPropertyID            = getClientPropertyIDRelatedWithByName($definitions['taskParentID'], $clientID);
+        $taskCurrentTimePropertyID       = getClientPropertyIDRelatedWithByName($definitions['taskCurrentTime'], $clientID);
+        $tasksStartDatePropertyID        = getClientPropertyIDRelatedWithByName($definitions['taskStartDate'], $clientID);
+        $tasksEndDatePropertyID          = getClientPropertyIDRelatedWithByName($definitions['taskEndDate'], $clientID);
+        $tasksGroupParentPropertyID      = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.parentID'], $clientID);
+        $tasksGroupCurrentTimePropertyID = getClientPropertyIDRelatedWithByName($definitions['tasksGroup.currentTime'], $clientID);
 
         // Set initial values
         $sumHours = 0;

@@ -7,16 +7,16 @@ require_once '../utilities/RSMitemsManagement.php';
 isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['ticketID']) ? $ticketID = $GLOBALS['RS_POST']['ticketID'] : dieWithError(400);
 
-$RSuserID   = RSCheckUserAccess();
+$RSuserID   = RScheckUserAccess();
 
-$itemTypeID = getClientItemTypeID_RelatedWith_byName("ticket", $clientID);
+$itemTypeID = getClientItemTypeIDRelatedWithByName("ticket", $clientID);
 
 // get invoice.client ticketID and invoiceDate properties
-$ticketIDPropertyID   = getClientPropertyID_RelatedWith_byName("ticket.ID", $clientID);
-$ticketDatePropertyID = getClientPropertyID_RelatedWith_byName("ticket.date", $clientID);
+$ticketIDPropertyID   = getClientPropertyIDRelatedWithByName("ticket.ID", $clientID);
+$ticketDatePropertyID = getClientPropertyIDRelatedWithByName("ticket.date", $clientID);
 
 // get invoice.client clientID property
-// $invoiceClientIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientClientID'], $clientID);
+// $invoiceClientIDPropertyID = getClientPropertyIDRelatedWithByName($definitions['invoiceClientClientID'], $clientID);
 
 // check if the ticket has been already generated
 $currentTicketID   = getItemPropertyValue($ticketID, $ticketIDPropertyID, $clientID);
@@ -36,7 +36,7 @@ $returnProperties   = array();
 $returnProperties[] = array('ID' => $ticketIDPropertyID, 'name' => 'ticketID');
 
 // get current year's invoices
-$currentYearTickets = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
+$currentYearTickets = iqGetFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
 
 $maxID = 0;
 

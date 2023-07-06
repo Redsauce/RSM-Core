@@ -12,17 +12,11 @@ $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`) 
 // Query the database
 if (RSquery($query)) {
     //send mail to admin
-    /*$mensaje = "Se ha registrado un nuevo error en RSM:\n\nURL:\n".$url."\n\nPOST DATA SENT:\n".$post."\n\nSERVER RESPONSE:\n".$result."";
-    $mensaje = wordwrap($mensaje, 70);
-    mail('webmaster@redsauce.net', 'Nuevo error en RSM', $mensaje);*/
 
     $results['result'] = "OK";
     $results['ID'] = $mysqli->insert_id;
 } else {
     //send mail to admin
-    /*$mensaje = "Se ha notificado un nuevo error en RSM, este resultado NO HA PODIDO SER ALMACENADO EN LA BD:\n\nURL:\n".$url."\n\nPOST DATA SENT:\n".$post."\n\nSERVER RESPONSE:\n".$result."";
-    $mensaje = wordwrap($mensaje, 70);
-    mail('webmaster@redsauce.net', 'Nuevo error en RSM (NO ALMACENADO)', $mensaje);*/
 
     $results['result'] = "NOK";
 }

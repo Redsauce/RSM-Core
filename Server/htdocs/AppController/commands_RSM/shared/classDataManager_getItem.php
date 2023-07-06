@@ -57,7 +57,7 @@ foreach ($properties as $property) {
         'ID'       => $property['id'],
         'name'     => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
         'value'    => $value, 'type' => $property['type'],
-        'related'  => getAppPropertyName_RelatedWith($property['id'], $clientID),
+        'related'  => getAppPropertyNameRelatedWith($property['id'], $clientID),
         'filename' => array_key_exists(0, $attributes) ? $attributes[0] : '',
         'filesize' => array_key_exists(1, $attributes) ? $attributes[1] : ''
       );
@@ -66,7 +66,7 @@ foreach ($properties as $property) {
         'ID'      => $property['id'],
         'name'    => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
         'value'   => html_entity_decode($value, ENT_COMPAT, "UTF-8"),
-        'related' => getAppPropertyName_RelatedWith($property['id'], $clientID),
+        'related' => getAppPropertyNameRelatedWith($property['id'], $clientID),
         'type'    => $property['type']
       );
     }

@@ -561,7 +561,6 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
                 for ($i = 0; $i < count($parentIDs); $i++) {
                     $parentID = $parentIDs[$i];
                     $auxItemsInPath = $temporaryItemsInPath;
-                    $auxTreePath = $treePath;
                     if ($parentID > 0) {
                         $auxItemsInPath[0]["parentID"] = $parentID;
                         $auxItemsInPath[0]["parentItemType"] = $treePath[count($treePath) - 2]["itemTypeID"];
@@ -570,7 +569,6 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
                             $auxItemsInPath[0]["order"] = (isset($orders[$i]) && $orders[$i] != '') ? $orders[$i] : "0";
                         }
                         if (count($treePath) > 2 || $parentID != $targetParentID) {
-                            //$itemName = getMainPropertyValue($treePath[count($treePath) - 2]["itemTypeID"], $parentID, $clientID);
                             $itemName = (isset($mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]) && array_key_exists($parentID, $mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]])) ? $mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]][$parentID] : getItemPropertyValue($parentID, $treePath[count($treePath) - 2]["mainPropertyID"], $clientID, $treePath[count($treePath) - 2]["mainPropertyType"], $treePath[count($treePath) - 2]["itemTypeID"]);
                             array_unshift($auxItemsInPath, array("nodeID" => $parentID, "nodeItemType" => $treePath[count($treePath) - 2]["itemTypeID"], "name" => $itemName, "parentID" => '', "parentItemType" => '', "parentPropertyID" => '', "childs" => $auxItemsInPath[0]["nodeID"] . ',' . $auxItemsInPath[0]["nodeItemType"]));
                             if ($returnOrder) {

@@ -62,7 +62,7 @@ if ($listID != 0) {
 if ($updatePrevious == '1') {
   // update the property default value for the items that already exist
   $itemTypeID = getClientPropertyItemType($propertyID, $clientID);
-  $itemIDs = IQ_getItemIDs($itemTypeID, $clientID);
+  $itemIDs = iqGetItemIDs($itemTypeID, $clientID);
   while ($row = $itemIDs->fetch_assoc()) {
     if (getItemPropertyValue($row['ID'], $propertyID, $clientID, $propertyType) == $propertyPrevDefValue) {
       setPropertyValueByID($propertyID, $itemTypeID, $row['ID'], $clientID, $propertyDefaultValue, $propertyType, $RSuserID);

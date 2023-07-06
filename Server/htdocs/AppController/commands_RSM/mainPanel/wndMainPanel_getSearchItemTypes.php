@@ -16,7 +16,7 @@ isset($GLOBALS["RS_POST"]["textFilter"]) ? $textFilter = $GLOBALS["RS_POST"]["te
 
 //First of all, we need to check if the variable clientID does not have the value 0
 if ($clientID != 0 && $RSuserID != 0) {
-  $filteredResults = getItemTypeIDs_usingFilter($RSuserID, $clientID, $textFilter);
+  $filteredResults = getItemTypeIDsUsingFilter($RSuserID, $clientID, $textFilter);
 
   // Write XML Response back to the application
   RSreturnArrayQueryResults($filteredResults, false);

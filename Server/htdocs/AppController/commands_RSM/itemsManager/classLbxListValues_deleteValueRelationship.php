@@ -6,7 +6,7 @@ require_once "../utilities/RSMlistsManagement.php";
 $valueID = $GLOBALS['RS_POST']['valueID'];
 $clientID = $GLOBALS['RS_POST']['clientID'];
 
-deleteListValueRelationship_clientSide($valueID, $clientID);
+deleteListValueRelationshipClientSide($valueID, $clientID);
 
 $results['result'] = 'OK';
 

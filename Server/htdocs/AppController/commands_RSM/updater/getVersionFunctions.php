@@ -44,18 +44,18 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang)
         case "DE":
             $descPropertyID = 811;
             break;
-       default:
+        default:
             $descPropertyID = 809;
     }
 
-    $buildItemTypeID        = getClientItemTypeID_RelatedWith_byName("productBuild", $redsauceClient);
-    $productItemTypeID      = getClientItemTypeID_RelatedWith_byName("studies", $redsauceClient);
-    //$revisionPropertyID     = getClientPropertyID_RelatedWith_byName("revisionHistory.revision", $redsauceClient);
-    $productPropertyID      = getClientPropertyID_RelatedWith_byName("productBuild.product", $redsauceClient);
-    $studyNamePropertyID    = getClientPropertyID_RelatedWith_byName("studies.name", $redsauceClient);
+    $buildItemTypeID        = getClientItemTypeIDRelatedWithByName("productBuild", $redsauceClient);
+    $productItemTypeID      = getClientItemTypeIDRelatedWithByName("studies", $redsauceClient);
+    //$revisionPropertyID     = getClientPropertyIDRelatedWithByName("revisionHistory.revision", $redsauceClient);
+    $productPropertyID      = getClientPropertyIDRelatedWithByName("productBuild.product", $redsauceClient);
+    $studyNamePropertyID    = getClientPropertyIDRelatedWithByName("studies.name", $redsauceClient);
     //$revisionMainPropertyID = getMainPropertyID($bugItemTypeID, $redsauceClient);
     $buildMainPropertyID    = getMainPropertyID($buildItemTypeID, $redsauceClient);
-    $response=array();
+    $response = array();
 
     // build filter properties
     $filterProperties = array();
@@ -67,14 +67,14 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang)
     // get items
     $results = getFilteredItemsIDs($productItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
-    if (count($results)==1) {
+    if (count($results) == 1) {
         // build filter properties
         $filterProperties = array();
         $filterProperties[] = array('ID' => $productPropertyID, 'value' => $results[0]['ID']);
 
-        if ($startVersion<$endVersion) {
-              $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion, 'mode' => 'GT');
-              $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion, 'mode' => 'LE');
+        if ($startVersion < $endVersion) {
+            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion, 'mode' => 'GT');
+            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion, 'mode' => 'LE');
         } else {
             $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion);
         }
@@ -87,60 +87,60 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang)
         $results = getFilteredItemsIDs($buildItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
         if (!empty($results)) {
-            $buildsList="";
+            $buildsList = "";
             foreach ($results as $res) {
-                $buildsList.=$res['ID'].",";
+                $buildsList .= $res['ID'] . ",";
             }
-            $buildsList=rtrim($buildsList, ",");
+            $buildsList = rtrim($buildsList, ",");
 
             // build filter properties
             $filterProperties = array();
-            $filterProperties[] = array('ID' => $versionPropertyID , 'value' => $buildsList, 'mode' => '<-IN');
-            $filterProperties[] = array('ID' => $descPropertyID    , 'value' => ""         , 'mode' => '<>');
-            $filterProperties[] = array('ID' => $revisionPropertyID, 'value' => ""         , 'mode' => '<>');
-            $filterProperties[] = array('ID' => $bugStatus         , 'value' => "Closed"   , 'mode' => '=');
-            $filterProperties[] = array('ID' => $bugSolutionStatus , 'value' => "Fixed"    , 'mode' => '=');
+            $filterProperties[] = array('ID' => $versionPropertyID, 'value' => $buildsList, 'mode' => '<-IN');
+            $filterProperties[] = array('ID' => $descPropertyID, 'value' => "", 'mode' => '<>');
+            $filterProperties[] = array('ID' => $revisionPropertyID, 'value' => "", 'mode' => '<>');
+            $filterProperties[] = array('ID' => $bugStatus, 'value' => "Closed", 'mode' => '=');
+            $filterProperties[] = array('ID' => $bugSolutionStatus, 'value' => "Fixed", 'mode' => '=');
 
             // build return properties array
             $returnProperties = array();
-            $returnProperties[] = array('ID' => $descPropertyID    , 'name' => 'description');
+            $returnProperties[] = array('ID' => $descPropertyID, 'name' => 'description');
             $returnProperties[] = array('ID' => $affectedPropertyID, 'name' => 'module');
 
             // get items
             $revisionResults = getFilteredItemsIDs($bugItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
-            $result=getModulesTranslated($RSuserID, $clientID);
+            $result = getModulesTranslated($RSuserID, $clientID);
 
-            if ($result->num_rows>0) {
+            if ($result->num_rows > 0) {
 
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
-                    if ($clientName!="") {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
+                    if ($clientName != "") {
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $clientName);
                     } else {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $row['RS_APPLICATION_NAME']);
                     }
                 }
 
                 usort($moduleTranslations, makeComparer('clientName'));
-                array_unshift($moduleTranslations, array("appName"=>"All Modules", "clientName"=>"All Modules"));
+                array_unshift($moduleTranslations, array("appName" => "All Modules", "clientName" => "All Modules"));
             }
 
             //replace modules
             foreach ($moduleTranslations as $translation) {
                 foreach ($revisionResults as $revisionResult) {
-                    if (strpos($revisionResult['module'], $translation['appName'])!==false) {
-                        $response[]=array('type'=>'bugFixing','description'=>$revisionResult['description'],'module'=>$translation['clientName']);
+                    if (strpos($revisionResult['module'], $translation['appName']) !== false) {
+                        $response[] = array('type' => 'bugFixing', 'description' => $revisionResult['description'], 'module' => $translation['clientName']);
                     }
                 }
             }
         } else {
-            $response[]=array('result'=>"NOK",'description'=>"PRODUCT BUILD NOT FOUND");
+            $response[] = array('result' => "NOK", 'description' => "PRODUCT BUILD NOT FOUND");
         }
     } else {
-        $response[]=array('result'=>"NOK",'description'=>"PRODUCT NOT FOUND");
+        $response[] = array('result' => "NOK", 'description' => "PRODUCT NOT FOUND");
     }
 
     // And return array
@@ -198,16 +198,16 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
             $descPropertyID = 806;
     }
 
-    $buildItemTypeID        = getClientItemTypeID_RelatedWith_byName("productBuild", $redsauceClient);
-    $productItemTypeID      = getClientItemTypeID_RelatedWith_byName("studies", $redsauceClient);
-    //$revisionPropertyID     = getClientPropertyID_RelatedWith_byName("revisionHistory.revision", $redsauceClient);
-    $productPropertyID      = getClientPropertyID_RelatedWith_byName("productBuild.product", $redsauceClient);
-    $studyNamePropertyID    = getClientPropertyID_RelatedWith_byName("studies.name", $redsauceClient);
+    $buildItemTypeID        = getClientItemTypeIDRelatedWithByName("productBuild", $redsauceClient);
+    $productItemTypeID      = getClientItemTypeIDRelatedWithByName("studies", $redsauceClient);
+    //$revisionPropertyID     = getClientPropertyIDRelatedWithByName("revisionHistory.revision", $redsauceClient);
+    $productPropertyID      = getClientPropertyIDRelatedWithByName("productBuild.product", $redsauceClient);
+    $studyNamePropertyID    = getClientPropertyIDRelatedWithByName("studies.name", $redsauceClient);
 
     //$revisionMainPropertyID = getMainPropertyID($changeRequestItemTypeID, $redsauceClient);
     $buildMainPropertyID    = getMainPropertyID($buildItemTypeID, $redsauceClient);
 
-    $response=array();
+    $response = array();
 
 
 
@@ -221,13 +221,13 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
     // get items
     $results = getFilteredItemsIDs($productItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
-    if (count($results)==1) {
+    if (count($results) == 1) {
         // build filter properties
         $filterProperties = array();
         $filterProperties[] = array('ID' => $productPropertyID, 'value' => $results[0]['ID']);
-        if ($startVersion<$endVersion) {
+        if ($startVersion < $endVersion) {
             $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion, 'mode' => 'GT');
-            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion  , 'mode' => 'LE');
+            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion, 'mode' => 'LE');
         } else {
             $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion);
         }
@@ -239,58 +239,58 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
         $results = getFilteredItemsIDs($buildItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
         if (!empty($results)) {
-            $buildsList="";
+            $buildsList = "";
             foreach ($results as $res) {
-                $buildsList.=$res['ID'].",";
+                $buildsList .= $res['ID'] . ",";
             }
-            $buildsList=rtrim($buildsList, ",");
+            $buildsList = rtrim($buildsList, ",");
 
             // build filter properties
             $filterProperties = array();
-            $filterProperties[] = array('ID' => $versionPropertyID  , 'value' => $buildsList, 'mode' => '<-IN');
-            $filterProperties[] = array('ID' => $descPropertyID     , 'value' => ""         , 'mode' => '<>');
-            $filterProperties[] = array('ID' => $revisionPropertyID , 'value' => ""         , 'mode' => '<>');
+            $filterProperties[] = array('ID' => $versionPropertyID, 'value' => $buildsList, 'mode' => '<-IN');
+            $filterProperties[] = array('ID' => $descPropertyID, 'value' => "", 'mode' => '<>');
+            $filterProperties[] = array('ID' => $revisionPropertyID, 'value' => "", 'mode' => '<>');
             $filterProperties[] = array('ID' => $changeRequestStatus, 'value' => "Terminado", 'mode' => '=');
 
             // build return properties array
             $returnProperties = array();
-            $returnProperties[] = array('ID' => $descPropertyID    , 'name' => 'description');
+            $returnProperties[] = array('ID' => $descPropertyID, 'name' => 'description');
             $returnProperties[] = array('ID' => $affectedPropertyID, 'name' => 'module');
 
             // get items
             $revisionResults = getFilteredItemsIDs($changeRequestItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
-            $result=getModulesTranslated($RSuserID, $clientID);
+            $result = getModulesTranslated($RSuserID, $clientID);
 
-            if ($result->num_rows>0) {
+            if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
-                    if ($clientName!="") {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
+                    if ($clientName != "") {
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $clientName);
                     } else {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $row['RS_APPLICATION_NAME']);
                     }
                 }
 
                 usort($moduleTranslations, makeComparer('clientName'));
-                array_unshift($moduleTranslations, array("appName"=>"All Modules","clientName"=>"All Modules"));
+                array_unshift($moduleTranslations, array("appName" => "All Modules", "clientName" => "All Modules"));
             }
 
             //replace modules
             foreach ($moduleTranslations as $translation) {
                 foreach ($revisionResults as $revisionResult) {
-                    if (strpos($revisionResult['module'], $translation['appName'])!==false) {
-                        $response[]=array('type'=>'changeRequest','description'=>$revisionResult['description'],'module'=>$translation['clientName']);
+                    if (strpos($revisionResult['module'], $translation['appName']) !== false) {
+                        $response[] = array('type' => 'changeRequest', 'description' => $revisionResult['description'], 'module' => $translation['clientName']);
                     }
                 }
             }
         } else {
-            $response[]=array('result'=>"NOK",'description'=>"PRODUCT BUILD NOT FOUND");
+            $response[] = array('result' => "NOK", 'description' => "PRODUCT BUILD NOT FOUND");
         }
     } else {
-        $response[]=array('result'=>"NOK",'description'=>"PRODUCT NOT FOUND");
+        $response[] = array('result' => "NOK", 'description' => "PRODUCT NOT FOUND");
     }
 
     // And write XML Response back to the application
@@ -347,15 +347,15 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
     //$revision                = 438;
 
     // get properties for Redsauce (clientID 1)
-    $buildItemTypeID        = getClientItemTypeID_RelatedWith_byName("productBuild", $redsauceClient);
-    $productItemTypeID      = getClientItemTypeID_RelatedWith_byName("studies", $redsauceClient);
-    $revisionPropertyID     = getClientPropertyID_RelatedWith_byName("revisionHistory.revision", $redsauceClient);
-    $productPropertyID      = getClientPropertyID_RelatedWith_byName("productBuild.product", $redsauceClient);
-    $studyNamePropertyID    = getClientPropertyID_RelatedWith_byName("studies.name", $redsauceClient);
+    $buildItemTypeID        = getClientItemTypeIDRelatedWithByName("productBuild", $redsauceClient);
+    $productItemTypeID      = getClientItemTypeIDRelatedWithByName("studies", $redsauceClient);
+    $revisionPropertyID     = getClientPropertyIDRelatedWithByName("revisionHistory.revision", $redsauceClient);
+    $productPropertyID      = getClientPropertyIDRelatedWithByName("productBuild.product", $redsauceClient);
+    $studyNamePropertyID    = getClientPropertyIDRelatedWithByName("studies.name", $redsauceClient);
 
     //$revisionMainPropertyID = getMainPropertyID($versionItemTypeID, $redsauceClient);
     $buildMainPropertyID    = getMainPropertyID($buildItemTypeID, $redsauceClient);
-    $response=array();
+    $response = array();
 
     // build filter properties
     $filterProperties   = array();
@@ -367,13 +367,13 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
     // get items
     $results = getFilteredItemsIDs($productItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
-    if (count($results)==1) {
+    if (count($results) == 1) {
         // build filter properties
         $filterProperties = array();
         $filterProperties[] = array('ID' => $productPropertyID, 'value' => $results[0]['ID']);
-        if ($startVersion<$endVersion) {
+        if ($startVersion < $endVersion) {
             $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion, 'mode' => 'GT');
-            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion  , 'mode' => 'LE');
+            $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $endVersion, 'mode' => 'LE');
         } else {
             $filterProperties[] = array('ID' => $buildMainPropertyID, 'value' => $startVersion);
         }
@@ -385,17 +385,17 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
         $results = getFilteredItemsIDs($buildItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
 
         if (!empty($results)) {
-            $buildsList="";
+            $buildsList = "";
             foreach ($results as $res) {
-                $buildsList.=$res['ID'].",";
+                $buildsList .= $res['ID'] . ",";
             }
-            $buildsList=rtrim($buildsList, ",");
+            $buildsList = rtrim($buildsList, ",");
 
             // build filter properties
             $filterProperties = array();
-            $filterProperties[] = array('ID' => $versionPropertyID , 'value' => $buildsList, 'mode' => '<-IN');
-            $filterProperties[] = array('ID' => $descPropertyID    , 'value' => ""         , 'mode' => '<>');
-            $filterProperties[] = array('ID' => $revisionPropertyID, 'value' => ""         , 'mode' => '<>');
+            $filterProperties[] = array('ID' => $versionPropertyID, 'value' => $buildsList, 'mode' => '<-IN');
+            $filterProperties[] = array('ID' => $descPropertyID, 'value' => "", 'mode' => '<>');
+            $filterProperties[] = array('ID' => $revisionPropertyID, 'value' => "", 'mode' => '<>');
 
             // build return properties array
             $returnProperties = array();
@@ -404,35 +404,35 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
 
             // get items
             $revisionResults = getFilteredItemsIDs($versionItemTypeID, $redsauceClient, $filterProperties, $returnProperties);
-            $result=getModulesTranslated($RSuserID, $clientID);
+            $result = getModulesTranslated($RSuserID, $clientID);
 
-            if ($result->num_rows>0) {
+            if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientItemTypeID = getClientItemTypeIDRelatedWithByName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'] . '.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
-                    if ($clientName!="") {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
+                    if ($clientName != "") {
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $clientName);
                     } else {
-                        $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
+                        $moduleTranslations[] = array('appName' => $row['RS_NAME'], 'clientName' => $row['RS_APPLICATION_NAME']);
                     }
                 }
                 usort($moduleTranslations, makeComparer('clientName'));
-                array_unshift($moduleTranslations, array("appName"=>"All Modules","clientName"=>"All Modules"));
+                array_unshift($moduleTranslations, array("appName" => "All Modules", "clientName" => "All Modules"));
             }
             //replace modules
             foreach ($moduleTranslations as $translation) {
                 foreach ($revisionResults as $revisionResult) {
-                    if (strpos($revisionResult['module'], $translation['appName'])!==false) {
-                        $response[]=array('type'=>'requirement','description'=>$revisionResult['description'],'module'=>$translation['clientName']);
+                    if (strpos($revisionResult['module'], $translation['appName']) !== false) {
+                        $response[] = array('type' => 'requirement', 'description' => $revisionResult['description'], 'module' => $translation['clientName']);
                     }
                 }
             }
         } else {
-            $response[]=array('result'=>"NOK",'description'=>"PRODUCT BUILD NOT FOUND");
+            $response[] = array('result' => "NOK", 'description' => "PRODUCT BUILD NOT FOUND");
         }
     } else {
-        $response[]=array('result'=>"NOK",'description'=>"PRODUCT NOT FOUND");
+        $response[] = array('result' => "NOK", 'description' => "PRODUCT NOT FOUND");
     }
     // And returns the array
     return $response;
