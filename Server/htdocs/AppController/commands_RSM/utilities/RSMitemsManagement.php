@@ -489,7 +489,7 @@ function setPropertyValue($propertyName, $itemTypeID, $itemID, $clientID, $value
     return setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $value, '', $userID);
 }
 
-function setDataPropertyValue($propertyName, $itemTypeID, $itemID, $clientID, $name, $value, $userID = 0)
+function setDataPropertyValue($propertyName, $itemTypeID, $itemID, $clientID, $name, $value)
 {
 
     // Get filter property id and type

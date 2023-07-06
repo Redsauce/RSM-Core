@@ -3,22 +3,22 @@
 //RSvalidationFunctions.php
 //***************************************************
 //Description:
-//	Functions to check if the application version is compatible with
+//  Functions to check if the application version is compatible with
 //  the database in use, and to check if the user
 //  has privileges to work with the system
 //***************************************************
 //Version:
 //***************************************************
 //Input: POST
-//	         RSuserID: user's login
-//	RSuserMD5Password: user's password encrypted in MD5
+//           RSuserID: user's login
+//  RSuserMD5Password: user's password encrypted in MD5
 //            RSbuild: Application build
 //          RSappName: Application Name
 //         RSlanguage: Application language
 //*****************************************************************************
 //             /
 //            |  1 If current app is compatible with the current database
-//		       |  0 If current app is NOT compatible with the current database
+//           |  0 If current app is NOT compatible with the current database
 // Outputs: <
 //           \  1 If user has access to work with the selected database
 //            \  0 If user has NOT access to work with the selected database
@@ -28,70 +28,70 @@
 // Check if the current application is compatible with the current database
 function RScheckCompatibleDB($serviceMode)
 {
-    $result = 1;
-    if (
-        !isset($GLOBALS['RS_POST']['RSbuild']) ||
-        !isset($GLOBALS['RS_POST']['RSplatform']) ||
-        !isset($GLOBALS['RS_POST']['RSappName'])
-    ) {
-        $result = -1;
-    }
+  $result = 1;
+  if (
+    !isset($GLOBALS['RS_POST']['RSbuild']) ||
+    !isset($GLOBALS['RS_POST']['RSplatform']) ||
+    !isset($GLOBALS['RS_POST']['RSappName'])
+  ) {
+    $result = -1;
+  }
 
-    $theQuery = "SELECT `RS_ID` FROM `rs_versions` WHERE `RS_BUILD`='" . $GLOBALS['RS_POST']['RSbuild'] . "' AND `RS_OS`= '" . $GLOBALS['RS_POST']['RSplatform'] . "' AND `RS_NAME` ='" . $GLOBALS['RS_POST']['RSappName'] . "'";
+  $theQuery = "SELECT `RS_ID` FROM `rs_versions` WHERE `RS_BUILD`='" . $GLOBALS['RS_POST']['RSbuild'] . "' AND `RS_OS`= '" . $GLOBALS['RS_POST']['RSplatform'] . "' AND `RS_NAME` ='" . $GLOBALS['RS_POST']['RSappName'] . "'";
 
-    if ($serviceMode == 0) {
-        $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
-    }
+  if ($serviceMode == 0) {
+    $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
+  }
 
-    $versions = RSquery($theQuery);
+  $versions = RSquery($theQuery);
 
-    // Check the results
+  // Check the results
 
-    // There was an error executing the query
-    if (!$versions) {
-        $result = -1;
-    }
+  // There was an error executing the query
+  if (!$versions) {
+    $result = -1;
+  }
 
-    // The application version is not registered against the database so it is incompatible
-    if ($versions->num_rows == 0) {
-        $result = 0;
-    }
+  // The application version is not registered against the database so it is incompatible
+  if ($versions->num_rows == 0) {
+    $result = 0;
+  }
 
-    // If result = 1, the application is compatible with the database
-    return $result;
+  // If result = 1, the application is compatible with the database
+  return $result;
 }
 
 
 // Check if the current user has access to work with the selected database
 function RScheckUserAccess()
 {
-    if (!isset($GLOBALS['RS_POST']['RSLogin'])) {
-        return 0;
-    }
+  if (!isset($GLOBALS['RS_POST']['RSLogin'])) {
+    return 0;
+  }
 
-    if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
-        // Continue checking the username and password.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
-    } else {
-        // There is no defined password. Use the login as a badge.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
-    }
+  if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
+    // Continue checking the username and password.
+    $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+  } else {
+    // There is no defined password. Use the login as a badge.
+    $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+  }
 
-    $users = RSquery($theQuery);
+  $users = RSquery($theQuery);
 
-    // Check the results
-    if (!$users) {
-        return -1;
-    }
+  // Check the results
+  if (!$users) {
+    return -1;
+  }
 
-    // User not found
-    if ($users->num_rows != 1) {
-        return 0;
-    }
+  // User not found
+  if ($users->num_rows != 1) {
+    return 0;
+  }
 
-    // A single user was found with the provided login and password
-    $row = $users->fetch_assoc();
-    return $row['RS_USER_ID'];
+  // A single user was found with the provided login and password
+  $row = $users->fetch_assoc();
+  return $row['RS_USER_ID'];
 }
 
 
@@ -99,20 +99,20 @@ function RScheckUserAccess()
 function getUserStaffID($userID, $clientID)
 {
 
-    $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
-    $users = RSquery($theQuery);
+  $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID`=" . $clientID;
+  $users = RSquery($theQuery);
 
-    // Check the results
-    if (!$users) {
-        return -1;
-    }
+  // Check the results
+  if (!$users) {
+    return -1;
+  }
 
-    // User not found
-    if ($users->num_rows != 1) {
-        return 0;
-    }
+  // User not found
+  if ($users->num_rows != 1) {
+    return 0;
+  }
 
-    // A single user was found with the userID
-    $row = $users->fetch_assoc();
-    return $row['RS_ITEM_ID'];
+  // A single user was found with the userID
+  $row = $users->fetch_assoc();
+  return $row['RS_ITEM_ID'];
 }
