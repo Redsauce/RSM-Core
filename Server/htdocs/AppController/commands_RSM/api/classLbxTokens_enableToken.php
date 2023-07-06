@@ -2,7 +2,7 @@
 // ***************************************************************************************
 // DESCRIPTION
 //      Enables the token pertaining to the tokenID passed as parameter
-// 
+//
 // PARAMETERS
 //   clientID: ID of the client who is owner of the token
 //      token: String pertaining to the token to disable
@@ -15,7 +15,7 @@
 require_once "../utilities/RSdatabase.php";
 
 // Set the token as enabled in the database
-$results = RSenableToken($GLOBALS['RS_POST']['token'],$GLOBALS['RS_POST']['clientID']);
+$results = RSenableToken($GLOBALS['RS_POST']['token'], $GLOBALS['RS_POST']['clientID']);
 
 // Generate a response array for RSM
 if (!$results) {
@@ -29,4 +29,3 @@ if (!$results) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
-?>

@@ -10,7 +10,9 @@ isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID = $GLOBALS['RS_POST']['it
 isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RStoken'   ]) ? $RStoken    = $GLOBALS['RS_POST']['RStoken'   ] : $RStoken  = '';
 
-if (!isset($RSuserID)) $RSuserID =  0;
+if (!isset($RSuserID)) {
+  $RSuserID =  0;
+}
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
@@ -28,5 +30,4 @@ if ($RSuserID > 0) {
 }
 
 // And return XML response back to application
-RSReturnArrayQueryResults($results,false);
-?>
+RSReturnArrayQueryResults($results, false);

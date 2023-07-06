@@ -20,14 +20,16 @@ require_once "../utilities/RSMitemsManagement.php";
 $tokenID = RSgetTokenID($GLOBALS['RS_POST']['token']);
 
 // Now we build the query
-$theQuery = "SELECT RS_PERMISSION AS  'permission', RS_PROPERTY_ID as 'propertyID' 
-                   FROM rs_token_permissions
+$theQuery = "SELECT RS_PERMISSION AS  'permission', RS_PROPERTY_ID as 'propertyID'
+                  FROM rs_token_permissions
                   WHERE RS_CLIENT_ID = '" . $GLOBALS['RS_POST']['clientID'] . "' AND (1 ";
 
 // Now we have to get the propertyIDs pertaining to the passed item type ID
 $propertyIDs = getUserVisiblePropertiesIDs($GLOBALS['RS_POST']['itemTypeID'], $GLOBALS['RS_POST']['clientID'], $RSuserID);
 
-foreach ($propertyIDs as $propertyID) $theQuery = $theQuery . " OR RS_PROPERTY_ID = " . $propertyID;
+foreach ($propertyIDs as $propertyID) {
+    $theQuery = $theQuery . " OR RS_PROPERTY_ID = " . $propertyID;
+}
 
 $theQuery = $theQuery . ") AND  RS_TOKEN_ID = " . $tokenID;
 
@@ -35,4 +37,3 @@ $results = RSQuery($theQuery);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>

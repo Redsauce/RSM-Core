@@ -16,4 +16,3 @@ $result = RSQuery($theQuery);
 
 // Write back the XML Response to the application without compression
 RSReturnQueryResults($result, false);
-?>

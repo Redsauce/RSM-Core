@@ -32,7 +32,7 @@ $results     = array();
 $results['result'] = 'OK';
 
 // Build a JSON with the given RSdata
-$RSdataToJSON = json_decode(base64_decode($RSdata),true);
+$RSdataToJSON = json_decode(base64_decode($RSdata), true);
 
 // For each item to update, verify all given properties are compatible
 foreach ($RSdataToJSON as $itemIDkey => $itemRow) {
@@ -41,18 +41,18 @@ foreach ($RSdataToJSON as $itemIDkey => $itemRow) {
     $propertiesID = array();
 
     // Store the itemID
-    array_push($itemID,$itemIDkey);
+    array_push($itemID, $itemIDkey);
 
     // Store all data for each itemID into an array (one array element per itemID)
-    array_push($allItemRows,$itemRow);
-    foreach($itemRow as $propertyIDkey => $value) {
+    array_push($allItemRows, $itemRow);
+    foreach ($itemRow as $propertyIDkey => $value) {
 
         // Fill the array with the different properties involved in the update of this row
-        array_push($propertiesID,$propertyIDkey);
+        array_push($propertiesID, $propertyIDkey);
     }
 
     // Store the different calculated itemTypeIDs into an array
-    array_push($itemTypeID,getItemTypeIDFromProperties($propertiesID, $clientID));
+    array_push($itemTypeID, getItemTypeIDFromProperties($propertiesID, $clientID));
 
     // Verify if the last element of $itemTypeID is right recovered
     if ($itemTypeID[count($itemTypeID)-1] == 0) {
@@ -68,12 +68,12 @@ if ($results['result'] != 'NOK') {
     $i = 0;
 
     // Every item must be updated
-    foreach ($itemID as $item){
+    foreach ($itemID as $item) {
 
         // Every property of each item must be updated
-        foreach($allItemRows[$i] as $propertyIDkey => $value) {
+        foreach ($allItemRows[$i] as $propertyIDkey => $value) {
 
-            array_push($propertiesID,$propertyIDkey);
+            array_push($propertiesID, $propertyIDkey);
             $id = ParsePID($propertyIDkey, $clientID);
 
             // Only update properties that user has WRITE permissions
@@ -126,4 +126,3 @@ if ($results['result'] != 'NOK') {
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
-?>

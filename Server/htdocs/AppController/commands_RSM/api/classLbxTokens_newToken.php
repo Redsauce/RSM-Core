@@ -29,12 +29,16 @@ do {
     $results = RScountToken($token);
 
     // Obtain the data from the query
-    if ($results) $result = $results->fetch_assoc();
+    if ($results) {
+        $result = $results->fetch_assoc();
+    }
     
     // Check if we found a token like ours in the database
-    if ($result['total'] <> 0) $exists = true; // The token is already stored in the database. We must generate a new one
+    if ($result['total'] <> 0) {
+        $exists = true; // The token is already stored in the database. We must generate a new one
+    }
 
-} while ($exists == true);
+} while ($exists);
 
 // If the execution reaches this point, the token does not exist so we can insert it
 $results = RScreateToken($token, $GLOBALS['RS_POST']['clientID']);
@@ -46,7 +50,8 @@ $response['token'] = $token;
 RSReturnArrayResults($response);
 
 // This function generates a random string of the given length
-function generateRandomString($length = 10) {
+function generateRandomString($length = 10)
+{
     // This is the list of characters allowed inside the generated string
     $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $randomString = '';
@@ -59,4 +64,3 @@ function generateRandomString($length = 10) {
     // And return the result
     return $randomString;
 }
-?>

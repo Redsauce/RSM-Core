@@ -62,7 +62,7 @@ foreach ($eventResults as $row) {
 // Construct filterProperties array
 $filterProperties  = array(
     array('ID' => parsePID("scheduledEvents.node", $clientID), 'value' => "0", 'mode' => "="),
-    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => join(',',$allowedEventIds), 'mode' => "<-IN")
+    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => join(',', $allowedEventIds), 'mode' => "<-IN")
 );
 
 // Construct returnProperties array
@@ -85,4 +85,3 @@ foreach ($results as $row) {
 
 // And write XML Response back to the application without compression// Return results
 RSReturnArrayQueryResults($results, false);
-?>

@@ -23,8 +23,8 @@ isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["it
 isset($GLOBALS["RS_POST"]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_POST"]["RStoken"   ] : $RStoken     = "";
 
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-      if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if ((isset($GLOBALS['RS_POST']['translateIDs'])) && ($GLOBALS['RS_POST']['translateIDs'] == "true")) {
+    $translateIDs = true;
 }
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
@@ -49,8 +49,8 @@ foreach ($properties as $property) {
               'related' => getAppPropertyName_RelatedWith($property['id'], $clientID),
               'name' => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
               'value' => $value, 'type' => $property['type'],
-              'filename' => array_key_exists(0,$attributes)?$attributes[0]:'',
-              'filesize' => array_key_exists(1,$attributes)?$attributes[1]:''
+              'filename' => array_key_exists(0, $attributes)?$attributes[0]:'',
+              'filesize' => array_key_exists(1, $attributes)?$attributes[1]:''
               );
 
         } elseif ($translateIDs && $property['type'] == 'identifier') {
@@ -96,4 +96,3 @@ foreach ($properties as $property) {
 
 // And write XML Response back to the application without compression
 RSReturnArrayQueryResults($results, false);
-?>

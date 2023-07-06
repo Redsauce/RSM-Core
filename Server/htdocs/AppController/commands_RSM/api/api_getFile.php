@@ -34,7 +34,9 @@ isset($GLOBALS["RS_GET" ]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET" ]["pr
 isset($GLOBALS["RS_GET" ]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_GET" ]["RStoken"   ] : $RStoken = "";
 
 // Check token permissions
-if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
+if (!RShasREADTokenPermission($RStoken, $propertyID)) {
+    dieWithError(403);
+}
 
 $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
 $file_name = "file_" . $itemID;
@@ -43,7 +45,7 @@ $file_path = $directory . $file_name;
 //check file in cache
 $nombres_archivo = glob($file_path . "_*");
 
-if ($enable_file_cache && count($nombres_archivo) > 0) {
+if ($enable_file_cache && !empty($nombres_archivo)) {
 
     // The file exists in cache
     $nombre_archivo = $nombres_archivo[0];
@@ -55,7 +57,7 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
     $nombre_descarga = base64_decode(rawurldecode(end($nombreSinExtension)));
 
     // The file was found in the cache. Return the cached file
-    if (strtolower($extension) == "apk"){
+    if (strtolower($extension) == "apk") {
         header('Content-type: application/vnd.android.package-archive');
     } else {
         header('Content-type: ' . mime_content_type($nombre_archivo));
@@ -73,22 +75,23 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
 
         // If file data is empty but the size field is > 0 then the file is in media server
         if ($file["RS_SIZE"] > 0 && $file_original == '') {
-            $fileData = getMediaFile($clientID,$itemID,$propertyID);
+            $fileData = getMediaFile($clientID, $itemID, $propertyID);
             $file_original = $fileData['RS_DATA'];
         }
 
         // Return the original file
-        if (strtolower($extension) == "apk"){
+        if (strtolower($extension) == "apk") {
             header('Content-type: application/vnd.android.package-archive');
         } else {
             header("Content-type: application/" . $extension);
         }
         header('Content-Disposition: attachment; filename="' . $file_name . '"');
         echo $file_original;
-        if ($enable_file_cache) saveFileCache($file_original, $file_path, $file_name, $extension);
+        if ($enable_file_cache) {
+            saveFileCache($file_original, $file_path, $file_name, $extension);
+        }
     } else {
         dieWithError(500);
     }
 }
 
-?>
