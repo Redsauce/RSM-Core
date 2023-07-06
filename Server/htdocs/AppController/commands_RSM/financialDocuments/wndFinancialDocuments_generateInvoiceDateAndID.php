@@ -80,13 +80,13 @@ foreach ($invoiceIDs as $invoiceID) {
   // If the item 'default Invoice Address' exists
   if ($currentDefaultInvoiceAddressID <> 0) {
     // Set the invoice address, only if each App property is related with a user property
-    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID) <> 0) {
+    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'], $clientID) <> 0) {
       setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingAddress'],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID), $clientID), '', $RSuserID);
     }
-    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID) <> 0) {
+    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'], $clientID) <> 0) {
       setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCity'],     $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID), $clientID), '', $RSuserID);
     }
-    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID) <> 0) {
+    if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'], $clientID) <> 0) {
       setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCountry'],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID), $clientID), '', $RSuserID);
     }
     if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.postcode'], $clientID) <> 0) {
