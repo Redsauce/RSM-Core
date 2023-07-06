@@ -6,7 +6,7 @@ require_once '../utilities/RSMfiltersManagement.php';
 
 // definitions
 $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
+$clientID   = $GLOBALS['RS_POST']['clientID'];
 
 if ($itemTypeID == '') {
     RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
@@ -17,7 +17,7 @@ $results = getFilters($clientID, $itemTypeID);
 
 if ($results) {
     while ($result = $results->fetch_assoc()) {
-        $returnArray[] = array('filterID' => $result['filterID'],'filterName' => $result['filterName'],'filterOperator' => $result['filterOperator']);
+        $returnArray[] = array('filterID' => $result['filterID'], 'filterName' => $result['filterName'], 'filterOperator' => $result['filterOperator']);
     }
 }
 

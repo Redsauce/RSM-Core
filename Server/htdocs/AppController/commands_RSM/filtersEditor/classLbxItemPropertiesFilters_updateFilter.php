@@ -9,18 +9,18 @@ include_once "../utilities/RSMfiltersManagement.php";
 
 // definitions
 $clientID = $GLOBALS['RS_POST']['clientID'];
-$filterID = (($GLOBALS['RS_POST']['filterID']=="")?("0"):($GLOBALS['RS_POST']['filterID']));
+$filterID = (($GLOBALS['RS_POST']['filterID'] == "") ? ("0") : ($GLOBALS['RS_POST']['filterID']));
 $filterName = base64_decode($GLOBALS['RS_POST']['filterName']);
 
-if ($clientID!=0&&$clientID!="") {
-    if ($filterID!=0&&$filterID!="") {
+if ($clientID != 0 && $clientID != "") {
+    if ($filterID != 0 && $filterID != "") {
         $result = updateFilterName($clientID, $filterID, $filterName);
-        
-        if ($result==1) {
-            $results['result']="OK";
+
+        if ($result == 1) {
+            $results['result'] = "OK";
         } else {
-            $results['result']="NOK";
-            $results['description']="ERROR UPDATING FILTER";
+            $results['result'] = "NOK";
+            $results['description'] = "ERROR UPDATING FILTER";
         }
     } else {
         $results['result'] = "NOK";

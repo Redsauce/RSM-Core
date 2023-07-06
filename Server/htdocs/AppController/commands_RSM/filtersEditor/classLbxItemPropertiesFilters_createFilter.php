@@ -13,17 +13,16 @@ $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
 $filterName = base64_decode($GLOBALS['RS_POST']['filterName']);
 $operatorValue = "AND";
 
-if ($clientID!=0&&$clientID!="") {
-    if ($itemTypeID!=0&&$itemTypeID!="") {
+if ($clientID != 0 && $clientID != "") {
+    if ($itemTypeID != 0 && $itemTypeID != "") {
         $result = addFilter($clientID, $itemTypeID, $filterName, $operatorValue);
 
-        if ($result>0) {
-            $results['result']="OK";
-            $results['filterID']=$result;
-
+        if ($result > 0) {
+            $results['result'] = "OK";
+            $results['filterID'] = $result;
         } else {
-            $results['result']="NOK";
-            $results['description']="ERROR CREATING FILTER";
+            $results['result'] = "NOK";
+            $results['description'] = "ERROR CREATING FILTER";
         }
     } else {
         $results['result'] = "NOK";
