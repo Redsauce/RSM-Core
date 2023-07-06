@@ -24,8 +24,8 @@ isset($GLOBALS["RS_POST"]["filterPropertyID"]) ? $filterPropertyID = $GLOBALS["R
 isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken          = $GLOBALS["RS_POST"]["RStoken"] : $RStoken     = '';
 
 $translateIDs = true;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-    if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if ((isset($GLOBALS['RS_POST']['translateIDs'])) && ($GLOBALS['RS_POST']['translateIDs'] == "true")) {
+    $translateIDs = true;
 }
 
 $properties   = array();
@@ -117,7 +117,7 @@ if (strpos($valuePropertyRelated, ",") === false) {
     }
 
     //check at least one property allowed and exit otherwise
-    if (count($properties) == 0) {
+    if (empty($properties)) {
         $results['result'] = 'NOK';
         $results['description'] = 'YOU DONT HAVE PERMISSIONS TO READ THESE ITEMS';
         RSreturnArrayResults($results, false);

@@ -23,8 +23,8 @@ isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["it
 isset($GLOBALS["RS_POST"]["RStoken"]) ? $RStoken    = $GLOBALS["RS_POST"]["RStoken"] : $RStoken     = "";
 
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-    if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if ((isset($GLOBALS['RS_POST']['translateIDs'])) && ($GLOBALS['RS_POST']['translateIDs'] == "true")) {
+    $translateIDs = true;
 }
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
