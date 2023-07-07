@@ -54,19 +54,17 @@ foreach ($propertiesToCreate as $properties) {
   $values = array();
   // create the item
   $newID = createItem($clientID, $properties);
-  foreach ($properties as $property) {
-    if ($RSallowDebug) {
-      $values[$property['ID']] = "Permissions OK";
-    }
-  }
   $values['ID'] = $newID;
-  array_push($responseArray, $values);
+  $responseArray[] = $values;
 }
 
-
+$responseArray = [];
 if (!empty($responseArray)) {
   returnJsonResponse(json_encode($responseArray));
+} else {
+  $RSallowDebug ? returnJsonMessage(400, 'Not created') : returnJsonMessage(400, '');
 }
+
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
