@@ -58,7 +58,6 @@ foreach ($propertiesToCreate as $properties) {
   $responseArray[] = $values;
 }
 
-$responseArray = [];
 if (!empty($responseArray)) {
   returnJsonResponse(json_encode($responseArray));
 } else {
