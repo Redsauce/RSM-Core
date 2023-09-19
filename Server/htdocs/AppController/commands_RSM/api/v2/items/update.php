@@ -39,27 +39,27 @@ foreach ($requestBody as $item) {
   $propertiesID = array();
   //Iterate through every propertyID of the items to check if they are incongruent
   foreach ($item as $propertyID => $propertyValue) {
-    if ($propertyID != "id" && $propertyID != "ID") {
+    if ($propertyID != "ID") {
       $propertiesID[] = ParsePID($propertyID, $clientID);
     }
   }
-  $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
+  $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
   $hasAllPermissions = checkTokenHasWritePermissions($RStoken, $RSuserID, $clientID, $propertiesID);
   $itemID = $item->ID;
-  if ($itemTypeIDID == 0) {
-    $RSallowDebug ? returnJsonMessage(400, "Not Updated (Incongruent properties)")  : returnJsonMessage(400, "");
+  if ($itemTypeID == 0) {
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (Properties must pertain to the same item type)")  : returnJsonMessage(400, "");
     break;
   } elseif (!$hasAllPermissions) {
-    $RSallowDebug ? returnJsonMessage(400, "Not Updated (At least 1 property has no WRITE permissions or its not visible)")  : returnJsonMessage(400, "");
+    $RSallowDebug ? returnJsonMessage(400, "Not Updated (At least 1 property has no WRITE permissions or is not visible)")  : returnJsonMessage(400, "");
     break;
-  } elseif (!verifyItemExists($itemID, $itemTypeIDID, $clientID)) {
+  } elseif (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
     $RSallowDebug ? returnJsonMessage(400, "Item doesn't exist")  : returnJsonMessage(400, "");
     break;
   }
 }
 
 foreach ($requestBody as $item) {
-  $itemTypeIDID = getItemTypeIDFromProperties($propertiesID, $clientID);
+  $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
   $itemID = $item->ID;
   foreach ($item as $propertyID => $propertyValue) {
     if ($propertyID != "ID") {
@@ -69,9 +69,9 @@ foreach ($requestBody as $item) {
         //TODO - Pending on test server to test files and images
       } else {
         if (!mb_check_encoding($propertyValue, "UTF-8")) {
-          $RSallowDebug ? returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not UTF-8 valid") : returnJsonMessage(400, "");
+          $RSallowDebug ? returnJsonMessage(400, "Decoded parameter:" . $propertyValue . " is not encoded in UTF-8") : returnJsonMessage(400, "");
         }
-        $result = setPropertyValueByID($id, $itemTypeIDID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
+        $result = setPropertyValueByID($id, $itemTypeID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
       }
       // Result = 0 is a successful response
       if ($result != 0) {
