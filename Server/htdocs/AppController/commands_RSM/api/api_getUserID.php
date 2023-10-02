@@ -4,6 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 require_once "./api_headers.php";
 
+$RSallowUncompressed = true;
+
 isset($GLOBALS["RS_POST"]["client"  ]) ? $clientID = $GLOBALS['RS_POST']['client'  ] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["login"   ]) ? $login    = $GLOBALS['RS_POST']['login'   ] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["password"]) ? $password = $GLOBALS['RS_POST']['password'] : dieWithError(400);
