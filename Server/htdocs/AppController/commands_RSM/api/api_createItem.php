@@ -46,7 +46,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         }
 
         // Only create properties where user has CREATE permission
-        if ((RShasTokenPermission($RStoken, $id, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+        if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
             $propertiesID[] = $propertyID;
             $decodedValue = base64_decode($value);
 
