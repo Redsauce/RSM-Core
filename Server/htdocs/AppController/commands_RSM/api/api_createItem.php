@@ -117,7 +117,7 @@ foreach ($RSdataSplit as $RSdataRow) {
 
 }
 
-$results['itemID'] = implode($newPropertiesID,",");
+$results['itemID'] = implode(",",$newPropertiesID);
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
