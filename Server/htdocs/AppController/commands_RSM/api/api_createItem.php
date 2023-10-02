@@ -35,10 +35,10 @@ foreach ($RSdataSplit as $RSdataRow) {
     $AllPropertiesID = array();
 
     // Get the itemType with an array of propertyIDs
-    foreach ($RSdataRow as $propertyID) {
-        $chainValues = explode(":", $propertyID);
-        $id = ParsePID($chainValues[0], $clientID);
-        $AllPropertiesID[] = $id;
+    foreach ($RSdataRow as $group) {
+        $chainValues = explode(":", $group);
+        $propertyID = ParsePID($chainValues[0], $clientID);
+        $AllPropertiesID[] = $propertyID;
         $value = $chainValues[1];
 
         if (!is_base64($value)) {
