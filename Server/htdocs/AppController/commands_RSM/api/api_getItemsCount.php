@@ -22,8 +22,6 @@ require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 require_once "./api_headers.php";
 
-$RSallowUncompressed = true;
-
 // Definitions
 isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["itemTypeID"     ]) ? $itemTypeID      = $GLOBALS["RS_POST"]["itemTypeID"     ] : dieWithError(400);
