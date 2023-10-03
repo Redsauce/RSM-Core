@@ -9,11 +9,12 @@ $RSuser      = '{RSMlogin}';
 $RSpassword  = '{RSMpassword}';
 
 $RSmongohost = '{RSMmongohost}';
+
 // Determine in combination with POST value RSsendUncompressed=1 if response will be sent uncompressed
-$RSallowUncompressed = true;
+$RSallowUncompressed = false;
 
 // Determine in combination with POST value RSdebug = 1 if queries will be sent
-$RSallowDebug = true;
+$RSallowDebug = false;
 
 $RStempPath = '{PHPtempPath}';
 
