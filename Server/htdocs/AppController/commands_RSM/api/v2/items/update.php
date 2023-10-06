@@ -65,6 +65,20 @@ foreach ($requestBody as $item) {
       $id = ParsePID($propertyID, $clientID);
       $propertyType = getPropertyType($id, $clientID);
       if (($propertyType == 'file') || ($propertyType == 'image')) {
+        $pieces = explode(":", $propertyValue);
+        if (count($pieces) == 1) {
+          $name = "";
+          $value = $pieces[0];
+        } else {
+          $name = $pieces[0];
+          $value = $pieces[1];
+        }
+
+        if ($value == "") {
+          deleteItemPropertyValue($itemTypeID, $itemID, $id, $clientID, $propertyType);
+        } else {
+          $result = setDataPropertyValueByID($id, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
+        }
       } else {
         if (!mb_check_encoding($propertyValue, 'UTF-8')) {
           $RSallowDebug ? returnJsonMessage(400, 'Decoded parameter:' . $propertyValue . ' is not encoded in UTF-8') : returnJsonMessage(400, '');
