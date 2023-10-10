@@ -36,17 +36,17 @@ $RStoken = getRStoken();
 $RSuserID = getRSuserID();
 
 foreach ($requestBody as $item) {
-  $propertiesID = array();
+  $propertyIDs = array();
   //Iterate through every propertyID of the items to check if they pertain to the same item type
   foreach ($item as $propertyID => $propertyValue) {
     if ($propertyID != 'ID') {
-      $propertiesID[] = ParsePID($propertyID, $clientID);
+      $propertyIDs[] = ParsePID($propertyID, $clientID);
     }
   }
-  $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
-  foreach ($propertiesID as $propertyID) {
+  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+  foreach ($propertyIDs as $propertyID) {
     if (!(RShasTokenPermission($RStoken, $propertyID, 'WRITE') || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-      $RSallowDebug ? returnJsonMessage(400, 'Not Updated (At least 1 property has no WRITE permissions or is not visible)')  : returnJsonMessage(400, '');
+      $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Property ' . $propertyID . ' has no WRITE permissions or is not visible)')  : returnJsonMessage(400, '');
     }
   }
   $itemID = $item->ID;
@@ -58,36 +58,44 @@ foreach ($requestBody as $item) {
 }
 
 foreach ($requestBody as $item) {
-  $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
-  $itemID = $item->ID;
+  $propertyIDs = array();
   foreach ($item as $propertyID => $propertyValue) {
     if ($propertyID != 'ID') {
-      $id = ParsePID($propertyID, $clientID);
-      $propertyType = getPropertyType($id, $clientID);
+      $propertyIDs[] = ParsePID($propertyID, $clientID);
+    }
+  }
+  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+  $itemID = $item->ID;
+  foreach ($item as $unparsedPropertyID => $propertyValue) {
+    if ($unparsedPropertyID != 'ID') {
+      $propertyID = ParsePID($unparsedPropertyID, $clientID);
+      $propertyType = getPropertyType($propertyID, $clientID);
       if (($propertyType == 'file') || ($propertyType == 'image')) {
-        $pieces = explode(":", $propertyValue);
+        $pieces = explode(':', $propertyValue);
         if (count($pieces) == 1) {
-          $name = "";
+          $name = '';
           $value = $pieces[0];
-        } else {
+        } elseif (count($pieces) == 2) {
           $name = $pieces[0];
           $value = $pieces[1];
+        } else {
+          $RSallowDebug ? returnJsonMessage(400, 'Error processing file/image') : returnJsonMessage(400, '');
         }
 
-        if ($value == "") {
-          deleteItemPropertyValue($itemTypeID, $itemID, $id, $clientID, $propertyType);
+        if ($value == '') {
+          deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $propertyType);
         } else {
-          $result = setDataPropertyValueByID($id, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
+          $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
         }
       } else {
         if (!mb_check_encoding($propertyValue, 'UTF-8')) {
           $RSallowDebug ? returnJsonMessage(400, 'Decoded parameter:' . $propertyValue . ' is not encoded in UTF-8') : returnJsonMessage(400, '');
         }
-        $result = setPropertyValueByID($id, $itemTypeID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
+        $result = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
       }
       // Result = 0 is a successful response
       if ($result != 0) {
-        $RSallowDebug ? returnJsonMessage(400, 'Not updated') : returnJsonMessage(400, '');
+        $RSallowDebug ? returnJsonMessage(400, 'Item ' . $itemID . ' not updated') : returnJsonMessage(400, '');
       }
     }
   }
