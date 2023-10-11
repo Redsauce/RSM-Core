@@ -8,22 +8,22 @@
 //          - one propertyID and its value
 //  EXAMPLE:
 //      [{
-//          "85": "Mesa"
-//          "86": "individual"
+//          '85': 'Mesa'
+//          '86': 'individual'
 //        },{
-//          "45": "Avengers"
-//          "46": "vose"
+//          '45': 'Avengers'
+//          '46': 'vose'
 //       }]
 // ****************************************************************************************
 
-require_once "../../../utilities/RStools.php";
-require_once "../../../utilities/RSMverifyBody.php";
+require_once '../../../utilities/RStools.php';
+require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('POST');
 
-require_once "../../../utilities/RSdatabase.php";
-require_once "../../../utilities/RSMitemsManagement.php";
-require_once "../../api_headers.php";
+require_once '../../../utilities/RSdatabase.php';
+require_once '../../../utilities/RSMitemsManagement.php';
+require_once '../../api_headers.php';
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
@@ -41,7 +41,7 @@ foreach ($requestBody as $item) {
 
   foreach ($item as $propertyID => $propertyValue) {
     // Only prepare properties where user has CREATE permission
-    if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+    if ((RShasTokenPermission($RStoken, $propertyID, 'CREATE')) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
       $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
     } else {
       $RSallowDebug ? returnJsonMessage(400, 'Not created (At least 1 property has no WRITE permissions or its not visible)') : returnJsonMessage(400, '');
