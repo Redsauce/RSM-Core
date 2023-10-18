@@ -679,7 +679,7 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
 
         // get all ascendants matching the filter
         $ascendantItemTypeID = getItemTypeIDFromProperties(array($filterArr[0]), $clientID);
-        $filterProperties = array( array('ID' => parsePID($filterArr[0],$clientID), 'value' => str_replace("&amp;", "&", htmlentities(($filterArr[1]), ENT_COMPAT, "UTF-8")), 'mode' => $filterArr[2]));
+        $filterProperties = array( array('ID' => parsePID($filterArr[0],$clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, "UTF-8")), 'mode' => $filterArr[2]));
 
         $validAscendants = getFilteredItemsIDs($ascendantItemTypeID, $clientID, $filterProperties, array());
 
@@ -689,7 +689,7 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
 
         // get all paths between filtered and destination itemtype
         $allowedItemTypes = array();
-        if (isset($filterArr[3]) && $filterArr[3] != "") $allowedItemTypes = explode(",", ($filterArr[3]));
+        if (isset($filterArr[3]) && $filterArr[3] != "") $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
 
         $treePath = array();
 
