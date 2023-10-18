@@ -5,28 +5,28 @@
 // REQUEST BODY (JSON OBJECT):
 //  EXAMPLE 1:
 // {
-//     "IDs": [571],
-//     "itemTypeID": 8
+//     'IDs': [571],
+//     'itemTypeID': 8
 // }
 //  EXAMPLE 2:
 // {
-//     "IDs": [571, 569],
-//     "propertyIDs": [58,59]
+//     'IDs': [571, 569],
+//     'propertyIDs': [58,59]
 // }
 //  EXAMPLE 3:
 // {
-//     "propertyIDs": [59],
-//     "filtersRules":
+//     'propertyIDs': [59],
+//     'filtersRules':
 //      [
 //          {
-//              "propertyID": 58,
-//              "value": "Sergio",
-//              "operation": "="
+//              'propertyID': 58,
+//              'value': 'Sergio',
+//              'operation': '='
 //          }.
 //          {
-//              "propertyID": 59,
-//              "value": "Santamaria",
-//              "operation": "<>"
+//              'propertyID': 59,
+//              'value': 'Santamaria',
+//              'operation': '<>'
 //          }
 //      ]
 // }
@@ -49,29 +49,30 @@ $clientID = getClientID();
 $RStoken =  getRStoken();
 $RSuserID =  getRSuserID();
 
-//Params
+// Params
 $propertyIDs = $requestBody->propertyIDs;
 $filterRules = $requestBody->filterRules;
 $extFilterRules = $requestBody->extFilterRules;
 $IDs = $requestBody->IDs;
 $itemTypeID = $requestBody->itemTypeID;
 
-//includeCategories filter
+// includeCategories filter
 $includeCategories = false;
 if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
   $includeCategories = true;
 }
 
-//translateIDs
+// translateIDs
 $translateIDs = false;
 if (isset($requestBody->translateIDs) && $requestBody->translateIDs) {
   $translateIDs = true;
 }
 
-//itemTypeID
+// itemTypeID
 if ($itemTypeID == '') {
   $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
 }
+
 if ($itemTypeID <= 0) {
   $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID) : returnJsonMessage(400, '');
 }
@@ -81,20 +82,20 @@ if ($propertyIDs == '') {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
 
-//IDs
+// IDs
 if ($IDs != '') {
   $IDs = implode(',', $IDs);
 }
 
 // Build an array with the filterRules
-$filterProperties  = array();
+$filterProperties = array();
 if ($filterRules != '') {
   foreach ($filterRules as $rule) {
     $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
   }
 }
 
-// Build array with the visible propertyIds (the ones we have permissions)
+// Build array with the visible propertyIds (if they is visible for us, then we have permissions)
 $visiblePropertyIDs = array();
 foreach ($propertyIDs as $singlePropertyID) {
   if (RShasTokenPermission($RStoken, $singlePropertyID, 'READ') || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
@@ -107,12 +108,12 @@ $formattedExtFilterRules = '';
 if ($extFilterRules != '') {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-    $formattedExtFilterRules  .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ',';
+    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . ($singleRule->value) . ';' . $singleRule->operation . ',';
   }
-  $formattedExtFilterRules = substr_replace($formattedExtFilterRules, '', -1);
+  $formattedExtFilterRules = trim($formattedExtFilterRules, ',');
 }
 
-//GET THE ITEMS
+// GET THE ITEMS
 $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, $limit = '', $IDs, 'AND', 0, true, $formattedExtFilterRules, true);
 $responseArray = array();
 
@@ -139,7 +140,7 @@ if ($includeCategories) {
     array_push($responseArray, $combinedArray);
   }
 } else {
-  //  Parse itemsArray into a JSON.
+  // Parse itemsArray into a JSON.
   foreach ($itemsArray as $item) {
     $combinedArray = array();
     foreach ($item as $propertyKey => $propertyValue) {
@@ -164,4 +165,10 @@ function verifyBodyContent($body)
   checkIsInteger($body->itemTypeID);
   checkIsArray($body->propertyIDs);
   checkIsArray($body->IDs);
+  if (isset($body->filterRules)) {
+    checkIsArray($body->filterRules);
+  }
+  if (isset($body->extFilterRules)) {
+    checkIsArray($body->extFilterRules);
+  }
 }
