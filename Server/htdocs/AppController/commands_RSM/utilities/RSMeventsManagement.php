@@ -54,7 +54,9 @@ function checkTriggeredEvents($clientID) {
 
         foreach ($RSMupdatedItemIDs as $group) {
             $elements = explode(",", $group);
-            if (!in_array($elements[0], $updatedItemTypeIDs)) $updatedItemTypeIDs[] = $elements[0];
+            if (!in_array($elements[0], $updatedItemTypeIDs)) {
+                $updatedItemTypeIDs[] = $elements[0];
+            }
         }
 
         $triggerIDs = getTriggerIDs($updatedItemTypeIDs, $clientID, "triggerTypeUpdateItem");
@@ -67,7 +69,7 @@ function checkTriggeredEvents($clientID) {
                     $affectedItemID = array();
                     array_push($affectedItemID, $oneUpdatedItemID);
                     queueActions($affectedItemID, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
-		}   
+		}
             }else{
                 queueActions($RSMupdatedItemIDs, $triggerIDs, "itemsUpdated", $eventsHandlerToken);
             }
@@ -89,7 +91,7 @@ function checkTriggeredEvents($clientID) {
 
         if (count($triggerIDs) > 0) queueActions($RSMdeletedItemIDs, $triggerIDs, "itemsDeleted", $eventsHandlerToken);
     }
-    
+
    $RSMsplitTriggers = false;
 
 }
@@ -116,7 +118,7 @@ function getTriggerIDs($ITIDs, $clientID, $mode) {
        "TriggerITID: ".$TriggerITID.chr(13).
        "TriggerTypePID: ".$TriggerTypePID.chr(13).
        "TriggerItemTypesPID: ".$TriggerItemTypesPID, "Trigger");
-    
+
     } else {
          // Build filter properties array
         $filterProperties   = array();
@@ -264,23 +266,26 @@ function getIncludesScript($actionID, $clientID) {
 }
 
 function queueActions($RSdata, $triggerIDs, $mode, $RStoken) {
-    $clientID  = RSclientFromToken($RStoken);
-    $actions = getActionsFromTriggerIDs($triggerIDs, $clientID);
+    $clientID = RSclientFromToken($RStoken);
+    $actions  = getActionsFromTriggerIDs($triggerIDs, $clientID);
 
     foreach ($actions as $action) {
       $result = queueEvent($clientID, $action["ID"], implode(";", $RSdata), $action["priority"], $action["avoidDuplication"]);
 
       // TODO: Send an email if there were a problem
-      if (!$result) mail('webmaster@redsauce.net', 'Error scheduling job', wordwrap("The events for triggers " . $triggerIDs . " could not be queued.",70,"\r\n"));
+      if (!$result) {
+        error_log('Error scheduling job', wordwrap("The events for triggers " . $triggerIDs . " could not be queued."));
+      }
    }
 }
 
 function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
     $result = queueEvent($clientID, $actionID, $RSdata, $priority, $avoidDuplication, $staffID);
 
-    //error_log("RSMeventsManagement/queueAction - staffID: ". $staffID);
     // TODO: Send an email if there were a problem
-    if (!$result) mail('webmaster@redsauce.net', 'Error scheduling job', wordwrap("The action ID " . $actionID . " could not be queued.",70,"\r\n"));
+    if (!$result) {
+        error_log('Error scheduling job', wordwrap("The action ID " . $actionID . " could not be queued."));
+    }
 }
 
 function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplication = 'No', $staffID = 0) {
@@ -298,7 +303,7 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         ($executionEndPID == 0) ||
         ($parametersPID   == 0) ||
         ($priorityPID     == 0)) {
-      
+
       // One of the properties is not related
       return false;
     }
@@ -330,6 +335,7 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         );
         // Construct returnProperties array
         $returnProperties = array();
+
         // Filter results
         $results = getFilteredItemsIDs(parseITID("scheduledEvents", $clientID), $clientID, $filterProperties, $returnProperties);
     }
@@ -337,7 +343,10 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     if($avoidDuplication == 'No' || count($results) == 0){
         //create pending event only if not equal pending event (not executed) exists or duplication is allowed
         $itemID = createItem($clientID, $pValues);
-        if ($itemID == 0) return false;
+
+        if ($itemID == 0) {
+            return false;
+        }
     }
 
     return true;

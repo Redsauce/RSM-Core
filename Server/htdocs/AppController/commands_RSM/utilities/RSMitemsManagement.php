@@ -9,34 +9,38 @@ require_once "RSMmediaManagement.php";
 require_once "RSMcacheManagement.php";
 
 function getPropertyIDs_usingSysName($appNames, $clientID) {
-   // prepare query
-   $theQuery = 'SELECT a.RS_NAME AS "appName", c.RS_PROPERTY_ID AS "ID", c.RS_NAME AS "name", c.RS_TYPE AS "type", c.RS_DEFAULTVALUE AS "defaultValue" FROM rs_property_app_definitions a INNER JOIN rs_property_app_relations b ON (a.RS_ID = b.RS_PROPERTY_APP_ID) INNER JOIN rs_item_properties c USING (RS_CLIENT_ID, RS_PROPERTY_ID) WHERE a.RS_NAME IN ("' . implode('","', $appNames) . '") AND b.RS_CLIENT_ID = ' . $clientID . ' AND c.RS_CLIENT_ID = ' . $clientID;
+    // prepare query
+    $theQuery = 'SELECT a.RS_NAME AS "appName", c.RS_PROPERTY_ID AS "ID", c.RS_NAME AS "name", c.RS_TYPE AS "type", c.RS_DEFAULTVALUE AS "defaultValue" FROM rs_property_app_definitions a INNER JOIN rs_property_app_relations b ON (a.RS_ID = b.RS_PROPERTY_APP_ID) INNER JOIN rs_item_properties c USING (RS_CLIENT_ID, RS_PROPERTY_ID) WHERE a.RS_NAME IN ("' . implode('","', $appNames) . '") AND b.RS_CLIENT_ID = ' . $clientID . ' AND c.RS_CLIENT_ID = ' . $clientID;
 
-   // execute query
-   $result = RSQuery($theQuery);
+    // execute query
+    $result = RSQuery($theQuery);
 
-   if (!$result)
-      // The query was not OK
-      return array();
+    if ($result->num_rows == 0) {
+        // The query was not OK
+        return array();
+    }
 
-      // The query was OK, so let's put the results in the properties array
-      $properties = array();
-      while ($row = $result->fetch_assoc())
-      $properties[] = $row;
+    // The query was OK, so let's put the results in the properties array
+    $properties = array();
+    while ($row = $result->fetch_assoc()) {
+        $properties[] = $row;
+    }
 
-      // Finally, order the properties in order to match the order in which the sysNames were specified
-      $properties_ordered = array();
-      foreach ($appNames as $name)
-          foreach ($properties as $property)
-              if ($property['appName'] == $name) {
-                  // We found a match for the properties, so add it to the response array
-                  $properties_ordered[] = $property;
-                  // As only a property will be returned for every appName, we can stop this iteration and continue with the main loop
-                  break;
-              }
+    // Finally, order the properties in order to match the order in which the sysNames were specified
+    $properties_ordered = array();
+    foreach ($appNames as $name) {
+        foreach ($properties as $property) {
+            if ($property['appName'] == $name) {
+                // We found a match for the properties, so add it to the response array
+                $properties_ordered[] = $property;
+                // As only a property will be returned for every appName, we can stop this iteration and continue with the main loop
+                break;
+            }
+        }
+    }
 
-      // Finally return back the properties, already ordered
-      return $properties_ordered;
+    // Finally return back the properties, already ordered
+    return $properties_ordered;
 }
 
 function getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $userID) {
@@ -58,7 +62,7 @@ function getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $u
                 INNER JOIN rs_users_groups USING (RS_CLIENT_ID, RS_GROUP_ID)
 
         WHERE
-                        rs_categories.RS_ITEMTYPE_ID            = ' . $itemTypeID . '
+                rs_categories.RS_ITEMTYPE_ID            = ' . $itemTypeID . '
                 AND rs_categories.RS_CLIENT_ID                = ' . $clientID . '
                 AND rs_item_properties.RS_CLIENT_ID     = ' . $clientID . '
                 AND rs_properties_groups.RS_CLIENT_ID = ' . $clientID . '
@@ -177,7 +181,13 @@ function getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken) {
                 }
 
                 // store info
-                $results[] = array('id' => $row['pID'], 'name' => $row['pName'], 'type' => $row['pType'], 'value' => $propertyValue, 'realValue' => $propertyRealValue, );
+                $results[] = array(
+                    'id'        => $row['pID'  ],
+                    'name'      => $row['pName'],
+                    'type'      => $row['pType'],
+                    'value'     => $propertyValue,
+                    'realValue' => $propertyRealValue
+                );
             }
         }
     }
@@ -189,7 +199,9 @@ function getPropertyIDs($propIDs, $clientID) {
     // prepare query
     //Concatenate property Ids and check not empty
     $propIDsString = implode(',', $propIDs);
-    if ($propIDsString == "") $propIDsString = '""';
+    if ($propIDsString == "") {
+        $propIDsString = '""';
+    }
 
     $theQuery = 'SELECT
             RS_PROPERTY_ID AS "ID",
@@ -206,11 +218,12 @@ function getPropertyIDs($propIDs, $clientID) {
     // execute query
     $result = RSQuery($theQuery);
 
-    if (!$result) {
+    // If the recordset has no rows, return an empty array
+    if ($result->num_rows = 0) {
         return array();
-    }// The query was not OK
+    }
 
-    // The query was OK, so let's put the results in the properties array
+    // The recordset results inside, so let's put the results in the properties array
     $properties = array();
     while ($row = $result->fetch_assoc()) {
         $properties[] = $row;
@@ -223,7 +236,8 @@ function getPropertyIDs($propIDs, $clientID) {
             if ($property['ID'] == $propID) {
                 // We found a match for the properties, so add it to the response array
                 $properties_ordered[] = $property;
-                // As only a property will be returned for every sysName, we can stop this iteration and continue with the main loop
+                // As only a property will be returned for every sysName,
+                // we can stop this iteration and continue with the main loop
                 break;
             }
         }
@@ -240,19 +254,17 @@ function getProperties_byIDs($propertyIDs, $clientID, $fields) {
     // execute query
     $result = RSQuery($theQuery);
 
-    if ($result) {
-        // query OK
-        $properties = array();
-
-        while ($row = $result->fetch_assoc()) {
-            $properties[] = $row;
-        }
-
-        return $properties;
-    } else {
-        // query NOK
+    if ($result->num_rows = 0) {
         return false;
     }
+
+    $properties = array();
+
+    while ($row = $result->fetch_assoc()) {
+        $properties[] = $row;
+    }
+
+    return $properties;
 }
 
 function getProperties($itemTypeID, $clientID){
@@ -477,17 +489,16 @@ function checkForAuditTrail($propertyID, $clientID) {
     // execute query
     $result = RSQuery($theQuery);
 
-    if (!$result) return false;
-
     // retrieve and return the result
     return $result->fetch_assoc();
 }
 
-//    0 - Success
-// -1 - Identifier error: can't associate an item with itself through an identifier property
-// -2 - User not valid: can't update the property. Maybe the variable is audited and the change is being performed by a script?
-// -3 - Query error while updating the property
-// -4 - Invalid property type
+//  0 -> Success
+// -1 -> Identifier error: can't associate an item with itself through an identifier property
+// -2 -> User not valid: can't update the property.
+//               Maybe the variable is audited and the change is being performed by a script?
+// -3 -> Query error while updating the property
+// -4 -> Invalid property type
 function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $value, $propertyType = '', $userID = 0, $forceOrder = '') {
     global $propertiesTables, $auditTrailPropertiesTables, $RStoken;
 
@@ -498,15 +509,22 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
         $propertyID = $temp[0]['ID'];
     }
 
-    if ($propertyType == '') $propertyType = getPropertyType($propertyID, $clientID);
+    if ($propertyType == '') {
+        $propertyType = getPropertyType($propertyID, $clientID);
+    }
 
     // get the property old (current) value
     $previousValue = getItemPropertyValue($itemID, $propertyID, $clientID, $propertyType, $itemTypeID);
-    // Compare with the actual value of the property
-    if ($value == $previousValue) return 0;
 
-        // Values are different, so continue updating
-    if ($propertyType == 'image' || $propertyType == 'file') return -4; // files and images are not updated this way
+    // Compare with the actual value of the property
+    if ($value == $previousValue) {
+        return 0;
+    }
+
+    // Values are different, so continue updating
+    if ($propertyType == 'image' || $propertyType == 'file') {
+        return -4; // files and images are not updated this way
+    }
 
     // Ensure property value match the defined property type and convert to default otherwise
     $value = enforcePropertyType($value, $clientID, $propertyID, $propertyType);
@@ -775,7 +793,13 @@ function deleteAppItemType($appItemTypeID) {
 function getAppItemTypeName($appItemTypeID) {
     $result = RSQuery("SELECT RS_NAME FROM rs_item_type_app_definitions WHERE RS_ID = " . $appItemTypeID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appItemTypeName = $result->fetch_assoc();
 
@@ -835,7 +859,13 @@ function getAppPropertyName($appPropertyID) {
 
     $result = RSQuery("SELECT RS_NAME FROM rs_property_app_definitions WHERE RS_ID = " . $appPropertyID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appPropertyName = $result->fetch_assoc();
 
@@ -847,7 +877,13 @@ function getAppPropertyType($appPropertyID) {
 
     $result = RSQuery("SELECT RS_TYPE FROM rs_property_app_definitions WHERE RS_ID = " . $appPropertyID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appPropertyType = $result->fetch_assoc();
 
@@ -859,7 +895,13 @@ function getAppPropertyItemType($appPropertyID) {
 
     $result = RSQuery("SELECT RS_ITEM_TYPE_ID FROM rs_property_app_definitions WHERE RS_ID = " . $appPropertyID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appPropertyItemTypeID = $result->fetch_assoc();
 
@@ -871,7 +913,13 @@ function getAppPropertyDefaultValue($appPropertyID) {
 
     $result = RSQuery("SELECT RS_DEFAULTVALUE FROM rs_property_app_definitions WHERE RS_ID = " . $appPropertyID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appPropertyDefaultValue = $result->fetch_assoc();
 
@@ -883,7 +931,13 @@ function getAppPropertyReferredItemType($appPropertyID) {
 
     $result = RSQuery("SELECT RS_REFERRED_ITEMTYPE FROM rs_property_app_definitions WHERE RS_ID = " . $appPropertyID);
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $appPropertyItemTypeID = $result->fetch_assoc();
 
@@ -934,7 +988,13 @@ function getClientItemTypeName($clientItemTypeID, $clientID) {
 
     $result = RSQuery("SELECT RS_NAME FROM rs_item_types WHERE RS_ITEMTYPE_ID = " . $clientItemTypeID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if (!$result) return '';
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     if ($clientItemTypeName = $result->fetch_assoc())
         return $clientItemTypeName['RS_NAME'];
@@ -1015,7 +1075,13 @@ function getClientCategoryName($clientCategoryID, $clientID) {
 
     $result = RSQuery("SELECT RS_NAME FROM rs_categories WHERE RS_CATEGORY_ID = '" . $clientCategoryID . "' AND RS_CLIENT_ID = '" . $clientID . "'");
 
-    if (!$result) return "";
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $categoryName = $result->fetch_assoc();
 
@@ -1027,7 +1093,13 @@ function getClientCategoryItemType($clientCategoryID, $clientID) {
 
     $result = RSQuery("SELECT RS_ITEMTYPE_ID FROM rs_categories WHERE RS_CATEGORY_ID = '" . $clientCategoryID . "' AND RS_CLIENT_ID = '" . $clientID . "'");
 
-    if (!$result) return '0';
+    if (is_bool($result) && !$result) {
+        return "0";
+    }
+
+    if ($result->num_rows == 0) {
+        return "0";
+    }
 
     $categoryItemType = $result->fetch_assoc();
 
@@ -1101,11 +1173,11 @@ function deleteClientProperty($propertyID, $clientID) {
     if(RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($propertyType == 'image' || $propertyType == 'file')){
 		deleteMediaProperty($clientID,$propertyID);
 	}
-    RSQuery("DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    RSQuery("DELETE FROM rs_item_properties        WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
     RSQuery("DELETE FROM rs_property_app_relations WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
-    RSQuery("DELETE FROM rs_properties_groups WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
-    RSQuery("DELETE FROM rs_properties_lists    WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
-    RSQuery("DELETE FROM rs_token_permissions WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    RSQuery("DELETE FROM rs_properties_groups      WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    RSQuery("DELETE FROM rs_properties_lists       WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
+    RSQuery("DELETE FROM rs_token_permissions      WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
 
     if ($propertyID == getMainPropertyID($itemTypeID, $clientID)) {
         // reset main value
@@ -1130,7 +1202,13 @@ function getClientPropertyType($clientPropertyID, $clientID) {
 
     $result = RSQuery("SELECT RS_TYPE FROM rs_item_properties WHERE RS_PROPERTY_ID = " . $clientPropertyID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if (!$result) return '';
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $propertyType = $result->fetch_assoc();
 
@@ -1153,7 +1231,13 @@ function getClientPropertyDefaultValue($clientPropertyID, $clientID) {
         // the client property is not related or the application property default value is null, so return the client property default value
         $result = RSQuery("SELECT RS_DEFAULTVALUE FROM rs_item_properties WHERE (RS_PROPERTY_ID = " . $clientPropertyID . " AND RS_CLIENT_ID = " . $clientID . ")");
 
-        if (!$result) return '';
+        if (is_bool($result) && !$result) {
+            return "";
+        }
+
+        if ($result->num_rows == 0) {
+            return "";
+        }
 
         $propertyDefaultValue = $result->fetch_assoc();
 
@@ -1167,7 +1251,13 @@ function getClientPropertyCategory($clientPropertyID, $clientID) {
 
     $result = RSQuery("SELECT RS_CATEGORY_ID FROM rs_item_properties WHERE RS_PROPERTY_ID = " . $clientPropertyID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if (!$result) return '';
+    if (is_bool($result) && !$result) {
+        return "";
+    }
+
+    if ($result->num_rows == 0) {
+        return "";
+    }
 
     $category = $result->fetch_assoc();
     return $category['RS_CATEGORY_ID'];
@@ -2636,10 +2726,15 @@ function deleteAppItemTypeRelationship($appItemTypeID, $clientID) {
 
 // Return the ID of the application item type related with the client item type passed
 function getAppItemTypeID_RelatedWith($clientItemTypeID, $clientID) {
-
     $result = RSQuery("SELECT RS_ITEMTYPE_APP_ID FROM rs_item_type_app_relations WHERE RS_ITEMTYPE_ID = " . $clientItemTypeID . " AND RS_CLIENT_ID = " . $clientID);
 
-    if (!$result) return '0';
+    if (is_bool($result) && !$result) {
+        return '0';
+    }
+
+    if ($result->num_rows == 0) {
+        return'0';
+    }
 
     $appItemTypeID = $result->fetch_assoc();
 
@@ -2752,12 +2847,20 @@ function deleteAppPropertyRelationship($appPropertyID, $clientID) {
 function getAppPropertyID_RelatedWith($clientPropertyID, $clientID) {
 
     $result = RSQuery("SELECT RS_PROPERTY_APP_ID FROM rs_property_app_relations WHERE RS_PROPERTY_ID = " . $clientPropertyID . " AND RS_CLIENT_ID = " . $clientID);
-    if (!$result) return '0';
+
+    if (is_bool($result) && !$result) {
+        return '0';
+    }
+
+    if ($result->num_rows == 0) {
+        return '0';
+    }
 
     $appPropertyID = $result->fetch_assoc();
 
-    if ($appPropertyID)
+    if ($appPropertyID) {
         return $appPropertyID['RS_PROPERTY_APP_ID'];
+    }
 
     return '0';
 }
@@ -3354,7 +3457,7 @@ function reorderItems($clientID, $itemTypeID, $propertyID, $parentID, $idList, $
     } elseif (isSingleIdentifier($propertyType)) {
         //reordering single identifiers, overwrite order value in property
         $result=true;
-        for($i=0;$i<count($idList)&&$result;$i++){
+        for($i=0; $i<count($idList) && $result; $i++) {
             //reorder the element
             $theQuery = "UPDATE `" . $propertiesTables[$propertyType] . "` SET `RS_ORDER` = '" . $orderList[$i] . "' WHERE `RS_CLIENT_ID` = '" . $clientID . "' AND `RS_ITEMTYPE_ID` = '" . $itemTypeID . "' AND `RS_ITEM_ID` = '" . $idList[$i] . "' AND `RS_PROPERTY_ID` = '" . $propertyID . "' LIMIT 1";
 
@@ -3379,6 +3482,7 @@ function reorderItems($clientID, $itemTypeID, $propertyID, $parentID, $idList, $
                 $previousProperty = $result->fetch_assoc();
                 $parents = explode(',', $previousProperty['RS_DATA']);
                 $orders = explode(',', $previousProperty['RS_ORDER']);
+
                 if (count($parents) < count($orders)) {
                     //extra orders: we can't know if they are correct, just cut from the end to match sizes
                     //TO DO: handle error
@@ -3482,7 +3586,7 @@ function recalculateOrder($oldValue, $newValue, $oldOrder) {
         $oldOrders += array_fill(count($oldOrders), count($oldValues)-count($oldOrders), '0');
     }
 
-    //fill with zeroes by default
+    // fill with zeroes by default
     $newOrders = array_fill(0, count($newValues), "0");
 
     foreach ($newValues as $value) {
