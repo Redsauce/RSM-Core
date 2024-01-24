@@ -291,7 +291,7 @@ function getTranslatedValue($clientID, $property, $sourceValue) {
 	global $cstMainPropertyID;
 	global $cstMainPropertyType;
 	global $cstReferredItemTypeID;
-	
+
     if ($property['type'] == 'identifier') {
         $value = getItemPropertyValue($sourceValue, $property[$cstMainPropertyID], $clientID, $property[$cstMainPropertyType], $property[$cstReferredItemTypeID]);
 
@@ -319,7 +319,7 @@ function getTranslatedValue($clientID, $property, $sourceValue) {
 function RSReturnError($message, $code) {
 	global $cstClientID;
 	global $cstRS_POST;
-	
+
     $theFile = "";
     $theFile .= ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     $theFile .= ("<RSError>");
@@ -728,7 +728,7 @@ function _predictNumberOfFields($result) {
         // Count the number of fields in the current element and add it to the total count
         $count += count($resultLine);
         $i++;
-        
+
         //If the limit has been reached, break
         if ($i >= $limit) {
             break;

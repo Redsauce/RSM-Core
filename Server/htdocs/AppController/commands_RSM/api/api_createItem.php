@@ -37,10 +37,10 @@ foreach ($RSdataSplit as $RSdataRow) {
     $AllPropertiesID = array();
 
     // Get the itemType with an array of propertyIDs
-    foreach ($RSdataRow as $propertyID) {
-        $chainValues = explode(":", $propertyID);
-        $id = ParsePID($chainValues[0], $clientID);
-        $AllPropertiesID[] = $id;
+    foreach ($RSdataRow as $group) {
+        $chainValues = explode(":", $group);
+        $propertyID = ParsePID($chainValues[0], $clientID);
+        $AllPropertiesID[] = $propertyID;
         $value = $chainValues[1];
 
         if (!isBase64($value)) {
@@ -48,8 +48,8 @@ foreach ($RSdataSplit as $RSdataRow) {
         }
 
         // Only create properties where user has CREATE permission
-        if ((RShasTokenPermission($RStoken, $id, "CREATE")) || (isPropertyVisible($RSuserID, $id, $clientID))) {
-            $propertiesID[] = $id;
+        if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+            $propertiesID[] = $propertyID;
             $decodedValue = base64_decode($value);
 
             if (!mb_check_encoding($decodedValue, "UTF-8")) {
