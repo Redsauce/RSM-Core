@@ -1,2 +1,4 @@
-
 Server/htdocs/AppController/commands_RSM/.DS_Store
+.sonar_lock
+report-task.txt
+/.vscode

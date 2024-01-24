@@ -8,7 +8,7 @@
 //   clientID     : ID of the client, is not necessary if the token is passed
 //   propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
 //   filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
-//  extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
+//   extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
 //   filterJoining: could be AND or OR. By default = AND.
 //    translateIDs: if this property is set to false then the IDs won't be tranlated
 //                  by the main property value of the item the ID is pointing to
@@ -33,7 +33,6 @@ isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_
 isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
 isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
 isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
-isset($GLOBALS['RS_POST']['orderPropertyID']) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
 
 // Don't allow empty properties to be specified
 if (strpos($pIDs, ",,") !== false) {
@@ -41,8 +40,8 @@ if (strpos($pIDs, ",,") !== false) {
 }
 
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-      if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if (isset($GLOBALS['RS_POST']['translateIDs']) && $GLOBALS['RS_POST']['translateIDs'] == "true") {
+    $translateIDs = true;
 }
 
 // Construct filterProperties using a double explode
@@ -57,15 +56,14 @@ if ($filterRules != '') {
         $rule = explode(";", $ruleN);
 
         // Obtain the property value
-        if (is_base64($rule[1])) {
+        if (isBase64($rule[1])) {
             // The user is specifying a custom base64 filter value
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
-            
+
             if (($rule[2] != "<-IN") && ($rule[2] != "IN")) {
                 // Under <-IN and IN clausules, we need a list of values separated by '
                 $pValue = str_replace("'", "&#39;", $pValue);
             }
-            
         } else {
             // The value is not encoded in base64 so try to get a related property with the value
             $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
@@ -82,8 +80,10 @@ if ($orderPropertyID != "") {
     $returnOrder = 1;
     if ($orderPropertyID != "0") {
         $propertyType = getPropertyType($orderPropertyID, $clientID);
-        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)){
-            if (!in_array($orderPropertyID, $propertyIDs)) $propertyIDs[] = $orderPropertyID;
+        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)) {
+            if (!in_array($orderPropertyID, $propertyIDs)) {
+                $propertyIDs[] = $orderPropertyID;
+            }
         } else {
             $response['result'] = "NOK";
             $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";
@@ -125,9 +125,9 @@ foreach ($propertyIDs as $property) {
 }
 
 //check and translate order by
-if($orderBy != ''){
+if ($orderBy != '') {
     $pID = ParsePID($orderBy, $clientID);
-    if ($pID != ''){
+    if ($pID != '') {
         $orderBy = $pID;
     }
 }
@@ -142,4 +142,3 @@ if (is_string($results)) {
 } else {
     RSReturnArrayQueryResults($results, false);
 }
-?>
