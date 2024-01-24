@@ -8,11 +8,11 @@ function getGlobalVariableValue($variableName, $clientID) {
 	// execute query
 	$results = RSquery('SELECT RS_VALUE AS "value", RS_IMAGE AS "image" FROM rs_globals WHERE RS_CLIENT_ID = '. $clientID . ' AND RS_NAME = "' . $variableName . '"');
 
-    if (is_bool($result) && !$result) {
+    if (is_bool($results) && !$results) {
         return '';
     }
 
-    if ($result->num_rows == 0) {
+    if ($results->num_rows == 0) {
         return '';
     }
 
