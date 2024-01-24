@@ -72,7 +72,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
                 $pID = parsePID($theProperties[0], $clientID);
 
                 // Obtain the property value
-                if (is_base64($theProperties[1])) {
+                if (isBase64($theProperties[1])) {
                     // The user is specifying a custom base64 filter value
                     $pValue = base64_decode($theProperties[1]);
                 } else {

@@ -66,7 +66,7 @@ if ($itemTypeID != 0) {
             } else {
 
                 $value = $chainValues[1];
-                if (!is_base64($value)) {
+                if (!isBase64($value)) {
                     dieWithError(400, "Input parameters are not base64");
                 }
 
@@ -86,9 +86,7 @@ if ($itemTypeID != 0) {
                 $results['result'] = "NOK";
                 $results['description'] = "CODE ERROR " . $result;
                 $results['propertyID'] = $chainValues[0] . " (PID: " . $id . ")";
-                continue;
             }
-
         }
     }
 } else {
@@ -98,4 +96,3 @@ if ($itemTypeID != 0) {
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
-?>

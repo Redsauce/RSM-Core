@@ -574,6 +574,35 @@ function RSReturnQueryResults($result, $compressed = true) {
     exit;
 }
 
+// Converts the passed array of results to JSON
+function RSReturnJsonQueryResults($result){
+
+    $json = "";
+
+    if (is_array($result)) {
+    
+        // Build response using the string concatenation;
+        $json .= "[";
+
+        foreach ($result as $row) {
+            $json  .= "{";
+            foreach ($row as $field => $value) {
+                // We replace double quotes for single quotes in every string
+                $json .= "\"" . $field . "\" : \"" . str_replace("\"","'",$value) . "\"";
+                if($value != end($row)) $json .= ",";
+                $json .= "";
+            }
+            $json .= "}";
+            if($row != end($result)) $json .= ",";
+            $json .= "";
+        }
+        $json .= "]";
+    }
+    header("Content-type: application/json");
+    Header("Content-Length: " . strlen($json));
+    echo $json;
+}
+
 // Converts the passed database results to XML
 function RSReturnArrayResults($array, $compressed = true) {
     global $RSallowUncompressed;

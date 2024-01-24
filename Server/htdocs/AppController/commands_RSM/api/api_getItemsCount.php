@@ -44,7 +44,7 @@ if ($filterRules != '') {
         $rule = explode(";", $ruleN);
 
         // Obtain the property value
-        if (is_base64($rule[1])) {
+        if (isBase64($rule[1])) {
             // The user is specifying a custom base64 filter value
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
         } else {
@@ -55,7 +55,7 @@ if ($filterRules != '') {
     }
 }
 
-$itemTypeID = parseITID($itemTypeID,$clientID);
+$itemTypeID = parseITID($itemTypeID, $clientID);
 if ($itemTypeID <= 0) {
     $response['result'] = "NOK";
     $response['description'] = "INVALID ITEM TYPE";
@@ -63,7 +63,7 @@ if ($itemTypeID <= 0) {
 }
 
 // Check if user has permissions to apply the filters on the item
-$filterPropertyIDs=array();
+$filterPropertyIDs = array();
 foreach ($filterProperties as $filterProperty) {
     $filterPropertyIDs[] = $filterProperty['ID'];
 }
@@ -85,4 +85,3 @@ $result = array("total" => count($results));
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($result, false);
-?>
