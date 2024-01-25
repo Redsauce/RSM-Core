@@ -153,7 +153,7 @@ if ($includeCategories) {
 if (!empty($responseArray)) {
   returnJsonResponse(json_encode($responseArray));
 } else {
-  $RSallowDebug ? returnJsonMessage(200, '{}') : returnJsonMessage(200, '{}');
+  returnJsonMessage(200, '{}');
 }
 
 
