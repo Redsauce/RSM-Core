@@ -83,7 +83,7 @@ if ($propertyIDs == '') {
 }
 
 // IDs
-if ($IDs != '') {
+if (is_array($IDs)) {
   $IDs = implode(',', $IDs);
 }
 
@@ -153,7 +153,7 @@ if ($includeCategories) {
 if (!empty($responseArray)) {
   returnJsonResponse(json_encode($responseArray));
 } else {
-  $RSallowDebug ? returnJsonMessage(404, 'No items were found') : returnJsonMessage(404, '');
+  $RSallowDebug ? returnJsonMessage(200, '{}') : returnJsonMessage(200, '');
 }
 
 
