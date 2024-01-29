@@ -570,9 +570,10 @@ function isBase64($s)
 function setAuthorizationTokenOnGlobals()
 {
     //We need this variable to exists in order to make RSdatabase work propertly.
+    $lowerKeysHeaders = array_change_key_case(getallheaders());
 
-    if (isset(getallheaders()["authorization"])) {
-        $GLOBALS['RS_POST']['RStoken'] = getallheaders()["authorization"];
+    if (isset($lowerKeysHeaders["authorization"])) {
+        $GLOBALS['RS_POST']['RStoken'] = $lowerKeysHeaders["authorization"];
     }
 }
 
