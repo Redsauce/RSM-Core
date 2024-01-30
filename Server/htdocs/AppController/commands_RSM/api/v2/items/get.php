@@ -53,7 +53,7 @@ $RSuserID =  getRSuserID();
 $propertyIDs = $requestBody->propertyIDs;
 $filterRules = $requestBody->filterRules;
 $extFilterRules = $requestBody->extFilterRules;
-$IDs = $requestBody->IDs;
+$originalIDs = $requestBody->IDs;
 $itemTypeID = $requestBody->itemTypeID;
 
 // includeCategories filter
@@ -81,15 +81,16 @@ if ($itemTypeID <= 0) {
 if ($propertyIDs == '') {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
-
 // IDs
-if (is_array($IDs)) {
-  $IDs = implode(',', $IDs);
+if (is_array($originalIDs)) {
+  $IDs = implode(',', $originalIDs);
+} else {
+  $IDs = $originalIDs;
 }
 
 // Build an array with the filterRules
 $filterProperties = array();
-if ($filterRules != '') {
+if (is_array($filterRules) && !empty($filterRules)) {
   foreach ($filterRules as $rule) {
     $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
   }
@@ -97,15 +98,19 @@ if ($filterRules != '') {
 
 // Build array with the visible propertyIds (if they is visible for us, then we have permissions)
 $visiblePropertyIDs = array();
-foreach ($propertyIDs as $singlePropertyID) {
-  if (RShasTokenPermission($RStoken, $singlePropertyID, 'READ') || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
-    $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+
+if (is_array($propertyIDs)) {
+  foreach ($propertyIDs as $singlePropertyID) {
+    if (RShasTokenPermission($RStoken, $singlePropertyID, 'READ') || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
+      $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    }
   }
 }
 
+
 // Build a string with the extFilterRules
 $formattedExtFilterRules = '';
-if ($extFilterRules != '') {
+if (is_array($extFilterRules) && !empty(($extFilterRules))) {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
     $formattedExtFilterRules .=  $singleRule->propertyID . ';' . ($singleRule->value) . ';' . $singleRule->operation . ',';
