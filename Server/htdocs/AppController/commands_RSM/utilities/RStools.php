@@ -569,7 +569,7 @@ function isBase64($s)
 // Set the Authorization token read on the header and puts it in the $GLOBALS variable
 function setAuthorizationTokenOnGlobals()
 {
-    // The header fields must be case-insensitive, so we convert all the keys of the array getallheaders to lowercase
+    // The RFC2616 standard defines that header fields must be case-insensitive. We convert the keys of the header array to lowercase before using them.
     $lowerKeysHeaders = array_change_key_case(getallheaders());
 
     if (isset($lowerKeysHeaders["authorization"])) {
