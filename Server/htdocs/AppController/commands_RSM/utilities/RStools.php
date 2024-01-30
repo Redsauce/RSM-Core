@@ -569,10 +569,11 @@ function isBase64($s)
 // Set the Authorization token read on the header and puts it in the $GLOBALS variable
 function setAuthorizationTokenOnGlobals()
 {
-    //We need this variable to exists in order to make RSdatabase work propertly.
+    // The RFC2616 standard defines that header fields must be case-insensitive. We convert the keys of the header array to lowercase before using them.
+    $lowerKeysHeaders = array_change_key_case(getallheaders());
 
-    if (isset(getallheaders()["authorization"])) {
-        $GLOBALS['RS_POST']['RStoken'] = getallheaders()["authorization"];
+    if (isset($lowerKeysHeaders["authorization"])) {
+        $GLOBALS['RS_POST']['RStoken'] = $lowerKeysHeaders["authorization"];
     }
 }
 
