@@ -569,7 +569,7 @@ function isBase64($s)
 // Set the Authorization token read on the header and puts it in the $GLOBALS variable
 function setAuthorizationTokenOnGlobals()
 {
-    //We need this variable to exists in order to make RSdatabase work propertly.
+    // The header fields must be case-insensitive, so we convert all the keys of the array getallheaders to lowercase
     $lowerKeysHeaders = array_change_key_case(getallheaders());
 
     if (isset($lowerKeysHeaders["authorization"])) {
