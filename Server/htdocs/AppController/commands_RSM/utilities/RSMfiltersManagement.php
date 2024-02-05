@@ -788,4 +788,3 @@ function normaliza ($cadena) {
 
     return $cadena;
 }
-?>
