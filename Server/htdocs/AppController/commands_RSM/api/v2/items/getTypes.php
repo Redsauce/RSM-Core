@@ -64,5 +64,5 @@ foreach ($itemTypeIDs as $itemTypeID) {
 if (!empty($responseArray)) {
     returnJsonResponse(json_encode($responseArray));
 } else {
-    $RSallowDebug ? returnJsonMessage(404, 'No ItemTypeIDs were found') : returnJsonMessage(404, '');
+    returnJsonMessage(200, '{}');
 }
