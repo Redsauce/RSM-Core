@@ -29,11 +29,11 @@ require_once "../utilities/RStools.php";
 $search  = array("'", "\"");
 $replace = array("&rsquo;" , "&quot;");
 // Get Token from header without injection risk
-//isset($_SERVER["HTTP_X_AUTH_TOKEN"]) ? $RStoken = str_replace($search, $replace, $_SERVER["HTTP_X_AUTH_TOKEN"]) : dieWithError(401);
+isset($_SERVER["768507d7d183e039fe6f0af98d0accfa"]) ? $RStoken = str_replace($search, $replace, $_SERVER["768507d7d183e039fe6f0af98d0accfa"]) : dieWithError(401);
 
 // Get clientID from token
-//$clientID = RSClientFromToken($RStoken);
-//$GLOBALS['RS_POST']['clientID'] = $clientID;
+$clientID = RSClientFromToken($RStoken);
+$GLOBALS['RS_POST']['clientID'] = $clientID;
 
 // Get graphQL query
 $inputJSON = file_get_contents('php://input');
@@ -46,83 +46,9 @@ ob_start('ob_gzhandler');
 header("content-type: application/json");
 
 // Start processing received graphQL query
-//$result = parseItem(trim($input["query"]), 0, 0, true);
+$result = parseItem(trim($input["query"]), 0, 0, true);
 
 
-
-
-//Get country/regions ***HARDCODED***
-//QA itemtypes values
-$clientID='38';
-$GLOBALS['RS_POST']['clientID'] = $clientID;
-$affItemType='7';
-$countryPropID='29';
-$regionPropID='32';
-$prodItemType='8';
-$prodCountryPropID='33';
-$productPropID='30';
-$statusPropID='36';
-
-$filterProperties = array();
-$returnProperties = array();
-$returnProperties[] = array('ID' => $countryPropID, 'name' => 'Country');
-$returnProperties[] = array('ID' => $regionPropID, 'name' => 'Region');
-$countriesList = getFilteredItemsIDs($affItemType, $clientID, $filterProperties, $returnProperties, $regionPropID);
-$regions=array();
-$countries=array();
-$currentRegion="";
-foreach ($countriesList as $country) {
-
-   $filterProperties = array();
-   $filterProperties[] = array('ID' => $prodCountryPropID, 'value' => $country['ID']);
-   $returnProperties = array();
-   $returnProperties[] = array('ID' => $productPropID, 'name' => 'Product');
-   $returnProperties[] = array('ID' => $statusPropID, 'name' => 'Status');
-   $productsList = getFilteredItemsIDs($prodItemType, $clientID, $filterProperties, $returnProperties);
-   $products=array();
-   foreach ($productsList as $product) {
-      $products[]=array("Name"=>html_entity_decode($product['Product'], ENT_COMPAT, "UTF-8"),"Product Status"=>html_entity_decode($product['Status'], ENT_COMPAT, "UTF-8"));
-   }
-
-   if($country['Region']!=$currentRegion){
-      if(count($countries)>0){
-         $regions[]=array("Name"=>html_entity_decode($currentRegion, ENT_COMPAT, "UTF-8"),"Country"=>$countries);
-         $countries=array();
-      }
-      $currentRegion=$country['Region'];
-   }
-   $countries[]=array("Name"=>html_entity_decode($country['Country'], ENT_COMPAT, "UTF-8"),"Product"=>$products);
-}
-//store last country products
-if(count($countries)>0){
-   $regions[]=array("Name"=>html_entity_decode($currentRegion, ENT_COMPAT, "UTF-8"),"Country"=>$countries);
-}
-
-$result = array("Region"=>$regions);
-
-//END get country/regions ***HARDCODED***
-
-// Construct data array that will be converted into JSON
-/*$result = array(
-   "data"=>array(
-      "Region"=>array(
-         array(
-            "name"=>"",
-            "Country"=>array(
-               array(
-                  "name"=>"",
-                  "Product"=>array(
-                     array(
-                        "name"=>"",
-                        "Product Status"=>""
-                     )
-                  )
-               )
-            )
-         )
-      )
-   )
-);*/
 
 // Return data converted to JSON (and compressed if possible)
 echo json_encode(array("data"=>$result));
