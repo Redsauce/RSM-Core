@@ -29,11 +29,11 @@ require_once "../utilities/RStools.php";
 $search  = array("'", "\"");
 $replace = array("&rsquo;" , "&quot;");
 // Get Token from header without injection risk
-//isset($_SERVER["HTTP_X_AUTH_TOKEN"]) ? $RStoken = str_replace($search, $replace, $_SERVER["HTTP_X_AUTH_TOKEN"]) : dieWithError(401);
+isset($_SERVER["768507d7d183e039fe6f0af98d0accfa"]) ? $RStoken = str_replace($search, $replace, $_SERVER["768507d7d183e039fe6f0af98d0accfa"]) : dieWithError(401);
 
 // Get clientID from token
-//$clientID = RSClientFromToken($RStoken);
-//$GLOBALS['RS_POST']['clientID'] = $clientID;
+$clientID = RSClientFromToken($RStoken);
+$GLOBALS['RS_POST']['clientID'] = $clientID;
 
 // Get graphQL query
 $inputJSON = file_get_contents('php://input');
@@ -46,11 +46,11 @@ ob_start('ob_gzhandler');
 header("content-type: application/json");
 
 // Start processing received graphQL query
-//$result = parseItem(trim($input["query"]), 0, 0, true);
+$result = parseItem(trim($input["query"]), 0, 0, true);
 
 
 
-
+/*
 //Get country/regions ***HARDCODED***
 //QA itemtypes values
 $clientID='38';
@@ -101,7 +101,7 @@ if(count($countries)>0){
 $result = array("Region"=>$regions);
 
 //END get country/regions ***HARDCODED***
-
+*/
 // Construct data array that will be converted into JSON
 /*$result = array(
    "data"=>array(
