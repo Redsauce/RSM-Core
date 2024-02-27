@@ -3,29 +3,33 @@
 //Description:
 //    Returns the number of items from the specified itemType with filter conditions
 //
-//  --- PARAMETERS -- All the IDs can be called as systemNames --
-//   RStoken      : A token can replace the clientID
-//   clientID     : ID of the client, is not necessary if the token is passed
-//   propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
-//   filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
-//   extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
+//  REQUEST BODY (JSON):
+//  IDs: Array with the specific item IDs to retrieve.
+//  itemTypeID: Item type from which the IDs should be retrieved.
+//  propertiesIDs: ID of the properties to be retrieved from the item.
+//  filtersRules: Array with the different filters to be applied. Each filter consists of:
+//  propertyID: ID of the property to filter by.
+//  value: Value used as the filter.
+//  operation: Criteria used to determine if the value equals, is greater, is less...
+//  extFilterRules: Same as filterRules, but using a propertyID from another itemType.
+
 // ****************************************************************************************
 
-require_once "../../../utilities/RStools.php";
-require_once "../../../utilities/RSMverifyBody.php";
+require_once '../../../utilities/RStools.php';
+require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 
-require_once "../../../utilities/RSdatabase.php";
-require_once "../../../utilities/RSMitemsManagement.php";
-require_once "../../api_headers.php";
+require_once '../../../utilities/RSdatabase.php';
+require_once '../../../utilities/RSMitemsManagement.php';
+require_once '../../api_headers.php';
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$clientID = getClientID();
 $RStoken =  getRStoken();
-$RSuserID =  getRSuserID();
+$clientID = getClientID();
+
 //Params
 $propertyIDs = $requestBody->propertyIDs;
 $filterRules = $requestBody->filterRules;
@@ -39,9 +43,9 @@ if ($itemTypeID == '') {
 }
 if ($itemTypeID <= 0) {
   if ($RSallowDebug) {
-    returnJsonMessage(400, "Invalid itemTypeID: " . $itemTypeID);
+    returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID);
   } else {
-    returnJsonMessage(400, "");
+    returnJsonMessage(400, '');
   }
 }
 
@@ -50,9 +54,20 @@ if ($propertyIDs == '') {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
 
+// Build array with the visible propertyIds (the ones we have permissions)
+$visiblePropertyIDs = array();
+foreach ($propertyIDs as $singlePropertyID) {
+  if (RShasTokenPermission($RStoken, $singlePropertyID, 'READ')) {
+    $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    if (empty($visiblePropertyIDs)) {
+      returnJsonMessage(200, '0');
+    }
+  }
+}
+
 //IDs
 if ($IDs != '') {
-  $IDs = implode(",", $IDs);
+  $implodedIDs = implode(',', $IDs);
 }
 
 // Build an array with the filterRules
@@ -63,42 +78,38 @@ if ($filterRules != '') {
   }
 }
 
-// Build array with the visible propertyIds (the ones we have permissions)
-$visiblePropertyIDs = array();
-foreach ($propertyIDs as $singlePropertyID) {
-  if (RShasTokenPermission($RStoken, $singlePropertyID, "READ") || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
-    $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
-  }
-}
-
 // Build a string with the extFilterRules
-$formattedExtFilterRules = "";
+$formattedExtFilterRules = '';
 if ($extFilterRules != '') {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-    $formattedExtFilterRules  .=  $singleRule->propertyID . ";" . base64_encode($singleRule->value) . ";" . $singleRule->operation . ',';
+    $formattedExtFilterRules  .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ',';
   }
-  $formattedExtFilterRules = substr_replace($formattedExtFilterRules, "", -1);
+  $formattedExtFilterRules = substr_replace($formattedExtFilterRules, '', -1);
 }
 
 //GET THE ITEMS
-$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, "", false, $limit = '', $IDs, "AND", 0, true, $formattedExtFilterRules, true);
+$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', false, $limit = '', $implodedIDs, 'AND', 0, true, $formattedExtFilterRules, true);
 
 //  Parse itemsArray into a JSON.
 $response = array(
-  "totalItems" => count($itemsArray),
+  'count' => count($itemsArray),
 );
-$response = json_encode($response);
 
-if ($response != "[]") {
+if (count($itemsArray) != 0) {
+  $response = json_encode($response);
   returnJsonResponse($response);
 } else {
-  returnJsonMessage(404, "No items were found");
+  if ($RSallowDebug) {
+    returnJsonMessage(200, 'No items were found');
+  } else {
+    returnJsonMessage(200, '');
+  }
 }
 function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
-  checkBodyContainsAtLeastOne($body, "itemTypeID", "propertyIDs");
+  checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
   checkIsInteger($body->itemTypeID);
   checkIsArray($body->propertyIDs);
   checkIsArray($body->IDs);
