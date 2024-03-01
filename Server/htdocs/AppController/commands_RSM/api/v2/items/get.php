@@ -5,28 +5,28 @@
 // REQUEST BODY (JSON OBJECT):
 //  EXAMPLE 1:
 // {
-//     'IDs': [571],
-//     'itemTypeID': 8
+//     "IDs": ["571"],
+//     "itemTypeID": "8"
 // }
 //  EXAMPLE 2:
 // {
-//     'IDs': [571, 569],
-//     'propertyIDs': [58,59]
+//     "IDs": ["571", "569"],
+//     "propertyIDs": ["58","59"]
 // }
 //  EXAMPLE 3:
 // {
-//     'propertyIDs': [59],
-//     'filtersRules':
+//     "propertyIDs": ["59"],
+//     "filterRules":
 //      [
 //          {
-//              'propertyID': 58,
-//              'value': 'Sergio',
-//              'operation': '='
+//              "propertyID': "58",
+//              "value': 'John",
+//              "operation": "="
 //          }.
 //          {
-//              'propertyID': 59,
-//              'value': 'Santamaria',
-//              'operation': '<>'
+//              "propertyID": "59",
+//              "value": "Doe",
+//              "operation": "<>"
 //          }
 //      ]
 // }
