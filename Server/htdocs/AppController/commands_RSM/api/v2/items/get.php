@@ -136,7 +136,7 @@ if ($includeCategories) {
       $propertyID = $property['propertyID'];
       // save the values in the new array, with its corresponding categories
       if (isset($item[$propertyID])) {
-        $combinedArray[$category][$propertyID] = $item[$propertyID];
+        $combinedArray[$category][$propertyID] = html_entity_decode($item[$propertyID]);
       } else {
         $combinedArray[$category][$propertyID] = '';
       }
@@ -149,7 +149,7 @@ if ($includeCategories) {
   foreach ($itemsArray as $item) {
     $combinedArray = array();
     foreach ($item as $propertyKey => $propertyValue) {
-      $combinedArray[$propertyKey] = $propertyValue;
+      $combinedArray[$propertyKey] = html_entity_decode($propertyValue);
     }
     array_push($responseArray, $combinedArray);
   }
