@@ -9,11 +9,11 @@
 //          IDs: Array with the ID/IDs of the item/s to delete
 //  EXAMPLE:
 //   [{
-//      'itemTypeID': 98,
-//      'IDs': [12, 55]
+//      "itemTypeID": "98",
+//      "IDs": ["12", "55"]
 //      },{
-//      'itemTypeID': 102,
-//      'IDs': [10]
+//      "itemTypeID": "102",
+//      "IDs": ["10"]
 //    }]
 //***************************************************************************************
 

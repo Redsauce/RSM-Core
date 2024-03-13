@@ -109,6 +109,6 @@ function verifyBodyContent($body)
   foreach ($body as $item) {
     checkIsJsonObject($item);
     checkBodyContains($item, 'ID');
-    checkIsInteger($item->ID);
+    checkStringIsInteger($item->ID);
   }
 }
