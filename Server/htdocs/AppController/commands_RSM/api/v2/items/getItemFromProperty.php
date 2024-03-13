@@ -6,16 +6,16 @@
 //
 //  REQUEST BODY
 //  {
-//    itemType: itemType to retrieve (for example: the itemType of crm-accounts)
-//    filterProperty: property of another itemType related with the first one (for example: the property 'client' into invoices)
+//    itemTypeID: itemTypeID to retrieve (for example: the itemTypeID of crm-accounts)
+//    filterPropertyID: property of another itemTypeID related with the first one (for example: the property 'client' into invoices)
 //    filterItemID: itemID of the filter property (for example: The identifier of the invoice from which we get the client)
 //    translateIDs: (optional) If true, the response will have translatedIDs
 //    includeCategories: (optional) If true, the response will show the different categories
 // EXAMPLE:
 //     {
-//         "itemType": 154,
-//         "filterProperty": 1474,
-//         "filterItemID": 14
+//         "itemTypeID": "154",
+//         "filterPropertyID": "1474",
+//         "filterItemID": "14"
 //     }
 // RESPONSE:
 // [
@@ -60,8 +60,8 @@ $clientID = getClientID();
 $RStoken = getRStoken();
 $RSuserID = getRSuserID();
 
-$itemType = $requestBody->itemType;
-$filterProperty = $requestBody->filterProperty;
+$itemTypeID = $requestBody->itemTypeID;
+$filterPropertyID = $requestBody->filterPropertyID;
 $filterItemID = $requestBody->filterItemID;
 
 // translateIDs
@@ -74,24 +74,24 @@ $properties   = array();
 $attributes   = array();
 $results      = array();
 
-// get type of the filterProperty
-$propertyType = getPropertyType($filterProperty, $clientID);
+// get type of the filterPropertyID
+$propertyType = getPropertyType($filterPropertyID, $clientID);
 
-// if filterProperty is unsupported type return empty response
+// if filterPropertyID is unsupported type return empty response
 if (!isSingleIdentifier($propertyType) && !isMultiIdentifier($propertyType)) {
 
     if ($RSallowDebug) {
-        returnJsonMessage(200, 'filterProperty type is unsupported.');
+        returnJsonMessage(200, 'filterPropertyID must be either a single identifier or a multi identifier.');
     } else {
         returnJsonMessage(200, '');
     }
 }
 
-// Get itemType of the filter property
-$filterItemType = getItemTypeIDFromProperties(array($filterProperty), $clientID);
+// Get itemTypeID of the filter property
+$filteritemTypeID = getitemTypeIDFromProperties(array($filterPropertyID), $clientID);
 
 // verify if item exists
-if (!verifyItemExists($filterItemID, $filterItemType, $clientID)) {
+if (!verifyItemExists($filterItemID, $filteritemTypeID, $clientID)) {
     if ($RSallowDebug) {
         returnJsonMessage(200, 'Source item with ID ' . $filterItemID . ' does not exist');
     } else {
@@ -99,23 +99,23 @@ if (!verifyItemExists($filterItemID, $filterItemType, $clientID)) {
     }
 }
 
-// Get the value of the property $filterItemID for the given $filterProperty
-$$itemIDsToRetrieve = getItemPropertyValue($filterItemID, $filterProperty, $clientID);
+// Get the value of the property $filterItemID for the given $filterPropertyID
+$itemIDsToRetrieve = getItemPropertyValue($filterItemID, $filterPropertyID, $clientID);
 
-// get the properties of the itemType
-$properties = getClientItemTypeProperties($itemType, $clientID);
+// get the properties of the itemTypeID
+$properties = getClientitemTypeProperties($itemTypeID, $clientID);
 
 // verify how many items are related
-if (strpos($$itemIDsToRetrieve, ',') === false) {
+if (strpos($itemIDsToRetrieve, ',') === false) {
     // single item identified, return it as usual for backwards compatibility
 
     foreach ($properties as $property) {
         if (RShasTokenPermission($RStoken, $property['id'], 'READ') && (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
-            $value = getItemDataPropertyValue($$itemIDsToRetrieve, $property['id'], $clientID);
+            $value = getItemDataPropertyValue($itemIDsToRetrieve, $property['id'], $clientID);
 
             if (($property['type'] == 'image') || ($property['type'] == 'file')) {
                 // A file needs additional properties like the file name and the file size, so let's query the database for extra attributes
-                $attributes = explode(':', getItemPropertyValue($$itemIDsToRetrieve, $property['id'], $clientID));
+                $attributes = explode(':', getItemPropertyValue($itemIDsToRetrieve, $property['id'], $clientID));
 
                 $results[] = array(
                     'propertyID' => $property['id'],
@@ -131,15 +131,15 @@ if (strpos($$itemIDsToRetrieve, ',') === false) {
                     'name' => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
                     'value' => $value,
                     'type' => $property['type'],
-                    'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID))
+                    'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferreditemType($property['id'], $clientID), $value, $clientID))
                 );
             } elseif ($translateIDs && $property['type'] == 'identifiers') {
                 $IDs = explode(',', $value);
                 $trsProperties = '';
-                $relatedItemType = getClientPropertyReferredItemType($property['id'], $clientID);
+                $relateditemTypeID = getClientPropertyReferreditemType($property['id'], $clientID);
 
                 foreach ($IDs as $id) {
-                    $trsProperties .= base64_encode(getMainPropertyValue($relatedItemType, $value, $clientID)) . ',';
+                    $trsProperties .= base64_encode(getMainPropertyValue($relateditemTypeID, $value, $clientID)) . ',';
                 }
 
                 $results[] = array(
@@ -181,7 +181,7 @@ if (strpos($$itemIDsToRetrieve, ',') === false) {
         }
     }
     // get the items
-    $itemsArray = getFilteredItemsIDs($itemType, $clientID, array(), $properties, '', $translateIDs, '', $$itemIDsToRetrieve, 'AND', 0, true, '', true);
+    $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, array(), $properties, '', $translateIDs, '', $itemIDsToRetrieve, 'AND', 0, true, '', true);
 
     foreach ($itemsArray as $item) {
         foreach ($item as $propertyKey => $propertyValue) {
@@ -205,7 +205,7 @@ if (!empty($results)) {
 function verifyBodyContent($body)
 {
     checkIsJsonObject($body);
-    checkBodyContains($body, 'itemType');
-    checkBodyContains($body, 'filterProperty');
+    checkBodyContains($body, 'itemTypeID');
+    checkBodyContains($body, 'filterPropertyID');
     checkBodyContains($body, 'filterItemID');
 }
