@@ -77,14 +77,14 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
 // Functions to verify and ensure that the request body (api) items are the correct type.
 //***************************************************************************************
 
-function checkIsInteger($item)
+function checkStringIsInteger($item)
 {
   global $RSallowDebug;
-  if (isset($item) && !is_int($item)) {
+  if (isset($item) && !ctype_digit($item)) {
     if ($RSallowDebug) {
-      returnJsonMessage(400, "'{$item}' must be an integer");
+      returnJsonMessage(400, "'{$item}' string must be an integer");
     } else {
-      RSError("checkIsInteger: '{$item}' must be an integer");
+      RSError("checkStringIsInteger: '{$item}' string must be an integer");
       returnJsonMessage(400, "");
     }
   }

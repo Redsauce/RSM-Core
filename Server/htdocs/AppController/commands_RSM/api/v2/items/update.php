@@ -9,12 +9,12 @@
 //          - id: id of of the item being updated
 //  EXAMPLE:
 //      [{
-//          '109': 'Roja'
-//          'ID': '0008'
+//          "109": "Roja",
+//          "ID": "8"
 //        },{
-//          'ID':  '4001'
-//          '319': "Peter
-//          '320': 'Parker'
+//          "ID":  "4001",
+//          "319": "Peter",
+//          "320": "Parker"
 //        }]
 // ****************************************************************************************
 
@@ -109,6 +109,6 @@ function verifyBodyContent($body)
   foreach ($body as $item) {
     checkIsJsonObject($item);
     checkBodyContains($item, 'ID');
-    checkIsInteger($item->ID);
+    checkStringIsInteger($item->ID);
   }
 }

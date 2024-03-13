@@ -20,7 +20,7 @@
 //      [
 //          {
 //              "propertyID': "58",
-//              "value': 'John",
+//              "value": "John",
 //              "operation": "="
 //          }.
 //          {
@@ -167,7 +167,6 @@ function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
   checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
-  checkIsInteger($body->itemTypeID);
   checkIsArray($body->propertyIDs);
   checkIsArray($body->IDs);
   if (isset($body->filterRules)) {
