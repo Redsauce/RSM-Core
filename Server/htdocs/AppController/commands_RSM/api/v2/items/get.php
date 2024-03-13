@@ -158,7 +158,7 @@ if ($includeCategories) {
 if (!empty($responseArray)) {
   returnJsonResponse(json_encode($responseArray));
 } else {
-  returnJsonMessage(200, '{}');
+  returnJsonResponse('{}');
 }
 
 
