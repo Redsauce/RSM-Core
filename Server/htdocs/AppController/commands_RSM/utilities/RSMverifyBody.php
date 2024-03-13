@@ -80,7 +80,7 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
 function checkStringIsInteger($item)
 {
   global $RSallowDebug;
-  if (isset($item) && !is_numeric($item)) {
+  if (isset($item) && !ctype_digit($item)) {
     if ($RSallowDebug) {
       returnJsonMessage(400, "'{$item}' string must be an integer");
     } else {
