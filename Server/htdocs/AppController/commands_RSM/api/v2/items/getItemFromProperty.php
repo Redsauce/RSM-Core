@@ -1,14 +1,46 @@
 <?php
 //****************************************************************************************
 //Description:
-//    Retrieves an item of the specified itemType with the associated values
+//    This endpoint is used to retrieve the parent item of another item through one of the son's identifier
+//    (or multi-identifier) properties that must be specified when calling the endpoint.
 //
 //  REQUEST BODY
 //  {
 //    itemType: itemType to retrieve (for example: the itemType of crm-accounts)
 //    filterProperty: property of another itemType related with the first one (for example: the property 'client' into invoices)
-//    filterPropertyID: itemID of the filter property (for example: The identifier of the invoice from which we get the client)
-//  }
+//    filterItemID: itemID of the filter property (for example: The identifier of the invoice from which we get the client)
+//    translateIDs: (optional) If true, the response will have translatedIDs
+//    includeCategories: (optional) If true, the response will show the different categories
+// EXAMPLE:
+//     {
+//         "itemType": 154,
+//         "filterProperty": 1474,
+//         "filterItemID": 14
+//     }
+// RESPONSE:
+// [
+//     {
+//         "ID": "11",
+//         "Nombre": "Testing"
+//     },
+//     {
+//         "ID": "12",
+//         "Nombre": "Frontend"
+//     },
+//     {
+//         "ID": "13",
+//         "Nombre": "Backend"
+//     },
+//     {
+//         "ID": "14",
+//         "Nombre": "Serenity"
+//     },
+//     {
+//         "ID": "15",
+//         "Nombre": "API"
+//     }
+// ]
+//}
 //****************************************************************************************
 
 require_once '../../../utilities/RStools.php';
@@ -25,14 +57,14 @@ $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
 $clientID = getClientID();
-$RStoken =  getRStoken();
-$RSuserID =  getRSuserID();
+$RStoken = getRStoken();
+$RSuserID = getRSuserID();
 
 $itemType = $requestBody->itemType;
-$filterProperty   = $requestBody->filterProperty;
-$filterPropertyID = $requestBody->filterPropertyID;
+$filterProperty = $requestBody->filterProperty;
+$filterItemID = $requestBody->filterItemID;
 
-//translateIDs
+// translateIDs
 $translateIDs = false;
 if (isset($requestBody->translateIDs) && $requestBody->includeCategories) {
     $translateIDs = true;
@@ -47,77 +79,84 @@ $propertyType = getPropertyType($filterProperty, $clientID);
 
 // if filterProperty is unsupported type return empty response
 if (!isSingleIdentifier($propertyType) && !isMultiIdentifier($propertyType)) {
-    returnJsonMessage(200, '');
+
+    if ($RSallowDebug) {
+        returnJsonMessage(200, 'filterProperty type is unsupported.');
+    } else {
+        returnJsonMessage(200, '');
+    }
 }
 
 // Get itemType of the filter property
 $filterItemType = getItemTypeIDFromProperties(array($filterProperty), $clientID);
 
 // verify if item exists
-if (!verifyItemExists($filterPropertyID, $filterItemType, $clientID)) {
+if (!verifyItemExists($filterItemID, $filterItemType, $clientID)) {
     if ($RSallowDebug) {
-        returnJsonMessage(404, "Item doesn't exist");
+        returnJsonMessage(200, 'Source item with ID ' . $filterItemID . ' does not exist');
     } else {
-        returnJsonMessage(404, '');
+        returnJsonMessage(200, '');
     }
 }
 
-// Get the value of the property $filterPropertyID for the given $filterProperty
-$valuePropertyRelated = getItemPropertyValue($filterPropertyID, $filterProperty, $clientID);
+// Get the value of the property $filterItemID for the given $filterProperty
+$$itemIDsToRetrieve = getItemPropertyValue($filterItemID, $filterProperty, $clientID);
 
 // get the properties of the itemType
 $properties = getClientItemTypeProperties($itemType, $clientID);
 
-// verify how many items are
-if (strpos($valuePropertyRelated, ',') === false) {
-    //single item identified, return it as usual for backwards compatibility
+// verify how many items are related
+if (strpos($$itemIDsToRetrieve, ',') === false) {
+    // single item identified, return it as usual for backwards compatibility
 
     foreach ($properties as $property) {
-        $value = getItemDataPropertyValue($valuePropertyRelated, $property['id'], $clientID);
+        if (RShasTokenPermission($RStoken, $property['id'], 'READ') && (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
+            $value = getItemDataPropertyValue($$itemIDsToRetrieve, $property['id'], $clientID);
 
-        if (($property['type'] == 'image') || ($property['type'] == 'file')) {
-            // A file needs additional properties like the file name and the file size, so let's query the database for extra attributes
-            $attributes = explode(':', getItemPropertyValue($valuePropertyRelated, $property['id'], $clientID));
+            if (($property['type'] == 'image') || ($property['type'] == 'file')) {
+                // A file needs additional properties like the file name and the file size, so let's query the database for extra attributes
+                $attributes = explode(':', getItemPropertyValue($$itemIDsToRetrieve, $property['id'], $clientID));
 
-            $results[] = array(
-                'propertyID' => $property['id'],
-                'name' => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
-                'value' => $value,
-                'type' => $property['type'],
-                'filename' => array_key_exists(0, $attributes) ? $attributes[0] : '',
-                'filesize' => array_key_exists(1, $attributes) ? $attributes[1] : ''
-            );
-        } elseif ($translateIDs && $property['type'] == 'identifier') {
-            $results[] = array(
-                'propertyID' => $property['id'],
-                'name' => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
-                'value' => $value,
-                'type' => $property['type'],
-                'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID))
-            );
-        } elseif ($translateIDs && $property['type'] == 'identifiers') {
-            $IDs = explode(',', $value);
-            $trsProperties = '';
-            $relatedItemType = getClientPropertyReferredItemType($property['id'], $clientID);
+                $results[] = array(
+                    'propertyID' => $property['id'],
+                    'name' => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
+                    'value' => $value,
+                    'type' => $property['type'],
+                    'filename' => array_key_exists(0, $attributes) ? $attributes[0] : '',
+                    'filesize' => array_key_exists(1, $attributes) ? $attributes[1] : ''
+                );
+            } elseif ($translateIDs && $property['type'] == 'identifier') {
+                $results[] = array(
+                    'propertyID' => $property['id'],
+                    'name' => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
+                    'value' => $value,
+                    'type' => $property['type'],
+                    'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID))
+                );
+            } elseif ($translateIDs && $property['type'] == 'identifiers') {
+                $IDs = explode(',', $value);
+                $trsProperties = '';
+                $relatedItemType = getClientPropertyReferredItemType($property['id'], $clientID);
 
-            foreach ($IDs as $id) {
-                $trsProperties .= base64_encode(getMainPropertyValue($relatedItemType, $value, $clientID)) . ',';
+                foreach ($IDs as $id) {
+                    $trsProperties .= base64_encode(getMainPropertyValue($relatedItemType, $value, $clientID)) . ',';
+                }
+
+                $results[] = array(
+                    'propertyID' => $property['id'],
+                    'name'  => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
+                    'value' => $value,
+                    'type'  => $property['type'],
+                    'trs'   => rtrim($trsProperties, ',')
+                );
+            } else {
+                $results[] = array(
+                    'propertyID' => $property['id'],
+                    'name'  => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
+                    'value' => html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, 'UTF-8'),
+                    'type'  => $property['type']
+                );
             }
-
-            $results[] = array(
-                'propertyID'    => $property['id'],
-                'name'  => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
-                'value' => $value,
-                'type'  => $property['type'],
-                'trs'   => rtrim($trsProperties, ',')
-            );
-        } else {
-            $results[] = array(
-                'propertyID'    => $property['id'],
-                'name'  => html_entity_decode($property['name'], ENT_COMPAT, 'UTF-8'),
-                'value' => html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, 'UTF-8'),
-                'type'  => $property['type']
-            );
         }
     }
 } else {
@@ -142,7 +181,7 @@ if (strpos($valuePropertyRelated, ',') === false) {
         }
     }
     // get the items
-    $itemsArray = getFilteredItemsIDs($itemType, $clientID, array(), $properties, '', $translateIDs, '', $valuePropertyRelated, 'AND', 0, true, '', true);
+    $itemsArray = getFilteredItemsIDs($itemType, $clientID, array(), $properties, '', $translateIDs, '', $$itemIDsToRetrieve, 'AND', 0, true, '', true);
 
     foreach ($itemsArray as $item) {
         foreach ($item as $propertyKey => $propertyValue) {
@@ -168,5 +207,5 @@ function verifyBodyContent($body)
     checkIsJsonObject($body);
     checkBodyContains($body, 'itemType');
     checkBodyContains($body, 'filterProperty');
-    checkBodyContains($body, 'filterPropertyID');
+    checkBodyContains($body, 'filterItemID');
 }
