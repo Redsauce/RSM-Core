@@ -29,8 +29,7 @@ if ($result->num_rows == 0) {
 
 $ID = mysqli_fetch_assoc($result)['ID'];
 
-$response = array('ID' => $ID);
-$response = json_encode($response);
+$response = json_encode(array('ID' => $ID));
 
 returnJsonResponse($response);
 
