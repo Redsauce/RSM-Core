@@ -59,6 +59,8 @@ foreach ($itemTypeIDs as $itemTypeID) {
     if (!empty($propertiesArray)) {
         // Get the name of the ItemTypeID
         $itemTypeIDName = getClientItemTypeName($itemTypeID, $clientID);
+        // Get the icon of the ItemTypeID
+        $itemTypeIDIcon = getClientItemTypeIcon($itemTypeID, $clientID);
 
         // Add the itemTypeID and the name to the array.
         $combinedArray['itemTypeID'] = $itemTypeID;
@@ -66,6 +68,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
         //Add the properties to the array
         $combinedArray['properties'] = $propertiesArray;
+        $combinedArray['icon'] = base64_encode(hex2bin($itemTypeIDIcon));
 
         array_push($responseArray, $combinedArray);
     }
