@@ -80,6 +80,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
         if (preg_match("/^img_\d+_\d*_\d*_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
     }
+
     $nombres_archivo = array_values($nombres_archivo);
 
     if ($enable_image_cache && count($nombres_archivo) > 0) {
@@ -135,136 +136,140 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 			
 		} else {
 			// Valid image, continue processing it
-	        $ow = imagesx($originalImage);
-	        $oh = imagesy($originalImage);
+		    $ow = imagesx($originalImage);
+		    $oh = imagesy($originalImage);
 	
-	        //calculate new dimensions
-	        if ($w != ''){
-	            //passed dimension = force new dimension
-	            $nw = $w;
-	        }elseif ($h == ''){
-	            //no passed dimensions = original size
-	            $nw = $ow;
-	        }else{
-	            //passed only the other dimension = calculate this dimension
-	            if (($adj == 's') || ($adj == 'h')){
-	                $nw = (int)($ow * ($h / $oh));
-	            }else{
-	                $nw = $ow;
-	            }
-	        }
-	        if ($h != ''){
-	            //passed dimension = force new dimension
-	            $nh = $h;
-	        }elseif ($w == ''){
-	            //no passed dimensions = original size
-	            $nh = $oh;
-	        }else{
-	            //passed only the other dimension = calculate this dimension
-	            if (($adj == 's') || ($adj == 'w')){
-	                $nh = (int)($oh * ($w / $ow));
-	            }else{
-	                $nh = $oh;
-	            }
-	        }
+		    // calculate new dimensions
+            if ($w != '') {
+                //passed dimension = force new dimension
+                $nw = $w;
+            } elseif ($h == '') {
+                //no passed dimensions = original size
+                $nw = $ow;
+            } else {
+                //passed only the other dimension = calculate this dimension
+                if (($adj == 's') || ($adj == 'h')){
+                    $nw = (int)($ow * ($h / $oh));
+                } else {
+                    $nw = $ow;
+                }
+            }
+            
+            if ($h != '') {
+                //passed dimension = force new dimension
+                $nh = $h;
+
+            } elseif ($w == '') {
+                //no passed dimensions = original size
+                $nh = $oh;
+
+            } else {
+                //passed only the other dimension = calculate this dimension
+                if (($adj == 's') || ($adj == 'w')){
+                    $nh = (int)($oh * ($w / $ow));
+                } else {
+                    $nh = $oh;
+                }
+            }
 	
-	        //avoid processing if no needed
-	        if (($nw != $ow) || ($nh != $oh)) {
-	
-	            //calculate scaled size and displacement (before cropping the excess)
-	            $xscale = $nw / $ow;
-	            $yscale = $nh / $oh;
-	
-	            if ((($xscale < $yscale) && ($adj == 's')) || (($xscale > $yscale) && ($adj == 'f')) || ($adj == 'w')) {
-	                $dw = $nw;
-	                $dh = (int)($oh * $xscale);
-	                $destX = 0;
-	                $destY = (int)(($nh - $dh) / 2);
-	            } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) && ($adj == 'f')) || ($adj == 'h')) {
-	                $dw = (int)($ow * $yscale);
-	                $dh = $nh;
-	                $destX = (int)(($nw - $dw) / 2);
-	                $destY = 0;
-	            } elseif ($adj == 'c') {
-	                $dw = $ow;
-	                $dh = $oh;
-	                $destX = (int)(($nw - $dw) / 2);
-	                $destY = (int)(($nh - $dh) / 2);
-	            } else {
-	                //adj = 'd' || ($xscale == $yscale)
-	                $dw = $nw;
-	                $dh = $nh;
-	                $destX = 0;
-	                $destY = 0;
-	            }
-	
-	            //security check (avoid less than 1px images)
-	            $nw = ($nw < 1) ? 1 : $nw;
-	            $nh = ($nh < 1) ? 1 : $nh;
-	            $dw = ($dw < 1) ? 1 : $dw;
-	            $dh = ($dh < 1) ? 1 : $dh;
-	
-	            $image_thumb = imagecreatetruecolor($nw, $nh);
-	
-	            if ($extension == 'gif') {
-	                $color_index = imagecolortransparent($imageOriginal);
-	
-	                if ($color_index >= 0) {
-	
-	                    $image_thumb = imagecreate($nw, $nh);
-	                    imagealphablending($image_thumb, true);
-	
-	                    $rgb = imagecolorsforindex($imageOriginal, $color_index);
-	                    $background = imagecolorallocate($image_thumb, $rgb["red"], $rgb["green"], $rgb["blue"]);
-	
-	                    imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
-	                    imagecolortransparent($image_thumb, $background);
-	                }
-	            } elseif ($extension == 'png') {
-	                imagealphablending($image_thumb, false);
-	                imagesavealpha($image_thumb, true);
-	            } elseif ($extension == 'jpeg' || $extension == 'jpg') {
-	                $background = imagecolorallocate($image_thumb, 255, 255, 255);
-	                imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
-	            }
-	
-	            //create final image
-	            imagecopyresampled($image_thumb, $originalImage, $destX, $destY, 0, 0, $dw, $dh, $ow, $oh);
-	
-	            //and return the image
-	            switch($extension) {
-	                case "jpeg" :
-	                    Header("Content-type: image/jpeg");
-	                    echo imagejpeg($image_thumb, NULL, 90);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
-	                    break;
-	
-	                case "jpg" :
-	                    Header("Content-type: image/jpeg");
-	                    echo imagejpeg($image_thumb, NULL, 90);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
-	                    break;
-	
-	                case "gif" :
-	                    Header("Content-type: image/gif");
-	                    echo imagegif($image_thumb);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
-	                    break;
-	
-	                case "png" :
-	                    Header("Content-type: image/png");
-	                    echo imagepng($image_thumb);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
-	                    break;
-	            }
-	
-	        } else {
-	            // Return the original image
-	            Header("Content-type: image/" . $extension);
-	            if ($enable_image_cache) saveImgCache($originalImage, $image_string, $image_name, $extension);
-	            echo $imageOriginal;
-	        }
-	    }
+            //avoid processing if no needed
+            if (($nw != $ow) || ($nh != $oh)) {
+        
+                //calculate scaled size and displacement (before cropping the excess)
+                $xscale = $nw / $ow;
+                $yscale = $nh / $oh;
+            
+                if ((($xscale < $yscale) && ($adj == 's')) || (($xscale > $yscale) && ($adj == 'f')) || ($adj == 'w')) {
+                    $dw = $nw;
+                    $dh = (int)($oh * $xscale);
+                    $destX = 0;
+                    $destY = (int)(($nh - $dh) / 2);
+                } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) && ($adj == 'f')) || ($adj == 'h')) {
+                    $dw = (int)($ow * $yscale);
+                    $dh = $nh;
+                    $destX = (int)(($nw - $dw) / 2);
+                    $destY = 0;
+                } elseif ($adj == 'c') {
+                    $dw = $ow;
+                    $dh = $oh;
+                    $destX = (int)(($nw - $dw) / 2);
+                    $destY = (int)(($nh - $dh) / 2);
+                } else {
+                    //adj = 'd' || ($xscale == $yscale)
+                    $dw = $nw;
+                    $dh = $nh;
+                    $destX = 0;
+                    $destY = 0;
+                }
+            
+                //security check (avoid less than 1px images)
+                $nw = ($nw < 1) ? 1 : $nw;
+                $nh = ($nh < 1) ? 1 : $nh;
+                $dw = ($dw < 1) ? 1 : $dw;
+                $dh = ($dh < 1) ? 1 : $dh;
+        
+                $image_thumb = imagecreatetruecolor($nw, $nh);
+        
+                if ($extension == 'gif') {
+                    $color_index = imagecolortransparent($imageOriginal);
+            
+                    if ($color_index >= 0) {
+            
+                        $image_thumb = imagecreate($nw, $nh);
+                        imagealphablending($image_thumb, true);
+            
+                        $rgb = imagecolorsforindex($imageOriginal, $color_index);
+                        $background = imagecolorallocate($image_thumb, $rgb["red"], $rgb["green"], $rgb["blue"]);
+            
+                        imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
+                        imagecolortransparent($image_thumb, $background);
+                    }
+                } elseif ($extension == 'png') {
+                    imagealphablending($image_thumb, false);
+                    imagesavealpha($image_thumb, true);
+                } elseif ($extension == 'jpeg' || $extension == 'jpg') {
+                    $background = imagecolorallocate($image_thumb, 255, 255, 255);
+                    imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
+                }
+            
+                //create final image
+                imagecopyresampled($image_thumb, $originalImage, $destX, $destY, 0, 0, $dw, $dh, $ow, $oh);
+        
+                //and return the image
+                switch($extension) {
+                case "jpeg" :
+                    Header("Content-type: image/jpeg");
+                    echo imagejpeg($image_thumb, NULL, 90);
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
+                    break;
+        
+                case "jpg" :
+                    Header("Content-type: image/jpeg");
+                    echo imagejpeg($image_thumb, NULL, 90);
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
+                    break;
+        
+                case "gif" :
+                    Header("Content-type: image/gif");
+                    echo imagegif($image_thumb);
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
+                    break;
+        
+                case "png" :
+                    Header("Content-type: image/png");
+                    echo imagepng($image_thumb);
+                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
+                    break;
+                }
+        
+            } else {
+                // Return the original image
+                Header("Content-type: image/" . $extension);
+                if ($enable_image_cache) saveImgCache($originalImage, $image_string, $image_name, $extension);
+                
+                echo $imageOriginal;
+            }
+        }
     }
 }
 
@@ -286,27 +291,29 @@ function resizeSvg($svg_data, $w, $h, $adj) {
         $heightActual = $item -> getAttribute('height');
         $viewBoxActual = $item -> getAttribute('viewBox');
         $aspectRatioActual = $item -> getAttribute('preserveAspectRatio');
+
         //set default aspect ratio if not defined
-        if($aspectRatioActual == "") $aspectRatioActual = "xMidYMid meet";
+        if ($aspectRatioActual == "") $aspectRatioActual = "xMidYMid meet";
+
         //get original ratio positioning, if it is none, set default value
         $aspectRatioParts = explode(' ', $aspectRatioActual);
-        if(count($aspectRatioParts) < 2) $aspectRatioParts = array("xMidYMid","meet");
 
-        if($viewBoxActual == ""){
+        if (count($aspectRatioParts) < 2) $aspectRatioParts = array("xMidYMid","meet");
+
+        if ($viewBoxActual == "") {
             // The svg has no viewBox so can't be scaled unless we create one
-            if($widthActual != "" && $heightActual != ""){
+            if ($widthActual != "" && $heightActual != "") {
                 // Create the viewBox
                 $item -> setAttribute('viewBox', "0 0 ".$widthActual." ".$heightActual);
             } else {
                 // Not enough info to create a viewBox so return original image
                 return $svg_data;
             }
+
         } else {
             $viewBoxParts = explode(' ', $viewBoxActual);
-            if($widthActual == "")
-                $widthActual = $viewBoxParts[2];
-            if($heightActual == "")
-                $heightActual = $viewBoxParts[3];
+            if ($widthActual  == "") $widthActual = $viewBoxParts[2];
+            if ($heightActual == "") $heightActual = $viewBoxParts[3];
         }
 
         if($adj == "s"){
@@ -324,7 +331,8 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 $newWidth = ($h * $widthActual) / $heightActual;
                 $newHeight = $h;
             }
-        } elseif($adj == "f"){
+
+        } elseif ($adj == "f") {
             //fill (at least) the passed dimensions with the image
             if ($w != "" && $h != "") {
                 // w y h definidos
@@ -337,14 +345,17 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                     $newWidth = $widthActual * $scaleHeight;
                     $newHeight = $h;
                 }
+
             } elseif ($w != "") {
                 // Si solo hay width, calculamos el height por regla de 3
                 $newWidth = $w;
                 $newHeight = ($w * $heightActual) / $widthActual;
+
             } else {
                 // Si solo hay height, calculamos el width por regla de 3
                 $newWidth = ($h * $widthActual) / $heightActual;
                 $newHeight = $h;
+
             }
         } elseif($adj == "w") {
             //scale the image to passed width (can ignore passed height)
@@ -352,9 +363,11 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // Calculamos el height por regla de 3
                 $newWidth = $w;
                 $newHeight = ($w * $heightActual) / $widthActual;
+
             } else {
                 // Si no hay width no podemos escalar asi que devolvemos el original
                 return $svg_data;
+
             }
         } elseif($adj == "h"){
             //scale the image to passed height (can ignore passed width)
@@ -362,9 +375,11 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // Calculamos el width por regla de 3
                 $newWidth = ($h * $widthActual) / $heightActual;
                 $newHeight = $h;
+
             } else {
                 // Si no hay height no podemos escalar asi que devolvemos el original
                 return $svg_data;
+
             }
         } elseif($adj == "d"){
             //deform the image
@@ -373,15 +388,18 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // w y h definidos
                 $newWidth = $w;
                 $newHeight = $h;
+
             } elseif ($w != "") {
                 // Si solo hay width, el height es el original
                 $newWidth = $w;
                 $newHeight = $heightActual;
+
             } else {
                 // Si solo hay height, el width es el original
                 $newWidth = $widthActual;
                 $newHeight = $h;
             }
+
         } elseif($adj == "c"){
             //crop means we remove the excess of the image
             $item -> setAttribute('preserveAspectRatio', $aspectRatioParts[0]." slice");
@@ -389,10 +407,12 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // w y h definidos
                 $newWidth = $w;
                 $newHeight = $h;
+
             } elseif ($w != "") {
                 // Si solo hay width, el height es el original
                 $newWidth = $w;
                 $newHeight = $heightActual;
+
             } else {
                 // Si solo hay height, el width es el original
                 $newWidth = $widthActual;
@@ -424,20 +444,23 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
     switch($extension) {
         case "jpg" :
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+
         case "gif" :
             return imagegif($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+
         case "png" :
             imagealphablending($imageOriginal, false);
             imagesavealpha($imageOriginal, true);
             return imagepng($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
+
         case "svg" :
             $file = $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension;
             $fh = fopen($file, "w");
             fwrite($fh, $imageOriginal);
             fclose($fh);
             return 0;
+            
         default :
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
-?>
