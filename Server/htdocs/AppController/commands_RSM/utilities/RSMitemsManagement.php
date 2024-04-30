@@ -259,17 +259,20 @@ function getProperties_byIDs($propertyIDs, $clientID, $fields)
     // execute query
     $result = RSQuery($theQuery);
 
-    if ($result->num_rows = 0) {
+    if ($result) {
+        // query OK
+        $properties = array();
+
+        while ($row = $result->fetch_assoc()) {
+            $properties[] = $row;
+        }
+
+        return $properties;
+
+    } else {
+        // query NOK
         return false;
     }
-
-    $properties = array();
-
-    while ($row = $result->fetch_assoc()) {
-        $properties[] = $row;
-    }
-
-    return $properties;
 }
 
 function getProperties($itemTypeID, $clientID)
