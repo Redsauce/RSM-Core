@@ -219,7 +219,7 @@ function getPropertyIDs($propIDs, $clientID) {
     $result = RSQuery($theQuery);
 
     // If the recordset has no rows, return an empty array
-    if ($result->num_rows = 0) {
+    if ($result->num_rows == 0) {
         return array();
     }
 
@@ -254,7 +254,12 @@ function getProperties_byIDs($propertyIDs, $clientID, $fields) {
     // execute query
     $result = RSQuery($theQuery);
 
-    if ($result->num_rows = 0) {
+    // If RSQuery returns false due to an error, the $result variable will hold a boolean false
+    if (is_bool($result) && !$result) {
+        return false;
+    }
+
+    if ($result->num_rows == 0) {
         return false;
     }
 
