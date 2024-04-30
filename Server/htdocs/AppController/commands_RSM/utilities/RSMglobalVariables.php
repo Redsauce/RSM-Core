@@ -8,19 +8,13 @@ function getGlobalVariableValue($variableName, $clientID) {
 	// execute query
 	$results = RSquery('SELECT RS_VALUE AS "value", RS_IMAGE AS "image" FROM rs_globals WHERE RS_CLIENT_ID = '. $clientID . ' AND RS_NAME = "' . $variableName . '"');
 
-    if (is_bool($results) && !$results) {
-        return '';
-    }
-
-    if ($results->num_rows == 0) {
-        return '';
-    }
+	if (!$results) return "";
 
 	$result = $results->fetch_assoc();
 
 	if ($result['image'] == '1') {
-		// convert binary value to hexadecimal
-		return bin2hex($result['value']);
+					// convert binary value to hexadecimal
+					return bin2hex($result['value']);
 	}
 
 	return $result['value'];
