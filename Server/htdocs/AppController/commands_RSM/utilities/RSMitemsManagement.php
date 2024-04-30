@@ -263,6 +263,7 @@ function getProperties_byIDs($propertyIDs, $clientID, $fields) {
         }
 
         return $properties;
+
     } else {
         // query NOK
         return false;

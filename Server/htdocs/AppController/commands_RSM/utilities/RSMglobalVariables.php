@@ -13,8 +13,8 @@ function getGlobalVariableValue($variableName, $clientID) {
 	$result = $results->fetch_assoc();
 
 	if ($result['image'] == '1') {
-					// convert binary value to hexadecimal
-					return bin2hex($result['value']);
+		// convert binary value to hexadecimal
+		return bin2hex($result['value']);
 	}
 
 	return $result['value'];
