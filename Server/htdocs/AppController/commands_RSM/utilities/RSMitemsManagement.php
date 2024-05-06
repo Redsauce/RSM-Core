@@ -223,7 +223,7 @@ function getPropertyIDs($propIDs, $clientID)
     $result = RSQuery($theQuery);
 
     // If the recordset has no rows, return an empty array
-    if ($result->num_rows = 0) {
+    if ($result->num_rows == 0) {
         return array();
     }
 
