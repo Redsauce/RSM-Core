@@ -4,14 +4,15 @@
 //    Retrieves items of the specified itemType with the associated values with filter conditions
 //
 //  --- PARAMETERS -- All the IDs can be called as systemNames --
-//   RStoken      : A token can replace the clientID
-//   clientID     : ID of the client, is not necessary if the token is passed
-//   propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
-//   filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
+//    RStoken      : A token can replace the clientID
+//    clientID     : ID of the client, is not necessary if the token is passed
+//    propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
+//    filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
 //   extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
-//   filterJoining: could be AND or OR. By default = AND.
-//    translateIDs: if this property is set to false then the IDs won't be tranlated
-//                  by the main property value of the item the ID is pointing to
+//    filterJoining: could be AND or OR. By default = AND.
+//            limit: integer representing the number of items to receive
+//     translateIDs: if this property is set to false then the IDs won't be tranlated
+//                   by the main property value of the item the ID is pointing to
 // ****************************************************************************************
 
 // Database connection startup
@@ -31,6 +32,7 @@ isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_
 isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
 isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
 isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
+isset($GLOBALS["RS_POST"]["limit"          ]) ? $limit           = $GLOBALS["RS_POST"]["limit"          ] : $limit           = "";
 isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
 isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
 
@@ -39,14 +41,21 @@ if (strpos($pIDs, ",,") !== false) {
     dieWithError(400);
 }
 
+// limit must be empty, or a number
+if (limit != "") {
+    if (!ctype_digit(limit)) {
+        dieWithError(400);
+    }
+}
+
 $translateIDs = false;
 if (isset($GLOBALS['RS_POST']['translateIDs']) && $GLOBALS['RS_POST']['translateIDs'] == "true") {
     $translateIDs = true;
 }
 
 // Construct filterProperties using a double explode
-$rules = array();
-$rule  = array();
+$rules             = array();
+$rule              = array();
 $filterProperties  = array();
 $filterPropertyIDs = array();
 
@@ -134,7 +143,7 @@ if ($orderBy != '') {
 
 // Filter results
 $results = array();
-$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit = '', $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
+$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
 
 // And write XML Response back to the application without compression// Return results
 if (is_string($results)) {
