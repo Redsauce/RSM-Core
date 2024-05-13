@@ -1,4 +1,17 @@
 <?php
+//***************************************************************************************
+// Description:
+//    Gets a user's userID.
+// REQUEST BODY (JSON OBJECT):
+//
+// EXAMPLE:
+//     {
+//         "login": "correo@gmail.com",
+//         "password": "12345",
+//     }
+//
+//***************************************************************************************
+
 // Database connection startup
 require_once '../../../utilities/RStools.php';
 setAuthorizationTokenOnGlobals();
@@ -11,9 +24,10 @@ checkCorrectRequestMethod('GET');
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$login = $requestBody->login;
-$password = $requestBody->password;
-$clientID = $requestBody->clientID;
+$clientID = getClientID();
+$login = sanitizeInput($requestBody->login);
+$password = sanitizeInput($requestBody->password);
+
 
 $theQuery = "SELECT RS_USER_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
 
@@ -38,5 +52,4 @@ function verifyBodyContent($body)
   checkIsJsonObject($body);
   checkBodyContains($body, 'login');
   checkBodyContains($body, 'password');
-  checkBodyContains($body, 'clientID');
 }
