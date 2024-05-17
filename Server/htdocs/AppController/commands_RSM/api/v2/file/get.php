@@ -29,19 +29,11 @@ $ID = $parameters["ID"];
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
-    if ($RSallowDebug) {
-        returnJsonMessage(403, "Token has no permissions to get this file");
-    } else {
-        returnJsonMessage(403, "");
-    }
+    $RSallowDebug ? returnJsonMessage(403, "Token has no permissions to get this file" ) : returnJsonMessage(403, "");
 }
 // Check if asked property is file
 if (getPropertyType($propertyID, $clientID) != 'file') {
-    if ($RSallowDebug) {
-        returnJsonMessage(404, "Property is not a file");
-    } else {
-        returnJsonMessage(404, "");
-    }
+    $RSallowDebug ? returnJsonMessage(404, "Property is not a file" ) : returnJsonMessage(404, "");
 }
 
 // create file path
@@ -65,12 +57,9 @@ if ($enable_file_cache && !empty($nombres_archivo)) {
     $nombre_descarga = base64_decode(rawurldecode(end($nombreSinExtension)));
 
     // The file was found in the cache. Return the cached file
-    if (strtolower($extension) == "apk") {
-        header('Content-type: application/vnd.android.package-archive');
-    } else {
-        header('Content-type: ' . mime_content_type($nombre_archivo));
-    }
-    header('Content-Disposition: attachment; filename="' . $nombre_descarga . '"');
+    strtolower($extension) == "apk" ? header("Content-type: application/vnd.android.package-archive") :  header("Content-type: " . mime_content_type($nombre_archivo));
+
+    header("Content-Disposition: attachment; filename='" . $nombre_descarga . "'");
 
     readfile($nombre_archivo);
 } else {
@@ -84,18 +73,18 @@ if ($enable_file_cache && !empty($nombres_archivo)) {
         $extension     = pathinfo($file_name, PATHINFO_EXTENSION);
 
         // If file data is empty but the size field is > 0 then the file is in media server
-        if ($file["RS_SIZE"] > 0 && $file_original == '') {
+        if ($file["RS_SIZE"] > 0 && $file_original == "") {
             $fileData = getMediaFile($clientID, $ID, $propertyID);
-            $file_original = $fileData['RS_DATA'];
+            $file_original = $fileData["RS_DATA"];
         }
 
         // Return the original file
         if (strtolower($extension) == "apk") {
-            header('Content-type: application/vnd.android.package-archive');
+            header("Content-type: application/vnd.android.package-archive");
         } else {
             header("Content-type: application/" . $extension);
         }
-        header('Content-Disposition: attachment; filename="' . $file_name . '"');
+        header("Content-Disposition: attachment; filename='" . $file_name . "'");
         echo $file_original;
         if ($enable_file_cache) {
             saveFileCache($file_original, $file_path, $file_name, $extension);
