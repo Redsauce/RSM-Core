@@ -482,6 +482,7 @@ function saveImgCache($imageOriginal, $imagePath, $imagename, $extension)
     }
     return $result;
 }
+
 function validateRequestParams($parameters)
 {
     checkParamsContains($parameters, "ID");
