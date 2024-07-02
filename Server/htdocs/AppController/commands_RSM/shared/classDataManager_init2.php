@@ -39,19 +39,6 @@ $results[] = array(
     'mainPropertyAppname' => $mainPropertyAppName
 );
 
-
-
-// prepare results array
-$results   = array();
-$results[] = array(
-    'itemTypeID'          => $itemTypeID,
-    'itemTypeName'        => $itemTypeName,
-    'itemTypeIcon'        => $itemTypeIcon,
-    'mainPropertyID'      => $mainPropertyID,
-    'mainPropertyName'    => $mainPropertyName,
-    'mainPropertyAppname' => $mainPropertyAppName
-);
-
 // Get user visible properties
 $visibleProperties = getUserVisibleProperties($itemTypeID, $clientID, $RSuserID);
 
