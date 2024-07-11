@@ -42,8 +42,8 @@ if (strpos($pIDs, ",,") !== false) {
 }
 
 // limit must be empty, or a number
-if (limit != "") {
-    if (!ctype_digit(limit)) {
+if ($limit != "") {
+    if (!ctype_digit($limit)) {
         dieWithError(400);
     }
 }
