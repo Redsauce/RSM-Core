@@ -23,13 +23,21 @@ $getSetOfValues = $GLOBALS['RS_POST']['getSetOfValues'];
 $itemTypeID   = parseITID($itemType, $clientID);
 
 $itemTypeName        = getClientItemTypeName         ($itemTypeID    , $clientID);
+$itemTypeIcon        = getClientItemTypeIcon         ($itemTypeID    , $clientID);
 $mainPropertyID      = getMainPropertyID             ($itemTypeID    , $clientID);
 $mainPropertyName    = getClientPropertyName         ($mainPropertyID, $clientID);
 $mainPropertyAppName = getAppPropertyName_RelatedWith($mainPropertyID, $clientID);
 
 // prepare results array
 $results   = array();
-$results[] = array('itemTypeID' => $itemTypeID, 'itemTypeName' => $itemTypeName, 'mainPropertyID' => $mainPropertyID, 'mainPropertyName' => $mainPropertyName, 'mainPropertyAppname' => $mainPropertyAppName);
+$results[] = array(
+    'itemTypeID'          => $itemTypeID,
+    'itemTypeIcon'        => $itemTypeIcon,
+    'itemTypeName'        => $itemTypeName,
+    'mainPropertyID'      => $mainPropertyID,
+    'mainPropertyName'    => $mainPropertyName,
+    'mainPropertyAppname' => $mainPropertyAppName
+);
 
 // Get user visible properties
 $visibleProperties = getUserVisibleProperties($itemTypeID, $clientID, $RSuserID);
