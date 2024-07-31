@@ -3204,7 +3204,7 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
     $filterPropertyIds = array();
     $rejectedFilterPropertyIds = array();
 
-    // Process filter conditions only if $filterProperties is an array and has any filter condition on it 
+    // Process filter conditions only if $filterProperties is an array and has any filter condition on it
     if (is_array($filterProperties) && count($filterProperties) > 0) {
         //filter clauses that accept equal value
         $arrEquals = array('IN', '<-IN', '=', '>=', '<=', 'SAME_OR_BEFORE', 'SAME_OR_AFTER', 'TIME_SAME_OR_BEFORE', 'TIME_SAME_OR_AFTER', 'LIKE', 'GE', 'LE');
@@ -3719,7 +3719,7 @@ function recalculateOrder($oldValue, $newValue, $oldOrder)
     return implode(',', $newOrders);
 }
 
-// Returns true if the item exists 
+// Returns true if the item exists
 function verifyItemExists($ID, $itemTypeID, $clientID)
 {
     $result = RSQuery("SELECT RS_ITEM_ID FROM rs_items WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $ID . " AND RS_CLIENT_ID = " . $clientID);
@@ -3744,9 +3744,9 @@ function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs)
                                          rs_item_properties.RS_PROPERTY_ID AS "pID",
                                          rs_item_properties.RS_ORDER
         FROM rs_categories
-                INNER JOIN rs_item_properties  on rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID 
+                INNER JOIN rs_item_properties  on rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID
                                                AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
-                INNER JOIN rs_token_permissions ON rs_categories.RS_CLIENT_ID = rs_token_permissions.RS_CLIENT_ID 
+                INNER JOIN rs_token_permissions ON rs_categories.RS_CLIENT_ID = rs_token_permissions.RS_CLIENT_ID
                                                 AND rs_item_properties.RS_PROPERTY_ID = rs_token_permissions.RS_PROPERTY_ID
                 INNER JOIN rs_tokens ON rs_categories.RS_CLIENT_ID = rs_tokens.RS_CLIENT_ID
         WHERE rs_categories.RS_ITEMTYPE_ID                 =     ' . $itemTypeID . '
