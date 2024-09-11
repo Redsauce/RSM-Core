@@ -47,7 +47,6 @@ $propertyID = $parameters["propertyID"];
 $ID = $parameters["ID"];
 $propertyID = $parameters["propertyID"];
 
-
 array_key_exists("w", $parameters) ? $w = $parameters["w"] : $w = "";
 array_key_exists("h", $parameters) ? $h = $parameters["h"] : $h = "";
 array_key_exists("adj", $parameters) ? $adj = $parameters["adj"] : $adj = "";
@@ -96,7 +95,7 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
 
     //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
     for ($i = count($nombres_archivo) - 1; $i >= 0; $i--) {
-        if (preg_match("/^img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) {
+        if (preg_match("/img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) {
             unset($nombres_archivo[$i]);
         }
     }
@@ -125,7 +124,7 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
         }
 
         // Save in cache base image
-        if ($enable_image_cache) {
+        if ($enable_image_cache && $imageOriginal != '') {
             saveFileCache($imageOriginal, $directory . "img_" . $ID, $image_name, $extension);
         }
     }
@@ -299,9 +298,6 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
             } else {
                 // Return the original image
                 Header("Content-type: image/" . $extension);
-                if ($enable_image_cache) {
-                    saveImgCache($originalImage, $image_string, $image_name, $extension);
-                }
                 echo $imageOriginal;
             }
         }
@@ -346,7 +342,7 @@ function resizeSvg($svgdata, $w, $h, $adj)
             $widthActual = $widthActual == "" ? $viewBoxParts[2] : $widthActual;
             $heightActual = $heightActual == "" ? $viewBoxParts[3] : $heightActual;
         }
-        
+
         if ($adj == "s") {
             //show all the image inside passed dimensions
             if ($w != "" && $h != "") {
