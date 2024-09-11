@@ -40,13 +40,14 @@ require_once "./api_headers.php";
 isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["RStoken"]   ) ? $RStoken    = $GLOBALS["RS_GET"]["RStoken"   ] : $RStoken = '';
-isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
-isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
-isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
+isset($GLOBALS["RS_GET"]["w"  ]) ? $w   = $GLOBALS["RS_GET"]["w"  ] : $w = "";
+isset($GLOBALS["RS_GET"]["h"  ]) ? $h   = $GLOBALS["RS_GET"]["h"  ] : $h = "";
+isset($GLOBALS["RS_GET"]["adj"]) ? $adj = $GLOBALS["RS_GET"]["adj"] : $adj = 's';
+
 $clientID = $GLOBALS["RS_POST"]["clientID"];
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
@@ -77,8 +78,8 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     $nombres_archivo = glob($directory . "img_" . $itemID . "_*");
 
     //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
-    for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
-        if (preg_match("/^img_\d+_\d*_\d*_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
+    for ($i=count($nombres_archivo)-1; $i>=0; $i--) {
+        if (preg_match("/img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) unset($nombres_archivo[$i]);
     }
     $nombres_archivo = array_values($nombres_archivo);
 
@@ -95,7 +96,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     } else {
         $image          = getImage($clientID, $propertyID, $itemID);
-        $imageOriginal = $image["RS_DATA"];
+        $imageOriginal  = $image["RS_DATA"];
         $image_name     = $image["RS_NAME"];
         $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
 
@@ -105,8 +106,8 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
             $imageOriginal = $fileData['RS_DATA'];
         }
 
-        // Save in cache base image
-        if ($enable_image_cache) saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
+        // If we have an image, save it in cache
+        if ($enable_image_cache && $imageOriginal != '') saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
     }
 
     if ($imageOriginal == '') {
@@ -127,25 +128,25 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     } else {
         // Get width and height of the stored image
         $originalImage = imagecreatefromstring($imageOriginal);
-        
+
 		if ($originalImage === false) {
 			// The original image is not valid
 			RSError("api_getPicture: not a valid image: ". $imageOriginal);
 			dieWithError(400);
-			
+
 		} else {
 			// Valid image, continue processing it
 	        $ow = imagesx($originalImage);
 	        $oh = imagesy($originalImage);
-	
+
 	        //calculate new dimensions
 	        if ($w != ''){
 	            //passed dimension = force new dimension
 	            $nw = $w;
-	        }elseif ($h == ''){
+	        } elseif ($h == ''){
 	            //no passed dimensions = original size
 	            $nw = $ow;
-	        }else{
+	        } else{
 	            //passed only the other dimension = calculate this dimension
 	            if (($adj == 's') || ($adj == 'h')){
 	                $nw = (int)($ow * ($h / $oh));
@@ -167,14 +168,14 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 	                $nh = $oh;
 	            }
 	        }
-	
+
 	        //avoid processing if no needed
 	        if (($nw != $ow) || ($nh != $oh)) {
-	
+
 	            //calculate scaled size and displacement (before cropping the excess)
 	            $xscale = $nw / $ow;
 	            $yscale = $nh / $oh;
-	
+
 	            if ((($xscale < $yscale) && ($adj == 's')) || (($xscale > $yscale) && ($adj == 'f')) || ($adj == 'w')) {
 	                $dw = $nw;
 	                $dh = (int)($oh * $xscale);
@@ -197,26 +198,26 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 	                $destX = 0;
 	                $destY = 0;
 	            }
-	
+
 	            //security check (avoid less than 1px images)
 	            $nw = ($nw < 1) ? 1 : $nw;
 	            $nh = ($nh < 1) ? 1 : $nh;
 	            $dw = ($dw < 1) ? 1 : $dw;
 	            $dh = ($dh < 1) ? 1 : $dh;
-	
+
 	            $image_thumb = imagecreatetruecolor($nw, $nh);
-	
+
 	            if ($extension == 'gif') {
 	                $color_index = imagecolortransparent($imageOriginal);
-	
+
 	                if ($color_index >= 0) {
-	
+
 	                    $image_thumb = imagecreate($nw, $nh);
 	                    imagealphablending($image_thumb, true);
-	
+
 	                    $rgb = imagecolorsforindex($imageOriginal, $color_index);
 	                    $background = imagecolorallocate($image_thumb, $rgb["red"], $rgb["green"], $rgb["blue"]);
-	
+
 	                    imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
 	                    imagecolortransparent($image_thumb, $background);
 	                }
@@ -227,10 +228,10 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 	                $background = imagecolorallocate($image_thumb, 255, 255, 255);
 	                imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
 	            }
-	
+
 	            //create final image
 	            imagecopyresampled($image_thumb, $originalImage, $destX, $destY, 0, 0, $dw, $dh, $ow, $oh);
-	
+
 	            //and return the image
 	            switch($extension) {
 	                case "jpeg" :
@@ -238,30 +239,29 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 	                    echo imagejpeg($image_thumb, NULL, 90);
 	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
 	                    break;
-	
+
 	                case "jpg" :
 	                    Header("Content-type: image/jpeg");
 	                    echo imagejpeg($image_thumb, NULL, 90);
 	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
 	                    break;
-	
+
 	                case "gif" :
 	                    Header("Content-type: image/gif");
 	                    echo imagegif($image_thumb);
 	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
 	                    break;
-	
+
 	                case "png" :
 	                    Header("Content-type: image/png");
 	                    echo imagepng($image_thumb);
 	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
 	                    break;
 	            }
-	
+
 	        } else {
 	            // Return the original image
 	            Header("Content-type: image/" . $extension);
-	            if ($enable_image_cache) saveImgCache($originalImage, $image_string, $image_name, $extension);
 	            echo $imageOriginal;
 	        }
 	    }
