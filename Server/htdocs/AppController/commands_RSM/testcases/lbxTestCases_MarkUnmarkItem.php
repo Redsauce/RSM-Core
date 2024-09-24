@@ -203,7 +203,7 @@ function processItem($relation, $clientID, $itemID, $isGroup, $isCategory, $mode
                     //Clear the steps in results
                     $relation['testCasesIDs'] = removeItemsFromRelationIfExists($relation['testCasesIDs'], $theTestCaseID);
 
-                    deleteStepsResultsForATestCase($theTestCaseID, $relation);
+                    deleteStepsResultsForATestCase($theTestCaseID, $relation, $clientID);
                 }
             }
 
