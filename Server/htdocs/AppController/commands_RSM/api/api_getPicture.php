@@ -40,14 +40,13 @@ require_once "./api_headers.php";
 isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["RStoken"]   ) ? $RStoken    = $GLOBALS["RS_GET"]["RStoken"   ] : $RStoken = '';
+isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
-isset($GLOBALS["RS_GET"]["w"  ]) ? $w   = $GLOBALS["RS_GET"]["w"  ] : $w = "";
-isset($GLOBALS["RS_GET"]["h"  ]) ? $h   = $GLOBALS["RS_GET"]["h"  ] : $h = "";
-isset($GLOBALS["RS_GET"]["adj"]) ? $adj = $GLOBALS["RS_GET"]["adj"] : $adj = 's';
-
+isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
+isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
 $clientID = $GLOBALS["RS_POST"]["clientID"];
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
@@ -78,8 +77,8 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
     $nombres_archivo = glob($directory . "img_" . $itemID . "_*");
 
     //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
-    for ($i=count($nombres_archivo)-1; $i>=0; $i--) {
-        if (preg_match("/img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) unset($nombres_archivo[$i]);
+    for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
+        if (preg_match("/img_\d+_\d*_\d*_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
     }
     $nombres_archivo = array_values($nombres_archivo);
 
@@ -96,7 +95,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     } else {
         $image          = getImage($clientID, $propertyID, $itemID);
-        $imageOriginal  = $image["RS_DATA"];
+        $imageOriginal = $image["RS_DATA"];
         $image_name     = $image["RS_NAME"];
         $extension      = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
 
@@ -106,7 +105,7 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
             $imageOriginal = $fileData['RS_DATA'];
         }
 
-        // If we have an image, save it in cache
+        // Save in cache base image
         if ($enable_image_cache && $imageOriginal != '') saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
     }
 
@@ -143,10 +142,10 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 	        if ($w != ''){
 	            //passed dimension = force new dimension
 	            $nw = $w;
-	        } elseif ($h == ''){
+	        }elseif ($h == ''){
 	            //no passed dimensions = original size
 	            $nw = $ow;
-	        } else{
+	        }else{
 	            //passed only the other dimension = calculate this dimension
 	            if (($adj == 's') || ($adj == 'h')){
 	                $nw = (int)($ow * ($h / $oh));
@@ -440,4 +439,3 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
-?>

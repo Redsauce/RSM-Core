@@ -22,5 +22,4 @@ if ($items != '') {
 
 $results['result'] = 'OK';
 
-// Return results
 RSReturnArrayResults($results);
