@@ -644,7 +644,7 @@ function setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, 
 
     // Compare stored value with new proposed value
     $actualValue = "0x" . getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType);
-    if (($actualValue == "0x" && $value == "")) return 0;
+    if ($actualValue == "0x" && $value == "") return 0;
 
     // If the value is still empty, enclose it in quotes in order to form a valid query
     if ($value == '') {
