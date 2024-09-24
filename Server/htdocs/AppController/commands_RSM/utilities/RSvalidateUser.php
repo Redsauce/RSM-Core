@@ -56,12 +56,14 @@ if (!$users) {
 
 switch ($users->num_rows) {
     case 0:
-        
+
         if ($password == "") {
             RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
         } else {
             RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
         }
+
+        break;
 
     default:
 
