@@ -13,6 +13,9 @@
 //            limit: integer representing the number of items to receive
 //     translateIDs: if this property is set to false then the IDs won't be tranlated
 //                   by the main property value of the item the ID is pointing to
+//          orderBy: If specified, the returned items will be oordered using this property value.
+//  orderPropertyID: An item can have many parents. For each one of them, the items can hold a different order.
+//                   This property allow to specify which parent we need to recover the ordered items from.
 // ****************************************************************************************
 
 // Database connection startup
@@ -35,6 +38,7 @@ isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_
 isset($GLOBALS["RS_POST"]["limit"          ]) ? $limit           = $GLOBALS["RS_POST"]["limit"          ] : $limit           = "";
 isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
 isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
+isset($GLOBALS["RS_POST"]["orderPropertyID"]) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
 
 // Don't allow empty properties to be specified
 if (strpos($pIDs, ",,") !== false) {
