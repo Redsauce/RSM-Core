@@ -281,12 +281,6 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
 
 function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang){
     // Hardcoded variables (clientID = 1)
-    $clientID     = $GLOBALS['RS_POST']['clientID'];
-    $startVersion = $GLOBALS['RS_POST']['startVersion'];
-    $endVersion   = $GLOBALS['RS_POST']['endVersion'];
-    $lang         = $GLOBALS['RS_POST']['RSlanguage'];
-
-    // Hardcoded variables (clientID = 1)
     $redsauceClient = 1;
     switch(strtoupper($lang)){
         case "EN":

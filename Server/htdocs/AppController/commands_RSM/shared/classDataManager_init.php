@@ -74,7 +74,7 @@ foreach ($properties as $property) {
     if ($list = getPropertyList($property['ID'], $clientID)) {
         // add mode (multivalues: 0-1) to the results
         // If the property is related with an app list, return the appList ID and name
-        $results[] = array('listID' => $list['listID'], 'listValues' => $list['multiValues'], 'appListName' => getAppListName(getAppListID_RelatedWith($list['listID'], $clientID), $clientID));
+        $results[] = array('listID' => $list['listID'], 'listValues' => $list['multiValues'], 'appListName' => getAppListName(getAppListID_RelatedWith($list['listID'], $clientID)));
 
         if ($getSetOfValues == '1') {
             // get list values
