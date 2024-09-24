@@ -5,6 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 require_once "./api_headers.php";
 
+$RSallowUncompressed = true;
+
 // Check the variables
 isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
 isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
@@ -23,6 +25,6 @@ if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($R
 // Process response
 $results = getAuditTrail($clientID, $propertyID, $itemID);
 
-// And return XML response back to application
-RSReturnArrayQueryResults($results);
+// And return XML response back to application without compression
+RSReturnArrayQueryResults($results, false);
 ?>
