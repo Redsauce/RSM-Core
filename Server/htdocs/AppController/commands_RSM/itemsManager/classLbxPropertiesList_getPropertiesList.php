@@ -39,7 +39,7 @@ while($result=$results->fetch_assoc()){
 		//check if its an app property
 		$relatedAppPropertyID=getAppPropertyID_RelatedWith($result['ID'], $clientID);
 		if($relatedAppPropertyID!='0'){
-			$result['referredItemType']=getClientItemTypeID_RelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID, $clientID), $clientID);
+			$result['referredItemType'    ] = getClientItemTypeID_RelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID), $clientID);
 			$result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
 		}
 	} else {

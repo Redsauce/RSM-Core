@@ -86,7 +86,7 @@ function gzCompressFile($source, $level = 9){
 //For compatibility with older versions of app using 'FILESIZE:::' in compressed string
 function checkCompressionVersion($response){
 	global $cstRS_POST;
-	
+
     if (isset($GLOBALS[$cstRS_POST]['RSbuild']) && substr(strrchr($GLOBALS[$cstRS_POST]['RSbuild'], "."), 1) < 149) {
         return strlen($response).':::';
     } else {
@@ -96,19 +96,19 @@ function checkCompressionVersion($response){
 
 function mem_increase_check(&$lastValues){
     global $RSallowDebug;
-	
+
     if($RSallowDebug) {
         error_log ("\n\nused memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_usage()         - $lastValues["startUsage"])/1024/1024);
         error_log ("max used memory increment from #"      . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage()    - $lastValues["startPeakUsage"])/1024/1024);
         error_log ("allocated memory increment from #"     . $lastValues["i"] . "(MiB): " . (memory_get_usage(true)     - $lastValues["startAllocated"])/1024/1024);
         error_log ("max allocated memory increment from #" . $lastValues["i"] . "(MiB): " . (memory_get_peak_usage(true)- $lastValues["startPeakallocated"])/1024/1024 . "\n");
-        
+
         $lastValues["i"]++;
         $lastValues["startUsage"        ] = memory_get_usage();
         $lastValues["startPeakUsage"    ] = memory_get_peak_usage();
         $lastValues["startAllocated"    ] = memory_get_usage(true);
         $lastValues["startPeakallocated"] = memory_get_peak_usage(true);
-        
+
         error_log ("used memory at #"          . $lastValues["i"] . "(MiB): " . ($lastValues["startUsage"        ])/1024/1024);
         error_log ("max used memory at #"      . $lastValues["i"] . "(MiB): " . ($lastValues["startPeakUsage"    ])/1024/1024);
         error_log ("allocated memory at #"     . $lastValues["i"] . "(MiB): " . ($lastValues["startAllocated"    ])/1024/1024);
@@ -120,7 +120,7 @@ function mem_increase_check(&$lastValues){
 function mem_usage_check($maxMem=50){
     global $RSallowDebug;
 	global $cstRS_POST;
-	
+
     if($RSallowDebug) {
         $maxBytes=$maxMem*1024*1024;
         if(memory_get_peak_usage() > $maxBytes || memory_get_peak_usage(true) > $maxBytes) {
@@ -580,7 +580,7 @@ function RSReturnJsonQueryResults($result){
     $json = "";
 
     if (is_array($result)) {
-    
+
         // Build response using the string concatenation;
         $json .= "[";
 
@@ -678,7 +678,7 @@ function RSReturnFileResults($filename, $compressed = true) {
 
     } else {
         // file not exists or is empty so construct and return empty result
-        $theFile .= "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+        $theFile  = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
         $theFile .= "<RSRecordset>";
         $theFile .= "<rows>";
         $theFile .= "</rows>";

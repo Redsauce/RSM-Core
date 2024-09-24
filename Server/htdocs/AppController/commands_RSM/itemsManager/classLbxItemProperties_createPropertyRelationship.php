@@ -6,8 +6,8 @@ require_once "../utilities/RSMitemsManagement.php";
 // Now we build the query
 
 // Check types compatibility
-$clientPropertyType = getPropertyType($GLOBALS['RS_POST']['propertyClientID'], $GLOBALS['RS_POST']['clientID']);
-$appPropertyType = getAppPropertyType($GLOBALS['RS_POST']['propertyAppID'], $GLOBALS['RS_POST']['clientID']);
+$clientPropertyType = getPropertyType   ($GLOBALS['RS_POST']['propertyClientID'], $GLOBALS['RS_POST']['clientID']);
+$appPropertyType    = getAppPropertyType($GLOBALS['RS_POST']['propertyAppID']);
 
 
 if ($clientPropertyType == $appPropertyType) {
