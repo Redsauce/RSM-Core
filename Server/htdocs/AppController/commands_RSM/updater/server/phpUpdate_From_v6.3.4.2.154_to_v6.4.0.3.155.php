@@ -1,6 +1,6 @@
 <?php
 // Database connection startup
-include "../../utilities/RSconfiguration.php";
+include_once "../../utilities/RSconfiguration.php";
 
 $oldVersion = "6.3.4.2.154";
 $newVersion = "6.4.0.3.155";

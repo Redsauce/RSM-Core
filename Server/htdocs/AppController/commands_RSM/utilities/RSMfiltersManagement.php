@@ -293,10 +293,11 @@ function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemType
 
         $i = array_search_ID($currentBranch[$lastIndex]['itemTypeID'], $descendants, "itemTypeID");
 
-        //special case for base parent=destination itemtype (not recursive root itemtype listing)
+        // Special case for base parent=destination itemtype (not recursive root itemtype listing)
         if ($lastIndex == 0 && $i === false && $currentBranch[$lastIndex]['itemTypeID'] == $destinationItemTypeID) {
             $currentBranch[$lastIndex]['recursive'] = 0;
             $treePath[] = $currentBranch;
+
         } else {
             if ($i !== false) {
                 $currentBranch[$lastIndex]['recursive'] = 1;
@@ -328,12 +329,12 @@ function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemType
                     $treePath[] = $tempBranch;
 
                 } elseif (array_search_ID($descendant['itemTypeID'], $currentBranch, "itemTypeID") === false) {
-                    //continue recursive searching
+                    // Continue recursive searching
                     $tempBranch[] = $descendant;
                     getTreePath($clientID, $treePath, $tempBranch, $destinationItemTypeID, $allowedItemTypes, $maxDepth);
 
                 } else {
-                    //cyclic branch, discard (do nothing)
+                    // Cyclic branch, discard (do nothing)
                 }
             }
         }
@@ -778,7 +779,7 @@ function normaliza ($cadena) {
 
     $originales =  'ÀÁÂÃÄÅÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåèéêëìíîïòóôõöùúûýýÿŔŕ';
     $modificadas = 'AAAAAAEEEEIIIIOOOOOUUUUYaaaaaaeeeeiiiiooooouuuyyyRr';
-   
+
     // Convert the input string from UTF-8 to ISO-8859-1
     $cadena = iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $cadena);
     // Replace the original characters with their corresponding replacements
@@ -788,4 +789,3 @@ function normaliza ($cadena) {
 
     return $cadena;
 }
-?>

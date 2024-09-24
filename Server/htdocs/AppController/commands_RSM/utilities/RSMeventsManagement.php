@@ -110,7 +110,7 @@ function getTriggerIDs($ITIDs, $clientID, $mode) {
     // If someone of the earlies variables is wrong, we notify as a trigger error
     if ($TriggerTypePV=='' OR $TriggerITID==0 OR $TriggerTypePID==0 OR $TriggerItemTypesPID==0) {
 
-       $resultado = RSError("Error returning the related trigger IDs with this parameters ItemTypeIDs: ".print_r($ITIDs,true).
+       RSError("Error returning the related trigger IDs with this parameters ItemTypeIDs: ".print_r($ITIDs,true).
        "clientID: ".$clientID.chr(13).
        "mode: ".$mode.chr(13).chr(13).
        "RESULTS".chr(13).

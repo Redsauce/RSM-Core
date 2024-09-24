@@ -4,14 +4,18 @@
 //    Retrieves items of the specified itemType with the associated values with filter conditions
 //
 //  --- PARAMETERS -- All the IDs can be called as systemNames --
-//   RStoken      : A token can replace the clientID
-//   clientID     : ID of the client, is not necessary if the token is passed
-//   propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
-//   filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
-//  extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
-//   filterJoining: could be AND or OR. By default = AND.
-//    translateIDs: if this property is set to false then the IDs won't be tranlated
-//                  by the main property value of the item the ID is pointing to
+//    RStoken      : A token can replace the clientID
+//    clientID     : ID of the client, is not necessary if the token is passed
+//    propertyIDs  : string with the IDs of the properties to retrieve: ID1,ID2, ... ,IDN
+//    filterRules  : string with filter conditions: ID1;base64(value1);condition1,ID2;base64(value2);condition2 ... ,IDN;base64(valueN);conditionN
+//   extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
+//    filterJoining: could be AND or OR. By default = AND.
+//            limit: integer representing the number of items to receive
+//     translateIDs: if this property is set to false then the IDs won't be tranlated
+//                   by the main property value of the item the ID is pointing to
+//          orderBy: If specified, the returned items will be oordered using this property value.
+//  orderPropertyID: An item can have many parents. For each one of them, the items can hold a different order.
+//                   This property allow to specify which parent we need to recover the ordered items from.
 // ****************************************************************************************
 
 // Database connection startup
@@ -31,23 +35,31 @@ isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_
 isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
 isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
 isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
+isset($GLOBALS["RS_POST"]["limit"          ]) ? $limit           = $GLOBALS["RS_POST"]["limit"          ] : $limit           = "";
 isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
 isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
-isset($GLOBALS['RS_POST']['orderPropertyID']) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
+isset($GLOBALS["RS_POST"]["orderPropertyID"]) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
 
 // Don't allow empty properties to be specified
 if (strpos($pIDs, ",,") !== false) {
     dieWithError(400);
 }
 
+// limit must be empty, or a number
+if ($limit != "") {
+    if (!ctype_digit($limit)) {
+        dieWithError(400);
+    }
+}
+
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-      if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if (isset($GLOBALS['RS_POST']['translateIDs']) && $GLOBALS['RS_POST']['translateIDs'] == "true") {
+    $translateIDs = true;
 }
 
 // Construct filterProperties using a double explode
-$rules = array();
-$rule  = array();
+$rules             = array();
+$rule              = array();
 $filterProperties  = array();
 $filterPropertyIDs = array();
 
@@ -57,15 +69,14 @@ if ($filterRules != '') {
         $rule = explode(";", $ruleN);
 
         // Obtain the property value
-        if (is_base64($rule[1])) {
+        if (isBase64($rule[1])) {
             // The user is specifying a custom base64 filter value
             $pValue = str_replace("&amp;", "&", htmlentities(base64_decode($rule[1]), ENT_COMPAT, "UTF-8"));
-            
+
             if (($rule[2] != "<-IN") && ($rule[2] != "IN")) {
                 // Under <-IN and IN clausules, we need a list of values separated by '
                 $pValue = str_replace("'", "&#39;", $pValue);
             }
-            
         } else {
             // The value is not encoded in base64 so try to get a related property with the value
             $pValue = getValue(getClientListValueID_RelatedWith(getAppListValueID($rule[1]), $clientID), $clientID);
@@ -82,8 +93,10 @@ if ($orderPropertyID != "") {
     $returnOrder = 1;
     if ($orderPropertyID != "0") {
         $propertyType = getPropertyType($orderPropertyID, $clientID);
-        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)){
-            if (!in_array($orderPropertyID, $propertyIDs)) $propertyIDs[] = $orderPropertyID;
+        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)) {
+            if (!in_array($orderPropertyID, $propertyIDs)) {
+                $propertyIDs[] = $orderPropertyID;
+            }
         } else {
             $response['result'] = "NOK";
             $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";
@@ -125,16 +138,16 @@ foreach ($propertyIDs as $property) {
 }
 
 //check and translate order by
-if($orderBy != ''){
+if ($orderBy != '') {
     $pID = ParsePID($orderBy, $clientID);
-    if ($pID != ''){
+    if ($pID != '') {
         $orderBy = $pID;
     }
 }
 
 // Filter results
 $results = array();
-$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit = '', $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
+$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
 
 // And write XML Response back to the application without compression// Return results
 if (is_string($results)) {
@@ -142,4 +155,3 @@ if (is_string($results)) {
 } else {
     RSReturnArrayQueryResults($results, false);
 }
-?>

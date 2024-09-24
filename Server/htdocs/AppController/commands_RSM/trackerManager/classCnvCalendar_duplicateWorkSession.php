@@ -173,7 +173,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                     // adjust new worksession start date and creation date
                     setPropertyValueByID($wsStartDatePropertyID, $itemTypeID, $newWsID, $clientID, $dates[0], '', $RSuserID);
-                    setItemPropertyValue($definitions['worksessionCreationDate'], $itemTypeID, $newWsID, $clientID, date("Y-m-d H:i:s"), '', $RSuserID);
+                    setItemPropertyValue($definitions['worksessionCreationDate'], $itemTypeID, $newWsID, $clientID, date("Y-m-d H:i:s"), $RSuserID);
 
                     $newWsDuration = $wsDuration;
 

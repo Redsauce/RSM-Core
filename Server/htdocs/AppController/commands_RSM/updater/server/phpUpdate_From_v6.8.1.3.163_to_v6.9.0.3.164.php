@@ -1,7 +1,7 @@
 <?php
 // Database connection startup
-include "../../utilities/RSconfiguration.php";
-include "../../utilities/RSMbadgesManagement.php";
+include_once "../../utilities/RSconfiguration.php";
+include_once "../../utilities/RSMbadgesManagement.php";
 
 $oldVersion = "6.8.1.3.163";
 $newVersion = "6.9.0.3.164";
@@ -43,13 +43,13 @@ $mysqli->query("COMMIT");
 // Assign a badget for each user
 function RSupdateAllBadgeUsers($RSclientID = null){
     $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
-    
+
     if ($RSclientID != null) {
         $theQuery_users .= " WHERE RS_CLIENT_ID = '$RSclientID'";
     }
-    
+
     $resultUsers = RSQuery($theQuery_users);
-    
+
     while ($row=$resultUsers->fetch_assoc()){
         RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);
     }
