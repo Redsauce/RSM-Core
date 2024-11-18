@@ -8,8 +8,6 @@ $RSdatabase  = '{RSMdatabase}';
 $RSuser      = '{RSMlogin}';
 $RSpassword  = '{RSMpassword}';
 
-$RSmongohost = '{RSMmongohost}';
-
 // Determine in combination with POST value RSsendUncompressed=1 if response will be sent uncompressed
 $RSallowUncompressed = false;
 
@@ -30,7 +28,7 @@ $RSfileCache  = '{RSMFileCache}';
 
 // Determine if files/images cache will be used
 $enable_image_cache  = true;
-$enable_file_cache  = true;
+$enable_file_cache   = true;
 
 // Protocol encryption support
 $RSblowfishKey = '{RSMBLOWFISHKEY}';
