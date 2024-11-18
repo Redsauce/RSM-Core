@@ -6,6 +6,7 @@
 //  PARAMETERS:
 //  itemTypeID: ID of the itemType to retrieve
 //      itemID: ID of the item to retrieve
+//     RStoken: Authorization token for the API
 //*****************************************************************************
 
 // Database connection startup
@@ -20,7 +21,7 @@ $RSallowUncompressed = true;
 isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["itemID"    ]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["itemTypeID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_POST"]["RStoken"   ] : $RStoken     = "";
+isset($GLOBALS["RS_POST"]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_POST"]["RStoken"   ] : $RStoken = "";
 
 $translateIDs = false;
 if (isset($GLOBALS['RS_POST']['translateIDs'])) {
