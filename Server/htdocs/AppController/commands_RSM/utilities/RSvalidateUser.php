@@ -60,7 +60,7 @@ switch ($users->num_rows) {
         if ($password == "") {
             RSReturnError("ACCESS DENIED. BADGE NOT FOUND.", 2);
         } else {
-            RSReturnError("ACCESS DENIED. USERNAME & PASSWORD NOT FOUND.", 3);
+            RSReturnError("ACCESS DENIED. USERNAME OR PASSWORD NOT FOUND.", 3);
         }
 
         break;

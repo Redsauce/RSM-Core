@@ -39,7 +39,7 @@ if ($mysqli->connect_errno) {
 
 // Check database compatibility and user permisions
 if (!isset($RSUpdatingProcess)) {
-    require_once ("RSsecurityCheck.php");
+    require_once "RSsecurityCheck.php";
 }
 
 // If execution reaches this point, the user has permissions to work
