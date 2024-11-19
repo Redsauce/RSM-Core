@@ -31,6 +31,10 @@ require_once "RSMtokensManagement.php";
 $RSuserID =  0; // By default there is not a defined user
 
 if (isset($GLOBALS['RS_GET']['r'])) {
+	// The 'r' parameter is used to request data from RSM using GET
+	// The idea is to encrypt the request so the user can't alter it to get more data or other files
+	// So instead of (for example) imageID=5 in the URL, we send a single encrypter r parameter
+	// That can be decrypted here, replacing the Global GET variables
 	$encryptedData = pack("H*", $GLOBALS['RS_GET']['r']);
 	$decryptedData = openssl_decrypt($encryptedData, 'bf-ecb', $RSblowfishKey, OPENSSL_RAW_DATA);
 	$parameters    = explode("&", rtrim($decryptedData, "\x05"));
