@@ -783,23 +783,43 @@ function RSQuery($theQuery, $registerError = true) {
     }
 }
 
-//store a new error in database
-function RSError($message, $type = ""){
-  global $mysqli;
-  global $cstClientID;
-  global $cstRS_POST;
+function RSError($message, $type = "") {
+    global $mysqli;
+    global $cstClientID;
+    global $cstRS_POST;
 
-  $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`,`RS_TYPE`,`RS_CLIENT_ID`) VALUES (NOW(),'".
-  $mysqli->real_escape_string("//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}").
-  "','".$mysqli->real_escape_string(print_r($GLOBALS[$cstRS_POST],true))."','"
-  .$mysqli->real_escape_string($message)."','".$type."',".$GLOBALS[$cstRS_POST][$cstClientID].")";
+    try {
+        // Validar que las superglobales existan y tengan valores válidos
+        $url = isset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']) ?
+               $mysqli->real_escape_string($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) : "Unknown URL";
 
-   // Query the database
-   try {
-        $result = $mysqli->query($query);
-   } catch (mysqli_sql_exception $e) {
-        error_log ("RSdatabase: failed query: " . $query);
-   }
+        $postData = isset($GLOBALS[$cstRS_POST]) ?
+                    $mysqli->real_escape_string(json_encode($GLOBALS[$cstRS_POST])) : "No POST data";
+
+        $clientID = isset($GLOBALS[$cstRS_POST][$cstClientID]) ?
+                    intval($GLOBALS[$cstRS_POST][$cstClientID]) : 0;
+
+        // Preparar la consulta para evitar inyecciones SQL
+        $stmt = $mysqli->prepare(
+            "INSERT INTO rs_error_log (RS_DATE, RS_URL, RS_POST, RS_RESULT, RS_TYPE, RS_CLIENT_ID)
+             VALUES (NOW(), ?, ?, ?, ?, ?)"
+        );
+
+        // Verificar si el statement se preparó correctamente
+        if (!$stmt) {
+            throw new mysqli_sql_exception("Failed to prepare statement: " . $mysqli->error);
+        }
+
+        // Asignar parámetros y ejecutar
+        $stmt->bind_param("ssssi", $url, $postData, $message, $type, $clientID);
+        $stmt->execute();
+
+        // Cerrar el statement
+        $stmt->close();
+
+    } catch (mysqli_sql_exception $e) {
+        error_log("RSError: Failed to store error in database. Error: " . $e->getMessage());
+    }
 }
 
 //
