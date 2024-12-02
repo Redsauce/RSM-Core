@@ -7,7 +7,7 @@ isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['client
 isset($GLOBALS['RS_POST']['userID'  ]) ? $userID   = $GLOBALS['RS_POST']['userID'  ] : dieWithError(400);
 
 if ($clientID != 0){
-    //We check if the user exists into the client
+    // We check if the user exists into the client
     $theQuery_userValidation = "SELECT RS_USER_ID FROM rs_users WHERE RS_USER_ID ='". $userID ."' AND RS_CLIENT_ID=".$clientID;
 
     $resultUserOK = RSQuery($theQuery_userValidation);
