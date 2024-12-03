@@ -65,11 +65,14 @@ if (count($newItemIDs)==1) {
         array_push($elements, $newItemIDs[0]);
 }else{
 
-    if (is_array($elementID)) {
-        array_push($elements, $elementID[array_keys($elementID)[0]]);
-    } else {
-        array_push($elements, $elementID);
+    foreach ($newItemIDs as $elementID) {
+        if (is_array($elementID)) {
+            array_push($elements, $elementID[array_keys($elementID)[0]]);
+        } else {
+            array_push($elements, $elementID);
+        }
     }
+
 }
 
 $results['newItemIDs'] = implode(',', $elements);
