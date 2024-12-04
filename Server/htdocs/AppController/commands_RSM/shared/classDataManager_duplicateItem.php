@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 // Description:
-//	DuplicateItem
+//      DuplicateItem
 //
 // parameters:
 // clientID   => the client ID
@@ -29,7 +29,7 @@ isset($GLOBALS['RS_POST']['descendants']) ? $descendants  = explode(',',  $GLOBA
 $descendantsForItemtype = array();
 for ($i = 0; $i < count($descendants); $i++) {
     $descendant = explode(';', $descendants[$i]);
-    if (count($descendant == 2)) {
+    if (count($descendant) == 2) {
         $descendantParent=getClientPropertyReferredItemType($descendant[1], $clientID);
         if (!isset($descendantsForItemtype[$descendantParent])) {
             $descendantsForItemtype[$descendantParent] = array();
@@ -62,9 +62,17 @@ if ($properties != '') {
 // Return the IDs of the new elements created
 $elements = array();
 if (count($newItemIDs)==1) {
-	array_push($elements, $newItemIDs[0]);
+        array_push($elements, $newItemIDs[0]);
 }else{
-	foreach ($newItemIDs as $elementID) array_push($elements, $elementID[array_keys($elementID)[0]]);
+
+    foreach ($newItemIDs as $elementID) {
+        if (is_array($elementID)) {
+            array_push($elements, $elementID[array_keys($elementID)[0]]);
+        } else {
+            array_push($elements, $elementID);
+        }
+    }
+
 }
 
 $results['newItemIDs'] = implode(',', $elements);

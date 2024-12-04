@@ -15,7 +15,7 @@ isset($GLOBALS['RS_POST']['descendants']) ? $descendants  = explode(',',  $GLOBA
 $descendantsForItemtype = array();
 for ($i = 0; $i < count($descendants); $i++) {
     $descendant = explode(';', $descendants[$i]);
-    if (count($descendant == 2)) {
+    if (count($descendant) == 2) {
         $descendantParent=getClientPropertyReferredItemType($descendant[1], $clientID);
         if (!isset($descendantsForItemtype[$descendantParent])) {
             $descendantsForItemtype[$descendantParent] = array();
