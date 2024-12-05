@@ -461,7 +461,8 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
             // Perform intersection with the remaining arrays
             foreach ($numericIdsForFilter as $filterArray) {
                 $ids = array_intersect($ids, $filterArray);
-            }                                                                                                                                                           } else {
+            }
+        } else {
             $ids = reset($idsForFilter);
         }
 
