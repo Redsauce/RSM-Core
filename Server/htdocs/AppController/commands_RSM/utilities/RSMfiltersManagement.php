@@ -450,12 +450,21 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
             }
         }
 
-        //intersect results (find all words from fastFilter)
-        if(count($idsForFilter)>1){
-            $ids = call_user_func_array('array_intersect',$idsForFilter);
-        }else{
+        // Intersect results (find all words from fastFilter)
+        if (count($idsForFilter) > 1) {
+            // Convert associative arrays to numeric
+            $numericIdsForFilter = array_map('array_values', $idsForFilter);
+
+            // Extract the first array as first element to begin the intersections
+            $ids = array_shift($numericIdsForFilter);
+
+            // Perform intersection with the remaining arrays
+            foreach ($numericIdsForFilter as $filterArray) {
+                $ids = array_intersect($ids, $filterArray);
+            }                                                                                                                                                           } else {
             $ids = reset($idsForFilter);
         }
+
     }
     // get items
     $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', implode(",", $ids), $operator, $returnOrder);
