@@ -5,19 +5,30 @@ function setGlobalVariable() {
 }
 
 function getGlobalVariableValue($variableName, $clientID) {
-	// execute query
-	$results = RSquery('SELECT RS_VALUE AS "value", RS_IMAGE AS "image" FROM rs_globals WHERE RS_CLIENT_ID = '. $clientID . ' AND RS_NAME = "' . $variableName . '"');
+    // Escapar el nombre de la variable para prevenir inyección SQL
+    $escapedVariableName = mysqli_real_escape_string($GLOBALS['mysqli'], $variableName);
 
-	if (!$results) return "";
+    // Ejecutar consulta
+    $query = 'SELECT RS_VALUE AS "value", RS_IMAGE AS "image"
+              FROM rs_globals
+              WHERE RS_CLIENT_ID = ' . intval($clientID) . '
+              AND RS_NAME = "' . $escapedVariableName . '"';
+    $results = RSquery($query);
 
-	$result = $results->fetch_assoc();
+    // Verificar si la consulta devolvió resultados
+    if (!$results || $results->num_rows === 0) {
+        return "";
+    }
 
-	if ($result['image'] == '1') {
-		// convert binary value to hexadecimal
-		return bin2hex($result['value']);
-	}
+    $result = $results->fetch_assoc();
 
-	return $result['value'];
+    // Validar que los índices existen
+    if (isset($result['image']) && $result['image'] == '1') {
+        // Convertir valor binario a hexadecimal
+        return isset($result['value']) ? bin2hex($result['value']) : "";
+    }
+
+    return $result['value'] ?? ""; // Devolver valor o cadena vacía si no existe
 }
 
 function getGlobalVariables($clientID) {
