@@ -287,8 +287,8 @@ CREATE TABLE IF NOT EXISTS `rs_audit_trail_property_longtext` (
   `RS_TOKEN` char(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `RS_DESCRIPTION` varchar(255) DEFAULT NULL,
   `RS_CHANGED_DATE` datetime NOT NULL,
-  `RS_INITIAL_VALUE` longtext NOT NULL,
-  `RS_FINAL_VALUE` longtext NOT NULL
+  `RS_INITIAL_VALUE` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `RS_FINAL_VALUE` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -347,8 +347,8 @@ CREATE TABLE IF NOT EXISTS `rs_audit_trail_property_text` (
   `RS_TOKEN` char(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `RS_DESCRIPTION` varchar(255) DEFAULT NULL,
   `RS_CHANGED_DATE` datetime NOT NULL,
-  `RS_INITIAL_VALUE` longtext NOT NULL,
-  `RS_FINAL_VALUE` longtext NOT NULL
+  `RS_INITIAL_VALUE` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `RS_FINAL_VALUE` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -871,7 +871,7 @@ DROP TABLE IF EXISTS `rs_property_longtext`;
 CREATE TABLE IF NOT EXISTS `rs_property_longtext` (
   `RS_ITEMTYPE_ID` int(11) NOT NULL,
   `RS_ITEM_ID` int(11) NOT NULL,
-  `RS_DATA` longtext,
+  `RS_DATA` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `RS_PROPERTY_ID` int(11) unsigned NOT NULL,
   `RS_CLIENT_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -917,7 +917,7 @@ DROP TABLE IF EXISTS `rs_property_text`;
 CREATE TABLE IF NOT EXISTS `rs_property_text` (
   `RS_ITEMTYPE_ID` int(11) NOT NULL,
   `RS_ITEM_ID` int(11) NOT NULL,
-  `RS_DATA` longtext,
+  `RS_DATA` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `RS_PROPERTY_ID` int(11) unsigned NOT NULL,
   `RS_CLIENT_ID` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
