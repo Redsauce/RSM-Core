@@ -39,8 +39,10 @@ function RSCheckCompatibleDB($serviceMode) {
 
     // Check the results
     if (!$versions) return -1;
+
     // There was an error executing the query
     if ($versions->num_rows == 0) return 0;
+
     // The application version is not registered against the database so it is incompatible
 
     // The application is compatible with the database
@@ -50,7 +52,14 @@ function RSCheckCompatibleDB($serviceMode) {
 
 // Check if the current user has access to work with the selected database
 function RSCheckUserAccess() {
+    // If we rerturn -1: There was an error executing the query
+    // If we return 0: RSM could not match the provided data to a single user in a single customer
+    // If we return an integer: This is the ID of the user for the passed clientID
+    
     if (!isset($GLOBALS['RS_POST']['RSLogin'])) return 0;
+
+    // We don't allow the script to continue execution with an empty clientID since the queries would throw an error
+    if ((isset($GLOBALS['RS_POST']['clientID'])) && ($GLOBALS['RS_POST']['clientID'] == "")) return -1;
 
     if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
         // Continue checking the username and password.
@@ -63,10 +72,10 @@ function RSCheckUserAccess() {
 
     $users = RSQuery($theQuery);
 
-    // Check the results
+    // Check if the query failed
     if (!$users) return -1;
 
-    // User not found
+    // User not found or multiple users found
     if ($users->num_rows != 1) return 0;
 
     // A single user was found with the provided login and password
