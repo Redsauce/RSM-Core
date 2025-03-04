@@ -59,22 +59,22 @@ if (isset($GLOBALS['RS_POST']['clientID'])) {
 	} else {
 		// We don't have a token so validate user permissions
 		if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -4);
-		if ($RSuserID == 0) RSReturnError("ACCESS DENIED", -3);
+		if ($RSuserID == 0) RSReturnError("ACCESS DENIED", -5;
 	}
 
 } elseif (isset($GLOBALS['RS_POST']['RStoken'])) {
 	// If we don't have a clientID, validates if there is a valid token sent through POST
 	$GLOBALS['RS_POST']['clientID'] = RSClientFromToken($GLOBALS['RS_POST']['RStoken']);
-	if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -3);
+	if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -6);
 
 } elseif (isset($GLOBALS['RS_GET']['RStoken'])) {
     // If we don't have a clientID, validates if there is a valid token sent through GET
     $GLOBALS['RS_POST']['clientID'] = RSClientFromToken($GLOBALS['RS_GET']['RStoken']);
-    if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -3);
+    if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -7);
 
 } else {
 	// By default we check if the database is compatible
-	if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -4);
+	if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -8);
 
 }
 ?>
