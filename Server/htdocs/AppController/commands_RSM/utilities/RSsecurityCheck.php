@@ -59,7 +59,7 @@ if (isset($GLOBALS['RS_POST']['clientID'])) {
 	} else {
 		// We don't have a token so validate user permissions
 		if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -4);
-		if ($RSuserID == 0) RSReturnError("ACCESS DENIED", -5);
+		if ($RSuserID == 0) RSReturnError("ACCESS DENIED", -5;
 	}
 
 } elseif (isset($GLOBALS['RS_POST']['RStoken'])) {
