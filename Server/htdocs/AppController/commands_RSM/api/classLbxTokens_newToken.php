@@ -37,7 +37,8 @@ do {
 } while ($exists == true);
 
 // If the execution reaches this point, the token does not exist so we can insert it
-$results = RScreateToken($token, $GLOBALS['RS_POST']['clientID']);
+// RScreateToken() is defined in Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php
+$results = RScreateToken($token, $GLOBALS['RS_POST']['clientID']); 
 
 // Generate a response array for RSM
 $response['token'] = $token;
