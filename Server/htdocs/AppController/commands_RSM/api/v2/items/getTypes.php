@@ -27,8 +27,8 @@ if ($contentLength !== 0) {
     verifyBodyContent($requestBody);
 }
 
-$clientID = getClientID();
-$RStoken = getRStoken();
+$RStoken  = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 // Check if there is a request body sent

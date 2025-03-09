@@ -41,8 +41,8 @@ require_once "../../api_headers.php";
 $parameters = getRequestParams();
 validateRequestParams($parameters);
 
-$clientID = getClientID();
 $RStoken =  getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 $propertyID = $parameters["propertyID"];
 $ID = $parameters["ID"];
 $propertyID = $parameters["propertyID"];
@@ -65,7 +65,6 @@ if (!verifyItemExists($ID, $itemTypeID, $clientID)) {
     $RSallowDebug ? returnJsonMessage(404, "Item doesn't exist" ) : returnJsonMessage(404, "");
 }
 
-$clientID = getClientID();
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $ID . "_" . $w . "_" . $h . "_" . $adj;
 $image_string = $directory . $image_name;

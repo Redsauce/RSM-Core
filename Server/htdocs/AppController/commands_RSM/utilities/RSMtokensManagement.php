@@ -117,7 +117,7 @@ function RScountToken($RStoken) {
 // -----------------------------
 function RScreateToken($RStoken, $clientID) {
 	$results = RSQuery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_ENABLED)
-                        SELECT MAX(RS_ID)+1,
+                        SELECT COALESCE(MAX(RS_ID), 0)+1,
                             '" . $RStoken . "',
                             '" . $clientID . "',
                             '0'

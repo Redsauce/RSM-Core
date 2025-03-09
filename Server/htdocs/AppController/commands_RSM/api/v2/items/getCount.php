@@ -27,8 +27,8 @@ require_once '../../api_headers.php';
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$RStoken =  getRStoken();
-$clientID = getClientID();
+$RStoken = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 
 //Params
 $propertyIDs = $requestBody->propertyIDs;
