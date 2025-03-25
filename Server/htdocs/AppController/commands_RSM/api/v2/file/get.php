@@ -23,7 +23,7 @@ require_once "../../api_headers.php";
 $parameters = getRequestParams();
 verifyRequestParams($parameters);
 $RStoken =  getRStoken();
-$clientID = getClientID();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 $propertyID = $parameters["propertyID"];
 $ID = $parameters["ID"];
 

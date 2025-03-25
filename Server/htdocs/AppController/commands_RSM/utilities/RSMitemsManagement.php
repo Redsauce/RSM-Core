@@ -1,7 +1,6 @@
 <?php
 require_once 'RSMpropertiesManagement.php';
 require_once 'RSMidentificationFunctions.php';
-require_once 'RSMErrors.php';
 require_once 'RSMdefinitions.php';
 require_once "RSMfiltersManagement.php";
 require_once 'RSMtokensManagement.php';

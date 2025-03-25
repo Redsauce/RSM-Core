@@ -45,9 +45,9 @@ require_once '../../api_headers.php';
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$clientID = getClientID();
-$RStoken =  getRStoken();
-$RSuserID =  getRSuserID();
+$RStoken  = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
+$RSuserID = getRSuserID();
 
 // Params
 $propertyIDs = $requestBody->propertyIDs;

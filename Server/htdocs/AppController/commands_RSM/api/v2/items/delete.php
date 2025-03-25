@@ -30,8 +30,8 @@ $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
 // Definitions
-$clientID = getClientID();
-$RStoken = getRStoken();
+$RStoken  = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 $responseArray = array();

@@ -6,7 +6,7 @@
 //  REQUEST BODY (JSON)
 // Array with object/s inside, each object must contain
 //          - one propertyId and its value (one or more)
-//          - id: id of of the item being updated
+//          - id: id of the item being updated
 //  EXAMPLE:
 //      [{
 //          "109": "Roja",
@@ -31,8 +31,8 @@ $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
 // Definitions
-$clientID = getClientID();
 $RStoken = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 foreach ($requestBody as $item) {

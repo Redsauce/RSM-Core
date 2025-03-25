@@ -17,6 +17,7 @@
 //        isDateStrictlyBetween and isTimeStrictlyBetween functions
 //        getDayName, getMonthName functions
 
+require_once 'RSdatabase.php';
 function checkType($data, $type)
 {
 

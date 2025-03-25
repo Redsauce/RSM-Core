@@ -149,7 +149,7 @@ if ($orderBy != '') {
 $results = array();
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
 
-// And write XML Response back to the application without compression// Return results
+// And write XML Response
 if (is_string($results)) {
     RSReturnFileResults($results, false);
 } else {

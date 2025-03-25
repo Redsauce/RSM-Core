@@ -76,7 +76,7 @@ if (strpos($valuePropertyRelated, ",") === false) {
 	              'name' => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
 	              'value' => $value,
 	              'type' => $property['type'],
-	              'trs' => base64_encode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID))
+	              'trs' => base64_encode(html_entity_decode(getMainPropertyValue(getClientPropertyReferredItemType($property['id'], $clientID), $value, $clientID)))
 	              );
 	
 	        } elseif ($translateIDs && $property['type'] == 'identifiers') {
@@ -85,7 +85,7 @@ if (strpos($valuePropertyRelated, ",") === false) {
 	            $relatedItemType = getClientPropertyReferredItemType($property['id'], $clientID);
 	
 	            foreach ($IDs as $id) {
-	                $trsProperties .= base64_encode(getMainPropertyValue($relatedItemType, $value, $clientID)) . ",";
+	                $trsProperties .= base64_encode(html_entity_decode(getMainPropertyValue($relatedItemType, $value, $clientID))) . ",";
 	            }
 	
 	            $results[] = array(
