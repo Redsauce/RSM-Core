@@ -65,12 +65,16 @@ foreach ($results as $item) {
     } else {
         // If its not a category, add the values to the property
         $property = array(
-            'name' => $item['name'],
+            'name' => html_entity_decode($item['name']),
             'id' => $item['id'],
-            'type' => $item['type'],
-            'value' => $item['value'] ?: '',
-            'realValue' => $item['realValue'] ?: ''
+            'type' => $item['type']
         );
+        
+        if (!empty($ID)) {
+            $property['value'] = html_entity_decode($item['value']) ?: '';
+            $property['realValue'] = $item['realValue'] ?: '';
+        }
+        
         $responseArray[$category][] = $property;
     }
 }
