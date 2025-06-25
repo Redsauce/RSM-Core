@@ -82,9 +82,9 @@ function checkStringIsInteger($item)
   global $RSallowDebug;
   if (isset($item) && !ctype_digit($item)) {
     if ($RSallowDebug) {
-      returnJsonMessage(400, "'{$item}' string must be an integer");
+      returnJsonMessage(400, "'{$item}' string must represent an integer");
     } else {
-      RSError("checkStringIsInteger: '{$item}' string must be an integer");
+      RSError("checkStringIsInteger: '{$item}' string must represent an integer");
       returnJsonMessage(400, "");
     }
   }

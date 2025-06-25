@@ -274,7 +274,12 @@ function queueActions($RSdata, $triggerIDs, $mode, $RStoken) {
 
       // TODO: Send an email if there were a problem
       if (!$result) {
-        error_log('Error scheduling job', wordwrap("The events for triggers " . $triggerIDs . " could not be queued."));
+        error_log('Error scheduling job: The events for trigger IDs ' . implode(",", $triggerIDs) . ' could not be queued.' . PHP_EOL);
+        error_log('Mode: ' . $mode . PHP_EOL);
+        error_log('RSdata: ' . implode(";", $RSdata) . PHP_EOL);
+        error_log('RStoken: ' . $RStoken . PHP_EOL);
+        error_log('Priority: ' . $action["priority"] . PHP_EOL);
+        error_log('Avoid duplication: ' . $action["avoidDuplication"] . PHP_EOL);
       }
    }
 }
@@ -284,7 +289,12 @@ function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplica
 
     // TODO: Send an email if there were a problem
     if (!$result) {
-        error_log('Error scheduling job', wordwrap("The action ID " . $actionID . " could not be queued."));
+        error_log('Error scheduling job: The events for trigger IDs ' . implode(",", $triggerIDs) . ' could not be queued.' . PHP_EOL);
+        error_log('clientID: ' . $clientID . PHP_EOL);
+        error_log('ActionID: ' . $action["ID"] . PHP_EOL);
+        error_log('RSdata: ' . implode(";", $RSdata) . PHP_EOL);
+        error_log('Priority: ' . $action["priority"] . PHP_EOL);
+        error_log('Avoid duplication: ' . $avoidDuplication . PHP_EOL);
     }
 }
 
@@ -298,14 +308,29 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
     $priorityPID     = getClientPropertyID_RelatedWith_byName("scheduledEvents.priority"      , $clientID);
     $userPID         = getClientPropertyID_RelatedWith_byName("scheduledEvents.userLogin"     , $clientID);
 
-    if (($eventPID        == 0) ||
-        ($creationDatePID == 0) ||
-        ($executionEndPID == 0) ||
-        ($parametersPID   == 0) ||
-        ($priorityPID     == 0)) {
+    if ($eventPID == 0) {
+        error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.event property is not related or allowed through the API.' . PHP_EOL);
+        return false;
+    }
+    
+    if ($creationDatePID == 0) {
+        error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.creationDate property is not related or allowed through the API.' . PHP_EOL);
+        return false;
+    }
 
-      // One of the properties is not related
-      return false;
+    if ($executionEndPID == 0) {
+        error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.executionEnd property is not related or allowed through the API.' . PHP_EOL);
+        return false;
+    }
+
+    if ($parametersPID == 0) {
+        error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.parameters property is not related or allowed through the API.' . PHP_EOL);
+        return false;
+    }
+
+    if ($priorityPID == 0) {
+        error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.priority property is not related or allowed through the API.' . PHP_EOL);
+        return false;
     }
 
     $pValues   = array();
@@ -316,23 +341,24 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
 
     if ($staffID != 0) {
 
-      if ($userPID == 0) {
-        // One of the properties is not related
-        return false;
-      }
+        if ($userPID == 0) {
+            error_log('RSMeventsManagement.php: queueEvent: scheduledEvents.userLogin property is not related or allowed through the API.' . PHP_EOL);
+            return false;
+        }
 
       $pValues[] = array('ID' => $userPID  , 'value' => $staffID);
     }
 
     //check if pending event can be duplicated
     $results = array();
-    if($avoidDuplication != 'No'){
+    if ($avoidDuplication != 'No') {
         // Construct filterProperties array
         $filterProperties  = array(
             array('ID' => $eventPID       , 'value' => $actionID, 'mode' => "="),
             array('ID' => $parametersPID  , 'value' => $data    , 'mode' => "="),
             array('ID' => $executionEndPID, 'value' => '00-00-00 00:00:00', 'mode' => "=")
         );
+
         // Construct returnProperties array
         $returnProperties = array();
 
@@ -345,10 +371,10 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         $itemID = createItem($clientID, $pValues);
 
         if ($itemID == 0) {
+            error_log('RSMeventsManagement.php: queueEvent: Event item for clientID ' . $clientID . ' and these properties: ' . implode(",", $pValues) . ' could not be created.' . PHP_EOL);
             return false;
         }
     }
 
     return true;
 }
-?>
