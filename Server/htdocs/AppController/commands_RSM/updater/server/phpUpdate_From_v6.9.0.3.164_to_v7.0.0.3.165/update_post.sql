@@ -16,3 +16,15 @@ WHERE NOT EXISTS (
     WHERE rs_actions_groups.RS_CLIENT_ID = rs_actions_clients.RS_CLIENT_ID
     AND rs_actions_groups.RS_ACTION_CLIENT_ID = rs_actions_clients.RS_ID
 );
+
+REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (489,'event.language',10,'Script''s programming language','text');
+
+REPLACE INTO rs_lists_app (RS_ID,RS_NAME)
+	VALUES (16,'event.language');
+
+REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
+	VALUES (47,'event.language.xojoscript',16);
+
+REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
+	VALUES (48,'event.language.python',16);
