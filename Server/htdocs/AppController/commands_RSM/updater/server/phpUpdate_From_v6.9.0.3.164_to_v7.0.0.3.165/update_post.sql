@@ -20,6 +20,9 @@ WHERE NOT EXISTS (
 REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (489,'event.language',10,'Script''s programming language','text');
 
+REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (490,'eventInclude.language',27,'Include''s programming language','text');
+
 REPLACE INTO rs_lists_app (RS_ID,RS_NAME)
 	VALUES (16,'event.language');
 
