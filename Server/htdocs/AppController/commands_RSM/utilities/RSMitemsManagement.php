@@ -603,7 +603,7 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
                 if (!$saveQuery) return -3;
             }
 
-            // We add the new item ID to the array of created itemIDs
+            // We add the new item ID to the array of updated itemIDs
             global $RSMupdatedItemIDs;
             if (!in_array($itemTypeID . "," . $itemID, $RSMupdatedItemIDs)) $RSMupdatedItemIDs[] = $itemTypeID . "," . $itemID;
 

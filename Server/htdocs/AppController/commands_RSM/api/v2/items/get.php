@@ -50,11 +50,11 @@ $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 // Params
-$propertyIDs = $requestBody->propertyIDs;
-$filterRules = $requestBody->filterRules;
+$propertyIDs    = $requestBody->propertyIDs;
+$filterRules    = $requestBody->filterRules;
 $extFilterRules = $requestBody->extFilterRules;
-$originalIDs = $requestBody->IDs;
-$itemTypeID = $requestBody->itemTypeID;
+$originalIDs    = $requestBody->IDs;
+$itemTypeID     = $requestBody->itemTypeID;
 
 // includeCategories filter
 $includeCategories = false;

@@ -18,6 +18,7 @@
 //        getDayName, getMonthName functions
 
 require_once 'RSdatabase.php';
+
 function checkType($data, $type)
 {
 
@@ -603,10 +604,14 @@ function getRequestBody()
 
 function returnJsonMessage($code, $message)
 {
+    global $clientID;
+    if (!empty($clientID)) checkTriggeredEvents($clientID);
+
     $json = "";
     if ($message != "") {
         $json = '{"message": "' . $message . '"}';
     }
+    
     header('Content-Type: application/json', true, $code);
     header("Content-Length: " . strlen($json));
     echo $json;
@@ -616,6 +621,9 @@ function returnJsonMessage($code, $message)
 // returns api response in json
 function returnJsonResponse($response)
 {
+    global $clientID;
+    if (!empty($clientID)) checkTriggeredEvents($clientID);
+
     header('Content-Type: application/json', true, 200);
     header("Content-Length: " . strlen($response));
     echo $response;
