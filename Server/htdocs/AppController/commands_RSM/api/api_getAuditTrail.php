@@ -10,7 +10,7 @@ $RSallowUncompressed = true;
 // Check the variables
 isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
 isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyId']) ? $propertyID = $GLOBALS['RS_POST']['propertyId'] : dieWithError(400);
+isset($GLOBALS['RS_POST']['propertyID']) ? $propertyID = $GLOBALS['RS_POST']['propertyID'] : dieWithError(400);
 isset($GLOBALS['RS_POST']['RStoken'   ]) ? $RStoken    = $GLOBALS['RS_POST']['RStoken'   ] : $RStoken = "";
 
 $results = array();
