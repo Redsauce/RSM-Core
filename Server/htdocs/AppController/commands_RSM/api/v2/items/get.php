@@ -35,7 +35,9 @@
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
-checkCorrectRequestMethod('GET');
+
+// Todo: Uncomment once the Xojo ANdroid SDK and scriptsExecutor can do requests with GET verb
+//checkCorrectRequestMethod('GET');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
@@ -113,7 +115,7 @@ $formattedExtFilterRules = '';
 if (is_array($extFilterRules) && !empty(($extFilterRules))) {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . ($singleRule->value) . ';' . $singleRule->operation . ',';
+    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ';' . base64_encode($singleRule->path) . ",";
   }
   $formattedExtFilterRules = trim($formattedExtFilterRules, ',');
 }
@@ -145,13 +147,47 @@ if ($includeCategories) {
     array_push($responseArray, $combinedArray);
   }
 } else {
-  // Parse itemsArray into a JSON.
-  foreach ($itemsArray as $item) {
-    $combinedArray = array();
-    foreach ($item as $propertyKey => $propertyValue) {
-      $combinedArray[$propertyKey] = html_entity_decode($propertyValue);
+
+  $responseArray = [];
+
+  // The $itemsArray response may come either as a path to a temporary file or as an array
+  
+  // CASE A: Path to an existing file
+  if (is_string($itemsArray) && file_exists($itemsArray)) {
+
+    $xml = simplexml_load_file($itemsArray, "SimpleXMLElement", LIBXML_NOCDATA);
+
+    if ($xml !== false) {
+
+      foreach ($xml->rows->row as $row) {
+          $combinedArray = [];
+          foreach ($row->column as $column) {
+              $columnName = (string) $column['name'];
+              $propertyValue = (string) $column;
+              $combinedArray[$columnName] = html_entity_decode($propertyValue);
+          }
+          // We append the processed row array to our final response.
+          $responseArray[] = $combinedArray;
+      }
+
+    } else {
+      error_log("Error parsing the XML file from path: " . $itemsArray);
     }
-    array_push($responseArray, $combinedArray);
+
+  }
+  // CASE B: Array with already structured data
+  else {
+
+    // We only iterate to apply html_entity_decode
+    foreach ($itemsArray as $item) {
+        $decodedItem = [];
+        foreach ($item as $key => $value) {
+            // We decode only if the value is a string to avoid errors.
+            $decodedItem[$key] = is_string($value) ? html_entity_decode($value) : $value;
+        }
+        // We append the decoded row array to our final response.
+        $responseArray[] = $decodedItem;
+    }
   }
 }
 
