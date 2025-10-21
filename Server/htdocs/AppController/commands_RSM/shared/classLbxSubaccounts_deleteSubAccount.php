@@ -2,7 +2,6 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
-require_once "../utilities/RSMbankCodes.php";
 
 // definitions
 $clientID     = $GLOBALS['RS_POST']['clientID'    ];
