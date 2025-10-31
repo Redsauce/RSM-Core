@@ -23,6 +23,15 @@ REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESC
 REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (490,'eventInclude.language',27,'Include''s programming language','text');
 
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (491,'invoice.client.identifier',38,'Invoice identifier composed of number, year, client name, and invoice description.','text')
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (492,'invoice.client.seriesType',38,'Indicates the type of invoice series, such as standard invoice, corrective invoice, etc.','text')
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE,RS_REFERRED_ITEMTYPE)
+	VALUES (493,'invoice.client.correctsInvoiceID',38,'References the original invoice that is being corrected by the current one.','identifier',38)
+
 REPLACE INTO rs_lists_app (RS_ID,RS_NAME)
 	VALUES (16,'event.language');
 
