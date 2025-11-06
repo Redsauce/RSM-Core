@@ -10,9 +10,10 @@ $RSuserID   = RSCheckUserAccess();
 
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['invoiceClient'], $clientID);
 
-// get invoice.client invoiceID , invoiceDate and defaultInvoiceAddress properties
+// get invoice.client invoiceID , invoiceDate, serie and defaultInvoiceAddress properties
 $invoiceIDPropertyID             = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceID'  ], $clientID);
 $invoiceDatePropertyID           = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceDate'], $clientID);
+$invoiceSeriePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientSerie'], $clientID);
 $defaultInvoiceAddressPropertyID = getClientPropertyID_RelatedWith_byName($definitions['crmAccountsDefaultInvoiceAddress'], $clientID);
 
 // get invoice.client clientID property
@@ -43,9 +44,16 @@ foreach ($invoiceIDs as $invoiceID) {
 
   $row = $result->fetch_assoc();
 
+  // filter by the current year
   if (isset($row['value']) && ($row['value'] == '1')) {
     $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') - 1) . '-12-31', 'mode' => 'AFTER');
     $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') + 1) . '-01-01', 'mode' => 'BEFORE');
+  }
+  
+  // get current invoice serie and filter when available
+  $currentInvoiceSerie = getItemPropertyValue($invoiceID, $invoiceSeriePropertyID, $clientID);
+  if ($currentInvoiceSerie !== '') {
+    $filterProperties[] = array('ID' => $invoiceSeriePropertyID, 'value' => $currentInvoiceSerie);
   }
 
   // build return properties array

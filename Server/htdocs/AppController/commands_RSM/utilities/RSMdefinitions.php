@@ -272,6 +272,7 @@ $definitions = array(
     'invoiceClient'                        => 'invoice.client',
     'invoiceClientClientID'                => 'invoice.client.clientID',
     'invoiceClientInvoiceID'               => 'invoice.client.invoiceID',
+    'invoiceClientSerie'                   => 'invoice.client.serie',
     'invoiceClientInvoiceDate'             => 'invoice.client.invoiceDate',
     'invoiceClientSentDate'                => 'invoice.client.sentDate',
     'invoiceClientPaymentDate'             => 'invoice.client.paymentDate',
