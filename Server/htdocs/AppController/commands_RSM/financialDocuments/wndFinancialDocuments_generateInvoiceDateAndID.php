@@ -8,16 +8,16 @@ isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID    = $GLOBALS['RS_POST']['c
 isset($GLOBALS['RS_POST']['invoiceID' ]) ? $invoiceIDs  = explode(",", $GLOBALS['RS_POST']['invoiceID' ]) : dieWithError(400);
 $RSuserID   = RSCheckUserAccess();
 
-$itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['invoiceClient'], $clientID);
+$itemTypeID = getClientItemTypeID_RelatedWith_byName("invoice.client", $clientID);
 
 // get invoice.client invoiceID , invoiceDate, serie and defaultInvoiceAddress properties
-$invoiceIDPropertyID             = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceID'  ], $clientID);
-$invoiceDatePropertyID           = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceDate'], $clientID);
-$invoiceSeriePropertyID          = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientSerie'], $clientID);
-$defaultInvoiceAddressPropertyID = getClientPropertyID_RelatedWith_byName($definitions['crmAccountsDefaultInvoiceAddress'], $clientID);
+$invoiceIDPropertyID             = getClientPropertyID_RelatedWith_byName("invoice.client.invoiceID", $clientID);
+$invoiceDatePropertyID           = getClientPropertyID_RelatedWith_byName("invoice.client.invoiceDate", $clientID);
+$invoiceSeriePropertyID          = getClientPropertyID_RelatedWith_byName("invoice.client.serie", $clientID);
+$defaultInvoiceAddressPropertyID = getClientPropertyID_RelatedWith_byName("crmAccounts.default.invoice.address", $clientID);
 
 // get invoice.client clientID property
-$invoiceClientIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientClientID'], $clientID);
+$invoiceClientIDPropertyID = getClientPropertyID_RelatedWith_byName("invoice.client.clientID", $clientID);
 
 foreach ($invoiceIDs as $invoiceID) {
   // check if the invoice ID was already generated
@@ -84,11 +84,11 @@ foreach ($invoiceIDs as $invoiceID) {
   // If the item 'default Invoice Address' exists
   if ($currentDefaultInvoiceAddressID <> 0) {
       // Set the invoice address, only if each App property is related with a user property    
-      if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingAddress' ],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.address'],  $clientID), $clientID), '', $RSuserID);
-      if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCity' ],     $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.city'],     $clientID), $clientID), '', $RSuserID);
-      if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingCountry' ],  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.country'],  $clientID), $clientID), '', $RSuserID);
-      if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.postcode'], $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingPostCode' ], $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.postcode'], $clientID), $clientID), '', $RSuserID);
-      if (getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.province'], $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName($definitions['invoiceClientBillingProvince' ], $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName($definitions['crmAdresses.province'], $clientID), $clientID), '', $RSuserID);
+      if (getClientPropertyID_RelatedWith_byName("crmAdresses.address",  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName("invoice.client.billingAddress",  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName("crmAdresses.address",  $clientID), $clientID), '', $RSuserID);
+      if (getClientPropertyID_RelatedWith_byName("crmAdresses.city",     $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName("invoice.client.billingCity",     $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName("crmAdresses.city",     $clientID), $clientID), '', $RSuserID);
+      if (getClientPropertyID_RelatedWith_byName("crmAdresses.country",  $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName("invoice.client.billingCountry",  $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName("crmAdresses.country",  $clientID), $clientID), '', $RSuserID);
+      if (getClientPropertyID_RelatedWith_byName("crmAdresses.postcode", $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName("invoice.client.billingPostCode", $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName("crmAdresses.postcode", $clientID), $clientID), '', $RSuserID);
+      if (getClientPropertyID_RelatedWith_byName("crmAdresses.province", $clientID) <> 0) setPropertyValueByID(getClientPropertyID_RelatedWith_byName("invoice.client.billingProvince", $clientID), $itemTypeID, $invoiceID, $clientID, getItemPropertyValue($currentDefaultInvoiceAddressID, getClientPropertyID_RelatedWith_byName("crmAdresses.province", $clientID), $clientID), '', $RSuserID);
   }
 
   $results['result'      ] = 'OK';
