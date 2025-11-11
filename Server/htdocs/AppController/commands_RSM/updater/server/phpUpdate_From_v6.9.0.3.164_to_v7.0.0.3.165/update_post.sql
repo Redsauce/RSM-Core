@@ -55,29 +55,24 @@ CREATE TABLE rs_client_stats (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 # Create a scheduled event to populate the client stats table daily at midnight
-DELIMITER $$
-
 CREATE EVENT actualizar_rs_client_stats
 ON SCHEDULE EVERY 1 DAY
-STARTS CURRENT_DATE + INTERVAL 1 DAY
+STARTS (CURDATE() + INTERVAL 1 DAY)
 DO
-BEGIN
     INSERT INTO rs_client_stats (
         RS_CLIENT_ID, STAT_DATE, DB_FILES_BYTES, DB_IMAGES_BYTES
     )
     SELECT
-        c.RS_ID AS RS_CLIENT_ID,
-        CURDATE() AS STAT_DATE,
-        IFNULL(f_total.DB_FILES_BYTES,0),
-        IFNULL(i_total.DB_IMAGES_BYTES,0)
+        c.RS_ID,
+        CURDATE(),
+        IFNULL(f_total.DB_FILES_BYTES, 0),
+        IFNULL(i_total.DB_IMAGES_BYTES, 0)
     FROM rs_clients c
-    -- Tamaño de archivos por cliente
     LEFT JOIN (
         SELECT RS_CLIENT_ID, SUM(RS_SIZE) AS DB_FILES_BYTES
         FROM rs_property_files
         GROUP BY RS_CLIENT_ID
     ) AS f_total ON f_total.RS_CLIENT_ID = c.RS_ID
-    -- Tamaño de imágenes por cliente
     LEFT JOIN (
         SELECT RS_CLIENT_ID, SUM(RS_SIZE) AS DB_IMAGES_BYTES
         FROM rs_property_images
@@ -86,6 +81,3 @@ BEGIN
     ON DUPLICATE KEY UPDATE
         DB_FILES_BYTES = VALUES(DB_FILES_BYTES),
         DB_IMAGES_BYTES = VALUES(DB_IMAGES_BYTES);
-END$$
-
-DELIMITER ;
