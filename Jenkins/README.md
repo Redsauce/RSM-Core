@@ -16,7 +16,7 @@ The SCM type will be **Git**, and the repository URL should be:
 https://github.com/Redsauce/RSM-Core/tree/develop/jenkins.git
 ```
 
-The branch is */main, and most importantly, to select which folder to use, you must specify it in the **"Script Path"** field. There you’ll enter the path to the Jenkinsfile, including its directory, for example:
+The branch is */develop, and most importantly, to select which folder to use, you must specify it in the **"Script Path"** field. There you’ll enter the path to the Jenkinsfile, including its directory, for example:
 ```
 Website Monitor pipeline/Jenkinsfile
 ```
