@@ -9,9 +9,9 @@ decode_html() {
 }
 
 # Check environment variables or parameters
-DB_NAME=${DBNAME:-$1}
-DB_USER=${DBUSERNAME:-$2}
-DB_PASS=${DBPASSWORD}
+DB_NAME=${RSMDBNAME:-$1}
+DB_USER=${RSMDBUSERNAME:-$2}
+DB_PASS=${RSMDBPASSWORD}
 
 # Validate user is provided
 if [ -z "$DB_USER" ]; then
