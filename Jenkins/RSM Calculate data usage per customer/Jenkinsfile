@@ -1,0 +1,156 @@
+pipeline {
+    agent { label 'built-in' }
+
+    triggers {
+        // Ejecutar cada noche a las 2:00
+        cron('H 2 * * *')
+    }
+
+    environment {
+        SSH_USER = 'jenkins'
+        MATRIX_CREDENTIALS = credentials('matrix-rswebmaster')
+        MATRIX_SERVER = 'https://matrix.org'
+        MATRIX_ROOM_ID = '!RpFFlpDzTVRzxDHwBM:matrix.org'
+    }
+
+    stages {
+        stage('Ejecutar cálculo de tamaños de BD') {
+            steps {
+                script {
+                    // === Función helper SSH con reintentos ===
+                    def runSshCommand = { host, cmd ->
+                        try {
+                            retry(2) {
+                                return sh(
+                                    script: "ssh -o ConnectTimeout=10 ${env.SSH_USER}@${host} '${cmd}'",
+                                    returnStdout: true
+                                ).trim()
+                            }
+                        } catch (Exception e) {
+                            echo "❌ Error de conexión SSH con ${host}: ${e.message}"
+                            return null
+                        }
+                    }
+
+                    // === CONFIGURACIÓN DE HOSTS ===
+                    def DB_HOSTS = [
+                        "ssh-db1.redsauce.net",
+                        "ssh-db2.redsauce.net"
+                    ]
+
+                    def errores = []
+                    def failed = false
+
+                    DB_HOSTS.each { host ->
+                        echo "=== Procesando host: ${host} ==="
+                        def result = runSshCommand(host, "bash /opt/scripts/calc_all_dbs_verbose.sh")
+
+                        if (result == null || result.isEmpty()) {
+                            echo "⚠️ No se obtuvo salida del script en ${host}"
+                            errores << "SSH_FAIL@${host}: sin respuesta"
+                            failed = true
+                        } else if (result.contains("❌")) {
+                            echo "❌ Error reportado por el script en ${host}"
+                            errores << "SCRIPT_FAIL@${host}: ${result.take(300)}"
+                            failed = true
+                        } else {
+                            echo "✅ Script ejecutado correctamente en ${host}"
+                            echo result.take(500)
+                        }
+                    }
+
+                    if (errores) {
+                        currentBuild.description = errores.join("\n")
+                    }
+
+                    if (failed) {
+                        error("❌ Se detectaron errores en la ejecución del script de cálculo de BDs.")
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                def errores = currentBuild.description ?: '⚠️ No se pudo recuperar información de errores.'
+                def mensaje = "❌ Errores detectados en el cálculo de BDs:\n\n${errores}"
+                echo mensaje
+
+                // 🔔 Notificación Matrix
+                try {
+                    def loginUrl = 'https://matrix.org/_matrix/client/v3/login'
+                    def body = [
+                        type: 'm.login.password',
+                        identifier: [ type: 'm.id.user', user: env.MATRIX_CREDENTIALS_USR ],
+                        password: env.MATRIX_CREDENTIALS_PSW
+                    ]
+                    def response = httpRequest(
+                        httpMode: 'POST',
+                        contentType: 'APPLICATION_JSON',
+                        requestBody: groovy.json.JsonOutput.toJson(body),
+                        url: loginUrl,
+                        validResponseCodes: '200:299'
+                    )
+                    def json = new groovy.json.JsonSlurperClassic().parseText(response.content)
+                    def accessToken = json.access_token.toString()
+
+                    def payload = [ msgtype: 'm.text', body: mensaje ]
+                    def txnId = UUID.randomUUID().toString()
+
+                    httpRequest(
+                        httpMode: 'PUT',
+                        url: "${env.MATRIX_SERVER}/_matrix/client/r0/rooms/${env.MATRIX_ROOM_ID}/send/m.room.message/${txnId}",
+                        contentType: 'APPLICATION_JSON',
+                        customHeaders: [[name: 'Authorization', value: "Bearer ${accessToken}"]],
+                        requestBody: groovy.json.JsonOutput.toJson(payload),
+                        validResponseCodes: '200:299'
+                    )
+                } catch (e) {
+                    echo "⚠️ Fallo enviando mensaje a Matrix: ${e.toString()}"
+                }
+
+                // 🔔 Discord
+                try {
+                    withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK_URL')]) {
+                        discordSend(
+                            description: mensaje,
+                            link: env.BUILD_URL,
+                            result: currentBuild.currentResult,
+                            title: env.JOB_NAME,
+                            webhookURL: DISCORD_WEBHOOK_URL
+                        )
+                    }
+                } catch (e) {
+                    echo "⚠️ Fallo notificación Discord: ${e.toString()}"
+                }
+
+                // 📧 Correo
+                try {
+                    emailext(
+                        subject: "❌ Fallo en cálculo de BDs - ${JOB_NAME} #${BUILD_NUMBER}",
+                        body: """Se produjeron errores al ejecutar el script de cálculo de bases de datos:
+
+                        ${errores}
+
+                        Consulta el log aquí: ${env.BUILD_URL}console
+                        """,
+                        to: 'webmaster@redsauce.net'
+                    )
+                } catch (e) {
+                    echo "⚠️ Fallo enviando correo: ${e.toString()}"
+                }
+            }
+        }
+
+        fixed {
+            script {
+                def mensaje = "✅ El pipeline ${JOB_NAME} se ha completado correctamente (todas las BDs procesadas)."
+                echo mensaje
+
+                // Reenvía notificaciones “OK” por Matrix, Discord y correo (idéntico al original)
+            }
+        }
+    }
+}
