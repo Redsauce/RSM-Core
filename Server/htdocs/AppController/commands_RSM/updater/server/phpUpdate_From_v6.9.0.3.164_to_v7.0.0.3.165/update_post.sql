@@ -42,7 +42,7 @@ REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
 	VALUES (48,'event.language.python',16);
 
 # Create a table to track client data
-CREATE TABLE rs_client_stats (
+CREATE TABLE IF NOT EXISTS rs_client_stats (
     RS_CLIENT_ID INT NOT NULL,
     STAT_DATE DATE NOT NULL,
     DB_DATA_BYTES BIGINT UNSIGNED NOT NULL DEFAULT 0, 
