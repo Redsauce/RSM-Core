@@ -27,7 +27,7 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 	VALUES (491,'invoice.client.identifier',38,'Text used to locate the invoice in the relationships window.','text');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (492,'invoice.client.serie',38,'Indicates the type of invoice series, such as standard invoice, corrective invoice, etc.','text');
+	VALUES (492,'invoice.client.series',38,'Indicates the type of invoice series, such as standard invoice, corrective invoice, etc.','text');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE,RS_REFERRED_ITEMTYPE)
 	VALUES (493,'invoice.client.relatedInvoice',38,'References the original invoice that is being corrected by the current one.','identifier',38);
