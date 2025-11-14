@@ -35,7 +35,9 @@
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
-checkCorrectRequestMethod('GET');
+
+// Todo: Uncomment once the Xojo ANdroid SDK can do requests with GET verb
+//checkCorrectRequestMethod('GET');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
@@ -50,11 +52,11 @@ $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 // Params
-$propertyIDs    = $requestBody->propertyIDs;
-$filterRules    = $requestBody->filterRules;
-$extFilterRules = $requestBody->extFilterRules;
-$originalIDs    = $requestBody->IDs;
-$itemTypeID     = $requestBody->itemTypeID;
+$propertyIDs          = $requestBody->propertyIDs;
+$filterRules          = $requestBody->filterRules;
+$extFilterRules       = $requestBody->extFilterRules;
+$originalIDs          = $requestBody->IDs;
+$itemTypeID           = $requestBody->itemTypeID;
 
 // includeCategories filter
 $includeCategories = false;
@@ -71,7 +73,10 @@ if (isset($requestBody->translateIDs) && $requestBody->translateIDs) {
 // itemTypeID
 if ($itemTypeID == '') {
   $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+} else {
+  $itemTypeID = ParseITID($itemTypeID, $clientID);
 }
+
 
 if ($itemTypeID <= 0) {
   $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID) : returnJsonMessage(400, '');
@@ -81,12 +86,14 @@ if ($itemTypeID <= 0) {
 if ($propertyIDs == '') {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
+
 // IDs
 if (is_array($originalIDs)) {
   $IDs = implode(',', $originalIDs);
 } else {
   $IDs = $originalIDs;
 }
+
 
 // Build an array with the filterRules
 $filterProperties = array();
@@ -107,13 +114,12 @@ if (is_array($propertyIDs)) {
   }
 }
 
-
 // Build a string with the extFilterRules
 $formattedExtFilterRules = '';
 if (is_array($extFilterRules) && !empty(($extFilterRules))) {
   foreach ($extFilterRules as $singleRule) {
     // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . ($singleRule->value) . ';' . $singleRule->operation . ',';
+    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ';' . base64_encode($singleRule->path) . ",";
   }
   $formattedExtFilterRules = trim($formattedExtFilterRules, ',');
 }
@@ -124,6 +130,7 @@ $responseArray = array();
 
 // To construct the response, we have to verify if the includecategories filter is true
 if ($includeCategories) {
+
   // obtain all the corresponding properties and its categories
   $categorizedProperties = getPropertiesExtendedForToken($itemTypeID, $RStoken, $visiblePropertyIDs);
   // parse all the different items of the original response
@@ -145,13 +152,66 @@ if ($includeCategories) {
     array_push($responseArray, $combinedArray);
   }
 } else {
-  // Parse itemsArray into a JSON.
-  foreach ($itemsArray as $item) {
-    $combinedArray = array();
-    foreach ($item as $propertyKey => $propertyValue) {
-      $combinedArray[$propertyKey] = html_entity_decode($propertyValue);
+
+  $responseArray = [];
+
+  // The $itemsArray response may come either as a path to a temporary file or as an array
+
+  // CASE A: Path to an existing file
+  if (is_string($itemsArray) && file_exists($itemsArray)) {   
+    $xml = simplexml_load_file($itemsArray, "SimpleXMLElement", LIBXML_NOCDATA);
+
+    if ($xml !== false) {
+
+      foreach ($xml->rows->row as $row) {
+        $combinedArray = [];
+        foreach ($row->column as $column) {
+          $columnName = (string) $column['name'];
+          $propertyValue = (string) $column;
+          $combinedArray[$columnName] = html_entity_decode($propertyValue);
+        }
+        // We append the processed row array to our final response.
+        $responseArray[] = $combinedArray;
+      }
+    } else {
+      error_log("Error parsing the XML file from path: " . $itemsArray);
     }
-    array_push($responseArray, $combinedArray);
+  }
+
+  // CASE B: Array with already structured data
+  else {
+
+    // Maps the properties provided by the client to the corresponding property ID
+    // We want to preserve the property names exactly as sent by the client
+    $propertyIDsDictionary = array();
+    if (is_array($propertyIDs)) {
+      foreach ($propertyIDs as $rawPropertyID) {
+        $rawPropertyID = trim($rawPropertyID);
+
+        if ($rawPropertyID === '') {
+          continue;
+        }
+
+        if (is_numeric($rawPropertyID)) {
+          $propertyIDsDictionary[(string) $rawPropertyID] = (string) $rawPropertyID;
+        } else {
+          $tempSystemProperty = getPropertyIDs_usingSysName(array($rawPropertyID), $clientID);
+          $propertyIDsDictionary[$tempSystemProperty[0]["ID"]] = $tempSystemProperty[0]["appName"];
+        }
+      }
+    }
+
+    // We only iterate to apply html_entity_decode
+    foreach ($itemsArray as $item) {
+      $decodedItem = [];
+      foreach ($item as $key => $value) {
+        // Resolve output key using the previous mapping, if available
+        $resolvedKey = isset($propertyIDsDictionary[(string)$key]) ? $propertyIDsDictionary[(string)$key] : $key;
+        $decodedItem[$resolvedKey] = is_string($value) ? html_entity_decode($value) : $value;
+      }
+      // We append the decoded row array to our final response.
+      $responseArray[] = $decodedItem;
+    }
   }
 }
 
