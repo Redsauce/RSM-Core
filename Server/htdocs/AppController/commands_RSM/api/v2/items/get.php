@@ -58,6 +58,7 @@ $extFilterRules       = $requestBody->extFilterRules;
 $originalIDs          = $requestBody->IDs;
 $itemTypeID           = $requestBody->itemTypeID;
 
+
 // includeCategories filter
 $includeCategories = false;
 if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
@@ -70,13 +71,19 @@ if (isset($requestBody->translateIDs) && $requestBody->translateIDs) {
   $translateIDs = true;
 }
 
-// itemTypeID
+// systemNames
+$systemNames = false;
+if (isset($requestBody->systemNames) && $requestBody->systemNames) {
+  $systemNames = true;
+}
+
+// itemTypeID. Ignore systemNames if we don't use de itemTypeID
 if ($itemTypeID == '') {
   $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+  $systemNames = false;
 } else {
   $itemTypeID = ParseITID($itemTypeID, $clientID);
 }
-
 
 if ($itemTypeID <= 0) {
   $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID) : returnJsonMessage(400, '');
@@ -93,7 +100,6 @@ if (is_array($originalIDs)) {
 } else {
   $IDs = $originalIDs;
 }
-
 
 // Build an array with the filterRules
 $filterProperties = array();
@@ -207,6 +213,33 @@ if ($includeCategories) {
       foreach ($item as $key => $value) {
         // Resolve output key using the previous mapping, if available
         $resolvedKey = isset($propertyIDsDictionary[(string)$key]) ? $propertyIDsDictionary[(string)$key] : $key;
+
+        // If systemNames is true, get the system name directly and use it if not empty
+        if ($systemNames) {
+
+          $keyString = (string)$key;
+          $keyWithoutTrs = $keyString;
+          $hasTrs = false;
+          
+          // Check if key ends with "trs"
+          if (substr($keyString, -3) === 'trs') {
+            $keyWithoutTrs = substr($keyString, 0, -3);
+            $hasTrs = true;
+          }
+          
+          $systemName = getAppPropertyName_RelatedWith($keyWithoutTrs, $clientID);
+          
+          // If key had "trs", add it back to the system name
+          if ($hasTrs && $systemName !== '') {
+            $systemName = $systemName . 'trs';
+          }        
+          
+          if ($systemName !== '') {
+            $resolvedKey = $systemName;
+          }
+
+        }
+
         $decodedItem[$resolvedKey] = is_string($value) ? html_entity_decode($value) : $value;
       }
       // We append the decoded row array to our final response.
