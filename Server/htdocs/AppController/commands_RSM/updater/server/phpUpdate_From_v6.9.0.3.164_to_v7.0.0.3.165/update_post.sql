@@ -23,6 +23,16 @@ REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESC
 REPLACE INTO rs_property_app_definitions (RS_ID, RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (490,'eventInclude.language',27,'Include''s programming language','text');
 
+REPLACE INTO rs_lists_app (RS_ID,RS_NAME)
+	VALUES (16,'event.language');
+
+REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
+	VALUES (47,'event.language.xojoscript',16);
+
+REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
+	VALUES (48,'event.language.python',16);
+
+# Create properties for invoice client wich will be used by Veri*factu
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (491,'invoice.client.identifier',38,'Text used to locate the invoice in the relationships window.','text');
 
@@ -32,14 +42,31 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE,RS_REFERRED_ITEMTYPE)
 	VALUES (493,'invoice.client.relatedInvoice',38,'References the original invoice that is being corrected by the current one.','identifier',38);
 
-REPLACE INTO rs_lists_app (RS_ID,RS_NAME)
-	VALUES (16,'event.language');
 
-REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
-	VALUES (47,'event.language.xojoscript',16);
+# Create the item type and properties for invoice client concepts
+REPLACE INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
+	VALUES (70,'invoice.client.concept');
 
-REPLACE INTO rs_lists_values_app (RS_ID,RS_VALUE,RS_LIST_APP_ID)
-	VALUES (48,'event.language.python',16);
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (494,'invoice.client.concept.base',70,'Base price of the item on the issued invoice','float');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (495,'invoice.client.concept.vat',70,'VAT percentage applied to the item on the issued invoice','float');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (496,'invoice.client.concept.retention',70,'Withholding percentage applied to the item on the issued invoice','float');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (497,'invoice.client.concept.quantity',70,'Product quantity used to calculate the total price of the item','float');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (498,'invoice.client.concept.showPrice',70,'Indicate whether the item should be included in the invoice calculation.','text');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (499,'invoice.client.concept.invoiceID',70,'Indicate the invoice to which the item belongs.','identifier');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (500,'invoice.client.concept.discount',70,'Specify the discount rate to be applied to the invoice line.','float');
 
 # Create a table to track client data
 CREATE TABLE IF NOT EXISTS rs_client_stats (
