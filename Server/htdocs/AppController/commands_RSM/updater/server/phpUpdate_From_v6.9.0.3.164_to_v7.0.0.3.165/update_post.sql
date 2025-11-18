@@ -68,6 +68,21 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (500,'invoice.client.concept.discount',70,'Specify the discount rate to be applied to the invoice line.','float');
 
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (501,'invoice.client.verifactuSentDate',70,'Stores the date and time when the record was sent to Verifactu.','datetime');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (502,'invoice.client.verifactuSent',70,'Stores the XML sent to Verifactu.','longtext');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (503,'invoice.client.verifactuResponse',70,'Stores the response received from Verifactu.','longtext');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (504,'invoice.client.verifactuOwnFingerprint',70,'Stores the fingerprint of the invoice sent to Verifactu.','text');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (505,'invoice.client.verifactuPreviousFingerprint',70,'Stores the fingerprint of the previous invoice.','text');
+
 # Create a table to track client data
 CREATE TABLE IF NOT EXISTS rs_client_stats (
     RS_CLIENT_ID INT NOT NULL,
