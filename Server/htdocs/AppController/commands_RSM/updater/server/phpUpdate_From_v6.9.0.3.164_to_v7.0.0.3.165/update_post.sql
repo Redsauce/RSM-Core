@@ -50,3 +50,10 @@ CREATE TABLE IF NOT EXISTS rs_client_stats (
     DB_IMAGES_BYTES BIGINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (RS_CLIENT_ID, STAT_DATE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+# Create extra columns to allow the incoming connection to be redirected
+# to a different database if needed
+ALTER TABLE rsm1_dev.rs_clients 
+ADD IF NOT EXISTS RS_DB_NAME varchar(255) NULL,
+ADD IF NOT EXISTS RS_DB_USER varchar(255) NULL,
+ADD IF NOT EXISTS RS_DB_PASSWORD varchar(255) NULL;
