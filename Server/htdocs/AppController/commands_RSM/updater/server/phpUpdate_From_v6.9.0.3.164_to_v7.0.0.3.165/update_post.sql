@@ -57,6 +57,9 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (505,'invoice.client.verifactuPreviousFingerprint',38,'Stores the fingerprint of the previous invoice.','text');
 
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (506,'invoice.client.revisoEmmitedRef',38,'Stores the reference of emmited invoice in Reviso.','text');
+
 # Create the item type and properties for invoice client concepts
 REPLACE INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
 	VALUES (70,'invoice.client.concept');
