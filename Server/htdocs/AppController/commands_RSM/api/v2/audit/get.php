@@ -11,24 +11,27 @@
 //***************************************************************************************
 
 require_once "../../../utilities/RStools.php";
+require_once "../../../utilities/RSMverifyBody.php";
+
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
-require_once "../../../utilities/RSMverifyBody.php";
 
 // definitions and validations
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
-$clientID = getClientID();
-$RSuserID =  getRSuserID();
+
+$RStoken  = getRStoken();
+$clientID = RSclientFromToken(RStoken: $RStoken);
+$RSuserID = getRSuserID();
 
 //Params
 $propertyID = $requestBody->propertyID;
 $ID = $requestBody->ID;
 
-if ((!RShasREADTokenPermission(getRStoken(), $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
     if ($RSallowDebug) {
         returnJsonMessage(403, "Token has no permissions to audit this item");
     } else {

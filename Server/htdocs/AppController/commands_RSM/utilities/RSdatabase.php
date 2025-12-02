@@ -26,18 +26,90 @@ foreach ($_POST as $key => $value) {
     $GLOBALS[$cstRS_POST][$key] = str_replace($search, $replace, $value);
 }
 
+
 // Variables used to track the amount of items created / modified / deleted
 $RSMcreatedItemIDs = array();
 $RSMupdatedItemIDs = array();
 $RSMdeletedItemIDs = array();
 
 // Connect to the database using the above settings
+// Enable mysqli exceptions (makes error handling in RSQuery and other places consistent)
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 $mysqli = new mysqli($RShost, $RSuser, $RSpassword, $RSdatabase);
+
+// Ensure a UTF-8 capable charset (prefer utf8mb4). Fallback to utf8 if necessary.
+if (isset($mysqli) && is_object($mysqli)) {
+    // suppress warnings during charset negotiation; if it fails, it's non-fatal here
+    if (!@ $mysqli->set_charset('utf8mb4')) {
+        @ $mysqli->set_charset('utf8');
+    }
+}
+
 if ($mysqli->connect_errno) {
     RSReturnError("CANNOT CONNECT TO DATABASE SERVER", -1);
 }
 
+global $cstClientID;
+global $cstRS_POST;
+global $RStoken;
+
+// If clientID not provided but RStoken exists, try to infer clientID from the token
+// (must run after $mysqli is available because RSclientFromToken uses RSQuery)
+if ((!isset($GLOBALS[$cstRS_POST][$cstClientID]) || $GLOBALS[$cstRS_POST][$cstClientID] == '') && isset($GLOBALS[$cstRS_POST][$RStoken]) && $GLOBALS[$cstRS_POST][$RStoken] != '') {
+    if (!function_exists('RSclientFromToken')) {
+        require_once 'RSMtokensManagement.php';
+    }
+    $inferredClient = RSclientFromToken($GLOBALS[$cstRS_POST][$RStoken]);
+    if ($inferredClient && $inferredClient > 0) {
+        $GLOBALS[$cstRS_POST][$cstClientID] = intval($inferredClient);
+    }
+}
+
+// If a client-specific database is configured in rs_clients, prefer it over the default DB
+// The clientID is expected in the sanitized $GLOBALS[$cstRS_POST][$cstClientID]
+if (isset($GLOBALS[$cstRS_POST][$cstClientID]) && $GLOBALS[$cstRS_POST][$cstClientID] > 0) {
+    try {
+        $stmt = $mysqli->prepare('SELECT RS_DB_NAME, RS_DB_USER, RS_DB_PASSWORD FROM rs_clients WHERE RS_ID = ? LIMIT 1');
+        if ($stmt) {
+            $stmt->bind_param('i', $GLOBALS[$cstRS_POST][$cstClientID]);
+            $stmt->execute();
+            $stmt->bind_result($clientDbName, $clientDbUser, $clientDbPass);
+            $stmt->fetch();
+            $stmt->close();
+
+            // If any of the client DB fields is set (non-empty), attempt to connect using them
+            if ((!is_null($clientDbName) && $clientDbName !== '') || (!is_null($clientDbUser) && $clientDbUser !== '') || (!is_null($clientDbPass) && $clientDbPass !== '')) {
+                // fill missing values from default configuration
+                $targetDb   = ($clientDbName !== '' ? $clientDbName : $RSdatabase);
+                $targetUser = ($clientDbUser !== '' ? $clientDbUser : $RSuser);
+                $targetPass = ($clientDbPass !== '' ? $clientDbPass : $RSpassword);
+
+                try {
+                    // try to connect to the client-specific DB using same host
+                    $clientMysqli = new mysqli($RShost, $targetUser, $targetPass, $targetDb);
+                    // negotiate charset on new connection
+                    if (!@ $clientMysqli->set_charset('utf8mb4')) {
+                        @ $clientMysqli->set_charset('utf8');
+                    }
+
+                    // Replace the global connection with the client-specific one
+                    @$mysqli->close();
+                    $mysqli = $clientMysqli;
+                } catch (mysqli_sql_exception $e) {
+                    // keep original connection and log for debugging
+                    error_log('RSdatabase: failed to connect to DB ' . $targetDb . ' for clientID ' . $GLOBALS[$cstRS_POST][$cstClientID] . '. Error: ' . $e->getMessage() . '\n');
+                }
+            }
+        }
+    } catch (mysqli_sql_exception $e) {
+        // If something goes wrong querying rs_clients, log and continue with default connection
+        error_log('RSdatabase: failed to read rs_clients for clientID ' . $GLOBALS[$cstRS_POST][$cstClientID] . '. Error: ' . $e->getMessage());
+    }
+}
+
 // Check database compatibility and user permisions
+// Now that $mysqli is available, run security checks which may depend on DB access
 if (!isset($RSUpdatingProcess)) {
     require_once "RSsecurityCheck.php";
 }
@@ -840,5 +912,3 @@ function removeTmpFile($fileName, $prefix = "RSR") {
         }
     }
 }
-
-?>

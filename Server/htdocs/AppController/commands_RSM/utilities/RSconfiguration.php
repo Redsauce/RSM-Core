@@ -37,6 +37,7 @@ $RSblowfishKey = '{RSMBLOWFISHKEY}';
 $cstCDATAseparator       = ']]]]><![CDATA[>';
 $cstRSsendUncompressed   = 'RSsendUncompressed';
 $cstClientID             = 'clientID';
+$cstRStoken              = 'RStoken';
 $cstMainPropertyID       = 'mainPropertyID';
 $cstMainPropertyType     = 'mainPropertyType';
 $cstReferredItemTypeID   = 'referredItemTypeID';
