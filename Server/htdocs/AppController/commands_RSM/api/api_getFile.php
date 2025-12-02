@@ -28,10 +28,10 @@ require_once "../utilities/RSMtokensManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
 require_once "./api_headers.php";
 
-isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]["clientID"  ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["itemID"    ]) ? $itemID     = $GLOBALS["RS_GET" ]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET" ]["propertyID"] : dieWithError(400);
-isset($GLOBALS["RS_GET" ]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_GET" ]["RStoken"   ] : $RStoken = "";
+isset($GLOBALS["RS_GET" ][$cstRStoken   ]) ? $RStoken    = $GLOBALS["RS_GET" ][$cstRStoken   ] : $RStoken = "";
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);

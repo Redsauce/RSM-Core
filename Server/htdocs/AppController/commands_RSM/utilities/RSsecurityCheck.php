@@ -30,31 +30,31 @@ require_once "RSMtokensManagement.php";
 
 $RSuserID =  0; // By default there is not a defined user
 
-if (isset($GLOBALS['RS_GET']['r'])) {
+if (isset($GLOBALS[$cstRS_GET]['r'])) {
 	// The 'r' parameter is used to request data from RSM using GET
 	// The idea is to encrypt the request so the user can't alter it to get more data or other files
 	// So instead of (for example) imageID=5 in the URL, we send a single encrypter r parameter
 	// That can be decrypted here, replacing the Global GET variables
-	$encryptedData = pack("H*", $GLOBALS['RS_GET']['r']);
+	$encryptedData = pack("H*", $GLOBALS[$cstRS_GET]['r']);
 	$decryptedData = openssl_decrypt($encryptedData, 'bf-ecb', $RSblowfishKey, OPENSSL_RAW_DATA);
 	$parameters    = explode("&", rtrim($decryptedData, "\x05"));
 
 	foreach ($parameters as $parameter) {
 		$parameter = explode("=", $parameter);
-		$GLOBALS['RS_GET'][$parameter[0]] = $parameter[1];
+		$GLOBALS[$cstRS_GET][$parameter[0]] = $parameter[1];
 	}
 
-    unset($GLOBALS['RS_GET']['r']);
+	unset($GLOBALS[$cstRS_GET]['r']);
 }
 
 // If a clientID is given...
-if (isset($GLOBALS['RS_POST']['clientID'])) {
+if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
 	// and a token is given too...
 	$RSuserID = RSCheckUserAccess();
 
-	if (isset($GLOBALS['RS_POST']['RStoken'])) {
+	if (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
 		// validates if their associated clients match.
-		if ($GLOBALS['RS_POST']['clientID'] != RSClientFromToken($GLOBALS['RS_POST']['RStoken'])) RSReturnError("ACCESS DENIED", -3);
+		if ($GLOBALS[$cstRS_POST][$cstClientID] != RSClientFromToken($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -3);
 
 	} else {
 		// We don't have a token so validate user permissions
@@ -62,15 +62,15 @@ if (isset($GLOBALS['RS_POST']['clientID'])) {
 		if ($RSuserID == 0) RSReturnError("ACCESS DENIED", -5);
 	}
 
-} elseif (isset($GLOBALS['RS_POST']['RStoken'])) {
+} elseif (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
 	// If we don't have a clientID, validates if there is a valid token sent through POST
-	$GLOBALS['RS_POST']['clientID'] = RSClientFromToken($GLOBALS['RS_POST']['RStoken']);
-	if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -6);
+	$GLOBALS[$cstRS_POST][$cstClientID] = RSClientFromToken($GLOBALS[$cstRS_POST][$cstRStoken]);
+	if ($GLOBALS[$cstRS_POST][$cstClientID] <= 0) RSReturnError("ACCESS DENIED", -6);
 
-} elseif (isset($GLOBALS['RS_GET']['RStoken'])) {
-    // If we don't have a clientID, validates if there is a valid token sent through GET
-    $GLOBALS['RS_POST']['clientID'] = RSClientFromToken($GLOBALS['RS_GET']['RStoken']);
-    if ($GLOBALS['RS_POST']['clientID'] <= 0) RSReturnError("ACCESS DENIED", -7);
+} elseif (isset($GLOBALS[$cstRS_GET][$cstRStoken])) {
+	// If we don't have a clientID, validates if there is a valid token sent through GET
+	$GLOBALS[$cstRS_POST][$cstClientID] = RSClientFromToken($GLOBALS[$cstRS_GET][$cstRStoken]);
+	if ($GLOBALS[$cstRS_POST][$cstClientID] <= 0) RSReturnError("ACCESS DENIED", -7);
 
 } else {
 	// By default we check if the database is compatible

@@ -17,15 +17,15 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Capture the variables needed for this script to work
-isset($GLOBALS["RS_POST"]["clientID"        ]) ? $clientID         = $GLOBALS["RS_POST"]["clientID"        ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemType"        ]) ? $itemType         = $GLOBALS["RS_POST"]["itemType"        ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterProperty"  ]) ? $filterProperty   = $GLOBALS["RS_POST"]["filterProperty"  ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterPropertyID"]) ? $filterPropertyID = $GLOBALS["RS_POST"]["filterPropertyID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["RStoken"         ]) ? $RStoken          = $GLOBALS["RS_POST"]["RStoken"         ] : $RStoken     = '';
+isset($GLOBALS[$cstRS_POST]["clientID"        ]) ? $clientID         = $GLOBALS[$cstRS_POST]["clientID"        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["itemType"        ]) ? $itemType         = $GLOBALS[$cstRS_POST]["itemType"        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["filterProperty"  ]) ? $filterProperty   = $GLOBALS[$cstRS_POST]["filterProperty"  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["filterPropertyID"]) ? $filterPropertyID = $GLOBALS[$cstRS_POST]["filterPropertyID"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken          = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken     = '';
 
 $translateIDs = true;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-      if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+if (isset($GLOBALS[$cstRS_POST]['translateIDs'])) {
+	if ($GLOBALS[$cstRS_POST]['translateIDs'] == "true") $translateIDs = true;
 }
 
 $properties   = array();

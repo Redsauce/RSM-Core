@@ -16,10 +16,10 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemIDs'   ]) ? $itemIDs    = $GLOBALS['RS_POST']['itemIDs'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken'   ]) ? $RStoken    = $GLOBALS['RS_POST']['RStoken'   ] : $Rstoken = "";
+isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemTypeID']) ? $itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemIDs'   ]) ? $itemIDs    = $GLOBALS[$cstRS_POST]['itemIDs'   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $Rstoken = "";
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
 

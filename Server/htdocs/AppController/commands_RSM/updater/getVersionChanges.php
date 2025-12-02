@@ -22,10 +22,10 @@ require_once "../utilities/RSMmodulesManagement.php";
 require_once "../utilities/RStools.php";
 require_once "getVersionFunctions.php";
 
-isset($GLOBALS['RS_POST']['clientID'    ]) ? $clientID     = $GLOBALS['RS_POST']['clientID'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['startVersion']) ? $startVersion = $GLOBALS['RS_POST']['startVersion'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['endVersion'  ]) ? $endVersion   = $GLOBALS['RS_POST']['endVersion'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSlanguage'  ]) ? $lang         = $GLOBALS['RS_POST']['RSlanguage'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID    ]) ? $clientID     = $GLOBALS[$cstRS_POST][$cstClientID    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['startVersion']) ? $startVersion = $GLOBALS[$cstRS_POST]['startVersion'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['endVersion'  ]) ? $endVersion   = $GLOBALS[$cstRS_POST]['endVersion'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSlanguage'  ]) ? $lang         = $GLOBALS[$cstRS_POST]['RSlanguage'  ] : dieWithError(400);
 
 $result       = array();
 

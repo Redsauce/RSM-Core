@@ -7,7 +7,7 @@ $replace = array("" , ""  );
 
 foreach ($_GET as $key => $value) $GLOBALS["RS_GET"][$key] = str_replace($search, $replace, $value);
 
-$token = isset($GLOBALS["RS_GET"]["RStoken"])? $GLOBALS["RS_GET"]["RStoken"] : dieWithError(400); // No token, no way
+$token = isset($GLOBALS["RS_GET"][$cstRStoken])? $GLOBALS["RS_GET"][$cstRStoken] : dieWithError(400); // No token, no way
 $tema  = isset($GLOBALS["RS_GET"]["feed"   ])? $GLOBALS["RS_GET"]["feed"   ] :    "";
 $pIDs  = isset($GLOBALS["RS_GET"]["pIDs"   ])? $GLOBALS["RS_GET"]["pIDs"   ] :    "";
 $tema  = isset($GLOBALS["RS_GET"]["title"  ])? $GLOBALS["RS_GET"]["title"  ] :    $tema;

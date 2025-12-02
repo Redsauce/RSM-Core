@@ -5,10 +5,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$wsID = $GLOBALS['RS_POST']['worksessionID'];
-$startDate = $GLOBALS['RS_POST']['startDate'];
-$duration = $GLOBALS['RS_POST']['duration'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$wsID = $GLOBALS[$cstRS_POST]['worksessionID'];
+$startDate = $GLOBALS[$cstRS_POST]['startDate'];
+$duration = $GLOBALS[$cstRS_POST]['duration'];
 //new switch for updating parend dates if necessary
 $updateTaskDates = 1;
 

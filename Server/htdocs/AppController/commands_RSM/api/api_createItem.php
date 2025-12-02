@@ -19,9 +19,9 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSdata'  ]) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken' ]) ? $RStoken  = $GLOBALS['RS_POST']['RStoken' ] : $Rstoken = "";
+isset($GLOBALS[$cstRS_POST]['clientID']) ? $clientID = $GLOBALS[$cstRS_POST]['clientID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSdata'  ]) ? $RSdata   = $GLOBALS[$cstRS_POST]['RSdata'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken  = $GLOBALS[$cstRS_POST][$cstRStoken] : $Rstoken = "";
 
 $chainValues  = array();
 $propertiesID = array();

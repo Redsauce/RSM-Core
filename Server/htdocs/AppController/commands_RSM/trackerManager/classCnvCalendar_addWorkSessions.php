@@ -9,11 +9,11 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['userID'      ]) ? $user      = $GLOBALS['RS_POST']['userID'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['startDate'   ]) ? $startDate = $GLOBALS['RS_POST']['startDate'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['duration'    ]) ? $duration  = $GLOBALS['RS_POST']['duration'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentTaskID']) ? $task      = $GLOBALS['RS_POST']['parentTaskID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['clientID'    ]) ? $clientID  = $GLOBALS['RS_POST']['clientID'    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['userID'      ]) ? $user      = $GLOBALS[$cstRS_POST]['userID'      ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['startDate'   ]) ? $startDate = $GLOBALS[$cstRS_POST]['startDate'   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['duration'    ]) ? $duration  = $GLOBALS[$cstRS_POST]['duration'    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentTaskID']) ? $task      = $GLOBALS[$cstRS_POST]['parentTaskID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'    ]) ? $clientID  = $GLOBALS[$cstRS_POST]['clientID'    ] : dieWithError(400);
 
 //new switch for updating parent dates if necessary
 $updateTaskDates = 1;
@@ -209,7 +209,7 @@ if ($updateTaskDates == 1) {
 // Build results array
 $results['result'       ] = "OK";
 $results['workSessionID'] = $workSessionID;
-$results['internalID'   ] = $GLOBALS['RS_POST']['internalID'];
+$results['internalID'   ] = $GLOBALS[$cstRS_POST]['internalID'];
 //$results['taskID'] = $task;
 
 // And write XML Response back to the application

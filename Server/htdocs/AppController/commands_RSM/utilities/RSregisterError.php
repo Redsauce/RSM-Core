@@ -3,9 +3,9 @@
 require_once "RSdatabase.php";
 
 // Definitions
-$url    = base64_decode($GLOBALS['RS_POST']['url'   ]);
-$post   = base64_decode($GLOBALS['RS_POST']['post'  ]);
-$result = base64_decode($GLOBALS['RS_POST']['result']);
+$url    = base64_decode($GLOBALS[$cstRS_POST]['url'   ]);
+$post   = base64_decode($GLOBALS[$cstRS_POST]['post'  ]);
+$result = base64_decode($GLOBALS[$cstRS_POST]['result']);
 
 $query = "INSERT INTO `rs_error_log` (`RS_DATE`,`RS_URL`,`RS_POST`,`RS_RESULT`) VALUES (NOW(),'".$mysqli->real_escape_string($url)."','".$mysqli->real_escape_string($post)."','".$mysqli->real_escape_string($result)."')";
 

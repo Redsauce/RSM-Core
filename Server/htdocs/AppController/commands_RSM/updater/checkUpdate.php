@@ -6,8 +6,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSvalidationFunctions.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS['RS_POST']['RSappName' ]) ? $RSappName  = $GLOBALS['RS_POST']['RSappName' ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSplatform']) ? $RSplatform = $GLOBALS['RS_POST']['RSplatform'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSappName' ]) ? $RSappName  = $GLOBALS[$cstRS_POST]['RSappName' ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSplatform']) ? $RSplatform = $GLOBALS[$cstRS_POST]['RSplatform'] : dieWithError(400);
 
 
 // ServiceMode, si está definido, no importa el valor, ha de mostrar todas las versiones publicadas y no publicadas, caso contrario sólo las publicadas

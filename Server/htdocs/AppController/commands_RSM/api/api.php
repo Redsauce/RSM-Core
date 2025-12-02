@@ -12,9 +12,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 require_once "../utilities/RSMeventsManagement.php";
 
-isset($GLOBALS['RS_POST']['RSdata'   ]) ? $RSdata    = $GLOBALS['RS_POST']['RSdata'   ] : $RSdata = "";
-isset($GLOBALS['RS_POST']['RStrigger']) ? $RStrigger = $GLOBALS['RS_POST']['RStrigger'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken'  ]) ? $RStoken   = $GLOBALS['RS_POST']['RStoken'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSdata'   ]) ? $RSdata    = $GLOBALS[$cstRS_POST]['RSdata'   ] : $RSdata = "";
+isset($GLOBALS[$cstRS_POST]['RStrigger']) ? $RStrigger = $GLOBALS[$cstRS_POST]['RStrigger'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken   = $GLOBALS[$cstRS_POST][$cstRStoken] : dieWithError(400);
 
 // Check for an empty trigger
 if ($RStrigger == "") dieWithError(400);

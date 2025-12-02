@@ -25,12 +25,12 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Definitions
-isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemTypeID"     ]) ? $itemTypeID      = $GLOBALS["RS_POST"]["itemTypeID"     ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"    ] : $filterRules     = "";
-isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
-isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
+isset($GLOBALS[$cstRS_POST]["clientID"       ]) ? $clientID        = $GLOBALS[$cstRS_POST]["clientID"       ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["itemTypeID"     ]) ? $itemTypeID      = $GLOBALS[$cstRS_POST]["itemTypeID"     ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["filterRules"    ]) ? $filterRules     = $GLOBALS[$cstRS_POST]["filterRules"    ] : $filterRules     = "";
+isset($GLOBALS[$cstRS_POST]["filterJoining"  ]) ? $filterJoining   = $GLOBALS[$cstRS_POST]["filterJoining"  ] : $filterJoining   = "AND";
+isset($GLOBALS[$cstRS_POST]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS[$cstRS_POST]["extFilterRules" ] : $extFilterRules  = "";
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken         = "";
 
 // Construct filterProperties using a double explode
 $rules = array();

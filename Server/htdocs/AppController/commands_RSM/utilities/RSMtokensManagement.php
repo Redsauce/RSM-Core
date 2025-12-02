@@ -184,7 +184,7 @@ function RShasTokenPermission($RStoken, $propertyId, $permission) {
 	$tokenID = RSgetTokenID($RStoken);
 
 	// If the user needs a translated value related with itemTypes, we will see if the user has access to the translated main property of that itemtype
-    if ((isset($GLOBALS['RS_POST']['translateIDs'])) && ($GLOBALS['RS_POST']['translateIDs'] == "true")) {
+	if ((isset($GLOBALS[$cstRS_POST]['translateIDs'])) && ($GLOBALS[$cstRS_POST]['translateIDs'] == "true")) {
         $propertyType = getPropertyType($propertyId, RSclientFromToken($RStoken));
         if ($propertyType == "identifier" || $propertyType == "identifiers"){
             //Get the main property of the referred itemtype

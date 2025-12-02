@@ -8,10 +8,10 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Check the variables
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyID']) ? $propertyID = $GLOBALS['RS_POST']['propertyID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken'   ]) ? $RStoken    = $GLOBALS['RS_POST']['RStoken'   ] : $RStoken = "";
+isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemID'    ]) ? $itemID     = $GLOBALS[$cstRS_POST]['itemID'    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['propertyID']) ? $propertyID = $GLOBALS[$cstRS_POST]['propertyID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken = "";
 
 $results = array();
 

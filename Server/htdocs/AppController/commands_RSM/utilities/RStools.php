@@ -574,8 +574,9 @@ function setAuthorizationTokenOnGlobals()
     // The RFC2616 standard defines that header fields must be case-insensitive. We convert the keys of the header array to lowercase before using them.
     $lowerKeysHeaders = array_change_key_case(getallheaders());
 
+    global $cstRS_POST, $cstRStoken;
     if (isset($lowerKeysHeaders["authorization"])) {
-        $GLOBALS['RS_POST']['RStoken'] = $lowerKeysHeaders["authorization"];
+        $GLOBALS[$cstRS_POST][$cstRStoken] = $lowerKeysHeaders["authorization"];
     }
 }
 
@@ -635,8 +636,8 @@ function getClientID()
 {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) {
-        return $GLOBALS['RS_POST']['clientID'];
+    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
+        return $GLOBALS[$cstRS_POST]['clientID'];
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");
@@ -652,8 +653,10 @@ function getRStoken()
 {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RS_POST']['RStoken'])) {
-        return $GLOBALS['RS_POST']['RStoken'];
+    global $cstRS_POST, $cstRStoken;
+
+    if (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
+        return $GLOBALS[$cstRS_POST][$cstRStoken];
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "RStoken could not be retrieved");

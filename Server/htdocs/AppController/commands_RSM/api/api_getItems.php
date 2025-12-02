@@ -29,16 +29,16 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // Definitions
-isset($GLOBALS["RS_POST"]["clientID"       ]) ? $clientID        = $GLOBALS["RS_POST"]["clientID"       ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["propertyIDs"    ]) ? $pIDs            = $GLOBALS["RS_POST"]["propertyIDs"    ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["filterRules"    ]) ? $filterRules     = $GLOBALS["RS_POST"]["filterRules"    ] : $filterRules     = "";
-isset($GLOBALS["RS_POST"]["filterJoining"  ]) ? $filterJoining   = $GLOBALS["RS_POST"]["filterJoining"  ] : $filterJoining   = "AND";
-isset($GLOBALS["RS_POST"]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS["RS_POST"]["extFilterRules" ] : $extFilterRules  = "";
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : $RStoken         = "";
-isset($GLOBALS["RS_POST"]["limit"          ]) ? $limit           = $GLOBALS["RS_POST"]["limit"          ] : $limit           = "";
-isset($GLOBALS["RS_POST"]["IDs"            ]) ? $IDs             = $GLOBALS['RS_POST']['IDs'            ] : $IDs             = "";
-isset($GLOBALS["RS_POST"]["orderBy"        ]) ? $orderBy         = $GLOBALS['RS_POST']['orderBy'        ] : $orderBy         = "";
-isset($GLOBALS["RS_POST"]["orderPropertyID"]) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
+isset($GLOBALS[$cstRS_POST]["clientID"       ]) ? $clientID        = $GLOBALS[$cstRS_POST]["clientID"       ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["propertyIDs"    ]) ? $pIDs            = $GLOBALS[$cstRS_POST]["propertyIDs"    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["filterRules"    ]) ? $filterRules     = $GLOBALS[$cstRS_POST]["filterRules"    ] : $filterRules     = "";
+isset($GLOBALS[$cstRS_POST]["filterJoining"  ]) ? $filterJoining   = $GLOBALS[$cstRS_POST]["filterJoining"  ] : $filterJoining   = "AND";
+isset($GLOBALS[$cstRS_POST]["extFilterRules" ]) ? $extFilterRules  = $GLOBALS[$cstRS_POST]["extFilterRules" ] : $extFilterRules  = "";
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken         = "";
+isset($GLOBALS[$cstRS_POST]["limit"          ]) ? $limit           = $GLOBALS[$cstRS_POST]["limit"          ] : $limit           = "";
+isset($GLOBALS[$cstRS_POST]["IDs"            ]) ? $IDs             = $GLOBALS[$cstRS_POST]['IDs'            ] : $IDs             = "";
+isset($GLOBALS[$cstRS_POST]["orderBy"        ]) ? $orderBy         = $GLOBALS[$cstRS_POST]['orderBy'        ] : $orderBy         = "";
+isset($GLOBALS[$cstRS_POST]["orderPropertyID"]) ? $orderPropertyID = $GLOBALS[$cstRS_POST]['orderPropertyID'] : $orderPropertyID = "";
 
 // Don't allow empty properties to be specified
 if (strpos($pIDs, ",,") !== false) {
@@ -53,7 +53,7 @@ if ($limit != "") {
 }
 
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs']) && $GLOBALS['RS_POST']['translateIDs'] == "true") {
+if (isset($GLOBALS[$cstRS_POST]['translateIDs']) && $GLOBALS[$cstRS_POST]['translateIDs'] == "true") {
     $translateIDs = true;
 }
 

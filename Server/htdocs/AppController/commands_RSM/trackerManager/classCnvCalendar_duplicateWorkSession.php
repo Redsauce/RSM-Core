@@ -16,10 +16,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'     ]) ? $clientID = $GLOBALS['RS_POST']['clientID'     ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['worksessionID']) ? $wsID     = $GLOBALS['RS_POST']['worksessionID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['endDate'      ]) ? $endDate  = $GLOBALS['RS_POST']['endDate'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['days'         ]) ? $days     = $GLOBALS['RS_POST']['days'         ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'     ]) ? $clientID = $GLOBALS[$cstRS_POST]['clientID'     ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['worksessionID']) ? $wsID     = $GLOBALS[$cstRS_POST]['worksessionID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['endDate'      ]) ? $endDate  = $GLOBALS[$cstRS_POST]['endDate'      ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['days'         ]) ? $days     = $GLOBALS[$cstRS_POST]['days'         ] : dieWithError(400);
 
 //new switch for updating parend dates if necessary
 $updateTaskDates = 1;

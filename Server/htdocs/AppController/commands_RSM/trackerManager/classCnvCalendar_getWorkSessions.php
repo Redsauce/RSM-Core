@@ -3,10 +3,10 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$user      = $GLOBALS['RS_POST']['userID'];
-$startDate = $GLOBALS['RS_POST']['startDate'];
-$endDate   = $GLOBALS['RS_POST']['endDate'];
-$clientID  = $GLOBALS['RS_POST']['clientID'];
+$user      = $GLOBALS[$cstRS_POST]['userID'];
+$startDate = $GLOBALS[$cstRS_POST]['startDate'];
+$endDate   = $GLOBALS[$cstRS_POST]['endDate'];
+$clientID  = $GLOBALS[$cstRS_POST][$cstClientID];
 
 
 // get worksessions item type

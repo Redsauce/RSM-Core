@@ -10,8 +10,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-$wsID     = $GLOBALS['RS_POST']['workSessionID'];
-$clientID = $GLOBALS['RS_POST']['clientID'     ];
+$wsID     = $GLOBALS[$cstRS_POST]['workSessionID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'     ];
 
 //new switch for updating parent dates if necessary
 $updateTaskDates = 1;
