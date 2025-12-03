@@ -85,6 +85,26 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (500,'invoice.client.concept.discount',70,'Specify the discount rate to be applied to the invoice line.','float');
 
+# Create the item type for certificates
+INSERT INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
+	VALUES (71,'certificate')
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (507,'certificate.content',71,'Stores the content of the certificate','longtext');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (508,'certificate.privateKey',71,'Stores the private key of the certificate','longtext');
+
+# Create properties for crmAccounts
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (509,'crmAccounts.legalName',59,'Stores the legal name of the account','text');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (510,'crmAccounts.vatNumber',59,'Stores the VAT number of the account','text');
+
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (511,'crmAccounts.taxScope',59,'Stores the tax scope of the account','text');
+
 
 # Create a table to track client data
 CREATE TABLE IF NOT EXISTS rs_client_stats (
