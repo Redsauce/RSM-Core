@@ -43,22 +43,22 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 	VALUES (493,'invoice.client.relatedInvoice',38,'References the original invoice that is being corrected by the current one.','identifier',38);
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (501,'invoice.client.verifactuSentDate',38,'Stores the date and time when the record was sent to Verifactu.','datetime');
+	VALUES (501,'invoice.client.verifactu.sentDate',38,'Stores the date and time when the record was sent to Verifactu.','datetime');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (502,'invoice.client.verifactuSentXML',38,'Stores the XML sent to Verifactu.','longtext');
+	VALUES (502,'invoice.client.verifactu.sentXML',38,'Stores the XML sent to Verifactu.','longtext');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (503,'invoice.client.verifactuResponse',38,'Stores the response received from Verifactu.','longtext');
+	VALUES (503,'invoice.client.verifactu.response',38,'Stores the response received from Verifactu.','longtext');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (504,'invoice.client.verifactuOwnFingerprint',38,'Stores the fingerprint of the invoice sent to Verifactu.','text');
+	VALUES (504,'invoice.client.verifactu.ownFingerprint',38,'Stores the fingerprint of the invoice sent to Verifactu.','text');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (505,'invoice.client.verifactuPreviousFingerprint',38,'Stores the fingerprint of the previous invoice.','text');
+	VALUES (505,'invoice.client.verifactu.previousFingerprint',38,'Stores the fingerprint of the previous invoice.','text');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (506,'invoice.client.revisoEmmitedRef',38,'Stores the reference of emmited invoice in Reviso.','text');
+	VALUES (506,'invoice.client.accounting.reference',38,'Stores the reference of emmited invoice in external Accounting software.','text');
 
 # Create the item type and properties for invoice client concepts
 REPLACE INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
