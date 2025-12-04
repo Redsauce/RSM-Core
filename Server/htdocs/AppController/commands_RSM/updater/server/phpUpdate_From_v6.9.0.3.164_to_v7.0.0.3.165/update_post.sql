@@ -86,7 +86,7 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 	VALUES (500,'invoice.client.concept.discount',70,'Specify the discount rate to be applied to the invoice line.','float');
 
 # Create the item type for certificates
-INSERT INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
+REPLACE INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
 	VALUES (71,'certificate');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
