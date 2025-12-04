@@ -5,12 +5,12 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMdefinitions.php";
 require_once "../utilities/RSMbadgesManagement.php";
 
-isset($GLOBALS['RS_POST']['password']) ? $password = $GLOBALS['RS_POST']['password'] : $password = "";
-isset($GLOBALS['RS_POST']['badge'   ]) ? $badge    = base64_decode($GLOBALS['RS_POST']['badge']) : $badge = RScreateBadge($GLOBALS['RS_POST']['clientID']);
-$login    = base64_decode($GLOBALS['RS_POST']['login']);
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$userID   = $GLOBALS['RS_POST']['userID'  ];
-$staffID  = $GLOBALS['RS_POST']['staffID' ];
+isset($GLOBALS[$cstRS_POST][$cstPassword]) ? $password = $GLOBALS[$cstRS_POST][$cstPassword] : $password = "";
+isset($GLOBALS[$cstRS_POST][$cstBadge]   ) ? $badge    = base64_decode($GLOBALS[$cstRS_POST][$cstBadge]) : $badge = RScreateBadge($GLOBALS[$cstRS_POST][$cstClientID]);
+$login    = base64_decode($GLOBALS[$cstRS_POST][$cstLogin]);
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$userID   = $GLOBALS[$cstRS_POST][$cstUserID];
+$staffID  = $GLOBALS[$cstRS_POST][$cstStaffID];
 
 
 // Check that the received clientID is a valid number

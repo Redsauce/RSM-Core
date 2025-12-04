@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$valueID = $GLOBALS['RS_POST']['valueID'];
-$appValueID = $GLOBALS['RS_POST']['appValueID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$valueID = $GLOBALS[$cstRS_POST]['valueID'];
+$appValueID = $GLOBALS[$cstRS_POST]['appValueID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
 
 createListsValuesRelationship($valueID, $appValueID, $clientID);
 

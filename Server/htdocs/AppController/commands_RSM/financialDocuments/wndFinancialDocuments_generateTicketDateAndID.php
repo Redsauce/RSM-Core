@@ -4,8 +4,8 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID' ]) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['ticketID' ]) ? $ticketID = $GLOBALS['RS_POST']['ticketID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID' ]) ? $clientID = $GLOBALS[$cstRS_POST]['clientID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['ticketID' ]) ? $ticketID = $GLOBALS[$cstRS_POST]['ticketID'] : dieWithError(400);
 
 $RSuserID   = RSCheckUserAccess();
 

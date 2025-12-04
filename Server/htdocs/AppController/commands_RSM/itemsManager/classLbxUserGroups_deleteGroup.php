@@ -3,10 +3,10 @@
 require_once "../utilities/RSdatabase.php";
 
 //First of all, we need to check if the variable clientID does not have the value 0
-if ($GLOBALS['RS_POST']['clientID'] != 0)
+if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 	{
 	  	//We check if the group exists into the client
-		$theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_GROUP_ID ='".$GLOBALS['RS_POST']['groupID']."' AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+		$theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_GROUP_ID ='".$GLOBALS[$cstRS_POST][$cstGroupID]."' AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
 		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery_groupValidation;
 
@@ -16,12 +16,12 @@ if ($GLOBALS['RS_POST']['clientID'] != 0)
 			{
 
 				// delete group relationships
-				$result = RSQuery('DELETE FROM rs_users_groups WHERE RS_CLIENT_ID = '.$GLOBALS['RS_POST']['clientID'].' AND RS_GROUP_ID = '.$GLOBALS['RS_POST']['groupID']);
+				$result = RSQuery('DELETE FROM rs_users_groups WHERE RS_CLIENT_ID = '.$GLOBALS[$cstRS_POST][$cstClientID].' AND RS_GROUP_ID = '.$GLOBALS[$cstRS_POST][$cstGroupID]);
 
-				$result = RSQuery('DELETE FROM rs_actions_groups WHERE RS_CLIENT_ID = '.$GLOBALS['RS_POST']['clientID'].' AND RS_GROUP_ID = '.$GLOBALS['RS_POST']['groupID']);
+				$result = RSQuery('DELETE FROM rs_actions_groups WHERE RS_CLIENT_ID = '.$GLOBALS[$cstRS_POST][$cstClientID].' AND RS_GROUP_ID = '.$GLOBALS[$cstRS_POST][$cstGroupID]);
 
 				// delete group
-				$theQuery = "DELETE FROM rs_groups WHERE RS_GROUP_ID=".$GLOBALS['RS_POST']['groupID']." AND RS_CLIENT_ID=".$GLOBALS['RS_POST']['clientID'];
+				$theQuery = "DELETE FROM rs_groups WHERE RS_GROUP_ID=".$GLOBALS[$cstRS_POST][$cstGroupID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
 				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
 				$result = RSQuery($theQuery);

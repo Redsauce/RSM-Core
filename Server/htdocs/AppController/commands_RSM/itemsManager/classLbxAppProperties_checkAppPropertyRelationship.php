@@ -4,7 +4,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Now we build the query
-$result = getClientPropertyName_RelatedWith($GLOBALS['RS_POST']['propertyAppID'], $GLOBALS['RS_POST']['clientID']);
+$result = getClientPropertyName_RelatedWith($GLOBALS[$cstRS_POST]['propertyAppID'], $GLOBALS[$cstRS_POST]['clientID']);
 
 $response = array();
 $response['propertyClientName'] = $result;

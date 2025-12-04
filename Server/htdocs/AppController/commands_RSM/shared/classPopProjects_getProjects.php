@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$onlyOpen = $GLOBALS['RS_POST']['onlyOpen'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$onlyOpen = $GLOBALS[$cstRS_POST]['onlyOpen'];
 
 // get the item type and the main value
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['projects'], $clientID);

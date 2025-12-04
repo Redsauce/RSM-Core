@@ -5,10 +5,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$userID = $GLOBALS['RS_POST']['userID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
-$subAccountID = $GLOBALS['RS_POST']['subAccountID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$userID = $GLOBALS[$cstRS_POST]['userID'];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
+$subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
 
 
 // get concepts item type

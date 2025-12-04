@@ -9,18 +9,19 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 require_once '../utilities/RStools.php';
 
-isset($GLOBALS['RS_POST']['clientID'                             ]) ? $clientID                              = $GLOBALS['RS_POST']['clientID'                             ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyListID'                       ]) ? $listID                                = $GLOBALS['RS_POST']['propertyListID'                       ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyID'                           ]) ? $propertyID                            = $GLOBALS['RS_POST']['propertyID'                           ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyName'                         ]) ? $propertyName            = base64_decode($GLOBALS['RS_POST']['propertyName'                        ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyDescription'                  ]) ? $propertyDescription     = base64_decode($GLOBALS['RS_POST']['propertyDescription'                 ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyMultiVal'                     ]) ? $propertyMultiValue                    = $GLOBALS['RS_POST']['propertyMultiVal'                     ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['updatePrevious'                       ]) ? $updatePrevious                        = $GLOBALS['RS_POST']['updatePrevious'                       ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyAuditTrail'                   ]) ? $propertyAuditTrail                    = $GLOBALS['RS_POST']['propertyAuditTrail'                   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyAuditTrailDescriptionRequired']) ? $propertyAuditTrailDescriptionRequired = $GLOBALS['RS_POST']['propertyAuditTrailDescriptionRequired'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['confirmDuplicated'                    ]) ? $confirmDuplicated                     = $GLOBALS['RS_POST']['confirmDuplicated'                    ] : dieWithError(400);
-(isset($GLOBALS['RS_POST']['avoidDuplication']) && $GLOBALS['RS_POST']['avoidDuplication'] == 1) ? $avoidDuplicateProperty = 1 : $avoidDuplicateProperty = 0;
-(isset($GLOBALS['RS_POST']['searchable'      ]) && $GLOBALS['RS_POST']['searchable'      ] == 0) ? $isSearchableProperty   = 0 : $isSearchableProperty =   1;
+
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyListID]) ? $listID = $GLOBALS[$cstRS_POST][$cstPropertyListID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyID]) ? $propertyID = $GLOBALS[$cstRS_POST][$cstPropertyID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyName]) ? $propertyName = base64_decode($GLOBALS[$cstRS_POST][$cstPropertyName]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyDescription]) ? $propertyDescription = base64_decode($GLOBALS[$cstRS_POST][$cstPropertyDescription]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyMultiVal]) ? $propertyMultiValue = $GLOBALS[$cstRS_POST][$cstPropertyMultiVal] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstUpdatePrevious]) ? $updatePrevious = $GLOBALS[$cstRS_POST][$cstUpdatePrevious] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyAuditTrail]) ? $propertyAuditTrail = $GLOBALS[$cstRS_POST][$cstPropertyAuditTrail] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyAuditTrailDescriptionRequired]) ? $propertyAuditTrailDescriptionRequired = $GLOBALS[$cstRS_POST][$cstPropertyAuditTrailDescriptionRequired] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstConfirmDuplicated]) ? $confirmDuplicated = $GLOBALS[$cstRS_POST][$cstConfirmDuplicated] : dieWithError(400);
+(isset($GLOBALS[$cstRS_POST][$cstAvoidDuplication]) && $GLOBALS[$cstRS_POST][$cstAvoidDuplication] == 1) ? $avoidDuplicateProperty = 1 : $avoidDuplicateProperty = 0;
+(isset($GLOBALS[$cstRS_POST][$cstSearchable]) && $GLOBALS[$cstRS_POST][$cstSearchable] == 0) ? $isSearchableProperty = 0 : $isSearchableProperty = 1;
 
 // get the item type
 $itemTypeID = getClientPropertyItemType($propertyID, $clientID);
@@ -45,7 +46,7 @@ if($confirmDuplicated != '1'){
 $propertyType = getPropertyType($propertyID, $clientID);
 
 // check default value match property type and set to type default value otherwise
-$propertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $propertyType);
+$propertyDefaultValue = checkType(base64_decode($GLOBALS[$cstRS_POST]['propertyDefaultVal']), $propertyType);
 
 // save the previous property default value
 $propertyPrevDefValue = getClientPropertyDefaultValue($propertyID, $clientID);

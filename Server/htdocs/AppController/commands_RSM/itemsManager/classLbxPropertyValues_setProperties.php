@@ -9,9 +9,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID    = $GLOBALS['RS_POST']['clientID'   ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID' ]) ? $itemTypeID  = $GLOBALS['RS_POST']['itemTypeID' ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'     ]) ? $itemID      = $GLOBALS['RS_POST']['itemID'     ]  : dieWithError(400);
+
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemID]) ? $itemID = $GLOBALS[$cstRS_POST][$cstItemID] : dieWithError(400);
 
 $err = 1;
 
@@ -20,11 +21,11 @@ $err = 1;
 $itemTypeID = parseITID($itemTypeID, $clientID);
 
 // update item properties
-for ($i = 0; isset($GLOBALS['RS_POST']['propertyID' . $i]); $i++) {
-    $propertyID = $GLOBALS['RS_POST']['propertyID' . $i];
-    isset($GLOBALS['RS_POST']['propertyType' . $i]) ? $propertyType    = $GLOBALS['RS_POST']['propertyType' . $i]  : dieWithError(400);
-    isset($GLOBALS['RS_POST']['data'         . $i]) ? $propertyData    = $GLOBALS['RS_POST']['data'         . $i]  : dieWithError(400);
-    isset($GLOBALS['RS_POST']['name'         . $i]) ? $propertyName    = $GLOBALS['RS_POST']['name'         . $i]  : $propertyName = '';
+for ($i = 0; isset($GLOBALS[$cstRS_POST]['propertyID' . $i]); $i++) {
+    $propertyID = $GLOBALS[$cstRS_POST]['propertyID' . $i];
+    isset($GLOBALS[$cstRS_POST]['propertyType' . $i]) ? $propertyType    = $GLOBALS[$cstRS_POST]['propertyType' . $i]  : dieWithError(400);
+    isset($GLOBALS[$cstRS_POST]['data'         . $i]) ? $propertyData    = $GLOBALS[$cstRS_POST]['data'         . $i]  : dieWithError(400);
+    isset($GLOBALS[$cstRS_POST]['name'         . $i]) ? $propertyName    = $GLOBALS[$cstRS_POST]['name'         . $i]  : $propertyName = '';
 
     if ($propertyType != 'image' && $propertyType != 'file') {
         if ($propertyType == 'float') {

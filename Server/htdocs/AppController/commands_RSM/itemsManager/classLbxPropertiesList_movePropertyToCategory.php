@@ -9,9 +9,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Variables
-$propertyID = $GLOBALS['RS_POST']['propertyID' ];
-$categoryID = $GLOBALS['RS_POST']['categoryID' ];
-$clientID   = $GLOBALS['RS_POST']['clientID'   ];
+
+$propertyID = $GLOBALS[$cstRS_POST][$cstPropertyID];
+$categoryID = $GLOBALS[$cstRS_POST][$cstCategoryID];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
 
 // We need to check if the user has permissions for accessing to the property
 if (isPropertyVisible($RSuserID, $propertyID, $clientID)){

@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
 
 // get the operations item type
 $operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
@@ -52,7 +52,7 @@ if (count($operationConcepts) > 0) {
 // --- INSERT NEW CONCEPTS ---
 $conceptNames = array();
 
-for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
+for ($i = 0; isset($GLOBALS[$cstRS_POST]['concept'.$i]); $i++) {
 	
 	// initialize properties values array for the new concept
 	$propertiesValues = array();
@@ -64,7 +64,7 @@ for ($i = 0; isset($GLOBALS['RS_POST']['concept'.$i]); $i++) {
 	);
 	
 	// get concept passed properties
-	$properties = explode(' ', $GLOBALS['RS_POST']['concept'.$i]);
+	$properties = explode(' ', $GLOBALS[$cstRS_POST]['concept'.$i]);
 	
 	foreach ($properties as $property) {
 		// get property name and value

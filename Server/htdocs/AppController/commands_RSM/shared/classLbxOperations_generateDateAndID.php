@@ -10,9 +10,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$accountID = $GLOBALS['RS_POST']['accountID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$accountID = $GLOBALS[$cstRS_POST]['accountID'];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
 
 // get the item types
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);

@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["login"   ]) ? $login    = $GLOBALS["RS_POST"]["login"   ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["password"]) ? $password = $GLOBALS["RS_POST"]['password'] : $password = "";
+isset($GLOBALS[$cstRS_POST]["clientID"]) ? $clientID = $GLOBALS[$cstRS_POST]["clientID"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["login"   ]) ? $login    = $GLOBALS[$cstRS_POST]["login"   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["password"]) ? $password = $GLOBALS[$cstRS_POST]['password'] : $password = "";
 
 if ($password === "") {
     // Verification with a badge

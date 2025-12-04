@@ -11,21 +11,22 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'                             ]) ? $clientID                                 = $GLOBALS['RS_POST']['clientID'                             ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['categoryID'                           ]) ? $categoryID                               = $GLOBALS['RS_POST']['categoryID'                           ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyName'                         ]) ? $newPropertyName            = base64_decode($GLOBALS['RS_POST']['propertyName'                        ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyDescription'                  ]) ? $newPropertyDescription     = base64_decode($GLOBALS['RS_POST']['propertyDescription'                 ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyAuditTrail'                   ]) ? $newPropertyAuditTrail                    = $GLOBALS['RS_POST']['propertyAuditTrail'                   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyAuditTrailDescriptionRequired']) ? $newPropertyAuditTrailDescriptionRequired = $GLOBALS['RS_POST']['propertyAuditTrailDescriptionRequired'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['confirmDuplicated'                    ]) ? $confirmDuplicated                        = $GLOBALS['RS_POST']['confirmDuplicated'                    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['avoidDuplication'                     ]) ? $avoidDuplicateProperty                   = $GLOBALS['RS_POST']['avoidDuplication'                     ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['searchable'                           ]) ? $isSearchableProperty                     = $GLOBALS['RS_POST']['searchable'                           ] : $isSearchableProperty = '1';
 
-$type = explode(';', $GLOBALS['RS_POST']['propertyType']);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstCategoryID]) ? $categoryID = $GLOBALS[$cstRS_POST][$cstCategoryID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyName]) ? $newPropertyName = base64_decode($GLOBALS[$cstRS_POST][$cstPropertyName]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyDescription]) ? $newPropertyDescription = base64_decode($GLOBALS[$cstRS_POST][$cstPropertyDescription]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyAuditTrail]) ? $newPropertyAuditTrail = $GLOBALS[$cstRS_POST][$cstPropertyAuditTrail] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyAuditTrailDescriptionRequired]) ? $newPropertyAuditTrailDescriptionRequired = $GLOBALS[$cstRS_POST][$cstPropertyAuditTrailDescriptionRequired] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstConfirmDuplicated]) ? $confirmDuplicated = $GLOBALS[$cstRS_POST][$cstConfirmDuplicated] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstAvoidDuplication]) ? $avoidDuplicateProperty = $GLOBALS[$cstRS_POST][$cstAvoidDuplication] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstSearchable]) ? $isSearchableProperty = $GLOBALS[$cstRS_POST][$cstSearchable] : $isSearchableProperty = '1';
+
+$type = explode(';', $GLOBALS[$cstRS_POST][$cstPropertyType]);
 $newPropertyType = $type[0];
 
 // check default value match property type and set to type default value otherwise
-$newPropertyDefaultValue = checkType(base64_decode($GLOBALS['RS_POST']['propertyDefaultVal']), $newPropertyType);
+$newPropertyDefaultValue = checkType(base64_decode($GLOBALS[$cstRS_POST][$cstPropertyDefaultVal]), $newPropertyType);
 
 if ($clientID != '0' && $categoryID != '0') {
 	// get the item type
@@ -48,8 +49,8 @@ if ($clientID != '0' && $categoryID != '0') {
 			}
 		}
 
-		$newPropertyID = getNextIdentification('rs_item_properties', 'RS_PROPERTY_ID', $GLOBALS['RS_POST']['clientID']);
-		$newPropertyOrder = getGenericNext('rs_item_properties', 'RS_ORDER', array('RS_CLIENT_ID' => $GLOBALS['RS_POST']['clientID'], 'RS_CATEGORY_ID' => $GLOBALS['RS_POST']['categoryID']));
+		$newPropertyID = getNextIdentification('rs_item_properties', 'RS_PROPERTY_ID', $GLOBALS[$cstRS_POST]['clientID']);
+		$newPropertyOrder = getGenericNext('rs_item_properties', 'RS_ORDER', array('RS_CLIENT_ID' => $GLOBALS[$cstRS_POST]['clientID'], 'RS_CATEGORY_ID' => $GLOBALS[$cstRS_POST]['categoryID']));
 
 		if ((isSingleIdentifier($newPropertyType) || isMultiIdentifier($newPropertyType)) && (count($type) > 1)) {
 			$referredItemType = $type[1];
@@ -68,13 +69,13 @@ if ($clientID != '0' && $categoryID != '0') {
 		if ($result) {
 
 			// check if a list for the property was sent
-			if ($GLOBALS['RS_POST']['propertyListID'] != '0') {
+			if ($GLOBALS[$cstRS_POST]['propertyListID'] != '0') {
 
 				// build the associate list query
 				$theQuery = 'INSERT INTO rs_properties_lists '.
 								'(RS_PROPERTY_ID, RS_LIST_ID, RS_CLIENT_ID, RS_MULTIVALUES) '.
 							'VALUES '.
-							 	'('.$newPropertyID.','.$GLOBALS['RS_POST']['propertyListID'].','.$clientID.','.$GLOBALS['RS_POST']['propertyMultiVal'].')';
+							 	'('.$newPropertyID.','.$GLOBALS[$cstRS_POST]['propertyListID'].','.$clientID.','.$GLOBALS[$cstRS_POST]['propertyMultiVal'].')';
 
 				// execute the query
 				$result = RSQuery($theQuery);

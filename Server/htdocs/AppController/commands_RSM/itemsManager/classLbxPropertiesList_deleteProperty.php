@@ -3,8 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$propertyID = $GLOBALS['RS_POST']['propertyID'];
+
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$propertyID = $GLOBALS[$cstRS_POST][$cstPropertyID];
 
 deleteClientProperty($propertyID, $clientID);
 

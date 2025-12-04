@@ -3,7 +3,7 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 // Now we build the query
 $theQuery = 'SELECT rs_actions_clients.RS_ID AS "actionID", rs_actions.RS_NAME AS "actionName", rs_actions.RS_CONFIGURATION_ITEMTYPE, rs_actions_clients.RS_CONFIGURATION_ITEM_ID FROM rs_actions INNER JOIN rs_actions_clients ON rs_actions.RS_ID = rs_actions_clients.RS_ACTION_ID WHERE rs_actions_clients.RS_CLIENT_ID = '.$clientID.' ORDER BY rs_actions.RS_NAME';

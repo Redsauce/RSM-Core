@@ -4,21 +4,21 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID'        ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'        ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID'      ]) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'      ] : dieWithErrow(400);
-isset($GLOBALS['RS_POST']['parentID'        ]) ? $parentID   = $GLOBALS['RS_POST']['parentID'        ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentPropertyID']) ? $parentPID  = $GLOBALS['RS_POST']['parentPropertyID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'        ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemTypeID'      ]) ? $itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'      ] : dieWithErrow(400);
+isset($GLOBALS[$cstRS_POST]['parentID'        ]) ? $parentID   = $GLOBALS[$cstRS_POST]['parentID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentPropertyID']) ? $parentPID  = $GLOBALS[$cstRS_POST]['parentPropertyID'] : dieWithError(400);
 
-$filterID = (($GLOBALS['RS_POST']['filterID'] == "") ? ("0") : ($GLOBALS['RS_POST']['filterID']));
+$filterID = (($GLOBALS[$cstRS_POST]['filterID'] == "") ? ("0") : ($GLOBALS[$cstRS_POST]['filterID']));
 
 $allowedItemTypes = array();
-if (isset($GLOBALS['RS_POST']['allowedItemTypeIDs'])) {
-    if ($GLOBALS['RS_POST']['allowedItemTypeIDs'] != 0) { 
-        $allowedItemTypes = explode(",", $GLOBALS['RS_POST']['allowedItemTypeIDs']);
+if (isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) {
+    if ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != 0) { 
+        $allowedItemTypes = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']);
     }
 } 
 
-//$additionalProperties = $GLOBALS['RS_POST']['additionalProperties'];
+//$additionalProperties = $GLOBALS[$cstRS_POST]['additionalProperties'];
 
 if ($clientID != 0 && $clientID != "") {
     if ($itemTypeID != 0 && $itemTypeID != "") {

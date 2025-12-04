@@ -11,12 +11,12 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operation_1 = $GLOBALS['RS_POST']['operation_1'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$operation_1 = $GLOBALS[$cstRS_POST]['operation_1'];
 // a statement
-$operation_2 = $GLOBALS['RS_POST']['operation_2'];
+$operation_2 = $GLOBALS[$cstRS_POST]['operation_2'];
 // an invoice
-$resetPayDate = $GLOBALS['RS_POST']['resetPayDate'];
+$resetPayDate = $GLOBALS[$cstRS_POST]['resetPayDate'];
 
 // get the operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);

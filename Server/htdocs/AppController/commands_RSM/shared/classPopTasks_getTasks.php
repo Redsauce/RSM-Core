@@ -4,7 +4,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
 
 // get the item type and the main value
 $itemTypeID = getClientItemTypeID_RelatedWith(getAppItemTypeIDByName($definitions['tasks']), $clientID);

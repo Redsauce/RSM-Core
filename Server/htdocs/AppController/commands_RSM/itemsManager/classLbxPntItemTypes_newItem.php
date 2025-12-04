@@ -4,10 +4,11 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID           = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID         = $GLOBALS['RS_POST']['itemTypeID'];
-$pointerPropertyIDs = explode(',', $GLOBALS['RS_POST']['pointerPropertyIDs']);
-$pointerItemID      = $GLOBALS['RS_POST']['pointerItemID'];
+
+$clientID           = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID         = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$pointerPropertyIDs = explode(',', $GLOBALS[$cstRS_POST][$cstPointerPropertyIDs]);
+$pointerItemID      = $GLOBALS[$cstRS_POST][$cstPointerItemID];
 
 // create the item
 $itemID = createItem($itemTypeID, $clientID);

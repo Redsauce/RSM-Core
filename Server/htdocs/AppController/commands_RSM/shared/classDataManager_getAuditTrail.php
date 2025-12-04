@@ -5,9 +5,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['propertyID']) ? $propertyID = $GLOBALS['RS_POST']['propertyID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemID'    ]) ? $itemID     = $GLOBALS[$cstRS_POST]['itemID'    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['propertyID']) ? $propertyID = $GLOBALS[$cstRS_POST]['propertyID'] : dieWithError(400);
 
 $propertyID = parsePID($propertyID, $clientID);
 

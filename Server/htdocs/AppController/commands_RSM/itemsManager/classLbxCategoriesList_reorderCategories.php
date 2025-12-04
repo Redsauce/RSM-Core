@@ -3,12 +3,12 @@
 require_once "../utilities/RSdatabase.php";
 
 // init arrays with comma separated posted values
-$idList = explode(',', $GLOBALS['RS_POST']['ids']);
+$idList = explode(',', $GLOBALS[$cstRS_POST]['ids']);
 
 
 for ($i = 0; $i < count($idList); $i++) {
 	// reorder the element
-	$theQuery = 'UPDATE rs_categories SET RS_ORDER = '.($i+1).' WHERE (RS_CATEGORY_ID = '.$idList[$i].' AND RS_CLIENT_ID = '. $GLOBALS['RS_POST']['clientID'].')';
+	$theQuery = 'UPDATE rs_categories SET RS_ORDER = '.($i+1).' WHERE (RS_CATEGORY_ID = '.$idList[$i].' AND RS_CLIENT_ID = '. $GLOBALS[$cstRS_POST]['clientID'].')';
 
 	// execute query
 	if (!RSQuery($theQuery)) {

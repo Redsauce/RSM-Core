@@ -3,8 +3,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$appListID = $GLOBALS['RS_POST']['appListID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$appListID = $GLOBALS[$cstRS_POST]['appListID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
 
 $appListValues = getAppListValues($appListID);
 

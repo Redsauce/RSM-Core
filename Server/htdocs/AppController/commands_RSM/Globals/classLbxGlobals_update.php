@@ -13,15 +13,15 @@ function search_in_array($array, $key, $value) {
 require_once "../utilities/RSdatabase.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
 
 // prepare arrays
 $update_vars = array();
 $insert_vars = array();
 $delete_vars = array();
 
-for ($i = 0; isset($GLOBALS['RS_POST']['var'.$i]); $i++) {
-	$varArr = explode(' ', $GLOBALS['RS_POST']['var'.$i]);
+for ($i = 0; isset($GLOBALS[$cstRS_POST]['var'.$i]); $i++) {
+	$varArr = explode(' ', $GLOBALS[$cstRS_POST]['var'.$i]);
 
 	switch ($varArr[0]) {
 		case '1':

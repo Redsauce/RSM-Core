@@ -20,9 +20,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMmediaManagement.php";
 
-$propertyIDstart    = $GLOBALS['RS_POST']['propertyIDstart' ];
-$propertyIDend      = $GLOBALS['RS_POST']['propertyIDend'];
-$clientID           = $GLOBALS['RS_POST']['clientID'];
+
+$propertyIDstart    = $GLOBALS[$cstRS_POST][$cstPropertyIDstart];
+$propertyIDend      = $GLOBALS[$cstRS_POST][$cstPropertyIDend];
+$clientID           = $GLOBALS[$cstRS_POST][$cstClientID];
 $userID             = RSCheckUserAccess();
 
 // The user must to have permission to access to both properties

@@ -9,8 +9,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$appItemTypeName = $GLOBALS['RS_POST']['appItemTypeName'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$appItemTypeName = $GLOBALS[$cstRS_POST]['appItemTypeName'];
 
 // get client itemTypeID related with received appItemTypeName
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions[$appItemTypeName], $clientID);

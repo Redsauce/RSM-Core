@@ -10,9 +10,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
-$accountID = $GLOBALS['RS_POST']['accountID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
+$accountID = $GLOBALS[$cstRS_POST]['accountID'];
 
 // initialize results array
 $results['check'] = 'OK';

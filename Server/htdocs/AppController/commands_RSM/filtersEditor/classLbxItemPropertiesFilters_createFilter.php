@@ -8,9 +8,9 @@ include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$filterName = base64_decode($GLOBALS['RS_POST']['filterName']);
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'];
+$filterName = base64_decode($GLOBALS[$cstRS_POST]['filterName']);
 $operatorValue = "AND";
 
 if($clientID!=0&&$clientID!=""){	

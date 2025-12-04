@@ -4,8 +4,8 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID    = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['invoiceID' ]) ? $invoiceIDs  = explode(",", $GLOBALS['RS_POST']['invoiceID' ]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $clientID    = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['invoiceID' ]) ? $invoiceIDs  = explode(",", $GLOBALS[$cstRS_POST]['invoiceID' ]) : dieWithError(400);
 $RSuserID   = RSCheckUserAccess();
 
 $itemTypeID = getClientItemTypeID_RelatedWith_byName("invoice.client", $clientID);

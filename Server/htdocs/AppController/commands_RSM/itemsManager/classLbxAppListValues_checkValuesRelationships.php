@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$clientValueID = $GLOBALS['RS_POST']['clientValueID'];
-$appValueID = $GLOBALS['RS_POST']['appValueID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientValueID = $GLOBALS[$cstRS_POST]['clientValueID'];
+$appValueID = $GLOBALS[$cstRS_POST]['appValueID'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
 
 $appValue = getAppValue($appValueID);
 $clientValue = getValue($clientValueID, $clientID);

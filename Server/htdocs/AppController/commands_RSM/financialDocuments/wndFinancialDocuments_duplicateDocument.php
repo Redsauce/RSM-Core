@@ -4,9 +4,9 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID  = $GLOBALS['RS_POST']['clientID'     ];
-$docTypeID = $GLOBALS['RS_POST']['docTypeID'    ]; // ID of the financial document type to duplicate
-$docID     = $GLOBALS['RS_POST']['docID'        ]; // ID of the document to duplicate
+$clientID  = $GLOBALS[$cstRS_POST]['clientID'     ];
+$docTypeID = $GLOBALS[$cstRS_POST]['docTypeID'    ]; // ID of the financial document type to duplicate
+$docID     = $GLOBALS[$cstRS_POST]['docID'        ]; // ID of the document to duplicate
 
 $RSuserID = RSCheckUserAccess();
 

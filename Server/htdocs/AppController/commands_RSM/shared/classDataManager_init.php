@@ -15,9 +15,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID       =              $GLOBALS['RS_POST']['clientID'      ];
-$sysProperties  = explode(",", $GLOBALS['RS_POST']['properties'    ]);
-$getSetOfValues =              $GLOBALS['RS_POST']['getSetOfValues'];
+$clientID       =              $GLOBALS[$cstRS_POST]['clientID'      ];
+$sysProperties  = explode(",", $GLOBALS[$cstRS_POST]['properties'    ]);
+$getSetOfValues =              $GLOBALS[$cstRS_POST]['getSetOfValues'];
 
 // Get item type ID
 $itemTypeID = getItemTypeIDFromProperties($sysProperties, $clientID);

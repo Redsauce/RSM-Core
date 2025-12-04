@@ -3,10 +3,10 @@
 require_once "../utilities/RSdatabase.php";
 
 // Now we build the query
-$theQuery = "DELETE FROM rs_property_app_relations WHERE RS_PROPERTY_ID = '".$GLOBALS['RS_POST']['propertyClientID']."' AND RS_CLIENT_ID = '".$GLOBALS['RS_POST']['clientID']."'";
+$theQuery = "DELETE FROM rs_property_app_relations WHERE RS_PROPERTY_ID = '".$GLOBALS[$cstRS_POST][$cstPropertyClientID]."' AND RS_CLIENT_ID = '".$GLOBALS[$cstRS_POST][$cstClientID]."'";
 
 //show query if debug mode
-if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']){
+if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']){
 		echo ($theQuery . "\n\n");
 }
 

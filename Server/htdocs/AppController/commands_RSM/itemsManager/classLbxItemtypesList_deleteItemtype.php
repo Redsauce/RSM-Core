@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 
 
 // delete items and properties values

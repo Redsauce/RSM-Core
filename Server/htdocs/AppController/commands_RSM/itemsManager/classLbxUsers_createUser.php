@@ -4,11 +4,11 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMbadgesManagement.php";
 
-isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : $clientID = "";
-isset($GLOBALS["RS_POST"]["badge"   ]) ? $badge    = base64_decode($GLOBALS["RS_POST"]["badge"]) : $badge    = "";
-$login    = base64_decode($GLOBALS['RS_POST']['login'   ]);
-$password =               $GLOBALS['RS_POST']['password'] ;
-$staffID  =               $GLOBALS['RS_POST']['staffID' ] ;
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : $clientID = "";
+isset($GLOBALS[$cstRS_POST][$cstBadge]) ? $badge    = base64_decode($GLOBALS[$cstRS_POST][$cstBadge]) : $badge    = "";
+$login    = base64_decode($GLOBALS[$cstRS_POST][$cstLogin]);
+$password =               $GLOBALS[$cstRS_POST][$cstPassword] ;
+$staffID  =               $GLOBALS[$cstRS_POST][$cstStaffID] ;
 
 if ($clientID != "") {
     

@@ -4,10 +4,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
-$subAccountID = $GLOBALS['RS_POST']['subAccountID'];
-$duplicate = $GLOBALS['RS_POST']['duplicate'];
+$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
+$subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
+$duplicate = $GLOBALS[$cstRS_POST]['duplicate'];
 
 // get item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
