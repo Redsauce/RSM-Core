@@ -87,7 +87,7 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 
 # Create the item type for certificates
 INSERT INTO rs_item_type_app_definitions (RS_ID,RS_NAME)
-	VALUES (71,'certificate')
+	VALUES (71,'certificate');
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (507,'certificate.content',71,'Stores the content of the certificate','longtext');
