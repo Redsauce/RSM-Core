@@ -636,8 +636,8 @@ function getClientID()
 {
     global $RSallowDebug;
 
-    if (isset($GLOBALS[$cstRS_POST]['clientID'])) {
-        return $GLOBALS[$cstRS_POST]['clientID'];
+        if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+            return $GLOBALS[$cstRS_POST][$cstClientID];
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");

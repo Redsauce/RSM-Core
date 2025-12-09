@@ -13,7 +13,7 @@ $data = array();
 
 if ($theProperties) {
     while ($theProperty = $theProperties->fetch_assoc()) {
-        $clientPropertyID = getClientPropertyID_RelatedWith($theProperty['id'], $GLOBALS[$cstRS_POST]['clientID']);
+        $clientPropertyID = getClientPropertyID_RelatedWith($theProperty['id'], $GLOBALS[$cstRS_POST][$cstClientID]);
         if ($clientPropertyID != '0') {
             $related = '1';
         } else {

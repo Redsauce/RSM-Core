@@ -8,8 +8,8 @@ include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $filterName = base64_decode($GLOBALS[$cstRS_POST]['filterName']);
 $operatorValue = "AND";
 

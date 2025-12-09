@@ -4,7 +4,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMglobalVariables.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $results = getGlobalvariables($clientID);
 

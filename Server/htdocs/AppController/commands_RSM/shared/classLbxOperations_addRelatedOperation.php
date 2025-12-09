@@ -11,7 +11,7 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
 $date = $GLOBALS[$cstRS_POST]['date'];
 $transactionID = $GLOBALS[$cstRS_POST]['transactionID'];

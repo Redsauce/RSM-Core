@@ -6,7 +6,7 @@ require_once "./api_headers.php";
 
 // Obtain the data needed by this script
 isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $itemID     = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['itemTypeID']) ? $itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['itemID'    ]) ? $itemID     = $GLOBALS[$cstRS_POST]['itemID'    ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken  = '';
 

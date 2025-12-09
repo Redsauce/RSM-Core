@@ -100,8 +100,8 @@ function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,
 }
 
 // Definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $itemIDs = explode(",",$GLOBALS[$cstRS_POST]['itemIDs']);
 if(isset($_POST['recursiveDelete'])){
 	$recursiveDelete = $GLOBALS[$cstRS_POST]['recursiveDelete'];

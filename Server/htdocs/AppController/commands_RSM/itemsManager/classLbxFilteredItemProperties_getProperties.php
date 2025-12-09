@@ -6,7 +6,7 @@ require_once '../utilities/RSMlistsManagement.php';
 
 $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
 $userID     = $GLOBALS[$cstRS_POST]['userID'    ];
-$itemTypeID = $GLOBALS[$cstRS_POST]['itemtypeID'];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $showIDs    = $GLOBALS[$cstRS_POST]['showIDs'   ];
 
 $passedProperties = explode(',', $GLOBALS[$cstRS_POST]['propertyIDs']);

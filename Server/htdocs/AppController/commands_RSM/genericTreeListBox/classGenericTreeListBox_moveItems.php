@@ -9,8 +9,8 @@ include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$IDs = explode(";",$GLOBALS[$cstRS_POST]['IDs']);
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$IDs = explode(";",$GLOBALS[$cstRS_POST][$cstIDs]);
 $parentID = $GLOBALS[$cstRS_POST]['parentID'];
 
 

@@ -3,7 +3,7 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 // get the accounts item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['accounts'], $clientID);

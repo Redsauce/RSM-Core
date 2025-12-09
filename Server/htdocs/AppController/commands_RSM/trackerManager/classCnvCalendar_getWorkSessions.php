@@ -3,7 +3,7 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$user      = $GLOBALS[$cstRS_POST]['userID'];
+$user      = $GLOBALS[$cstRS_POST][$cstUserID];
 $startDate = $GLOBALS[$cstRS_POST]['startDate'];
 $endDate   = $GLOBALS[$cstRS_POST]['endDate'];
 $clientID  = $GLOBALS[$cstRS_POST][$cstClientID];

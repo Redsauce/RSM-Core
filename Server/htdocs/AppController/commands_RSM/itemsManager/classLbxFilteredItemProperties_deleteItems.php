@@ -7,8 +7,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $ids = $GLOBALS[$cstRS_POST]['itemIDs'];
 $force = $GLOBALS[$cstRS_POST]['force'];
 

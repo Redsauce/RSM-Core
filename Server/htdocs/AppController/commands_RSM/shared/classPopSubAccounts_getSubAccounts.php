@@ -3,7 +3,7 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $accountID = $GLOBALS[$cstRS_POST]['accountID'];  // this one can be one account ID or a list of accounts separated by coma
 
 // get the subaccounts item type

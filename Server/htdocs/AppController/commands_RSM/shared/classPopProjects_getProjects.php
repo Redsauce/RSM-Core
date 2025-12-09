@@ -5,7 +5,7 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $onlyOpen = $GLOBALS[$cstRS_POST]['onlyOpen'];
 
 // get the item type and the main value

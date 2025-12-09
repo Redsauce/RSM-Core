@@ -35,7 +35,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0){
 				// perform the action
 				$theQueryItem = "UPDATE rs_item_types SET RS_MAIN_PROPERTY_ID=".$GLOBALS[$cstRS_POST][$cstPropertyID]." WHERE RS_ITEMTYPE_ID=".$resItem['RS_ITEMTYPE_ID']." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']){
+				if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']){
 					echo $theQueryItem;
 				}
 

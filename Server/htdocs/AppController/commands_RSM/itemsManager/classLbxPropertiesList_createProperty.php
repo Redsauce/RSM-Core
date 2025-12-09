@@ -49,8 +49,8 @@ if ($clientID != '0' && $categoryID != '0') {
 			}
 		}
 
-		$newPropertyID = getNextIdentification('rs_item_properties', 'RS_PROPERTY_ID', $GLOBALS[$cstRS_POST]['clientID']);
-		$newPropertyOrder = getGenericNext('rs_item_properties', 'RS_ORDER', array('RS_CLIENT_ID' => $GLOBALS[$cstRS_POST]['clientID'], 'RS_CATEGORY_ID' => $GLOBALS[$cstRS_POST]['categoryID']));
+		$newPropertyID = getNextIdentification('rs_item_properties', 'RS_PROPERTY_ID', $GLOBALS[$cstRS_POST][$cstClientID]);
+		$newPropertyOrder = getGenericNext('rs_item_properties', 'RS_ORDER', array('RS_CLIENT_ID' => $GLOBALS[$cstRS_POST][$cstClientID], 'RS_CATEGORY_ID' => $GLOBALS[$cstRS_POST][$cstCategoryID]));
 
 		if ((isSingleIdentifier($newPropertyType) || isMultiIdentifier($newPropertyType)) && (count($type) > 1)) {
 			$referredItemType = $type[1];

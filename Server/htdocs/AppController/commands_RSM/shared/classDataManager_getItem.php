@@ -18,7 +18,7 @@ require_once "../utilities/RStools.php";
 isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]["clientID"  ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["itemID"    ]) ? $itemID     = $GLOBALS[$cstRS_POST]["itemID"    ] : dieWithError(400);
 
-$itemTypeID     = isset($GLOBALS[$cstRS_POST]['itemTypeID'])? $GLOBALS[$cstRS_POST]['itemTypeID'] : '';
+$itemTypeID     = isset($GLOBALS[$cstRS_POST][$cstItemTypeID])? $GLOBALS[$cstRS_POST][$cstItemTypeID] : '';
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
 

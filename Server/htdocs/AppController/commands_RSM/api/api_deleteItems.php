@@ -17,7 +17,7 @@ $RSallowUncompressed = true;
 
 // definitions
 isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['itemTypeID']) ? $itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['itemIDs'   ]) ? $itemIDs    = $GLOBALS[$cstRS_POST]['itemIDs'   ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $Rstoken = "";
 

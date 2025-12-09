@@ -59,15 +59,15 @@ function RSCheckUserAccess() {
     if (!isset($GLOBALS[$cstRS_POST]['RSLogin'])) return 0;
 
     // We don't allow the script to continue execution with an empty clientID since the queries would throw an error
-    if ((isset($GLOBALS[$cstRS_POST]['clientID'])) && ($GLOBALS[$cstRS_POST]['clientID'] == "")) return -1;
+    if ((isset($GLOBALS[$cstRS_POST][$cstClientID])) && ($GLOBALS[$cstRS_POST][$cstClientID] == "")) return -1;
 
     if ((isset($GLOBALS[$cstRS_POST]['RSuserMD5Password'])) && ($GLOBALS[$cstRS_POST]['RSuserMD5Password'] != "")) {
         // Continue checking the username and password.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS[$cstRS_POST]['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST]['clientID'];
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS[$cstRS_POST]['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
 
     } else {
         // There is no defined password. Use the login as a badge.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST]['clientID'];
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
     }
 
     $users = RSQuery($theQuery);

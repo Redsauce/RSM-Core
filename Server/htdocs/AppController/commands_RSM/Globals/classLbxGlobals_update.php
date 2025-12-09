@@ -13,7 +13,7 @@ function search_in_array($array, $key, $value) {
 require_once "../utilities/RSdatabase.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 // prepare arrays
 $update_vars = array();

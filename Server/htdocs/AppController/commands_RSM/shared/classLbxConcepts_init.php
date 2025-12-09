@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$userID = $GLOBALS[$cstRS_POST]['userID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$userID = $GLOBALS[$cstRS_POST][$cstUserID];
 $operationID = $GLOBALS[$cstRS_POST]['operationID'];
 $subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
 

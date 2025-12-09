@@ -209,7 +209,7 @@ if ($updateTaskDates == 1) {
 // Build results array
 $results['result'       ] = "OK";
 $results['workSessionID'] = $workSessionID;
-$results['internalID'   ] = $GLOBALS[$cstRS_POST]['internalID'];
+$results['internalID'   ] = isset($GLOBALS[$cstRS_POST]['internalID']) ? $GLOBALS[$cstRS_POST]['internalID'] : '';
 //$results['taskID'] = $task;
 
 // And write XML Response back to the application

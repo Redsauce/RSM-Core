@@ -5,7 +5,7 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Retrieve POST variables
-isset($GLOBALS[$cstRS_POST]['clientID'   ]) ? $clientID = $GLOBALS[$cstRS_POST]['clientID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID   ]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['filterID'   ]) ? $filterID = $GLOBALS[$cstRS_POST]['filterID'] : dieWithError(400);
 
 if ($filterID == "") $filterID = "0";

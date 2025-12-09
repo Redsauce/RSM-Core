@@ -5,7 +5,7 @@ require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
 $clientID   =       $GLOBALS[$cstRS_POST]['clientID'  ];
-$itemTypeID = isset($GLOBALS[$cstRS_POST]['itemTypeID'])? $GLOBALS[$cstRS_POST]['itemTypeID'] : '';
+$itemTypeID = isset($GLOBALS[$cstRS_POST][$cstItemTypeID])? $GLOBALS[$cstRS_POST][$cstItemTypeID] : '';
 $properties = isset($GLOBALS[$cstRS_POST]['properties'])? $GLOBALS[$cstRS_POST]['properties'] : '';
 
 // prepare the propertiesValues array

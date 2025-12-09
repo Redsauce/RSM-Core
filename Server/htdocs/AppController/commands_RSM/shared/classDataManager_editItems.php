@@ -4,7 +4,7 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID   = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
 $entries    = $GLOBALS[$cstRS_POST]['entries' ];
 
 $results = array();

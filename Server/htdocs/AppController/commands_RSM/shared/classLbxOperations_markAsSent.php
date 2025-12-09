@@ -10,7 +10,7 @@ include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $operationID = $GLOBALS[$cstRS_POST]['operationID'];
 $sendDate = $GLOBALS[$cstRS_POST]['sendDate'];
 

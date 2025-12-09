@@ -5,7 +5,7 @@ require_once '../utilities/RSMitemsManagement.php';
 require_once '../utilities/RSMfiltersManagement.php';
 
 // definitions
-$itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
 
 if ($itemTypeID == '') RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));

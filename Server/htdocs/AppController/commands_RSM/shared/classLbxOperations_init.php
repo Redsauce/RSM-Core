@@ -6,8 +6,8 @@ require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS[$cstRS_POST]['clientID']) ? $clientID = $GLOBALS[$cstRS_POST]['clientID']  : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['userID'  ]) ? $userID   = $GLOBALS[$cstRS_POST]['userID'  ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstUserID  ]) ? $userID   = $GLOBALS[$cstRS_POST][$cstUserID  ]  : dieWithError(400);
 
 // get operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName('operations', $clientID);

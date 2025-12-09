@@ -6,7 +6,7 @@ require_once "../utilities/RSdatabase.php";
 $theQuery = "SELECT `rs_actions`.`rs_id` as 'actionID', `rs_actions`.`rs_name` as 'actionName', `rs_actions`.`rs_description` FROM `rs_actions`";
 
 if($GLOBALS[$cstRS_POST]['applicationName']!=0){
-		  // Placeholder for review of applicationName/RSappName keys; leaving unchanged for now
+	$theQuery .= " WHERE `rs_actions`.`rs_application_name` = '".$GLOBALS[$cstRS_POST]['RSappName']."'";
 }
 
 $theQuery .= " ORDER BY `rs_actions`.`rs_name` DESC";

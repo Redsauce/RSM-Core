@@ -5,7 +5,7 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $personID = $GLOBALS[$cstRS_POST]['personID'];
 $onlyOpen = $GLOBALS[$cstRS_POST]['onlyOpen'];
 

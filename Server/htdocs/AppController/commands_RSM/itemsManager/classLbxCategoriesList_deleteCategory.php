@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMmediaManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
-$categoryID = $GLOBALS[$cstRS_POST]['categoryID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$categoryID = $GLOBALS[$cstRS_POST][$cstCategoryID];
 
 
 // get category properties

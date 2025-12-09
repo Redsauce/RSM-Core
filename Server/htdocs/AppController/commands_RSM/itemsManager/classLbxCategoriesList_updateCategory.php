@@ -4,16 +4,16 @@ require_once "../utilities/RSdatabase.php";
 
 //First of all, we need to check if the variable clientID does not have the value 0
 
-if ($GLOBALS[$cstRS_POST]['clientID'] > 0)
+if ($GLOBALS[$cstRS_POST][$cstClientID] > 0)
 	{
 
 		//We check if the user already exists
-		$theQuery_userExists = "SELECT RS_CATEGORY_ID FROM rs_categories WHERE RS_CATEGORY_ID='".$GLOBALS[$cstRS_POST]['categoryID']."' AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST]['clientID'];
+		$theQuery_userExists = "SELECT RS_CATEGORY_ID FROM rs_categories WHERE RS_CATEGORY_ID='".$GLOBALS[$cstRS_POST][$cstCategoryID]."' AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 		$resultUsers = RSQuery($theQuery_userExists);
 		if ($resultUsers->fetch_array() != 0)
 			{
 				// The user exists, so we update the user
-				$theQuery = "UPDATE rs_categories SET RS_NAME = '".base64_decode($GLOBALS[$cstRS_POST]['name'])."' WHERE RS_CATEGORY_ID=".$GLOBALS[$cstRS_POST]['categoryID']." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST]['clientID'];
+				$theQuery = "UPDATE rs_categories SET RS_NAME = '".base64_decode($GLOBALS[$cstRS_POST][$cstName])."' WHERE RS_CATEGORY_ID=".$GLOBALS[$cstRS_POST][$cstCategoryID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
 				//show query if debug mode
 				if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug'])
@@ -24,7 +24,7 @@ if ($GLOBALS[$cstRS_POST]['clientID'] > 0)
 				if($result = RSQuery($theQuery))
 				{
 					$results['result'] = "OK";
-					$results['name'] = base64_decode($GLOBALS[$cstRS_POST]['name']);
+					$results['name'] = base64_decode($GLOBALS[$cstRS_POST][$cstName]);
 				}
 				else
 				{
