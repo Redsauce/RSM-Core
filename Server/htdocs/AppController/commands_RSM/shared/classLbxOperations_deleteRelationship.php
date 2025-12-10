@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //***************************************************
 //Description:
 //	Delete a relationship between a two operations
@@ -11,7 +11,7 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $operation_1 = $GLOBALS[$cstRS_POST]['operation_1'];
 // a statement
 $operation_2 = $GLOBALS[$cstRS_POST]['operation_2'];

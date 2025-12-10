@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //****************************************************************************************
 //Description:
 //    Remove a permission for the specified type and the given token and property
@@ -14,12 +14,13 @@ require_once "../utilities/RSdatabase.php";
 
 // First of all, get the ID related to the token
 // First of all recover the tokenID pertaining to the passed token
-$tokenID =  RSgetTokenID($GLOBALS['RS_POST']['token']);
+$tokenID =  RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
 
 // And remove the permission to the database
-$results = RSremovePermissionFromTokenProperty($tokenID,$GLOBALS['RS_POST']['clientID'],$GLOBALS['RS_POST']['propertyID'],$GLOBALS['RS_POST']['permission']);
+$results = RSremovePermissionFromTokenProperty($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],$GLOBALS[$cstRS_POST][$cstPropertyID],$GLOBALS[$cstRS_POST]['permission']);
 
 $response['result'] = "OK";
 
 RSReturnArrayResults($response);
 ?>
+

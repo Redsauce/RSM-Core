@@ -8,7 +8,7 @@ if($GLOBALS[$cstRS_POST][$cstClientID]!=0){
 	//We check if the user exists into the client
 	$theQuery_userValidation = "SELECT RS_USER_ID FROM rs_users WHERE RS_USER_ID =".$GLOBALS[$cstRS_POST][$cstUserID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-	if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']){
+	if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']){
 		echo $theQuery_userValidation;
 	}
 
@@ -23,7 +23,7 @@ if($GLOBALS[$cstRS_POST][$cstClientID]!=0){
 		// Delete user
 		$theQuery="DELETE FROM rs_users WHERE RS_USER_ID=".$GLOBALS[$cstRS_POST][$cstUserID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']){
+		if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']){
 			echo $theQuery_userValidation;
 		}
 
@@ -45,3 +45,4 @@ if($GLOBALS[$cstRS_POST][$cstClientID]!=0){
 // And write XML Response back to the application
 RSReturnArrayResults($data);
 ?>
+

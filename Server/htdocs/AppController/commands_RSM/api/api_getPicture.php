@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //****************************************//
 //getScaledPicture.php
 //
@@ -47,7 +47,7 @@ if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
 isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
 isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
-$clientID = $GLOBALS["RS_POST"]["clientID"];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $itemID . "_" . $w . "_" . $h . "_" . $adj;
@@ -439,3 +439,5 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
+
+

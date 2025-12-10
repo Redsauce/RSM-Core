@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //
 //Description:
 //	Check for duplicates
@@ -10,7 +10,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $operationID = $GLOBALS[$cstRS_POST]['operationID'];
 $accountID = $GLOBALS[$cstRS_POST]['accountID'];
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // ***************************************************************************************
 // DESCRIPTION
 //     Creates a token and returns the token ID and the token string. The new token will be
@@ -14,7 +14,7 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 
-if (empty($GLOBALS['RS_POST']['clientID'])) {
+if (empty($GLOBALS[$cstRS_POST][$cstClientID])) {
     dieWithError(400);
 }
 
@@ -38,7 +38,7 @@ do {
 
 // If the execution reaches this point, the token does not exist so we can insert it
 // RScreateToken() is defined in Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php
-$results = RScreateToken($token, $GLOBALS['RS_POST']['clientID']); 
+$results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID]); 
 
 // Generate a response array for RSM
 $response['token'] = $token;
@@ -61,3 +61,5 @@ function generateRandomString($length = 10) {
     return $randomString;
 }
 ?>
+
+

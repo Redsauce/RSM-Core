@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //***************************************************
 //Description:
 //	Get client custom property name related with received appPropertyName
@@ -9,7 +9,7 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS[$cstRS_POST]['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $appPropertyName = $GLOBALS[$cstRS_POST]['appItemPropertyName'];
 
 // get client property name related with received appPropertyName

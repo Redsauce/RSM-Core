@@ -8,7 +8,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 	  	//We check if the group exists into the client
 		$theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_GROUP_ID =".$GLOBALS[$cstRS_POST][$cstGroupID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery_groupValidation;
+		if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery_groupValidation;
 
 		$resultGroupsOK = RSQuery($theQuery_groupValidation);
 
@@ -18,7 +18,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 				//We check if the group name already exists
 				$theQuery_groupAlreadyExists = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_GROUP_ID <> ".$GLOBALS[$cstRS_POST][$cstGroupID]." AND RS_NAME ='".base64_decode($GLOBALS[$cstRS_POST][$cstGroupName])."' AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery_groupAlreadyExists;
+				if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery_groupAlreadyExists;
 
 				$result = RSQuery($theQuery_groupAlreadyExists);
 				if ($result->fetch_array() != 0) {
@@ -28,7 +28,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 				// update the group name
 				$theQuery = "UPDATE rs_groups SET RS_NAME='".base64_decode($GLOBALS[$cstRS_POST][$cstGroupName])."' WHERE RS_GROUP_ID=".$GLOBALS[$cstRS_POST][$cstGroupID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
+				if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery;
 				$result = RSQuery($theQuery);
 				$results['result'] = "OK";
 				$results['groupName'] = base64_decode($GLOBALS[$cstRS_POST][$cstGroupName]);
@@ -48,3 +48,4 @@ else
 RSReturnArrayResults($results);
 
 ?>
+

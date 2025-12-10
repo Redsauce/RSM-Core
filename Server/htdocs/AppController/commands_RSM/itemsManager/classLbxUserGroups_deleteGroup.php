@@ -8,7 +8,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 	  	//We check if the group exists into the client
 		$theQuery_groupValidation = "SELECT RS_GROUP_ID FROM rs_groups WHERE RS_GROUP_ID ='".$GLOBALS[$cstRS_POST][$cstGroupID]."' AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery_groupValidation;
+		if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery_groupValidation;
 
 		$resultGroupsOK = RSQuery($theQuery_groupValidation);
 
@@ -23,7 +23,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 				// delete group
 				$theQuery = "DELETE FROM rs_groups WHERE RS_GROUP_ID=".$GLOBALS[$cstRS_POST][$cstGroupID]." AND RS_CLIENT_ID=".$GLOBALS[$cstRS_POST][$cstClientID];
 
-				if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
+				if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery;
 				$result = RSQuery($theQuery);
 				$results['result'] = "OK";
 			}
@@ -41,3 +41,4 @@ else
 RSReturnArrayResults($results);
 
 ?>
+

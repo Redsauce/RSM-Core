@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // ****************************************************************************************
 //Description :
 //    Edits an item of the specified itemType with the associated values
@@ -16,7 +16,7 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // definitions
-isset($GLOBALS[$cstRS_POST]['clientID']) ? $clientID = $GLOBALS[$cstRS_POST]['clientID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['RSitemID']) ? $RSitemID = $GLOBALS[$cstRS_POST]['RSitemID'] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['RSdata'  ]) ? $RSdata   = $GLOBALS[$cstRS_POST]['RSdata'  ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken  = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken  = '';
@@ -96,3 +96,4 @@ if ($itemTypeID != 0) {
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
+

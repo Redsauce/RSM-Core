@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // ***************************************************************************************
 // DESCRIPTION
 //     Deletes the token identified for a specified clientID
@@ -12,8 +12,8 @@
 require_once "../utilities/RSdatabase.php";
 
 // First of all we must retrieve the ID pertaining to the token
-$token    = $GLOBALS['RS_POST']['token'   ];
-$clientID = $GLOBALS['RS_POST']['clientID'] ;
+$token    = $GLOBALS[$cstRS_POST]['token'   ];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID] ;
 $tokenID  = RSgetTokenID($token);
 
 // Check if the token exists.....
@@ -51,3 +51,4 @@ $response['result'] = "OK";
 // And write XML Response back to the application
 RSReturnArrayResults($response);
 ?>
+

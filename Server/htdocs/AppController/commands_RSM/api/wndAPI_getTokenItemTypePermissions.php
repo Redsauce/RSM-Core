@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // ****************************************************************************************
 // DESCRIPTION
 //     Retrieves a list of itemtypes with the words SOME or ALL, depending on the number of permissions for all visible properties related to the token
@@ -13,8 +13,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$RStoken  = $GLOBALS['RS_POST']['token'   ];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$RStoken  = $GLOBALS[$cstRS_POST]['token'   ];
 
 // First of all recover the tokenID pertaining to the passed token
 $tokenID = RSgetTokenID($RStoken);
@@ -64,3 +64,4 @@ foreach ($itemTypesRelated as $itemTypeRelated) {
 
 RSReturnArrayQueryResults($visibleProperties);
 ?>
+

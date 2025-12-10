@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS[$cstRS_POST]["clientID"]) ? $clientID = $GLOBALS[$cstRS_POST]["clientID"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["login"   ]) ? $login    = $GLOBALS[$cstRS_POST]["login"   ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["password"]) ? $password = $GLOBALS[$cstRS_POST]['password'] : $password = "";
 
@@ -21,3 +21,4 @@ if ($password === "") {
 RSReturnQueryResults(RSQuery($theQuery));
 
 ?>
+
