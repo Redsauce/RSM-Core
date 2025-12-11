@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";

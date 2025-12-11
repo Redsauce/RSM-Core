@@ -60,6 +60,3 @@ function generateRandomString($length = 10) {
     // And return the result
     return $randomString;
 }
-?>
-
-

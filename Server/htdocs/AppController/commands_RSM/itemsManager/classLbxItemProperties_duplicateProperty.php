@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //***************************************************
 //DESCRIPTION:
 //     Replace the items of a property (propertyIDend) based on another (propertyIDstart) of the same itemType.
@@ -87,8 +87,7 @@ else{
 RSReturnArrayResults($results);
 
 // This function returns the closest mysql itemtype for a given RSM property
-function typeMySQL($type){
-
+function typeMySQL($type) {
     switch($type){
         case "text":
             $mysqlType = "char";
@@ -139,7 +138,7 @@ function typeMySQL($type){
 }
 
 // This function returns the table where RSM saves the data depending on the type
-function RSMtable($type){
+function RSMtable($type) {
     switch($type){
         case "integer":
             $tableName = "rs_property_integers";
@@ -178,3 +177,4 @@ function RSMtable($type){
 }
 
 ?>
+

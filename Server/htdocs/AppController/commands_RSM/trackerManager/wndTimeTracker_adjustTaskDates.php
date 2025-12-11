@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
@@ -72,7 +72,7 @@ RSReturnArrayResults($results);
 
 // A function to adjust the tasksGroup dates of a tasksGroup tree
 function adjustTasksDates($tree, $taskID, $startDate, $endDate) {
-	global $RSuserID, $tasksItemTypeID, $tasksStartDatePropertyID, $tasksEndDatePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupStartDatePropertyID, $tasksGroupEndDatePropertyID, $clientID;
+    global $RSuserID, $tasksItemTypeID, $tasksStartDatePropertyID, $tasksEndDatePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupStartDatePropertyID, $tasksGroupEndDatePropertyID, $clientID;
 	
     $initStartDate = $startDate;
     $initEndDate = $endDate;

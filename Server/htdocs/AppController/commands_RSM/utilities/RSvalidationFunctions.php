@@ -27,6 +27,7 @@
 
 // Check if the current application is compatible with the current database
 function RSCheckCompatibleDB($serviceMode) {
+    global $cstRS_POST;
     if (!isset($GLOBALS[$cstRS_POST]['RSbuild'   ])) return -1;
     if (!isset($GLOBALS[$cstRS_POST]['RSplatform'])) return -1;
     if (!isset($GLOBALS[$cstRS_POST]['RSappName' ])) return -1;
@@ -56,6 +57,9 @@ function RSCheckUserAccess() {
     // If we return 0: RSM could not match the provided data to a single user in a single customer
     // If we return an integer: This is the ID of the user for the passed clientID
     
+    global $cstRS_POST;
+    global $cstClientID;
+
     if (!isset($GLOBALS[$cstRS_POST]['RSLogin'])) return 0;
 
     // We don't allow the script to continue execution with an empty clientID since the queries would throw an error

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //***************************************************
 // Description:
 //***************************************************
@@ -8,8 +8,7 @@ include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
-function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPath,$userID,$counter=100){
-
+function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPath,$userID,$counter=100) {
 	$counter--;
 	if(count($allowedItemPath)>0&&$counter>=0){
 		//extract(remove) and split first itemType/property in path
@@ -69,7 +68,7 @@ function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPat
 	return true;
 }
 
-function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,$allowedItemTypes,$userID){
+function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,$allowedItemTypes,$userID) {
 	$descendants=getDescendantsLevel($clientID,$parentItemTypeID,$allowedItemTypes);
 
 	foreach($descendants as $descendant){
@@ -239,3 +238,4 @@ if(isset($_POST['recursiveDelete'])&&isset($_POST['newParentID'])){
 // Return results
 RSReturnArrayResults($results);
 ?>
+

@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 
 // return the item type's and client's properties
-//function getProperties($itemTypeID, $clientID){
+//function getProperties($itemTypeID, $clientID) {
 //	$categories = "SELECT RS_CATEGORY_ID FROM rs_categories WHERE RS_ITEMTYPE_ID = '".$itemTypeID."' AND RS_CLIENT_ID = '".$clientID."'";
 //
 //	$properties = RSQuery("SELECT RS_PROPERTY_ID FROM rs_item_properties WHERE RS_CLIENT_ID = '".$clientID."' AND RS_CATEGORY_ID IN (".$categories.");");
@@ -61,5 +61,3 @@ $response['result'] = ($results == TRUE) ? "OK" : "NOK";
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
-?>
-

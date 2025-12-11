@@ -3,8 +3,10 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
+global $cstRS_POST, $cstClientID, $cstUserID;
+
 isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['userID'  ]) ? $userID   = $GLOBALS[$cstRS_POST]['userID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstUserID  ]) ? $userID   = $GLOBALS[$cstRS_POST][$cstUserID  ] : dieWithError(400);
 
 if ($clientID != 0){
     // We check if the user exists into the client

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Functions in this file related with the use of tokens in RSM
 // - RSclientFromToken
 // - RSenableToken
@@ -181,6 +181,7 @@ function RShasTokenPermissions($RStoken, $propertiesID, $permission) {
 }
 
 function RShasTokenPermission($RStoken, $propertyId, $permission) {
+	global $cstRS_POST;
 	$tokenID = RSgetTokenID($RStoken);
 
 	// If the user needs a translated value related with itemTypes, we will see if the user has access to the translated main property of that itemtype
@@ -206,3 +207,4 @@ function RShasTokenPermission($RStoken, $propertyId, $permission) {
 	return true;
 }
 ?>
+
