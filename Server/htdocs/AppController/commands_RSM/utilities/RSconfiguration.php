@@ -56,4 +56,3 @@ $cstActionID             = 'actionID';
 $cstRS_POST              = 'RS_POST';
 $cstRS_GET               = 'RS_GET';
 $cstUTF8                 = 'UTF-8';
-?>
