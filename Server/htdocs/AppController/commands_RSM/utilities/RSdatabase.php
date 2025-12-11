@@ -52,15 +52,14 @@ if ($mysqli->connect_errno) {
 
 global $cstClientID;
 global $cstRS_POST;
-global $RStoken;
+global $cstRStoken;
 
 // If clientID not provided but RStoken exists, try to infer clientID from the token
 // (must run after $mysqli is available because RSclientFromToken uses RSQuery)
-if ((!isset($GLOBALS[$cstRS_POST][$cstClientID]) || $GLOBALS[$cstRS_POST][$cstClientID] == '') && isset($GLOBALS[$cstRS_POST][$RStoken]) && $GLOBALS[$cstRS_POST][$RStoken] != '') {
-    if (!function_exists('RSclientFromToken')) {
-        require_once 'RSMtokensManagement.php';
-    }
-    $inferredClient = RSclientFromToken($GLOBALS[$cstRS_POST][$RStoken]);
+if ((!isset($GLOBALS[$cstRS_POST][$cstClientID]) || $GLOBALS[$cstRS_POST][$cstClientID] == '') && isset($GLOBALS[$cstRS_POST][$cstRStoken]) && $GLOBALS[$cstRS_POST][$cstRStoken] != '') {
+    require_once 'RSMtokensManagement.php';
+    
+    $inferredClient = RSclientFromToken($GLOBALS[$cstRS_POST][$cstRStoken]);
     if ($inferredClient && $inferredClient > 0) {
         $GLOBALS[$cstRS_POST][$cstClientID] = intval($inferredClient);
     }
