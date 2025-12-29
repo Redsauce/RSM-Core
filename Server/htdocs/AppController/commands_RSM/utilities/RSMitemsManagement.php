@@ -576,7 +576,9 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
             }
         }
 
-        // build query
+        // build query using prepared statements for better security
+        global $mysqli;
+
         if ($propertyType == 'identifier' || $propertyType == 'identifiers') {
             //manage order value
             if ($forceOrder == '') {
@@ -586,21 +588,30 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
                 $newOrder = implode(',', array_fill(0, count(explode(',', $value)), $forceOrder));
             }
 
-            $theQuery = 'REPLACE INTO ' . $propertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_ORDER) VALUES (' . $clientID . ',' . $itemTypeID . ',' . $itemID . ',' . $propertyID . ',"' . $value . '","' . $newOrder . '")';
+            $stmt = $mysqli->prepare('REPLACE INTO ' . $propertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_ORDER) VALUES (?, ?, ?, ?, ?, ?)');
+            $stmt->bind_param('iiisss', $clientID, $itemTypeID, $itemID, $propertyID, $value, $newOrder);
+            $result = $stmt->execute();
+            $stmt->close();
         } else {
-            $theQuery = 'REPLACE INTO ' . $propertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA) VALUES (' . $clientID . ',' . $itemTypeID . ',' . $itemID . ',' . $propertyID . ',"' . $value . '")';
+            $stmt = $mysqli->prepare('REPLACE INTO ' . $propertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA) VALUES (?, ?, ?, ?, ?)');
+            $stmt->bind_param('iiiis', $clientID, $itemTypeID, $itemID, $propertyID, $value);
+            $result = $stmt->execute();
+            $stmt->close();
         }
 
         // execute query
-        if (RSQuery($theQuery)) {
+        if ($result) {
 
             if ($response['auditTrail'] == 1) {
-                // save the change into the Audit Trail table
-                $theQuery = 'INSERT INTO ' . $auditTrailPropertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_USER_ID, RS_TOKEN, RS_DESCRIPTION, RS_CHANGED_DATE, RS_INITIAL_VALUE, RS_FINAL_VALUE) VALUES (' . $clientID . ',' . $itemTypeID . ',' . $itemID . ',' . $propertyID . ',' . $userID . ',"' . $RStoken . '",NULL,"' . date('Y-m-d H:i:s') . '","' . $previousValue . '","' . $value . '")';
+                // save the change into the Audit Trail table using prepared statement
+                $currentDate = date('Y-m-d H:i:s');
+                $stmt = $mysqli->prepare('INSERT INTO ' . $auditTrailPropertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_USER_ID, RS_TOKEN, RS_DESCRIPTION, RS_CHANGED_DATE, RS_INITIAL_VALUE, RS_FINAL_VALUE) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)');
+                $stmt->bind_param('iiiiissss', $clientID, $itemTypeID, $itemID, $propertyID, $userID, $RStoken, $currentDate, $previousValue, $value);
+                $saveQuery = $stmt->execute();
+                $stmt->close();
 
-                $saveQuery = RSQuery($theQuery);
-
-                if (!$saveQuery) return -3;
+                if (!$saveQuery)
+                    return -3;
             }
 
             // We add the new item ID to the array of updated itemIDs
@@ -2127,17 +2138,23 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
     $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
 
     if ($propertyType == 'identifiers') {
-        //mmulti identifier property, generate order with same number of values
-        $propertyValue = "'" . $propertyValue . "'";
-        $propertyOrder = "'" . implode(',', array_fill(0, count(explode(',', $propertyValue)), '0')) . "'";
+        //multi identifier property, generate order with same number of values
+        global $mysqli;
+        $propertyOrder = implode(',', array_fill(0, count(explode(',', $propertyValue)), '0'));
 
-        // Launch the insert in the propertyTables
-        $result = RSQuery('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ',' . $propertyOrder . ')');
+        // Launch the insert in the propertyTables using prepared statement
+        $stmt = $mysqli->prepare('INSERT INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->bind_param('iisiis', $itemTypeID, $itemID, $propertyValue, $propertyID, $clientID, $propertyOrder);
+        $result = $stmt->execute();
+        $stmt->close();
     } elseif (($propertyType != 'image') && ($propertyType != 'file')) {
-        $propertyValue = "'" . $propertyValue . "'";
+        global $mysqli;
 
-        // Launch the insert in the propertyTables
-        $result = RSQuery('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
+        // Launch the insert in the propertyTables using prepared statement
+        $stmt = $mysqli->prepare('INSERT INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) VALUES (?, ?, ?, ?, ?)');
+        $stmt->bind_param('iisii', $itemTypeID, $itemID, $propertyValue, $propertyID, $clientID);
+        $result = $stmt->execute();
+        $stmt->close();
     } else {
         // We are storing an image or a file
         // The name of the file comes separated from the data by character ":"
@@ -2825,7 +2842,7 @@ function getAppItemTypeID_RelatedWith($clientItemTypeID, $clientID) {
     }
 
     if ($result->num_rows == 0) {
-        return'0';
+        return '0';
     }
 
     $appItemTypeID = $result->fetch_assoc();
