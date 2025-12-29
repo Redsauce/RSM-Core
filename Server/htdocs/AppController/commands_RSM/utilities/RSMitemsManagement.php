@@ -2908,14 +2908,6 @@ function getClientItemTypeName_RelatedWith($appItemTypeID, $clientID)
     return getClientItemTypeName($clientItemTypeIDRelated, $clientID);
 }
 
-// Return the main property ID of the client item type related with the application item type passed
-function getClientItemTypeMainProperty_RelatedWith($appItemTypeID, $clientID)
-{
-    $clientItemTypeIDRelated = getClientItemTypeID_RelatedWith($appItemTypeID, $clientID);
-
-    return getClientItemTypeMainProperty($clientItemTypeIDRelated, $clientID);
-}
-
 // Return the list of related properties of the item type passed
 function getClientItemTypeProperties_Related($clientItemTypeID, $clientID)
 {
