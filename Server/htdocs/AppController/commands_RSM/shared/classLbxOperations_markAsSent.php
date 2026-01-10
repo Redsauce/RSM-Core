@@ -25,4 +25,3 @@ $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $item
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

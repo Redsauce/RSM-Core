@@ -25,5 +25,3 @@ $results = RScreateTokenPermission($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],
 $response['result'] = "OK";
 
 RSReturnArrayResults($response);
-?>
-

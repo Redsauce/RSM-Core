@@ -15,5 +15,3 @@ $results = RStokensFromClient($GLOBALS[$cstRS_POST][$cstClientID]);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>
-

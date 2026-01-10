@@ -57,4 +57,3 @@ for($i=0; $i<count($subAccounts); $i++){
 
 // Return results
 RSReturnArrayQueryResults($subAccounts);
-?>

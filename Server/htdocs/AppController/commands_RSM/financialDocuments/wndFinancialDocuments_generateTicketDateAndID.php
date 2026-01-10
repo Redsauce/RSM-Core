@@ -57,4 +57,3 @@ $results['ticketIDpID'] = $ticketIDPropertyID;
 
 // Return results
 RSReturnArrayResults($results);
-?>

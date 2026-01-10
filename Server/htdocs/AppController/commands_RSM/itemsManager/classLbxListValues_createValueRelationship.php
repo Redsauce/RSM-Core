@@ -14,4 +14,3 @@ $results['result'] = 'OK';
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

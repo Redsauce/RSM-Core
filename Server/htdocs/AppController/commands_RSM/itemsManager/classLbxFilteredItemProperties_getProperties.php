@@ -72,4 +72,3 @@ $totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $ret
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($totalData);
-?>

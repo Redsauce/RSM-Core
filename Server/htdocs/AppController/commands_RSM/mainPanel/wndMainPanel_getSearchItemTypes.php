@@ -26,4 +26,3 @@ if ($clientID != 0 AND $RSuserID != 0) {
     RSReturnArrayResults($results);
 
 }
-?>

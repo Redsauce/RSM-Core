@@ -77,4 +77,3 @@ if (count($newItemIDs)==1) {
 
 $results['newItemIDs'] = implode(',', $elements);
 RSReturnArrayResults($results);
-?>

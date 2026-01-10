@@ -52,4 +52,3 @@ $results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], 
 
 // Return results
 RSReturnArrayResults($results);
-?>

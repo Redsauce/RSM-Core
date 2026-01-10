@@ -20,4 +20,3 @@ $results['result'] = 'OK';
 
 // Return data			
 RSReturnArrayResults($results);
-?>

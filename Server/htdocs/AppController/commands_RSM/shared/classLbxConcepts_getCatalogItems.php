@@ -26,4 +26,3 @@ foreach ($itemIDs as $itemID) {
 }
 
 RSReturnArrayQueryResults($results);
-?>

@@ -19,4 +19,3 @@ if (!$data) {
     // Return data
     RSReturnQueryResults($data);
 }
-?>

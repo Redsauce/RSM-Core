@@ -27,4 +27,3 @@ $results = getAuditTrail($clientID, $propertyID, $itemID);
 
 // And return XML response back to application without compression
 RSReturnArrayQueryResults($results, false);
-?>

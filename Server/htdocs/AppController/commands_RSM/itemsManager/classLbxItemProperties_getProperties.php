@@ -38,4 +38,3 @@ if ($clientID != 0 && $itemTypeID != 0) {
     // Write XML response back to application
     RSReturnArrayResults($data);
 }
-?>

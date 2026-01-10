@@ -25,4 +25,3 @@ if ($clientID != 0) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -28,4 +28,3 @@ if (empty($clientID)) {
 
 // Write back the XML Response
 RSReturnQueryResults(RSQuery($theQuery));
-?>

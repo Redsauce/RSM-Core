@@ -87,4 +87,3 @@ $results['searchable'                   ] = $isSearchableProperty;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

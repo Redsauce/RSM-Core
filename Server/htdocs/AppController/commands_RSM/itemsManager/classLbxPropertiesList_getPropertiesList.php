@@ -60,4 +60,3 @@ while($result=$results->fetch_assoc()){
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($array_res);
-?>

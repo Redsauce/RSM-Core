@@ -40,4 +40,3 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // Return results
 RSReturnArrayQueryResults($results);
-?>

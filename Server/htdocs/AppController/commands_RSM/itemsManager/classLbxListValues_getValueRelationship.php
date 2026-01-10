@@ -11,4 +11,3 @@ $results['appValueID'] = getAppListValueID_RelatedWith($valueID, $clientID);
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

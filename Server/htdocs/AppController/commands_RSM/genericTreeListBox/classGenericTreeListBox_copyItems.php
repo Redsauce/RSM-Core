@@ -123,4 +123,3 @@ if($clientID!=0&&$clientID!=""){
 
 // Return results
 RSReturnArrayResults($results);
-?>

@@ -73,6 +73,4 @@ switch ($users->num_rows) {
 
         // Write XML Response back to the application
         RSReturnArrayQueryResults($results);
-    }
-
-?>
+}

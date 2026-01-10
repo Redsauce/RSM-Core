@@ -28,4 +28,3 @@ if ($pIDs == "") {
 }
 header("Content-Type: application/xml; charset=UTF-8");
 echo getRSS($tema, $token, $pIDs, $filterRules, $extFilterRules, $filterJoining);
-?>

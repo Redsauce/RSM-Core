@@ -56,4 +56,3 @@ if ($resetPayDate == '1') {
 
 // And write XML response back to the application
 RSReturnArrayResults($results);
-?>

@@ -63,5 +63,3 @@ foreach ($itemTypesRelated as $itemTypeRelated) {
 }
 
 RSReturnArrayQueryResults($visibleProperties);
-?>
-

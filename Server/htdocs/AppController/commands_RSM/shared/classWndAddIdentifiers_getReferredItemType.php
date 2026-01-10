@@ -10,4 +10,3 @@ $results['itemTypeID'] = getClientItemTypeID_RelatedWith(getAppPropertyReferredI
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -176,5 +176,3 @@ function RSMtable($type) {
     return $tableName;
 }
 
-?>
-

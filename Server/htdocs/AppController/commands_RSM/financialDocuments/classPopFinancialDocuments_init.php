@@ -73,4 +73,3 @@ for ($i = 0; $i < count($fds); $i++) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($fds);
-?>

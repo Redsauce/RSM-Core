@@ -237,5 +237,3 @@ if(isset($_POST['recursiveDelete'])&&isset($_POST['newParentID'])){
 
 // Return results
 RSReturnArrayResults($results);
-?>
-

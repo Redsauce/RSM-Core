@@ -19,4 +19,3 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -45,4 +45,3 @@ if (isPropertyVisible($RSuserID, $propertyID, $clientID)){
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

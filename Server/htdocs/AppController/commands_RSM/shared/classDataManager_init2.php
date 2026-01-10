@@ -113,4 +113,3 @@ foreach ($visibleProperties as $property) {
 
 // Return results
 RSReturnArrayQueryResults($results);
-?>

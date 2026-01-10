@@ -376,4 +376,3 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
     // And returns the array
     return $response;
 }
-?>

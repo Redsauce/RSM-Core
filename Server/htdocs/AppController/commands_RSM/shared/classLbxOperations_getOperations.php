@@ -125,4 +125,3 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // Write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

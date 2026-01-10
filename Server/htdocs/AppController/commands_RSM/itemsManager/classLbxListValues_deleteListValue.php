@@ -26,4 +26,3 @@ if (getAppListValueID_RelatedWith($valueID, $clientID) == '0') {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

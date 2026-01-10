@@ -53,4 +53,3 @@ foreach ($pointerPropertyIDs as $pointerPropertyID) {
 	
 // Return data			
 RSReturnArrayQueryResults($results);
-?>

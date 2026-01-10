@@ -153,5 +153,3 @@ if ($trigger){
 
 // Write response back to application
 RSReturnArrayResults($results);
-?>
-

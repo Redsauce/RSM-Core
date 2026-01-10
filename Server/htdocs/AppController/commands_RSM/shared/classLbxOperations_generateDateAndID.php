@@ -115,4 +115,3 @@ $results['invoiceDate'] = getItemPropertyValue($operationID, $invoiceDatePropert
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

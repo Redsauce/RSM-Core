@@ -22,6 +22,3 @@ $response['result'] = ($results == TRUE) ? "OK" : "NOK";
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
-?>
-
-

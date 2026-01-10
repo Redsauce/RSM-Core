@@ -35,4 +35,3 @@ if ($entries != '') {
 
 // Return results
 RSReturnArrayResults($results);
-?>

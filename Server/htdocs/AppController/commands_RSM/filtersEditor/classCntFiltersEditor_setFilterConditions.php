@@ -107,4 +107,3 @@ if($clientID != 0 && $clientID != ""){
 
 // And return XML response back to application
 RSReturnArrayResults($results);
-?>

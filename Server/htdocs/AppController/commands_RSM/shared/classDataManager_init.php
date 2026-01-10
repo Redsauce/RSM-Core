@@ -134,4 +134,3 @@ foreach ($properties as $property) {
 
 // Return results
 RSReturnArrayQueryResults($results);
-?>

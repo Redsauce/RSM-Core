@@ -14,4 +14,3 @@ $results = getFilterProperties($clientID,$filterID);
 
 // And return XML response back to application			
 RSReturnArrayQueryResults($results);
-?>

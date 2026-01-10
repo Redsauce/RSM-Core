@@ -37,4 +37,3 @@ $projectsList = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties
 
 // And return XML response back to the application
 RSReturnQueryResults($projectsList);
-?>

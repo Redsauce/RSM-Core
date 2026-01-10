@@ -82,4 +82,3 @@ $results['status'] = getPropertyValue($definitions['operationStatus'], $itemType
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

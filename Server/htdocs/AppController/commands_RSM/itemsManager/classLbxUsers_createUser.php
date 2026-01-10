@@ -65,4 +65,3 @@ if ($clientID != "") {
     RSReturnError("ERROR CREATING USER. INVALID CLIENTID.", "4");
 }
 
-?>

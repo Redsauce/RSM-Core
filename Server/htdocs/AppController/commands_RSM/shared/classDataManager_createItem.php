@@ -62,4 +62,3 @@ if ($itemID != '') {
 
 // Return results
 RSReturnArrayResults($results);
-?>

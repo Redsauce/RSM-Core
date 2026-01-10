@@ -90,4 +90,3 @@ function adjustTasksTotalTime($tree, $taskID, $totalTime) {
 
     return $totalTime;
 }
-?>

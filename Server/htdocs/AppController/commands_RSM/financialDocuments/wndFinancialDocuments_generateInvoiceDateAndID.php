@@ -99,4 +99,3 @@ foreach ($invoiceIDs as $invoiceID) {
 
 // Return results
 RSReturnArrayResults($results);
-?>

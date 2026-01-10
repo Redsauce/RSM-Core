@@ -48,4 +48,3 @@ foreach ($differentModules as $module){
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($result);
-?>

@@ -64,4 +64,3 @@ $listDefs = array(
 	'triggerTypeCreateItem'         => 'trigger.type.create.item',
 	'triggerTypeUpdateItem'         => 'trigger.type.update.item',
 	'triggerTypeDeleteItem'         => 'trigger.type.delete.item');
-?>

@@ -17,4 +17,3 @@ $results['customItemPropertyName'] = getClientPropertyName_RelatedWith_byName($d
 
 // And return XML results
 RSReturnArrayResults($results);
-?>

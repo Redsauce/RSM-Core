@@ -10,4 +10,3 @@ $results = IQ_getItems($itemTypeID, $clientID);
 	
 // Return data			
 RSReturnQueryResults($results);
-?>

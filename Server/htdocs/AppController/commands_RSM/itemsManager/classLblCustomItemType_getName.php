@@ -20,4 +20,3 @@ $results['customItemTypeName'] = getClientItemTypeName($itemTypeID, $clientID);
 
 // And return XML results
 RSReturnArrayResults($results);
-?>

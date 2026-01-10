@@ -72,4 +72,3 @@ $results['description'] = "Successfully updated item " . $entryArr[0] . " of typ
 
 // Return results
 RSReturnArrayResults($results);
-?>

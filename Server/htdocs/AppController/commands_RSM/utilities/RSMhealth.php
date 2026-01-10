@@ -48,4 +48,3 @@ function checkDatabaseConnectivityStatus($RShost, $RSuser, $RSpassword, $RSdatab
     $mysqli->close();
     return $result;
 }
-?>

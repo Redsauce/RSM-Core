@@ -21,4 +21,3 @@ $results['ID'] = $itemID;
 
 // Return data			
 RSReturnArrayResults($results);
-?>

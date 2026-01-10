@@ -30,4 +30,3 @@ $results['itemIDs'] = implode(",", $itemIDs);
 
 // Return results
 RSReturnArrayResults($results);
-?>

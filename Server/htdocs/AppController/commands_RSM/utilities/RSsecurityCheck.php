@@ -77,4 +77,3 @@ if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
 	if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -8);
 
 }
-?>

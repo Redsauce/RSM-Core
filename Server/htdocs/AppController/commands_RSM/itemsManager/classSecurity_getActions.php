@@ -66,6 +66,3 @@ if ($clientID != 0){
 } else $results["result"] = "NOK";
 
 RSReturnArrayResults($results);
-?>
-
-

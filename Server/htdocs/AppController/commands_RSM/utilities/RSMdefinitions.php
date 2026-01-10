@@ -431,4 +431,3 @@ $definitions = array(
     'tasksGroup.status'          => 'tasksGroup.status'
 );
 
-?>

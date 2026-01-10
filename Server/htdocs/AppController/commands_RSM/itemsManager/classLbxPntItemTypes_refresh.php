@@ -74,4 +74,3 @@ foreach ($its_props as $it_prop) {
 	
 // Return data			
 RSReturnArrayQueryResults($finalResults);
-?>

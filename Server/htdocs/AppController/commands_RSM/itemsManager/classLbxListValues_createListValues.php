@@ -44,4 +44,3 @@ foreach ($values as $value) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

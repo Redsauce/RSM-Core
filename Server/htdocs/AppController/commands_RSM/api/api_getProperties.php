@@ -29,4 +29,3 @@ if ($RSuserID > 0) {
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results,false);
-?>

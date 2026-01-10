@@ -65,5 +65,3 @@ if ($clientPropertyType == $appPropertyType) {
 
 // Write XML Response back to the application
 RSReturnArrayResults($response);
-?>
-

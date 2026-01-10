@@ -206,5 +206,3 @@ function RShasTokenPermission($RStoken, $propertyId, $permission) {
 
 	return true;
 }
-?>
-

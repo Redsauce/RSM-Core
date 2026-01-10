@@ -41,4 +41,3 @@ if ($getLists == 'true' && count($results) > 0) {
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results);
-?>

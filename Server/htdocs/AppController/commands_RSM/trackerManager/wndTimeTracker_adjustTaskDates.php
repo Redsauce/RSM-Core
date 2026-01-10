@@ -137,4 +137,3 @@ function adjustTasksDates($tree, $taskID, $startDate, $endDate) {
 	
 	return array('startDate' => $startDate, 'endDate' => $endDate);
 }
-?>

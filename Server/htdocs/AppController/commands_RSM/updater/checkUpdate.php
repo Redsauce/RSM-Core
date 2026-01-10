@@ -56,4 +56,3 @@ if($result->num_rows>0){
 // And write XML Response back to the application
 RSReturnArrayQueryResults($data);
 
-?>

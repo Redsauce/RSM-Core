@@ -458,4 +458,3 @@ function duplicateStepsForTestCase($testCase, $relation, $clientID) {
         setPropertyValueByID($relatedRelationPropertyID, $itemTypeStepsID, $stepCopy, $clientID, $relation['ID'], '', $RSuserID);
     }
 }
-?>

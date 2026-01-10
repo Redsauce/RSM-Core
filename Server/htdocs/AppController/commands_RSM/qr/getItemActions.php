@@ -41,4 +41,3 @@ foreach ($actionIDs as $actionID) {
 
 // And return XML response back to application
 RSReturnArrayResults($actions, false);
-?>

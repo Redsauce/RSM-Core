@@ -32,4 +32,3 @@ $results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, 
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results, false);
-?>

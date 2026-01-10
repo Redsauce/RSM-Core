@@ -7,4 +7,3 @@ $appLists = getAppLists();
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($appLists);
-?>

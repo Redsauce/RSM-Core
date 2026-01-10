@@ -21,4 +21,3 @@ foreach ($appListValues as $value) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

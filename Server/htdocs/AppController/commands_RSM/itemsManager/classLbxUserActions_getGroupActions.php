@@ -30,4 +30,3 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0){
 	RSReturnArrayResults($results);
 }
 
-?>

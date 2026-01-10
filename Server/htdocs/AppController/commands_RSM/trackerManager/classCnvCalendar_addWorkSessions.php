@@ -214,4 +214,3 @@ $results['internalID'   ] = isset($GLOBALS[$cstRS_POST]['internalID']) ? $GLOBAL
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

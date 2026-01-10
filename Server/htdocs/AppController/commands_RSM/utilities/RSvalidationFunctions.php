@@ -104,4 +104,3 @@ function getUserStaffID($userID, $clientID) {
     $row = $users->fetch_assoc();
     return $row['RS_ITEM_ID'];
 }
-?>

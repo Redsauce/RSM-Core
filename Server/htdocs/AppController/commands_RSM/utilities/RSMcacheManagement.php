@@ -26,4 +26,3 @@ function saveFileCache($file_original, $path, $name, $extension) {
     return 0;
 }
 
-?>

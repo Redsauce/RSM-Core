@@ -149,4 +149,3 @@ if ($clientID != '0' && $categoryID != '0') {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

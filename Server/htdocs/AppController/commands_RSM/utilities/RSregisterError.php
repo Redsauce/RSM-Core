@@ -29,4 +29,3 @@ if(RSquery($query)){
 
 // Write XML Response back to the application
 RSReturnArrayResults($results);
-?>

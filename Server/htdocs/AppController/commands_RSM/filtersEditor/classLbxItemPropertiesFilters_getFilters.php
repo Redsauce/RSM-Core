@@ -20,4 +20,3 @@ if ($results) {
 
 // And return XML response back to application			
 RSReturnArrayQueryResults($returnArray);
-?>

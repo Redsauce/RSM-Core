@@ -224,4 +224,3 @@ array_unshift($results, array("result" => "OK", "filteredID" => implode(",", $de
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

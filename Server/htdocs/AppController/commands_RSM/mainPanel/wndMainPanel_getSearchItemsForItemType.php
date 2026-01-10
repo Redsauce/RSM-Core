@@ -17,5 +17,3 @@ if ($clientID != 0 AND $RSuserID != 0) {
     $results['result'] = "NOK";
     RSReturnArrayResults($results);
 }
-?>
-

@@ -97,4 +97,3 @@ while ($row = $projectsQueryResults->fetch_assoc()) {
 
 // And return XML results
 RSReturnArrayQueryResults($results);
-?>

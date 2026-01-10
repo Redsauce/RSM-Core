@@ -63,4 +63,3 @@ if ($result) {
 // Return data
 RSReturnArrayQueryResults($results);
 
-?>

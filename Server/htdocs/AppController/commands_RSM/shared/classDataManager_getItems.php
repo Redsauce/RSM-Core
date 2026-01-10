@@ -106,4 +106,3 @@ if (is_string($results)) {
 } else {
     RSReturnArrayQueryResults($results);
 }
-?>

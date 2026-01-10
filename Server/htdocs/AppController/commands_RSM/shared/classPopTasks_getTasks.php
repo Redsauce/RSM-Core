@@ -14,4 +14,3 @@ $results = IQ_getItems($itemTypeID, $clientID);
 
 // And return XML response back to the application
 RSReturnQueryResults($results);
-?>

@@ -48,4 +48,3 @@ $results['result'] = "OK";
 
 // And return XML response back to application
 RSReturnArrayResults($results, false);
-?>

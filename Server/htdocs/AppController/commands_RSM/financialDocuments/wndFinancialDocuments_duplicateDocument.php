@@ -69,4 +69,3 @@ $results['newDocID'    ] = $newDocID;
 
 // Return results
 RSReturnArrayResults($results);
-?>

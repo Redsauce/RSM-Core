@@ -25,4 +25,3 @@ $results['clientValueRelated'] = $clientValueRelated;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

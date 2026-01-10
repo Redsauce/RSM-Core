@@ -65,4 +65,3 @@ $mysqli->query("ALTER TABLE rs_users ADD CONSTRAINT RS_BADGE_UNIQUE UNIQUE KEY (
 
 echo ("[SUCCESS]: Database successfully updated from v" . $oldVersion . " to v" . $newVersion . "\n\n");
 
-?>

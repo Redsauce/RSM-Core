@@ -32,4 +32,3 @@ $subAccounts = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties,
 
 // Return results
 RSReturnQueryResults($subAccounts);
-?>

@@ -19,4 +19,3 @@ isset($GLOBALS[$cstRS_POST]['orders'      ]) ? $orderList      = explode(",",  $
 // Execute and write XML Response back to the application
 RSReturnArrayResults(reorderItems($clientID, $itemTypeID, $propertyID, $parentID, $idList, $orderList));
 
-?>

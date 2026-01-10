@@ -204,4 +204,3 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

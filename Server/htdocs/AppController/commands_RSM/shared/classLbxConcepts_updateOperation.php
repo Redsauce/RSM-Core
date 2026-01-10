@@ -54,4 +54,3 @@ $results['total'] = round($total, 2);
 
 // Return results
 RSReturnArrayResults($results);
-?>

@@ -11,4 +11,3 @@ $results = RSQuery("SELECT RS_PROPERTY_ID AS 'propertyID' FROM rs_property_app_r
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>

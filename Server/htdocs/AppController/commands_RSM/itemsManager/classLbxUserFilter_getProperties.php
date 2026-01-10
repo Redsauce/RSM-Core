@@ -26,4 +26,3 @@ if (($GLOBALS[$cstRS_POST][$cstClientID] != 0) AND ($GLOBALS[$cstRS_POST][$cstUs
 }
 // And write XML Response back to the application
 RSReturnArrayQueryResults($data);
-?>

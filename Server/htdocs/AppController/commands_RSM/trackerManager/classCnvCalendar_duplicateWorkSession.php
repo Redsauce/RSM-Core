@@ -261,4 +261,3 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

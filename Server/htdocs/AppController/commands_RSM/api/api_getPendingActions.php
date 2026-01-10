@@ -85,4 +85,3 @@ foreach ($results as $row) {
 
 // And write XML Response back to the application without compression// Return results
 RSReturnArrayQueryResults($results, false);
-?>

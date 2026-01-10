@@ -32,4 +32,3 @@ $actions = getActionsByURLTriggerName($RStrigger, $clientID);
 foreach ($actions as $action)
       $result = queueEvent($clientID, $action["ID"], $RSdata, $action["priority"], $action["avoidDuplication"]);
 
-?>

@@ -20,5 +20,3 @@ foreach ($categoriesList as $category) {
 	
 // Return results			
 RSReturnArrayQueryResults($results);
-?>
-

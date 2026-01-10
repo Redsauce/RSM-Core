@@ -18,4 +18,3 @@ if ($result) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>
