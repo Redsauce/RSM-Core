@@ -34,8 +34,8 @@ function RSclientFromToken($RStoken) {
 		$row = $clients->fetch_assoc();
 		return $row['RS_CLIENT_ID'];
 	} else {
-			//query failed or client not related
-			return 0;
+		//query failed or client not related
+		return 0;
 	}
 }
 

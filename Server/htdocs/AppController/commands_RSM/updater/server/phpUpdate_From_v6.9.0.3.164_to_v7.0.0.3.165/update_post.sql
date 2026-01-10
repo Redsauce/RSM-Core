@@ -79,8 +79,8 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (498,'invoice.client.concept.showPrice',70,'Indicate whether the item should be included in the invoice calculation.','text');
 
-REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
-	VALUES (499,'invoice.client.concept.invoiceID',70,'Indicate the invoice to which the item belongs.','identifier');
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE,RS_REFERRED_ITEMTYPE)
+	VALUES (499,'invoice.client.concept.invoiceID',70,'Indicate the invoice to which the item belongs.','identifier',38);
 
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (500,'invoice.client.concept.discount',70,'Specify the discount rate to be applied to the invoice line.','float');
