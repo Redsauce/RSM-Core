@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ***************************************************************************************
 // Description:
 //     Returns the list of tokens pertaining to a client with their corresponding IDs

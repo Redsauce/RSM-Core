@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // A simply function to check the presence of an element into an array...
 function search_in_array($array, $key, $value) {
 

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ****************************************************************************************
 // DESCRIPTION
 //     Retrieves a list of itemtypes with the words SOME or ALL, depending on the number of permissions for all visible properties related to the token

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ***************************************************************************************
 // DESCRIPTION
 //     Creates a token and returns the token ID and the token string. The new token will be

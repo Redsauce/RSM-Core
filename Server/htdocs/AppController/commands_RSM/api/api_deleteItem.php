@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //*****************************************************************************
 //Description:
 //    Deletes an item of the specified itemType with the associated values

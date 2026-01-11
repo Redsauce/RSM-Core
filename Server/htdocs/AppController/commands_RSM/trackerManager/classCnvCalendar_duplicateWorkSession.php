@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // A little function that returns true if the day passed is cutted off the interval...
 function isDayCuttedOff($dayName) {
     global $daysToCutOff;

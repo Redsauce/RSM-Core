@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //****************************************************************************************
 //Description:
 //    Remove a permission for the specified type and the given token and property

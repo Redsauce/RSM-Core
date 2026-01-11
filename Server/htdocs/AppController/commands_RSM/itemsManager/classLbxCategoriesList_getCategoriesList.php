@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //***************************************************
 //Description:
 //	Returns all the categories for the given itemtype

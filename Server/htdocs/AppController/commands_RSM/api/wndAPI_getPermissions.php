@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //****************************************************************************************
 // DESCRIPTION
 //     Retrieves the list of permissions for the given token and itemtypeID

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //***************************************************
 //Description:
 //	Get the passed operation concepts

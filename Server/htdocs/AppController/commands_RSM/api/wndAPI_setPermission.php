@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //****************************************************************************************
 //Description:
 //    Creates a permission of the specified type for the given token and property

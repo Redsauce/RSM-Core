@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //***************************************************
 //Description:
 //	Get client custom property name related with received appPropertyName

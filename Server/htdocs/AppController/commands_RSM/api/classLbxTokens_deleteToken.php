@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ***************************************************************************************
 // DESCRIPTION
 //     Deletes the token identified for a specified clientID

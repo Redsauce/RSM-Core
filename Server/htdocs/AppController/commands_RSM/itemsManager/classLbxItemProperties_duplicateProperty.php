@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //***************************************************
 //DESCRIPTION:
 //     Replace the items of a property (propertyIDend) based on another (propertyIDstart) of the same itemType.

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // Functions in this file related with the use of tokens in RSM
 // - RSclientFromToken
 // - RSenableToken

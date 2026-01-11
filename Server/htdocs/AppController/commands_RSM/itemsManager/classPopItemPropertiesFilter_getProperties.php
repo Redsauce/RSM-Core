@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //
 // classLbxItemPropertiesFilter_getProperties.php
 // ---> updated for the v.3.10

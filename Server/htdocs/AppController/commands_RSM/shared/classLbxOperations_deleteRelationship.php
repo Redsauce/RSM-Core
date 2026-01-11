@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //***************************************************
 //Description:
 //	Delete a relationship between a two operations

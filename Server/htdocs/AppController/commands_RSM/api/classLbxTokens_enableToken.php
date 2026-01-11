@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ***************************************************************************************
 // DESCRIPTION
 //      Enables the token pertaining to the tokenID passed as parameter
