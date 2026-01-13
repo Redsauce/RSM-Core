@@ -52,12 +52,11 @@ $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 // Params
-$propertyIDs          = isset($requestBody->propertyIDs) ? $requestBody->propertyIDs : '';
-$filterRules          = isset($requestBody->filterRules) ? $requestBody->filterRules : '';
-$extFilterRules       = isset($requestBody->extFilterRules) ? $requestBody->extFilterRules : '';
-$originalIDs          = isset($requestBody->IDs) ? $requestBody->IDs : '';
-$itemTypeID           = isset($requestBody->itemTypeID) ? $requestBody->itemTypeID : '';
-
+$propertyIDs          = $requestBody->propertyIDs;
+$filterRules          = $requestBody->filterRules;
+$extFilterRules       = $requestBody->extFilterRules;
+$originalIDs          = $requestBody->IDs;
+$itemTypeID           = $requestBody->itemTypeID;
 
 // includeCategories filter
 $includeCategories = false;
@@ -260,16 +259,8 @@ function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
   checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
-  if (isset($body->propertyIDs)) {
-    checkIsArray($body->propertyIDs);
-  }
-  if (isset($body->IDs)) {
-    checkIsArray($body->IDs);
-  }
-  if (isset($body->filterRules)) {
-    checkIsArray($body->filterRules);
-  }
-  if (isset($body->extFilterRules)) {
-    checkIsArray($body->extFilterRules);
-  }
+  checkIsArray($body->propertyIDs);
+  checkIsArray($body->IDs);
+  checkIsArray($body->filterRules);
+  checkIsArray($body->extFilterRules);
 }
