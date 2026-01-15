@@ -105,6 +105,8 @@ REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCR
 REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
 	VALUES (511,'crmAccounts.taxScope',59,'Stores the tax scope of the account','text');
 
+REPLACE INTO rs_property_app_definitions (RS_ID,RS_NAME,RS_ITEM_TYPE_ID,RS_DESCRIPTION,RS_TYPE)
+	VALUES (512,'staff.timezone',3,'Timezone used to display dates and times for the user','text');
 
 # Create a table to track client data
 CREATE TABLE IF NOT EXISTS rs_client_stats (
