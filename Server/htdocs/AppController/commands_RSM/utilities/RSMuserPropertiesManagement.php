@@ -42,4 +42,3 @@ function getUserProperties($userID,$clientID,$itemTypeID){
 	return $results;
 }
 
-?>

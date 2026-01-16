@@ -20,9 +20,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMmediaManagement.php";
 
-$propertyIDstart    = $GLOBALS['RS_POST']['propertyIDstart' ];
-$propertyIDend      = $GLOBALS['RS_POST']['propertyIDend'];
-$clientID           = $GLOBALS['RS_POST']['clientID'];
+
+$propertyIDstart    = $GLOBALS[$cstRS_POST][$cstPropertyIDstart];
+$propertyIDend      = $GLOBALS[$cstRS_POST][$cstPropertyIDend];
+$clientID           = $GLOBALS[$cstRS_POST][$cstClientID];
 $userID             = RSCheckUserAccess();
 
 // The user must to have permission to access to both properties
@@ -86,8 +87,7 @@ else{
 RSReturnArrayResults($results);
 
 // This function returns the closest mysql itemtype for a given RSM property
-function typeMySQL($type){
-
+function typeMySQL($type) {
     switch($type){
         case "text":
             $mysqlType = "char";
@@ -138,7 +138,7 @@ function typeMySQL($type){
 }
 
 // This function returns the table where RSM saves the data depending on the type
-function RSMtable($type){
+function RSMtable($type) {
     switch($type){
         case "integer":
             $tableName = "rs_property_integers";
@@ -176,4 +176,3 @@ function RSMtable($type){
     return $tableName;
 }
 
-?>

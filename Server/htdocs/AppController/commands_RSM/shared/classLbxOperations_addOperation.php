@@ -10,8 +10,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$subAccountID = $GLOBALS['RS_POST']['subAccountID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
 
 // get the operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName('operations', $clientID);
@@ -49,4 +49,3 @@ $results['status'] = getPropertyValue($definitions['operationStatus'], $itemType
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

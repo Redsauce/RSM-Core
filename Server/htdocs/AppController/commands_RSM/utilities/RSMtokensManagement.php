@@ -34,8 +34,8 @@ function RSclientFromToken($RStoken) {
 		$row = $clients->fetch_assoc();
 		return $row['RS_CLIENT_ID'];
 	} else {
-			//query failed or client not related
-			return 0;
+		//query failed or client not related
+		return 0;
 	}
 }
 
@@ -181,10 +181,11 @@ function RShasTokenPermissions($RStoken, $propertiesID, $permission) {
 }
 
 function RShasTokenPermission($RStoken, $propertyId, $permission) {
+	global $cstRS_POST;
 	$tokenID = RSgetTokenID($RStoken);
 
 	// If the user needs a translated value related with itemTypes, we will see if the user has access to the translated main property of that itemtype
-    if ((isset($GLOBALS['RS_POST']['translateIDs'])) && ($GLOBALS['RS_POST']['translateIDs'] == "true")) {
+	if ((isset($GLOBALS[$cstRS_POST]['translateIDs'])) && ($GLOBALS[$cstRS_POST]['translateIDs'] == "true")) {
         $propertyType = getPropertyType($propertyId, RSclientFromToken($RStoken));
         if ($propertyType == "identifier" || $propertyType == "identifiers"){
             //Get the main property of the referred itemtype
@@ -205,4 +206,3 @@ function RShasTokenPermission($RStoken, $propertyId, $permission) {
 
 	return true;
 }
-?>

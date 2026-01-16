@@ -10,4 +10,3 @@ $results = RSQuery($theQuery);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);
-?>

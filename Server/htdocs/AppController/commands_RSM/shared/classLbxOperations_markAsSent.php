@@ -10,9 +10,9 @@ include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
-$sendDate = $GLOBALS['RS_POST']['sendDate'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
+$sendDate = $GLOBALS[$cstRS_POST]['sendDate'];
 
 // get operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
@@ -25,4 +25,3 @@ $results['sendDate'] = getPropertyValue($definitions['operationSendDate'], $item
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

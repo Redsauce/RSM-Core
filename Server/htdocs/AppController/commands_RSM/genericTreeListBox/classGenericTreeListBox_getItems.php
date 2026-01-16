@@ -7,16 +7,16 @@ require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 
 // Parameters validation
-isset($GLOBALS['RS_POST']['clientID'          ]) ? $clientID          =               $GLOBALS['RS_POST']['clientID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentID'          ]) ? $parentID          =               $GLOBALS['RS_POST']['parentID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentItemTypeID']) && $GLOBALS['RS_POST']['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS['RS_POST']['parentItemTypeID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",",  $GLOBALS['RS_POST']['allowedItemTypeIDs']) : dieWithError(400);
-isset($GLOBALS['RS_POST']['fastFilter'        ]) ? $fastFilter        = base64_decode($GLOBALS['RS_POST']['fastFilter'        ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterID'          ]) ? $filterID          =               $GLOBALS['RS_POST']['filterID'          ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['extraFilter'       ]) ? $extraFilter       =               $GLOBALS['RS_POST']['extraFilter'       ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['returnOrder'       ]) ? $returnOrder       =               $GLOBALS['RS_POST']['returnOrder'       ]  : $returnOrder = 0;
+isset($GLOBALS[$cstRS_POST]['clientID'          ]) ? $clientID          =               $GLOBALS[$cstRS_POST]['clientID'          ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentID'          ]) ? $parentID          =               $GLOBALS[$cstRS_POST]['parentID'          ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentItemTypeID']) && $GLOBALS[$cstRS_POST]['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS[$cstRS_POST]['parentItemTypeID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",",  $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['fastFilter'        ]) ? $fastFilter        = base64_decode($GLOBALS[$cstRS_POST]['fastFilter'        ]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterID'          ]) ? $filterID          =               $GLOBALS[$cstRS_POST]['filterID'          ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['extraFilter'       ]) ? $extraFilter       =               $GLOBALS[$cstRS_POST]['extraFilter'       ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['returnOrder'       ]) ? $returnOrder       =               $GLOBALS[$cstRS_POST]['returnOrder'       ]  : $returnOrder = 0;
 
-$avoidChildsInRoot = isset($GLOBALS['RS_POST']['avoidChildsInRoot' ]) ? true : false;
+$avoidChildsInRoot = isset($GLOBALS[$cstRS_POST]['avoidChildsInRoot' ]) ? true : false;
 
 $parentItemTypeID = ParseITID($parentItemTypeID, $clientID);
 
@@ -224,4 +224,3 @@ array_unshift($results, array("result" => "OK", "filteredID" => implode(",", $de
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

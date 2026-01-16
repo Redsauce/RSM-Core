@@ -3,7 +3,7 @@
 require_once '../utilities/RSdatabase.php';
 
 // get client name and default logo
-$result = RSquery("SELECT RS_NAME, RS_LOGO FROM rs_clients WHERE RS_ID = " . $GLOBALS['RS_POST']['clientID']);
+$result = RSquery("SELECT RS_NAME, RS_LOGO FROM rs_clients WHERE RS_ID = " . $GLOBALS[$cstRS_POST][$cstClientID]);
 
 // build results array
 $results = array();
@@ -17,4 +17,3 @@ if ($result) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

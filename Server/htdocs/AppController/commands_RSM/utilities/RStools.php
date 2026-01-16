@@ -490,8 +490,12 @@ function parseDatetime($datetime)
     $timeInfo = explode(':', $dateAndTime[1]);
 
     return array(
-        'year' => $dateInfo[0], 'month' => $dateInfo[1], 'day' => $dateInfo[2],
-        'hour' => $timeInfo[0], 'minute' => $timeInfo[1], 'second' => $timeInfo[2]
+        'year' => $dateInfo[0],
+        'month' => $dateInfo[1],
+        'day' => $dateInfo[2],
+        'hour' => $timeInfo[0],
+        'minute' => $timeInfo[1],
+        'second' => $timeInfo[2]
     );
 }
 
@@ -574,8 +578,9 @@ function setAuthorizationTokenOnGlobals()
     // The RFC2616 standard defines that header fields must be case-insensitive. We convert the keys of the header array to lowercase before using them.
     $lowerKeysHeaders = array_change_key_case(getallheaders());
 
+    global $cstRS_POST, $cstRStoken;
     if (isset($lowerKeysHeaders["authorization"])) {
-        $GLOBALS['RS_POST']['RStoken'] = $lowerKeysHeaders["authorization"];
+        $GLOBALS[$cstRS_POST][$cstRStoken] = $lowerKeysHeaders["authorization"];
     }
 }
 
@@ -590,7 +595,9 @@ function replaceUtf8Characters($propertyValue)
 function getRequestBody()
 {
     global $RSallowDebug;
-    $body = json_decode(stripslashes(file_get_contents('php://input')));
+    // Note: stripslashes() removed - it was for legacy magic_quotes (removed in PHP 5.4)
+    // and corrupts valid JSON escapes like backslashes in Windows paths
+    $body = json_decode(file_get_contents('php://input'));
     if ($body == "") {
         if ($RSallowDebug) {
             returnJsonMessage(400, "Invalid JSON body");
@@ -611,7 +618,7 @@ function returnJsonMessage($code, $message)
     if ($message != "") {
         $json = '{"message": "' . $message . '"}';
     }
-    
+
     header('Content-Type: application/json', true, $code);
     header("Content-Length: " . strlen($json));
     echo $json;
@@ -634,9 +641,10 @@ function returnJsonResponse($response)
 function getClientID()
 {
     global $RSallowDebug;
+    global $cstRS_POST, $cstClientID;
 
-    if (isset($GLOBALS['RS_POST']['clientID'])) {
-        return $GLOBALS['RS_POST']['clientID'];
+    if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+        return $GLOBALS[$cstRS_POST][$cstClientID];
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "clientID could not be retrieved");
@@ -652,8 +660,10 @@ function getRStoken()
 {
     global $RSallowDebug;
 
-    if (isset($GLOBALS['RS_POST']['RStoken'])) {
-        return $GLOBALS['RS_POST']['RStoken'];
+    global $cstRS_POST, $cstRStoken;
+
+    if (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
+        return $GLOBALS[$cstRS_POST][$cstRStoken];
     } else {
         if ($RSallowDebug) {
             returnJsonMessage(400, "RStoken could not be retrieved");

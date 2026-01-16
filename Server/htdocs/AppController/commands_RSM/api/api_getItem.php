@@ -18,14 +18,14 @@ require_once "./api_headers.php";
 $RSallowUncompressed = true;
 
 // definitions
-isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemID"    ]) ? $itemID     = $GLOBALS["RS_POST"]["itemID"    ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["itemTypeID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["RStoken"   ]) ? $RStoken    = $GLOBALS["RS_POST"]["RStoken"   ] : $RStoken = "";
+isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]["clientID"  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["itemID"    ]) ? $itemID     = $GLOBALS[$cstRS_POST]["itemID"    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken = "";
 
 $translateIDs = false;
-if (isset($GLOBALS['RS_POST']['translateIDs'])) {
-      if ($GLOBALS['RS_POST']['translateIDs'] == "true") $translateIDs = true;
+        if (isset($GLOBALS[$cstRS_POST]['translateIDs'])) {
+            if ($GLOBALS[$cstRS_POST]['translateIDs'] == "true") $translateIDs = true;
 }
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
@@ -97,4 +97,3 @@ foreach ($properties as $property) {
 
 // And write XML Response back to the application without compression
 RSReturnArrayQueryResults($results, false);
-?>

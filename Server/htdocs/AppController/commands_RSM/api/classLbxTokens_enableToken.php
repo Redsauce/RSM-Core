@@ -15,7 +15,7 @@
 require_once "../utilities/RSdatabase.php";
 
 // Set the token as enabled in the database
-$results = RSenableToken($GLOBALS['RS_POST']['token'],$GLOBALS['RS_POST']['clientID']);
+$results = RSenableToken($GLOBALS[$cstRS_POST]['token'],$GLOBALS[$cstRS_POST][$cstClientID]);
 
 // Generate a response array for RSM
 if (!$results) {
@@ -29,4 +29,3 @@ if (!$results) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
-?>

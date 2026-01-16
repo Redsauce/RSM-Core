@@ -18,12 +18,12 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // Definitions
-isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID     =               $GLOBALS['RS_POST']['clientID'   ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID' ]) ? $itemTypeID   =               $GLOBALS['RS_POST']['itemTypeID' ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'     ]) ? $itemID       =               $GLOBALS['RS_POST']['itemID'     ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['numCopies'  ]) ? $numCopies    =               $GLOBALS['RS_POST']['numCopies'  ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['properties' ]) ? $properties   =               $GLOBALS['RS_POST']['properties' ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['descendants']) ? $descendants  = explode(',',  $GLOBALS['RS_POST']['descendants']) : $descendants = array();
+isset($GLOBALS[$cstRS_POST]['clientID'   ]) ? $clientID     =               $GLOBALS[$cstRS_POST]['clientID'   ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemTypeID' ]) ? $itemTypeID   =               $GLOBALS[$cstRS_POST]['itemTypeID' ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemID'     ]) ? $itemID       =               $GLOBALS[$cstRS_POST]['itemID'     ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['numCopies'  ]) ? $numCopies    =               $GLOBALS[$cstRS_POST]['numCopies'  ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['properties' ]) ? $properties   =               $GLOBALS[$cstRS_POST]['properties' ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(',',  $GLOBALS[$cstRS_POST]['descendants']) : $descendants = array();
 
 // organize descendants by parent itemtype
 $descendantsForItemtype = array();
@@ -77,4 +77,3 @@ if (count($newItemIDs)==1) {
 
 $results['newItemIDs'] = implode(',', $elements);
 RSReturnArrayResults($results);
-?>

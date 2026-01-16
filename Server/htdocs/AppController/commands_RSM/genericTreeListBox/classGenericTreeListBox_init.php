@@ -5,9 +5,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'        ]) ? $clientID              = $GLOBALS['RS_POST']['clientID'        ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['baseItemTypes'   ]) ? $baseItemTypesNames    = $GLOBALS['RS_POST']['baseItemTypes'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['allowedItemTypes']) ? $allowedItemTypesNames = $GLOBALS['RS_POST']['allowedItemTypes'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'        ]) ? $clientID              = $GLOBALS[$cstRS_POST]['clientID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['baseItemTypes'   ]) ? $baseItemTypesNames    = $GLOBALS[$cstRS_POST]['baseItemTypes'   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['allowedItemTypes']) ? $allowedItemTypesNames = $GLOBALS[$cstRS_POST]['allowedItemTypes'] : dieWithError(400);
 
 //allowed itemTypes IDs & names
 $itemTypesString  = '';
@@ -91,4 +91,3 @@ $results['baseItemTypeIDs'] = rtrim($results['baseItemTypeIDs'], ",");
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

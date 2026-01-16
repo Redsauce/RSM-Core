@@ -15,9 +15,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID       = $GLOBALS['RS_POST']['clientID'      ];
-$itemType       = $GLOBALS['RS_POST']['itemType'      ];
-$getSetOfValues = $GLOBALS['RS_POST']['getSetOfValues'];
+$clientID       = $GLOBALS[$cstRS_POST]['clientID'      ];
+$itemType       = $GLOBALS[$cstRS_POST]['itemType'      ];
+$getSetOfValues = $GLOBALS[$cstRS_POST]['getSetOfValues'];
 
 // Get item type ID
 $itemTypeID   = parseITID($itemType, $clientID);
@@ -113,4 +113,3 @@ foreach ($visibleProperties as $property) {
 
 // Return results
 RSReturnArrayQueryResults($results);
-?>

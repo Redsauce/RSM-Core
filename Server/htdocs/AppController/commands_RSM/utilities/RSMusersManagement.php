@@ -164,4 +164,3 @@ function getItemPropertyLists($clientID) {
 	return ($results);
 
 }
-?>

@@ -5,11 +5,11 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Retrieve POST variables
-isset($GLOBALS['RS_POST']['filterProperties']) ? $filterProperties = $GLOBALS['RS_POST']['filterProperties'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterRules'     ]) ? $filterRules      = $GLOBALS['RS_POST']['filterRules'     ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterType'      ]) ? $filterType       = $GLOBALS['RS_POST']['filterType'      ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['clientID'        ]) ? $clientID         = $GLOBALS['RS_POST']['clientID'        ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterID'        ]) ? $filterID         = $GLOBALS['RS_POST']['filterID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterProperties']) ? $filterProperties = $GLOBALS[$cstRS_POST]['filterProperties'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterRules'     ]) ? $filterRules      = $GLOBALS[$cstRS_POST]['filterRules'     ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterType'      ]) ? $filterType       = $GLOBALS[$cstRS_POST]['filterType'      ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'        ]) ? $clientID         = $GLOBALS[$cstRS_POST]['clientID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterID'        ]) ? $filterID         = $GLOBALS[$cstRS_POST]['filterID'        ] : dieWithError(400);
 
 if ($filterID == "") $filterID = "0";
 
@@ -107,4 +107,3 @@ if($clientID != 0 && $clientID != ""){
 
 // And return XML response back to application
 RSReturnArrayResults($results);
-?>

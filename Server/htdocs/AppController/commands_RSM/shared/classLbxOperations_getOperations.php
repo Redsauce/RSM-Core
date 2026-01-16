@@ -7,18 +7,18 @@ require_once "../utilities/RStools.php";
 
 // --- DEFINITIONS ---
 // -------------------
-isset($GLOBALS['RS_POST']['clientID'       ]) ? $clientID        =              $GLOBALS['RS_POST']['clientID'       ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'       ]) ? $clientID        =              $GLOBALS[$cstRS_POST]['clientID'       ]  : dieWithError(400);
 // this variable can be set to 0, indicating that the operations will not be filtered by accountID; it can be an accountID or a list of accounts IDs
-isset($GLOBALS['RS_POST']['accountID'      ]) ? $accountID       =              $GLOBALS['RS_POST']['accountID'      ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['accountID'      ]) ? $accountID       =              $GLOBALS[$cstRS_POST]['accountID'      ]  : dieWithError(400);
 // this variable can be set to 0, indicating that the operations will not be filtered by subAccountID; it can be an subAccountID or a list of subAccount IDs
-isset($GLOBALS['RS_POST']['subAccountID'   ]) ? $subAccountID    =              $GLOBALS['RS_POST']['subAccountID'   ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['subAccountID'   ]) ? $subAccountID    =              $GLOBALS[$cstRS_POST]['subAccountID'   ]  : dieWithError(400);
 // this variable can be set to 0, indicating that the operations will not be filtered by linkOperationID
-isset($GLOBALS['RS_POST']['linkOperationID']) ? $linkOperationID =              $GLOBALS['RS_POST']['linkOperationID']  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['linkOperationID']) ? $linkOperationID =              $GLOBALS[$cstRS_POST]['linkOperationID']  : dieWithError(400);
 // this variable can be set to 0, indicating that the operations will not be filtered by year; otherwise, this value must be formed by an year and a property, separated by semicolon (for example, 2009;SendDate)
-isset($GLOBALS['RS_POST']['year'           ]) ? $year            =              $GLOBALS['RS_POST']['year'           ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['year'           ]) ? $year            =              $GLOBALS[$cstRS_POST]['year'           ]  : dieWithError(400);
 // this variable contains the names of the properties you want to return, separated by coma; the property names are contained in the RSdefinitions file; this string must be contain only the second part of those names (without the item type definition)
-isset($GLOBALS['RS_POST']['propertyList'   ]) ? $propertyNames   = explode(',', $GLOBALS['RS_POST']['propertyList'   ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['filterList'     ]) ? $filterList      =              $GLOBALS['RS_POST']['filterList'     ]  : $filterList = '';
+isset($GLOBALS[$cstRS_POST]['propertyList'   ]) ? $propertyNames   = explode(',', $GLOBALS[$cstRS_POST]['propertyList'   ]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['filterList'     ]) ? $filterList      =              $GLOBALS[$cstRS_POST]['filterList'     ]  : $filterList = '';
 
 if ($subAccountID != '0') {
 	// we will filter by subAccountID only...
@@ -125,4 +125,3 @@ $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retur
 
 // Write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

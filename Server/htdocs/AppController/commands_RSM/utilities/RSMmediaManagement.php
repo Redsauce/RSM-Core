@@ -239,4 +239,3 @@ function curlHeaderCallback($resURL, $strHeader) {
     return strlen($strHeader);
 }
 
-?>

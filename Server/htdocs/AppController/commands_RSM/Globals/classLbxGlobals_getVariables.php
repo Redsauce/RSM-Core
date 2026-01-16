@@ -4,10 +4,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMglobalVariables.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $results = getGlobalvariables($clientID);
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

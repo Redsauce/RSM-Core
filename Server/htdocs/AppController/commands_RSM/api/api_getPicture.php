@@ -39,7 +39,7 @@ require_once "./api_headers.php";
 
 isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
-isset($GLOBALS["RS_GET"]["RStoken"]   ) ? $RStoken    = $GLOBALS["RS_GET"]["RStoken"   ] : $RStoken = '';
+isset($GLOBALS["RS_GET"][$cstRStoken]   ) ? $RStoken    = $GLOBALS["RS_GET"][$cstRStoken]   : $RStoken = '';
 isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
 
 // Check token permissions
@@ -47,7 +47,7 @@ if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
 isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
 isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
-$clientID = $GLOBALS["RS_POST"]["clientID"];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $itemID . "_" . $w . "_" . $h . "_" . $adj;
@@ -439,3 +439,6 @@ function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
+
+
+

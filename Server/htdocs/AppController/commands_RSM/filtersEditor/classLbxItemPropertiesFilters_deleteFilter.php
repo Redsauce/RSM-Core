@@ -8,8 +8,8 @@ include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$filterID = (($GLOBALS['RS_POST']['filterID']=="")?("0"):($GLOBALS['RS_POST']['filterID']));
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$filterID = (($GLOBALS[$cstRS_POST]['filterID']=="")?("0"):($GLOBALS[$cstRS_POST]['filterID']));
 
 if($clientID!=0&&$clientID!=""){	
 	if($filterID!=0&&$filterID!=""){	
@@ -33,4 +33,3 @@ if($clientID!=0&&$clientID!=""){
 			
 // And return XML response back to application			
 RSReturnArrayResults($results);
-?>

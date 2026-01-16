@@ -58,4 +58,3 @@ function getGlobalVariables($clientID) {
 	return $results;
 }
 
-?>

@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID     = $GLOBALS['RS_POST']['clientID'    ];
-$subAccountID = $GLOBALS['RS_POST']['subAccountID'];
+$clientID     = $GLOBALS[$cstRS_POST]['clientID'    ];
+$subAccountID = $GLOBALS[$cstRS_POST]['subAccountID'];
 
 // get the item types
 $itemTypeID           = getClientItemTypeID_RelatedWith_byName($definitions['subAccounts'], $clientID);
@@ -97,4 +97,3 @@ $results['result'] = 'OK';
 
 // Return results
 RSReturnArrayResults($results);
-?>

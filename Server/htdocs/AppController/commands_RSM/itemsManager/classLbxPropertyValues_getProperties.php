@@ -2,13 +2,14 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
+require_once "../utilities/RSvalidationFunctions.php";
 
 // definitions
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$itemID     = $GLOBALS['RS_POST']['itemID'    ];
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
-$userID     = $GLOBALS['RS_POST']['loginID'   ];
-$getLists   = $GLOBALS['RS_POST']['getLists'  ];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$itemID     = $GLOBALS[$cstRS_POST][$cstItemID];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
+$userID     = RSCheckUserAccess();
+$getLists   = isset($GLOBALS[$cstRS_POST]["getLists"]) ? $GLOBALS[$cstRS_POST]["getLists"] : '';
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
@@ -41,4 +42,3 @@ if ($getLists == 'true' && count($results) > 0) {
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results);
-?>

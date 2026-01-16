@@ -4,12 +4,12 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 require_once '../utilities/RSMlistsManagement.php';
 
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
-$userID     = $GLOBALS['RS_POST']['userID'    ];
-$itemTypeID = $GLOBALS['RS_POST']['itemtypeID'];
-$showIDs    = $GLOBALS['RS_POST']['showIDs'   ];
+$clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
+$userID     = $GLOBALS[$cstRS_POST]['userID'    ];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$showIDs    = $GLOBALS[$cstRS_POST]['showIDs'   ];
 
-$passedProperties = explode(',', $GLOBALS['RS_POST']['propertyIDs']);
+$passedProperties = explode(',', $GLOBALS[$cstRS_POST]['propertyIDs']);
 
 // generate arrays
 for ($i = 0; $i < count($passedProperties); $i++) {
@@ -72,4 +72,3 @@ $totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $ret
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($totalData);
-?>

@@ -27,11 +27,12 @@
 
 // Check if the current application is compatible with the current database
 function RSCheckCompatibleDB($serviceMode) {
-    if (!isset($GLOBALS['RS_POST']['RSbuild'   ])) return -1;
-    if (!isset($GLOBALS['RS_POST']['RSplatform'])) return -1;
-    if (!isset($GLOBALS['RS_POST']['RSappName' ])) return -1;
+    global $cstRS_POST;
+    if (!isset($GLOBALS[$cstRS_POST]['RSbuild'   ])) return -1;
+    if (!isset($GLOBALS[$cstRS_POST]['RSplatform'])) return -1;
+    if (!isset($GLOBALS[$cstRS_POST]['RSappName' ])) return -1;
 
-    $theQuery = "SELECT `RS_ID` FROM `rs_versions` WHERE `RS_BUILD`='" . $GLOBALS['RS_POST']['RSbuild'] . "' AND `RS_OS`= '" . $GLOBALS['RS_POST']['RSplatform'] . "' AND `RS_NAME` ='" . $GLOBALS['RS_POST']['RSappName'] . "'";
+    $theQuery = "SELECT `RS_ID` FROM `rs_versions` WHERE `RS_BUILD`='" . $GLOBALS[$cstRS_POST]['RSbuild'] . "' AND `RS_OS`= '" . $GLOBALS[$cstRS_POST]['RSplatform'] . "' AND `RS_NAME` ='" . $GLOBALS[$cstRS_POST]['RSappName'] . "'";
 
     if ($serviceMode == 0) $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
 
@@ -56,18 +57,21 @@ function RSCheckUserAccess() {
     // If we return 0: RSM could not match the provided data to a single user in a single customer
     // If we return an integer: This is the ID of the user for the passed clientID
     
-    if (!isset($GLOBALS['RS_POST']['RSLogin'])) return 0;
+    global $cstRS_POST;
+    global $cstClientID;
+
+    if (!isset($GLOBALS[$cstRS_POST]['RSLogin'])) return 0;
 
     // We don't allow the script to continue execution with an empty clientID since the queries would throw an error
-    if ((isset($GLOBALS['RS_POST']['clientID'])) && ($GLOBALS['RS_POST']['clientID'] == "")) return -1;
+    if ((isset($GLOBALS[$cstRS_POST][$cstClientID])) && ($GLOBALS[$cstRS_POST][$cstClientID] == "")) return -1;
 
-    if ((isset($GLOBALS['RS_POST']['RSuserMD5Password'])) && ($GLOBALS['RS_POST']['RSuserMD5Password'] != "")) {
+    if ((isset($GLOBALS[$cstRS_POST]['RSuserMD5Password'])) && ($GLOBALS[$cstRS_POST]['RSuserMD5Password'] != "")) {
         // Continue checking the username and password.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS['RS_POST']['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS[$cstRS_POST]['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
 
     } else {
         // There is no defined password. Use the login as a badge.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS['RS_POST']['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS['RS_POST']['clientID'];
+        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
     }
 
     $users = RSQuery($theQuery);
@@ -100,4 +104,3 @@ function getUserStaffID($userID, $clientID) {
     $row = $users->fetch_assoc();
     return $row['RS_ITEM_ID'];
 }
-?>

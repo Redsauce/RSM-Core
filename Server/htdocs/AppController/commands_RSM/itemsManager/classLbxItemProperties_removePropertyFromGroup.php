@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMusersManagement.php";
 
-isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["groupID"   ]) ? $groupID    = $GLOBALS["RS_POST"]["groupID"   ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["propertyID"]) ? $propertyID = $GLOBALS["RS_POST"]["propertyID"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID])   ? $clientID   = $GLOBALS[$cstRS_POST][$cstClientID]   : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstGroupID])    ? $groupID    = $GLOBALS[$cstRS_POST][$cstGroupID]    : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstPropertyID]) ? $propertyID = $GLOBALS[$cstRS_POST][$cstPropertyID] : dieWithError(400);
 
 $results["result"] = "NOK";
 
@@ -25,4 +25,3 @@ if ($clientID != 0) {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

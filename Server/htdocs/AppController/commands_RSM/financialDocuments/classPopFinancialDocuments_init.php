@@ -3,7 +3,7 @@
 require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
-isset($GLOBALS['RS_POST']['clientID']) ? $clientID = $GLOBALS['RS_POST']['clientID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 
 // get the operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName('financial.documents', $clientID);
@@ -73,4 +73,3 @@ for ($i = 0; $i < count($fds); $i++) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($fds);
-?>

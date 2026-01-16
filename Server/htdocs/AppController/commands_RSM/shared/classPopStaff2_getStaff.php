@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$onlyActive = $GLOBALS['RS_POST']['onlyActive'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$onlyActive = $GLOBALS[$cstRS_POST]['onlyActive'];
 
 // get the item type and the main value
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
@@ -32,4 +32,3 @@ $returnProperties[] = array('ID' => $mainPropertyID, 'name' => 'mainValue');
 $staff = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
 RSReturnQueryResults($staff);
-?>

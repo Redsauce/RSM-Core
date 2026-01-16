@@ -58,7 +58,6 @@ $extFilterRules       = $requestBody->extFilterRules;
 $originalIDs          = $requestBody->IDs;
 $itemTypeID           = $requestBody->itemTypeID;
 
-
 // includeCategories filter
 $includeCategories = false;
 if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
@@ -262,10 +261,6 @@ function verifyBodyContent($body)
   checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
   checkIsArray($body->propertyIDs);
   checkIsArray($body->IDs);
-  if (isset($body->filterRules)) {
-    checkIsArray($body->filterRules);
-  }
-  if (isset($body->extFilterRules)) {
-    checkIsArray($body->extFilterRules);
-  }
+  checkIsArray($body->filterRules);
+  checkIsArray($body->extFilterRules);
 }

@@ -5,8 +5,8 @@
     require_once "../utilities/RSMfiltersManagement.php";
 
     // definitions
-    isset($GLOBALS['RS_POST']['itemTypeIDs']) ? $itemTypeIDs = $GLOBALS['RS_POST']['itemTypeIDs'] : dieWithError(400);
-    isset($GLOBALS['RS_POST']['clientID'   ]) ? $clientID    = $GLOBALS['RS_POST']['clientID'   ] : dieWithError(400);
+    isset($GLOBALS[$cstRS_POST]['itemTypeIDs']) ? $itemTypeIDs = $GLOBALS[$cstRS_POST]['itemTypeIDs'] : dieWithError(400);
+    isset($GLOBALS[$cstRS_POST]['clientID'   ]) ? $clientID    = $GLOBALS[$cstRS_POST]['clientID'   ] : dieWithError(400);
 
     $returnArray = array();
     $itemTypeIDs = explode(",", $itemTypeIDs);
@@ -25,4 +25,3 @@
 
     // And return XML response back to application
     RSReturnArrayQueryResults($returnArray);
-?>

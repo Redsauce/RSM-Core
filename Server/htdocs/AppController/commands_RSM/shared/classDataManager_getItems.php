@@ -19,17 +19,17 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Retrieve the needed variables from the request
-$clientID       = $GLOBALS['RS_POST']['clientID'        ];
-$properties     = $GLOBALS['RS_POST']['properties'      ];
-$filters        = $GLOBALS['RS_POST']['filters'         ];
-$orderBy        = $GLOBALS['RS_POST']['orderBy'         ];
-$limit          = $GLOBALS['RS_POST']['limit'           ];
-$join           = $GLOBALS['RS_POST']['join'            ];
-$IDs            = $GLOBALS['RS_POST']['IDs'             ];
+$clientID       = $GLOBALS[$cstRS_POST][$cstClientID        ];
+$properties     = $GLOBALS[$cstRS_POST]['properties'      ];
+$filters        = $GLOBALS[$cstRS_POST]['filters'         ];
+$orderBy        = $GLOBALS[$cstRS_POST]['orderBy'         ];
+$limit          = $GLOBALS[$cstRS_POST]['limit'           ];
+$join           = $GLOBALS[$cstRS_POST]['join'            ];
+$IDs            = $GLOBALS[$cstRS_POST]['IDs'             ];
 
-$extFilterRules = isset($GLOBALS['RS_POST']['extFilterRules'])? $GLOBALS['RS_POST']['extFilterRules'] : '';
-$itemTypeID     = isset($GLOBALS['RS_POST']['itemTypeID'    ])? $GLOBALS['RS_POST']['itemTypeID'    ] : '';
-isset($GLOBALS['RS_POST']['orderPropertyID']) ? $orderPropertyID = $GLOBALS['RS_POST']['orderPropertyID'] : $orderPropertyID = "";
+$extFilterRules = isset($GLOBALS[$cstRS_POST]['extFilterRules'])? $GLOBALS[$cstRS_POST]['extFilterRules'] : '';
+$itemTypeID     = isset($GLOBALS[$cstRS_POST]['itemTypeID'    ])? $GLOBALS[$cstRS_POST]['itemTypeID'    ] : '';
+isset($GLOBALS[$cstRS_POST]['orderPropertyID']) ? $orderPropertyID = $GLOBALS[$cstRS_POST]['orderPropertyID'] : $orderPropertyID = "";
 
 // prepare return properties array
 $returnProperties = array();
@@ -106,4 +106,3 @@ if (is_string($results)) {
 } else {
     RSReturnArrayQueryResults($results);
 }
-?>

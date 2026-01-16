@@ -8,8 +8,7 @@ include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
-function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPath,$userID,$counter=100){
-
+function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPath,$userID,$counter=100) {
 	$counter--;
 	if(count($allowedItemPath)>0&&$counter>=0){
 		//extract(remove) and split first itemType/property in path
@@ -69,7 +68,7 @@ function deleteDescendants($clientID,$parentID,$parentItemTypeID,$allowedItemPat
 	return true;
 }
 
-function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,$allowedItemTypes,$userID){
+function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,$allowedItemTypes,$userID) {
 	$descendants=getDescendantsLevel($clientID,$parentItemTypeID,$allowedItemTypes);
 
 	foreach($descendants as $descendant){
@@ -100,19 +99,19 @@ function relocateDescendants($clientID,$parentID,$parentItemTypeID,$newParentID,
 }
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$itemIDs = explode(",",$GLOBALS['RS_POST']['itemIDs']);
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$itemIDs = explode(",",$GLOBALS[$cstRS_POST]['itemIDs']);
 if(isset($_POST['recursiveDelete'])){
-	$recursiveDelete = $GLOBALS['RS_POST']['recursiveDelete'];
-	if($GLOBALS['RS_POST']['allowedItemPaths']!=""){
-		$allowedItemPaths = explode(";;",$GLOBALS['RS_POST']['allowedItemPaths']);
+	$recursiveDelete = $GLOBALS[$cstRS_POST]['recursiveDelete'];
+	if($GLOBALS[$cstRS_POST]['allowedItemPaths']!=""){
+		$allowedItemPaths = explode(";;",$GLOBALS[$cstRS_POST]['allowedItemPaths']);
 	}else{
 		$allowedItemPaths = array();
 	}
 }
 if(isset($_POST['newParentID'])){
-	$newParentID = $GLOBALS['RS_POST']['newParentID'];
+	$newParentID = $GLOBALS[$cstRS_POST]['newParentID'];
 }
 if(isset($_POST['recursiveDelete'])&&isset($_POST['newParentID'])){
 	$results['result'] = "NOK";
@@ -238,4 +237,3 @@ if(isset($_POST['recursiveDelete'])&&isset($_POST['newParentID'])){
 
 // Return results
 RSReturnArrayResults($results);
-?>

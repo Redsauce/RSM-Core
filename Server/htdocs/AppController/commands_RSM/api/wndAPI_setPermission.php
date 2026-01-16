@@ -14,15 +14,14 @@ require_once "../utilities/RSdatabase.php";
 
 // First of all, get the ID related to the token
 // First of all recover the tokenID pertaining to the passed token
-$tokenID = RSgetTokenID($GLOBALS['RS_POST']['token']);
+$tokenID = RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
 
 // There is no need of checking if the permission has been already inserted
 // because the database structure avoids duplicaded permissions
 
 // And add the permission to the database
-$results = RScreateTokenPermission($tokenID,$GLOBALS['RS_POST']['clientID'],$GLOBALS['RS_POST']['propertyID'],$GLOBALS['RS_POST']['permission']);
+$results = RScreateTokenPermission($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],$GLOBALS[$cstRS_POST][$cstPropertyID],$GLOBALS[$cstRS_POST]['permission']);
                                                     
 $response['result'] = "OK";
 
 RSReturnArrayResults($response);
-?>

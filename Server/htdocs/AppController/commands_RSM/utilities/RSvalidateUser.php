@@ -33,8 +33,8 @@ require_once "RSdatabase.php";
 require_once "RStools.php";
 
 // Login is required. If the password is not passed, the login acts as the badge.
-isset($GLOBALS['RS_POST']['Login'   ]) ? $login    = $GLOBALS['RS_POST']['Login'   ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['Password']) ? $password = $GLOBALS['RS_POST']['Password'] : $password = "";
+isset($GLOBALS[$cstRS_POST]['Login'   ]) ? $login    = $GLOBALS[$cstRS_POST]['Login'   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['Password']) ? $password = $GLOBALS[$cstRS_POST]['Password'] : $password = "";
 
 if ($password == "") {
     // Verification with a badge
@@ -73,6 +73,4 @@ switch ($users->num_rows) {
 
         // Write XML Response back to the application
         RSReturnArrayQueryResults($results);
-    }
-
-?>
+}

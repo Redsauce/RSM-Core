@@ -6,11 +6,11 @@ require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $clientID   =               $GLOBALS['RS_POST']['clientID'  ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['tasks'     ]) ? $tasks      =               $GLOBALS['RS_POST']['tasks'     ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['newName'   ]) ? $newName    = base64_decode($GLOBALS['RS_POST']['newName'   ]) : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentID'  ]) ? $parentID   =               $GLOBALS['RS_POST']['parentID'  ]  : dieWithError(400);
-isset($GLOBALS['RS_POST']['parentType']) ? $parentType =               $GLOBALS['RS_POST']['parentType']  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID  ]) ? $clientID   =               $GLOBALS[$cstRS_POST][$cstClientID  ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['tasks'     ]) ? $tasks      =               $GLOBALS[$cstRS_POST]['tasks'     ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['newName'   ]) ? $newName    = base64_decode($GLOBALS[$cstRS_POST]['newName'   ]) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentID'  ]) ? $parentID   =               $GLOBALS[$cstRS_POST]['parentID'  ]  : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentType']) ? $parentType =               $GLOBALS[$cstRS_POST]['parentType']  : dieWithError(400);
 
 if ($tasks == '') {
 	// ERROR: no tasks selected
@@ -151,4 +151,3 @@ $results['taskID'] = $newTaskID;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

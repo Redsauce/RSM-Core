@@ -134,4 +134,3 @@ function value_exists($value,$tableName,$colName,$clientID,$extraReqs=null) {
 	return false;
 }
 
-?>

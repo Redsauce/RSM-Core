@@ -6,9 +6,9 @@ require_once "../utilities/RStools.php";
 
 $RSallowUncompressed = true;
 
-isset($GLOBALS['RS_POST']['RSdata'           ]) ? $RSdata            = $GLOBALS['RS_POST']['RSdata'           ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSLogin'          ]) ? $RSLogin           = $GLOBALS['RS_POST']['RSLogin'          ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RSuserMD5Password']) ? $RSuserMD5Password = $GLOBALS['RS_POST']['RSuserMD5Password'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSdata'           ]) ? $RSdata            = $GLOBALS[$cstRS_POST]['RSdata'           ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSLogin'          ]) ? $RSLogin           = $GLOBALS[$cstRS_POST]['RSLogin'          ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSuserMD5Password']) ? $RSuserMD5Password = $GLOBALS[$cstRS_POST]['RSuserMD5Password'] : dieWithError(400);
 
 // Check for encryption
 if (substr($RSdata, 0, 3) != ":::") {
@@ -48,4 +48,3 @@ $results['result'] = "OK";
 
 // And return XML response back to application
 RSReturnArrayResults($results, false);
-?>

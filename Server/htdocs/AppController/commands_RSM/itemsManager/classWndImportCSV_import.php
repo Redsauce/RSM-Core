@@ -4,14 +4,14 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$itemTypeID     =              $GLOBALS['RS_POST']['itemTypeID'    ] ;
-$clientID       =              $GLOBALS['RS_POST']['clientID'      ] ;
-$itemIDs        = explode(",", $GLOBALS['RS_POST']['itemIDs'       ]);
-$propertyIDs    = explode(',', $GLOBALS['RS_POST']['propertyIDs'   ]);
-$propertiesList = explode(':', $GLOBALS['RS_POST']['propertiesList']);
+$itemTypeID     =              $GLOBALS[$cstRS_POST]['itemTypeID'    ] ;
+$clientID       =              $GLOBALS[$cstRS_POST]['clientID'      ] ;
+$itemIDs        = explode(",", $GLOBALS[$cstRS_POST]['itemIDs'       ]);
+$propertyIDs    = explode(',', $GLOBALS[$cstRS_POST]['propertyIDs'   ]);
+$propertiesList = explode(':', $GLOBALS[$cstRS_POST]['propertiesList']);
 
-$overwrite      = $GLOBALS['RS_POST']['overwrite'] == 1? true : false;
-$trigger        = $GLOBALS['RS_POST']['allowTriggerEvents'] == 1? true : false;
+$overwrite      = $GLOBALS[$cstRS_POST]['overwrite'] == 1? true : false;
+$trigger        = $GLOBALS[$cstRS_POST]['allowTriggerEvents'] == 1? true : false;
 $overwriteQuery = $overwrite ? "REPLACE INTO " : "INSERT INTO ";
 
 
@@ -21,7 +21,7 @@ $propertyValues = array();
 for ($i = 0; $i < $numItems; $i++) $propertyValues[] = explode(' ', $propertiesList[$i]);
 
 
-if ($GLOBALS['RS_POST']['itemIDs'] == '') {
+if ($GLOBALS[$cstRS_POST]['itemIDs'] == '') {
     // create items without predefined IDs
 
     // retrieve the first itemID available
@@ -153,4 +153,3 @@ if ($trigger){
 
 // Write response back to application
 RSReturnArrayResults($results);
-?>

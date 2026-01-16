@@ -7,10 +7,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$ids = $GLOBALS['RS_POST']['itemIDs'];
-$force = $GLOBALS['RS_POST']['force'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$ids = $GLOBALS[$cstRS_POST]['itemIDs'];
+$force = $GLOBALS[$cstRS_POST]['force'];
 
 if ($force != 1) {
 
@@ -66,4 +66,3 @@ $results['result'] = 'OK';
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

@@ -6,7 +6,7 @@ require_once "../utilities/RStools.php";
 
 $RSallowUncompressed = true;
 
-isset($GLOBALS['RS_POST']['RSdata'  ]) ? $RSdata   = $GLOBALS['RS_POST']['RSdata'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['RSdata'  ]) ? $RSdata   = $GLOBALS[$cstRS_POST]['RSdata'  ] : dieWithError(400);
 
 // Check for encryption
 if (substr($RSdata, 0, 3) != ":::") {
@@ -41,4 +41,3 @@ foreach ($actionIDs as $actionID) {
 
 // And return XML response back to application
 RSReturnArrayResults($actions, false);
-?>

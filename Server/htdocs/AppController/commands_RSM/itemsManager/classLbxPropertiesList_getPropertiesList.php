@@ -3,8 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID=$GLOBALS['RS_POST']['clientID'];
-$categoryID=$GLOBALS['RS_POST']['categoryID'];
+
+$clientID=$GLOBALS[$cstRS_POST][$cstClientID];
+$categoryID=$GLOBALS[$cstRS_POST][$cstCategoryID];
 
 $itemTypeID = getClientCategoryItemType($categoryID, $clientID);
 
@@ -59,4 +60,3 @@ while($result=$results->fetch_assoc()){
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($array_res);
-?>

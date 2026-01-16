@@ -3,8 +3,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$listID = $GLOBALS['RS_POST']['listID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$listID = $GLOBALS[$cstRS_POST][$cstListID];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $listValues = getListValues($listID, $clientID);
 
@@ -21,4 +21,3 @@ foreach ($listValues as $value) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

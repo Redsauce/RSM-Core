@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$clientListID = $GLOBALS['RS_POST']['clientListID'];
-$appListID = $GLOBALS['RS_POST']['appListID'];
-$clientID = $GLOBALS['RS_POST']['clientID'];
+$clientListID = $GLOBALS[$cstRS_POST]['clientListID'];
+$appListID = $GLOBALS[$cstRS_POST]['appListID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $appListName = getAppListName($appListID);
 $clientListName = getListName($clientListID, $clientID);
@@ -24,4 +24,3 @@ $results['clientListNameRelated'] = $clientListNameRelated;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

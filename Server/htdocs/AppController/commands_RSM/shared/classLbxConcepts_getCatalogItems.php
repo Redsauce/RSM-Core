@@ -10,8 +10,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Get the parameters to work with
-isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["IDs"     ]) ? $itemIDs  = $GLOBALS["RS_POST"]["IDs"     ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["IDs"     ]) ? $itemIDs  = $GLOBALS[$cstRS_POST]["IDs"     ] : dieWithError(400);
 
 $itemIDs = explode(",", $itemIDs);
 $results = array();
@@ -26,4 +26,3 @@ foreach ($itemIDs as $itemID) {
 }
 
 RSReturnArrayQueryResults($results);
-?>

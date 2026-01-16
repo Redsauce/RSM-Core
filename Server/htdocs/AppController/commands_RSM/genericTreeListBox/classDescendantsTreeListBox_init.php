@@ -4,11 +4,11 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
-$clientID         = $GLOBALS['RS_POST']['clientID'        ];
-$parentItemTypeID = $GLOBALS['RS_POST']['parentItemTypeID'];
+$clientID         = $GLOBALS[$cstRS_POST]['clientID'        ];
+$parentItemTypeID = $GLOBALS[$cstRS_POST]['parentItemTypeID'];
 
-if ($GLOBALS['RS_POST']['allowedItemTypeIDs'] != ""){
-	$allowedItemTypes = explode(",", $GLOBALS['RS_POST']['allowedItemTypeIDs']);
+if ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != ""){
+	$allowedItemTypes = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']);
 } else {
 	$allowedItemTypes = array();
 }

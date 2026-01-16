@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 
-isset($GLOBALS["RS_POST"]["clientID"]) ? $clientID = $GLOBALS["RS_POST"]["clientID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["login"   ]) ? $login    = $GLOBALS["RS_POST"]["login"   ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["password"]) ? $password = $GLOBALS["RS_POST"]["password"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["login"   ]) ? $login    = $GLOBALS[$cstRS_POST]["login"   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["password"]) ? $password = $GLOBALS[$cstRS_POST]["password"] : dieWithError(400);
 
 if (empty($clientID)) {
     $theQuery = "SELECT
@@ -28,4 +28,3 @@ if (empty($clientID)) {
 
 // Write back the XML Response
 RSReturnQueryResults(RSQuery($theQuery));
-?>

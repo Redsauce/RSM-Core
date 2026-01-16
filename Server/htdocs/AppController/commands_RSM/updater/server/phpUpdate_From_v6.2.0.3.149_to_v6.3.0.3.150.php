@@ -39,4 +39,3 @@ foreach($postSQLs as $postSQL){
 //commit transaction
 $mysqli->query("COMMIT");
 echo ("[SUCCESS]: Database successfully updated from v" . $oldVersion . " to v" . $newVersion . "\n\n");
-?>

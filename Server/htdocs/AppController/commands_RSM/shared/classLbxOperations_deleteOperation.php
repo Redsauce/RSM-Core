@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
 
 
 // get operation item type
@@ -50,4 +50,3 @@ $results['result'] = 'OK';
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

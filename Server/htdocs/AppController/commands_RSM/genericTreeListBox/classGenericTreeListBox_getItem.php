@@ -9,12 +9,12 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-$clientID         =   $GLOBALS['RS_POST']['clientID'        ];
-$itemTypeID       =   $GLOBALS['RS_POST']['itemTypeID'      ];
-$itemID           =   $GLOBALS['RS_POST']['itemID'          ];
-$parentPropertyID =   $GLOBALS['RS_POST']['parentPropertyID'];
+$clientID         =   $GLOBALS[$cstRS_POST]['clientID'        ];
+$itemTypeID       =   $GLOBALS[$cstRS_POST]['itemTypeID'      ];
+$itemID           =   $GLOBALS[$cstRS_POST]['itemID'          ];
+$parentPropertyID =   $GLOBALS[$cstRS_POST]['parentPropertyID'];
 
-$filterID         = (($GLOBALS['RS_POST']['filterID']=="")?("0"):($GLOBALS['RS_POST']['filterID']));
+$filterID         = (($GLOBALS[$cstRS_POST]['filterID']=="")?("0"):($GLOBALS[$cstRS_POST]['filterID']));
 
 $itemTypeID = parseITID($itemTypeID, $clientID);
 
@@ -72,4 +72,3 @@ if($clientID != 0 && $clientID != ""){
 
 // Return results
 RSReturnArrayResults($results);
-?>

@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 
 // definitions
-isset($GLOBALS['RS_POST']['clientID' ]) ? $clientID  = $GLOBALS['RS_POST']['clientID' ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['taskID'   ]) ? $taskID    = $GLOBALS['RS_POST']['taskID'   ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID' ]) ? $clientID  = $GLOBALS[$cstRS_POST]['clientID' ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['taskID'   ]) ? $taskID    = $GLOBALS[$cstRS_POST]['taskID'   ] : dieWithError(400);
 
 // get item types
 $tasksItemTypeID      = getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID);
@@ -72,7 +72,7 @@ RSReturnArrayResults($results);
 
 // A function to adjust the tasksGroup dates of a tasksGroup tree
 function adjustTasksDates($tree, $taskID, $startDate, $endDate) {
-	global $RSuserID, $tasksItemTypeID, $tasksStartDatePropertyID, $tasksEndDatePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupStartDatePropertyID, $tasksGroupEndDatePropertyID, $clientID;
+    global $RSuserID, $tasksItemTypeID, $tasksStartDatePropertyID, $tasksEndDatePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupStartDatePropertyID, $tasksGroupEndDatePropertyID, $clientID;
 	
     $initStartDate = $startDate;
     $initEndDate = $endDate;
@@ -137,4 +137,3 @@ function adjustTasksDates($tree, $taskID, $startDate, $endDate) {
 	
 	return array('startDate' => $startDate, 'endDate' => $endDate);
 }
-?>

@@ -4,9 +4,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$its_props = explode(',', $GLOBALS['RS_POST']['itemTypesProps']);
-$pointerItemID = $GLOBALS['RS_POST']['pointerItemID'];
+
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$its_props = explode(',', $GLOBALS[$cstRS_POST][$cstItemTypesProps]);
+$pointerItemID = $GLOBALS[$cstRS_POST][$cstPointerItemID];
 
 // prepare results array
 $finalResults = array();
@@ -73,4 +74,3 @@ foreach ($its_props as $it_prop) {
 	
 // Return data			
 RSReturnArrayQueryResults($finalResults);
-?>

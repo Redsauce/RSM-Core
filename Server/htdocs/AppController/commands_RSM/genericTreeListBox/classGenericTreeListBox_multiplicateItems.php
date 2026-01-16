@@ -5,15 +5,15 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-$clientID         =             $GLOBALS['RS_POST']['clientID'        ];
-$itemTypeID       =             $GLOBALS['RS_POST']['itemTypeID'      ];
-$count            =             $GLOBALS['RS_POST']['count'           ];
-$itemIDs          = explode(",",$GLOBALS['RS_POST']['itemIDs'         ]);
-$allowedItemTypes =             $GLOBALS['RS_POST']['allowedItemTypes'];
+$clientID         =             $GLOBALS[$cstRS_POST]['clientID'        ];
+$itemTypeID       =             $GLOBALS[$cstRS_POST]['itemTypeID'      ];
+$count            =             $GLOBALS[$cstRS_POST]['count'           ];
+$itemIDs          = explode(",",$GLOBALS[$cstRS_POST]['itemIDs'         ]);
+$allowedItemTypes =             $GLOBALS[$cstRS_POST]['allowedItemTypes'];
 
 //Disable recursive multiplication until it's fixed
 // TO DO: fix recursive itemtypes multiplication
-isset($GLOBALS['RS_POST']['descendants']) ? $descendants  = explode(';',  $GLOBALS['RS_POST']['descendants']) : $descendants = false;
+isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(';',  $GLOBALS[$cstRS_POST]['descendants']) : $descendants = false;
 //$descendants = array();
 
 if ($allowedItemTypes != '') {
@@ -117,4 +117,3 @@ if ($clientID != 0 && $clientID != ""){
 
 // Return results
 RSReturnArrayResults($results);
-?>

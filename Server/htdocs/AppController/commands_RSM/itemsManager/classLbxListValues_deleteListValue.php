@@ -4,9 +4,10 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMidentificationFunctions.php";
 require_once "../utilities/RSMlistsManagement.php";
 
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$valueID = $GLOBALS['RS_POST']['valueID'];
-$listID = $GLOBALS['RS_POST']['listID'];
+
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$valueID = $GLOBALS[$cstRS_POST][$cstValueID];
+$listID = $GLOBALS[$cstRS_POST][$cstListID];
 
 if (getAppListValueID_RelatedWith($valueID, $clientID) == '0') {
 
@@ -25,4 +26,3 @@ if (getAppListValueID_RelatedWith($valueID, $clientID) == '0') {
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

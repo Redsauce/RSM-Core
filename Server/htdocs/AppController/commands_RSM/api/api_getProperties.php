@@ -5,10 +5,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "./api_headers.php";
 
 // Obtain the data needed by this script
-isset($GLOBALS['RS_POST']['clientID'  ]) ? $itemID     = $GLOBALS['RS_POST']['clientID'  ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemTypeID']) ? $itemTypeID = $GLOBALS['RS_POST']['itemTypeID'] : dieWithError(400);
-isset($GLOBALS['RS_POST']['itemID'    ]) ? $itemID     = $GLOBALS['RS_POST']['itemID'    ] : dieWithError(400);
-isset($GLOBALS['RS_POST']['RStoken'   ]) ? $RStoken    = $GLOBALS['RS_POST']['RStoken'   ] : $RStoken  = '';
+isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $itemID     = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemID'    ]) ? $itemID     = $GLOBALS[$cstRS_POST]['itemID'    ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken  = '';
 
 if (!isset($RSuserID)) $RSuserID =  0;
 
@@ -29,4 +29,3 @@ if ($RSuserID > 0) {
 
 // And return XML response back to application
 RSReturnArrayQueryResults($results,false);
-?>

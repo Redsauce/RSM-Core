@@ -67,4 +67,3 @@ function RSgetBadgeFromUser($userID, $RSclientID){
     return "";
 }
 
-?>

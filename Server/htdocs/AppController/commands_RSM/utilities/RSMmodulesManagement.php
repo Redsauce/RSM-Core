@@ -12,4 +12,3 @@ function getModulesTranslated($userID, $clientID) {
 	return $result;
 }
 
-?>

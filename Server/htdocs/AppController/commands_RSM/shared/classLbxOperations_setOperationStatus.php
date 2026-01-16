@@ -5,9 +5,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
-$action = $GLOBALS['RS_POST']['action'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
+$action = $GLOBALS[$cstRS_POST]['action'];
 
 
 // get the operations item type
@@ -31,4 +31,3 @@ $results['status'] = getPropertyValue($definitions['operationStatus'], $itemType
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>

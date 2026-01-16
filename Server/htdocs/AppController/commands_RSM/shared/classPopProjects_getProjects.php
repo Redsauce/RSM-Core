@@ -5,8 +5,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$onlyOpen = $GLOBALS['RS_POST']['onlyOpen'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$onlyOpen = $GLOBALS[$cstRS_POST]['onlyOpen'];
 
 // get the item type and the main value
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['projects'], $clientID);
@@ -34,4 +34,3 @@ $projectsList = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties
 
 // And return XML response back to the application
 RSReturnQueryResults($projectsList);
-?>

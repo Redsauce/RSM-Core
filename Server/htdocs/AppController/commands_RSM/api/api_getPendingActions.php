@@ -14,9 +14,9 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "./api_headers.php";
 
 // Definitions
-isset($GLOBALS["RS_POST"]["RStoken"        ]) ? $RStoken         = $GLOBALS["RS_POST"]["RStoken"        ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["nodeID"         ]) ? $nodeID          = $GLOBALS['RS_POST']['nodeID'         ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["numActions"     ]) ? $numActions      = $GLOBALS['RS_POST']['numActions'     ] : $numActions = "5";
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["nodeID"         ]) ? $nodeID          = $GLOBALS[$cstRS_POST]['nodeID'         ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["numActions"     ]) ? $numActions      = $GLOBALS[$cstRS_POST]['numActions'     ] : $numActions = "5";
 
 $clientID = RSclientFromToken($RStoken);
 $itemTypeID = parseITID("scheduledEvents", $clientID);
@@ -85,4 +85,3 @@ foreach ($results as $row) {
 
 // And write XML Response back to the application without compression// Return results
 RSReturnArrayQueryResults($results, false);
-?>

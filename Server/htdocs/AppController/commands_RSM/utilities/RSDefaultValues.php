@@ -8,4 +8,3 @@ $defaultValues = array(
 	'date'     => '0000-00-00',
 	'integer'  => '0'
 	);
-?>

@@ -3,9 +3,9 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-isset($GLOBALS["RS_POST"]["clientID"  ]) ? $clientID   = $GLOBALS["RS_POST"]["clientID"  ] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["itemTypeID"]) ? $itemTypeID = $GLOBALS["RS_POST"]["itemTypeID"] : dieWithError(400);
-isset($GLOBALS["RS_POST"]["textFilter"]) ? $textFilter = $GLOBALS["RS_POST"]["textFilter"] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]["clientID"  ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]["textFilter"]) ? $textFilter = $GLOBALS[$cstRS_POST]["textFilter"] : dieWithError(400);
 
 //First of all, we need to check if the variable clientID does not have the value 0
 if ($clientID != 0 AND $RSuserID != 0) {
@@ -17,4 +17,3 @@ if ($clientID != 0 AND $RSuserID != 0) {
     $results['result'] = "NOK";
     RSReturnArrayResults($results);
 }
-?>

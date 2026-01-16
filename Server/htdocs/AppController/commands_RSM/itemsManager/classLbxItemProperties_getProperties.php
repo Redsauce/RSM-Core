@@ -3,8 +3,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
-$itemTypeID = $GLOBALS['RS_POST']['itemtypeID'];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 
 if ($clientID != 0 && $itemTypeID != 0) {
 
@@ -38,4 +38,3 @@ if ($clientID != 0 && $itemTypeID != 0) {
     // Write XML response back to application
     RSReturnArrayResults($data);
 }
-?>

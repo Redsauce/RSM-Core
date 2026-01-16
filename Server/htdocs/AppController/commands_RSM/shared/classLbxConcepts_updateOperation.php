@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$operationID = $GLOBALS['RS_POST']['operationID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$operationID = $GLOBALS[$cstRS_POST]['operationID'];
 
 // get the item types
 $conceptsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
@@ -54,4 +54,3 @@ $results['total'] = round($total, 2);
 
 // Return results
 RSReturnArrayResults($results);
-?>

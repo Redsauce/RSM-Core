@@ -4,11 +4,12 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // Definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$itemID = $GLOBALS['RS_POST']['itemID'];
-$pointerPropertyIDs = explode(',', $GLOBALS['RS_POST']['pointerPropertyIDs']);
-$pointerItemID = $GLOBALS['RS_POST']['pointerItemID'];
+
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$itemID = $GLOBALS[$cstRS_POST][$cstItemID];
+$pointerPropertyIDs = explode(',', $GLOBALS[$cstRS_POST][$cstPointerPropertyIDs]);
+$pointerItemID = $GLOBALS[$cstRS_POST][$cstPointerItemID];
 
 // update identifiers properties
 foreach ($pointerPropertyIDs as $pointerPropertyID) {
@@ -19,4 +20,3 @@ $results['result'] = 'OK';
 
 // Return data			
 RSReturnArrayResults($results);
-?>

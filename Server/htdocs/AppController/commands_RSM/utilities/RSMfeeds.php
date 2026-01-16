@@ -125,4 +125,3 @@ function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, 
 
     return $pDom -> saveXML();
 }
-?>

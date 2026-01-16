@@ -4,9 +4,9 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$propertyID     = $GLOBALS['RS_POST']['propertyID'    ];
-$identifierType = $GLOBALS['RS_POST']['identifierType'];
-$clientID       = $GLOBALS['RS_POST']['clientID'      ];
+$propertyID     = $GLOBALS[$cstRS_POST]['propertyID'    ];
+$identifierType = $GLOBALS[$cstRS_POST]['identifierType'];
+$clientID       = $GLOBALS[$cstRS_POST]['clientID'      ];
 
 switch ($identifierType) {
 
@@ -51,4 +51,3 @@ switch ($identifierType) {
 
 // Return data
 RSReturnArrayQueryResults($data);
-?>

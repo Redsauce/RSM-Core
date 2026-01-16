@@ -4,12 +4,13 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMidentificationFunctions.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$listID = $GLOBALS['RS_POST']['listID'];
+
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$listID = $GLOBALS[$cstRS_POST][$cstListID];
 
 $values = array();
-for ($i = 1; isset($GLOBALS['RS_POST']['value'.$i]); $i++) {
-	$values[] = base64_decode($GLOBALS['RS_POST']['value'.$i]);
+for ($i = 1; isset($GLOBALS[$cstRS_POST][$cstValue.$i]); $i++) {
+	$values[] = base64_decode($GLOBALS[$cstRS_POST][$cstValue.$i]);
 }
 
 // remove duplicate from array
@@ -43,4 +44,3 @@ foreach ($values as $value) {
 
 // And write XML Response back to the application
 RSReturnArrayQueryResults($results);
-?>

@@ -6,15 +6,15 @@ require_once "../utilities/RSMitemsManagement.php";
 // Now we build the query
 
 // Check types compatibility
-$clientPropertyType = getPropertyType   ($GLOBALS['RS_POST']['propertyClientID'], $GLOBALS['RS_POST']['clientID']);
-$appPropertyType    = getAppPropertyType($GLOBALS['RS_POST']['propertyAppID']);
+$clientPropertyType = getPropertyType   ($GLOBALS[$cstRS_POST]['propertyClientID'], $GLOBALS[$cstRS_POST][$cstClientID]);
+$appPropertyType    = getAppPropertyType($GLOBALS[$cstRS_POST]['propertyAppID']);
 
 
 if ($clientPropertyType == $appPropertyType) {
 
 	if (isSingleIdentifier($clientPropertyType) || isMultiIdentifier($clientPropertyType)) {
 		// check if the identifier property points to some itemtype
-		$query = RSQuery('SELECT RS_REFERRED_ITEMTYPE FROM rs_item_properties WHERE RS_CLIENT_ID = '.$GLOBALS['RS_POST']['clientID'].' AND RS_PROPERTY_ID = '.$GLOBALS['RS_POST']['propertyClientID']);
+		$query = RSQuery('SELECT RS_REFERRED_ITEMTYPE FROM rs_item_properties WHERE RS_CLIENT_ID = '.$GLOBALS[$cstRS_POST][$cstClientID].' AND RS_PROPERTY_ID = '.$GLOBALS[$cstRS_POST]['propertyClientID']);
 
 		$result = $query->fetch_assoc();
 
@@ -28,8 +28,8 @@ if ($clientPropertyType == $appPropertyType) {
 	}
 
 	// Looking for previous system item relationship
-	$startQuery1 = RSQuery("SELECT RS_PROPERTY_ID     AS 'oldPropertyClientID' FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS['RS_POST']['clientID']."' AND RS_PROPERTY_APP_ID = '". $GLOBALS['RS_POST']['propertyAppID'   ]."'");
-	$startQuery2 = RSQuery("SELECT RS_PROPERTY_APP_ID AS 'oldPropertyAppID'    FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS['RS_POST']['clientID']."' AND RS_PROPERTY_ID = '"    . $GLOBALS['RS_POST']['propertyClientID']."'");
+	$startQuery1 = RSQuery("SELECT RS_PROPERTY_ID     AS 'oldPropertyClientID' FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS[$cstRS_POST][$cstClientID]."' AND RS_PROPERTY_APP_ID = '". $GLOBALS[$cstRS_POST]['propertyAppID'   ]."'");
+	$startQuery2 = RSQuery("SELECT RS_PROPERTY_APP_ID AS 'oldPropertyAppID'    FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS[$cstRS_POST][$cstClientID]."' AND RS_PROPERTY_ID = '"    . $GLOBALS[$cstRS_POST]['propertyClientID']."'");
 
 	if ($startQuery1 && $startQuery1->num_rows > 0) {
 		$row = $startQuery1->fetch_assoc();
@@ -46,12 +46,11 @@ if ($clientPropertyType == $appPropertyType) {
 	}
 
 	// Delete previous relationships
-	$theQuery = RSQuery("DELETE FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS['RS_POST']['clientID']."' AND RS_PROPERTY_APP_ID = '".$GLOBALS['RS_POST']['propertyAppID']."'");
-
-	$theQuery = RSQuery("DELETE FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS['RS_POST']['clientID']."' AND RS_PROPERTY_ID = '".$GLOBALS['RS_POST']['propertyClientID']."'");
+	$theQuery = RSQuery("DELETE FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS[$cstRS_POST][$cstClientID]."' AND RS_PROPERTY_APP_ID = '".$GLOBALS[$cstRS_POST][$cstPropertyAppID]."'");
+	$theQuery = RSQuery("DELETE FROM rs_property_app_relations WHERE RS_CLIENT_ID = '".$GLOBALS[$cstRS_POST][$cstClientID]."' AND RS_PROPERTY_ID = '".$GLOBALS[$cstRS_POST][$cstPropertyClientID]."'");
 
 	// Insert new relationship
-	$theQuery = "INSERT INTO rs_property_app_relations (RS_PROPERTY_ID, RS_CLIENT_ID, RS_PROPERTY_APP_ID, RS_MODIFIED_DATE) VALUES ('".$GLOBALS['RS_POST']['propertyClientID']."', '".$GLOBALS['RS_POST']['clientID']."', '".$GLOBALS['RS_POST']['propertyAppID']."', NOW())";
+	$theQuery = "INSERT INTO rs_property_app_relations (RS_PROPERTY_ID, RS_CLIENT_ID, RS_PROPERTY_APP_ID, RS_MODIFIED_DATE) VALUES ('".$GLOBALS[$cstRS_POST][$cstPropertyClientID]."', '".$GLOBALS[$cstRS_POST][$cstClientID]."', '".$GLOBALS[$cstRS_POST][$cstPropertyAppID]."', NOW())";
 
 	// Query the database
 	$results = RSQuery($theQuery);
@@ -66,4 +65,3 @@ if ($clientPropertyType == $appPropertyType) {
 
 // Write XML Response back to the application
 RSReturnArrayResults($response);
-?>

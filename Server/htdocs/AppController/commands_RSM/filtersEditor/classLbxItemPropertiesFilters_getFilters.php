@@ -5,8 +5,8 @@ require_once '../utilities/RSMitemsManagement.php';
 require_once '../utilities/RSMfiltersManagement.php';
 
 // definitions
-$itemTypeID = $GLOBALS['RS_POST']['itemTypeID'];
-$clientID   = $GLOBALS['RS_POST']['clientID'  ];
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
 
 if ($itemTypeID == '') RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
 
@@ -20,4 +20,3 @@ if ($results) {
 
 // And return XML response back to application			
 RSReturnArrayQueryResults($returnArray);
-?>

@@ -4,8 +4,8 @@ require_once '../utilities/RSdatabase.php';
 require_once '../utilities/RSMitemsManagement.php';
 
 // Definitions
-$clientID   =              $GLOBALS['RS_POST']['clientID'  ];
-$items      = explode(":", $GLOBALS['RS_POST']['properties']);
+$clientID   =              $GLOBALS[$cstRS_POST]['clientID'  ];
+$items      = explode(":", $GLOBALS[$cstRS_POST]['properties']);
 
 $itemIDs = array();
 
@@ -30,4 +30,3 @@ $results['itemIDs'] = implode(",", $itemIDs);
 
 // Return results
 RSReturnArrayResults($results);
-?>

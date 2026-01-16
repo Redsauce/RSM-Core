@@ -4,8 +4,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
 // definitions
-$clientID = $GLOBALS['RS_POST']['clientID'];
-$accountID = $GLOBALS['RS_POST']['accountID'];
+$clientID = $GLOBALS[$cstRS_POST][$cstClientID];
+$accountID = $GLOBALS[$cstRS_POST]['accountID'];
 
 
 // get the subaccounts item type
@@ -52,4 +52,3 @@ $results['personalID'] = getPropertyValue($definitions['subAccountPersonalID'], 
 
 // Return results
 RSReturnArrayResults($results);
-?>

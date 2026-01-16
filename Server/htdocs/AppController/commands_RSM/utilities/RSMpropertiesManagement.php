@@ -112,4 +112,3 @@ function enforcePropertyType($value, $clientID, $propertyID, $propertyType) {
 
     return $value;
 }
-?>

@@ -4,18 +4,18 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMidentificationFunctions.php";
 
 //First of all, we need to check if the variable clientID does not have the value 0
-if ($GLOBALS['RS_POST']['clientID'] != 0)
+if ($GLOBALS[$cstRS_POST][$cstClientID] != 0)
 	{
 
-		$theQuery = "INSERT INTO rs_lists (RS_LIST_ID, RS_CLIENT_ID, RS_NAME) VALUES (".getNextIdentification('rs_lists','RS_LIST_ID',$GLOBALS['RS_POST']['clientID']).",".$GLOBALS['RS_POST']['clientID'].", '".base64_decode($GLOBALS['RS_POST']['name'])."')";
+		$theQuery = "INSERT INTO rs_lists (RS_LIST_ID, RS_CLIENT_ID, RS_NAME) VALUES (".getNextIdentification('rs_lists','RS_LIST_ID',$GLOBALS[$cstRS_POST][$cstClientID]).",".$GLOBALS[$cstRS_POST][$cstClientID].", '".base64_decode($GLOBALS[$cstRS_POST][$cstName])."')";
 
-		if(isset($GLOBALS['RS_POST']['RSdebug'])&&$GLOBALS['RS_POST']['RSdebug']) echo $theQuery;
+		if(isset($GLOBALS[$cstRS_POST]['RSdebug'])&&$GLOBALS[$cstRS_POST]['RSdebug']) echo $theQuery;
 
 		$result = RSQuery($theQuery);
 
 		$results['result'] = "OK";
-		$results['ID'] = getLastIdentification('rs_lists','RS_LIST_ID',$GLOBALS['RS_POST']['clientID']);
-		$results['name'] = base64_decode($GLOBALS['RS_POST']['name']);
+		$results['ID'] = getLastIdentification('rs_lists','RS_LIST_ID',$GLOBALS[$cstRS_POST][$cstClientID]);
+		$results['name'] = base64_decode($GLOBALS[$cstRS_POST][$cstName]);
 	}
 else
 	{
@@ -25,4 +25,3 @@ else
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);
-?>
