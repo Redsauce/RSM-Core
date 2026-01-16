@@ -72,7 +72,7 @@ $result = $mainMysqli->query($query);
 if ($result && $result->num_rows > 0) {
 	echo ("\n\n========================================\n");
 	echo ("Found " . $result->num_rows . " client(s) with custom database configuration\n");
-	echo ("========================================\n\n");
+	echo ("============================================\n\n");
 	
 	while ($row = $result->fetch_assoc()) {
 		$clientID = $row['RS_ID'];
