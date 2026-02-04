@@ -80,7 +80,7 @@ function checkBodyContainsAtLeastOne($body, $item1, $item2)
 function checkStringIsInteger($item)
 {
   global $RSallowDebug;
-  if (isset($item) && !ctype_digit($item)) {
+  if (isset($item) && !ctype_digit((string) $item)) {
     if ($RSallowDebug) {
       returnJsonMessage(400, "'{$item}' string must represent an integer");
     } else {
@@ -109,5 +109,5 @@ function checkADJParamIsValid($body)
 
 function sanitizeInput($input)
 {
-    return htmlspecialchars($input);
+  return htmlspecialchars($input);
 }
