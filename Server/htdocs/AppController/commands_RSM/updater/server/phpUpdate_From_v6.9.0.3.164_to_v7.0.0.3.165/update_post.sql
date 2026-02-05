@@ -120,7 +120,91 @@ CREATE TABLE IF NOT EXISTS rs_client_stats (
 
 # Create extra columns to allow the incoming connection to be redirected
 # to a different database if needed
-ALTER TABLE rsm1_dev.rs_clients 
+ALTER TABLE rs_clients 
 ADD IF NOT EXISTS RS_DB_NAME varchar(255) NULL,
 ADD IF NOT EXISTS RS_DB_USER varchar(255) NULL,
 ADD IF NOT EXISTS RS_DB_PASSWORD varchar(255) NULL;
+
+# ----- Delete system lists and their relationships: -----
+# cashLog.operationTypes; steps.types; stepunit.type; studies.status
+
+# LIST: cashLog.operationTypes
+# Delete the relationships between the system list values and the customer list values.
+DELETE FROM rs_lists_values_relations
+WHERE RS_VALUE_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_values_app WHERE RS_VALUE LIKE '%cashLog.operation%'
+);
+
+# Delete the system list values themselves
+DELETE FROM rs_lists_values_app
+WHERE RS_VALUE LIKE '%cashLog.operation%';
+
+# Delete the relationships between the system list and the customer lists
+DELETE FROM rs_lists_relations
+WHERE RS_LIST_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_app WHERE RS_NAME = 'cashLog.operationTypes'
+);
+
+# Delete the system list itself
+DELETE FROM rs_lists_app where RS_NAME = 'cashLog.operationTypes';
+
+# LIST: steps.types
+# Delete the relationships between the system list values and the customer list values.
+DELETE FROM rs_lists_values_relations
+WHERE RS_VALUE_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_values_app WHERE RS_VALUE LIKE '%steps.types%'
+);
+
+# Delete the system list values themselves
+DELETE FROM rs_lists_values_app
+WHERE RS_VALUE LIKE '%steps.types%';
+
+# Delete the relationships between the system list and the customer lists
+DELETE FROM rs_lists_relations
+WHERE RS_LIST_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_app WHERE RS_NAME = 'steps.types'
+);
+
+# Delete the system list itself
+DELETE FROM rs_lists_app where RS_NAME = 'steps.types';
+
+# LIST: stepunit.type
+# Delete the relationships between the system list values and the customer list values.
+DELETE FROM rs_lists_values_relations
+WHERE RS_VALUE_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_values_app WHERE RS_VALUE LIKE '%stepunit.type%'
+);
+
+# Delete the system list values themselves
+DELETE FROM rs_lists_values_app
+WHERE RS_VALUE LIKE '%stepunit.type%';
+
+# Delete the relationships between the system list and the customer lists
+DELETE FROM rs_lists_relations
+WHERE RS_LIST_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_app WHERE RS_NAME = 'stepunit.type'
+);
+
+# Delete the system list itself
+DELETE FROM rs_lists_app where RS_NAME = 'stepunit.type';
+
+
+# LIST: studies.status
+# Delete the relationships between the system list values and the customer list values.
+DELETE FROM rs_lists_values_relations
+WHERE RS_VALUE_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_values_app WHERE RS_VALUE LIKE '%studies.status%'
+);
+
+# Delete the system list values themselves
+DELETE FROM rs_lists_values_app
+WHERE RS_VALUE LIKE '%studies.status%';
+
+# Delete the relationships between the system list and the customer lists
+DELETE FROM rs_lists_relations
+WHERE RS_LIST_APP_ID IN (
+	SELECT RS_ID FROM rs_lists_app WHERE RS_NAME = 'studies.status'
+);
+
+# Delete the system list itself
+DELETE FROM rs_lists_app where RS_NAME = 'studies.status';
