@@ -126,7 +126,7 @@ ADD IF NOT EXISTS RS_DB_USER varchar(255) NULL,
 ADD IF NOT EXISTS RS_DB_PASSWORD varchar(255) NULL;
 
 # ----- Delete system lists and their relationships: -----
-# cashLog.operationTypes; steps.types; stepunit.type; studies.status
+# cashLog.operationTypes, steps.types, stepunit.type and studies.status
 
 # LIST: cashLog.operationTypes
 # Delete the relationships between the system list values and the customer list values.
