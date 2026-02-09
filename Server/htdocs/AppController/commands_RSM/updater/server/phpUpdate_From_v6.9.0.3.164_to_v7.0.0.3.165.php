@@ -6,7 +6,7 @@ $oldVersion = "6.9.0.3.164";
 $newVersion = "7.0.0.3.165";
 
 // Function to execute update on a specific database connection
-function executeUpdate($mysqli, $dbName, $postSQLs) {
+function executeUpdate($mysqli, $dbName, $postSQLs, $oldVersion, $newVersion) {
 	echo ("\n========================================\n");
 	echo ("Updating database: " . $dbName . "\n");
 	echo ("========================================\n\n");
@@ -59,7 +59,7 @@ $postSQLs = explode(";",file_get_contents("./phpUpdate_From_v" . $oldVersion . "
 $successCount = 0;
 $failureCount = 0;
 
-if (executeUpdate($mainMysqli, $RSdatabase, $postSQLs)) {
+if (executeUpdate($mainMysqli, $RSdatabase, $postSQLs, $oldVersion, $newVersion)) {
 	$successCount++;
 } else {
 	$failureCount++;
@@ -72,7 +72,7 @@ $result = $mainMysqli->query($query);
 if ($result && $result->num_rows > 0) {
 	echo ("\n\n========================================\n");
 	echo ("Found " . $result->num_rows . " client(s) with custom database configuration\n");
-	echo ("========================================\n\n");
+	echo ("============================================\n\n");
 	
 	while ($row = $result->fetch_assoc()) {
 		$clientID = $row['RS_ID'];
@@ -102,7 +102,7 @@ if ($result && $result->num_rows > 0) {
 			}
 			
 			// Execute update on client database
-			if (executeUpdate($clientMysqli, $targetDb . " (Client ID: " . $clientID . ")", $postSQLs)) {
+			if (executeUpdate($clientMysqli, $targetDb . " (Client ID: " . $clientID . ")", $postSQLs, $oldVersion, $newVersion)) {
 				$successCount++;
 			} else {
 				$failureCount++;
