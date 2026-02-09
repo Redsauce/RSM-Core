@@ -598,6 +598,7 @@ function getRequestBody()
     // Note: stripslashes() removed - it was for legacy magic_quotes (removed in PHP 5.4)
     // and corrupts valid JSON escapes like backslashes in Windows paths
     $body = json_decode(file_get_contents('php://input'));
+
     if ($body == "") {
         if ($RSallowDebug) {
             returnJsonMessage(400, "Invalid JSON body");
@@ -606,6 +607,7 @@ function getRequestBody()
             returnJsonMessage(400, "");
         }
     }
+    
     return $body;
 }
 
