@@ -6,8 +6,8 @@ require_once "../utilities/RSMuserPropertiesManagement.php";
 
 // definitions
 $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
-$clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
-$userID     = $GLOBALS[$cstRS_POST]['userID'    ];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID  ];
+$userID     = $GLOBALS[$cstRS_POST][$cstUserID    ];
 
 $results = getUserProperties($userID,$clientID,$itemTypeID);
 
