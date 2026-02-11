@@ -23,7 +23,7 @@ $subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['su
 // subaccounts
 
 // retrieve the account type
-$accountType = getPropertyValue($definitions['accountType'], $accountsItemTypeID, $accountID, $clientID);
+$accountType = getPropertyValue($definitions['accountType'], $accountID, $clientID);
 
 // get some properties we will need
 $operationIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationOperationID'], $clientID);

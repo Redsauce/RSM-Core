@@ -11,7 +11,7 @@ $operationID = $GLOBALS[$cstRS_POST]['operationID'];
 $operationsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);
 
 // get the operation description
-$operationDescription = getPropertyValue($definitions['operationDescription'], $operationsItemTypeID, $operationID, $clientID);
+$operationDescription = getPropertyValue($definitions['operationDescription'], $operationID, $clientID);
 
 
 // get the concepts item type

@@ -33,10 +33,10 @@ if ($wsID > 0) {
     if (count(getItems($worksItemTypeID, $clientID, true, $wsID)) > 0) {
 
         // get the worksession duration
-        $duration = getPropertyValue($definitions['worksessionDuration'], $worksItemTypeID, $wsID, $clientID);
+        $duration = getPropertyValue($definitions['worksessionDuration'], $wsID, $clientID);
 
         // get the worksession task
-        $wsTask = getPropertyValue($definitions['worksessionTask'], $worksItemTypeID, $wsID, $clientID);
+        $wsTask = getPropertyValue($definitions['worksessionTask'], $wsID, $clientID);
 
         // delete worksession
         deleteItem($worksItemTypeID, $wsID, $clientID);

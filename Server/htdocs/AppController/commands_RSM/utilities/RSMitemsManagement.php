@@ -424,8 +424,7 @@ function getPropertyType($propertyID, $clientID)
     return '';
 }
 
-// TODO: Remove the itemTypeID variable from all the calls as it is not used
-function getPropertyValue($PropertyName, $itemTypeID, $itemID, $clientID)
+function getPropertyValue($PropertyName, $itemID, $clientID)
 {
 
     $propertyID = getClientPropertyID_RelatedWith_byName($PropertyName, $clientID);

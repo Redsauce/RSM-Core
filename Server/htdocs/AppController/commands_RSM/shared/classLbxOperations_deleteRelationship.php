@@ -51,7 +51,7 @@ if ($resetPayDate == '1') {
 
     setPropertyValueByID($payDatePropertyID, $itemTypeID, $operation_2, $clientID, getClientPropertyDefaultValue($payDatePropertyID, $clientID), '', $RSuserID);
 
-    $results['payDate'] = getPropertyValue($definitions['operationPayDate'], $itemTypeID, $operation_2, $clientID);
+    $results['payDate'] = getPropertyValue($definitions['operationPayDate'], $operation_2, $clientID);
 }
 
 // And write XML response back to the application

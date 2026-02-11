@@ -110,7 +110,7 @@ function getFixedBugs($RSuserID, $clientID, $startVersion, $endVersion, $lang){
 
                 while($row = $result->fetch_assoc()){
                     $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if($clientName!="") $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
                     else $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
@@ -236,7 +236,7 @@ function getChangeRequest($RSuserID, $clientID, $startVersion, $endVersion, $lan
 
                 while($row = $result->fetch_assoc()){
                     $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if($clientName!="") $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
                     else  $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);
@@ -358,7 +358,7 @@ function getRequirements($RSuserID, $clientID, $startVersion, $endVersion, $lang
 
                 while($row = $result->fetch_assoc()){
                     $clientItemTypeID=getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                    $clientName = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
 
                     if($clientName!="") $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$clientName);
                     else $moduleTranslations[]=array('appName'=>$row['RS_NAME'],'clientName'=>$row['RS_APPLICATION_NAME']);

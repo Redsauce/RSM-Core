@@ -66,7 +66,7 @@ $subAccountsItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['su
 
 // get operation subAccountID
 if($subAccountID==""){
-	$subAccountID = getPropertyValue($definitions['operationSubAccountID'], $operationsItemTypeID, $operationID, $clientID);
+	$subAccountID = getPropertyValue($definitions['operationSubAccountID'], $operationID, $clientID);
 }
 // get operation subAccountName
 $results[0]['subAccountName'] = getMainPropertyValue($subAccountsItemTypeID, $subAccountID, $clientID);
