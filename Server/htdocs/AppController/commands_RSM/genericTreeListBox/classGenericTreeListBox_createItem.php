@@ -4,10 +4,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 
 // Definitions
-isset($GLOBALS[$cstRS_POST]['clientID'        ]) ? $clientID   = $GLOBALS[$cstRS_POST]['clientID'        ] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['itemTypeID'      ]) ? $itemTypeID = $GLOBALS[$cstRS_POST]['itemTypeID'      ] : dieWithErrow(400);
-isset($GLOBALS[$cstRS_POST]['parentID'        ]) ? $parentID   = $GLOBALS[$cstRS_POST]['parentID'        ] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['parentPropertyID']) ? $parentPID  = $GLOBALS[$cstRS_POST]['parentPropertyID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['clientID'        ]) ? $clientID     = $GLOBALS[$cstRS_POST]['clientID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['itemTypeID'      ]) ? $itemTypeID   = $GLOBALS[$cstRS_POST]['itemTypeID'      ] : dieWithErrow(400);
+isset($GLOBALS[$cstRS_POST]['parentID'        ]) ? $parentItemID = $GLOBALS[$cstRS_POST]['parentID'        ] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentPropertyID']) ? $parentPID    = $GLOBALS[$cstRS_POST]['parentPropertyID'] : dieWithError(400);
 
 $filterID = (($GLOBALS[$cstRS_POST]['filterID'] == "") ? ("0") : ($GLOBALS[$cstRS_POST]['filterID']));
 
@@ -18,17 +18,15 @@ if (isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) {
     }
 } 
 
-//$additionalProperties = $GLOBALS[$cstRS_POST]['additionalProperties'];
-
 if ($clientID != 0 && $clientID != "") {
     if ($itemTypeID != 0 && $itemTypeID != "") {
-        if ($parentID != "") {
+        if ($parentItemID != "") {
             if ($parentPID != "") {
                 $parentItemTypeID = getClientPropertyReferredItemType($parentPID, $clientID);
-                if ($parentID != 0) {
+                if ($parentItemID != 0) {
                     //check parent exists
                     if ($parentItemTypeID != 0) {
-                        if (count(getItems($parentItemTypeID, $clientID, true, $parentID)) == 0) {
+                        if (count(getItems($parentItemTypeID, $clientID, true, $parentItemID)) == 0) {
                             $results['result'] = "NOK";
                             $results['description'] = "INVALID PARENT";
                             // Return error and end execution
@@ -49,7 +47,7 @@ if ($clientID != 0 && $clientID != "") {
 
                 // add to the propertiesValues array
                 if ($parentPID != 0) {
-                    $propertiesValues[] = array('ID' => $parentPID, 'value' => $parentID);
+                    $propertiesValues[] = array('ID' => $parentPID, 'value' => $parentItemID);
                     $itemID = createItem($clientID, $propertiesValues);
                 } else {
                     // Create an item with the default values
@@ -91,7 +89,7 @@ if ($clientID != 0 && $clientID != "") {
                 $results['nodeID'          ] = $itemID;
                 $results['nodeItemType'    ] = $itemTypeID;
                 $results['name'            ] = getMainPropertyValue($itemTypeID, $itemID, $clientID);
-                $results['parentID'        ] = $parentID;
+                $results['parentID'        ] = $parentItemID;
                 $results['parentPropertyID'] = $parentPID;
                 $results['parentItemType'  ] = $parentItemTypeID;
                 $results['extraColumns'    ] = $additionalProps;
