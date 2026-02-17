@@ -9,7 +9,7 @@ require_once "../utilities/RStools.php";
 // Parameters validation
 isset($GLOBALS[$cstRS_POST]['clientID'          ]) ? $clientID          =               $GLOBALS[$cstRS_POST]['clientID'          ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['parentID'          ]) ? $parentID          =               $GLOBALS[$cstRS_POST]['parentID'          ]  : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['parentItemTypeID']) && $GLOBALS[$cstRS_POST]['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS[$cstRS_POST]['parentItemTypeID'] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['parentItemTypeID'  ]) && $GLOBALS[$cstRS_POST]['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS[$cstRS_POST]['parentItemTypeID'] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",",  $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['fastFilter'        ]) ? $fastFilter        = base64_decode($GLOBALS[$cstRS_POST]['fastFilter'        ]) : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['filterID'          ]) ? $filterID          =               $GLOBALS[$cstRS_POST]['filterID'          ]  : dieWithError(400);
@@ -86,8 +86,11 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             }
         }
 
+        // compute main property ID once and reuse both for returnProperties
+        $mainPropertyID = getMainPropertyID($descendant['itemTypeID'], $clientID);
+
         $returnProperties   = array();
-        $returnProperties[] = array('ID' => getMainPropertyID($descendant['itemTypeID'], $clientID), 'name' => 'name');
+        $returnProperties[] = array('ID' => $mainPropertyID, 'name' => 'name');
 
         if ($returnOrder && $descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
             $returnProperties[] = array('ID' => $descendant['propertyID'], 'name' => 'parentID');
@@ -111,7 +114,16 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             $recursiveProperties = explode(",", $item['recursiveProperty']);
             foreach($recursiveProperties as $recursiveProperty) {
                 if ($recursiveProperty == '' || $recursiveProperty == "0" || ($recursiveProperty == $parentID && $descendant['itemTypeID'] == $parentItemTypeID)) {
-                    $results[] = array("nodeID" => $item['ID'], "nodeItemType" => $descendant['itemTypeID'], "name" => isset($item['name'])?$item['name']:'', "parentID" => $parentID, "parentItemType" => $parentItemTypeID, "parentPropertyID" => $descendant['propertyID'], "childs" => '');
+                    $results[] = array(
+                        "nodeID" => $item['ID'],
+                        "nodeItemType" => $descendant['itemTypeID'],
+                        "nodeMainPropertyID" => $mainPropertyID,
+                        "name" => isset($item['name']) ? $item['name'] : '',
+                        "parentID" => $parentID,
+                        "parentItemType" => $parentItemTypeID,
+                        "parentPropertyID" => $descendant['propertyID'],
+                        "childs" => ''
+                    );
                     if ($returnOrder) {
                         if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
                             if(isset($item['parentID_ord']) && $item['parentID_ord'] != ''){

@@ -613,6 +613,8 @@ function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetPar
 
     $itemsInPath = array();
 
+    // compute once per call rather than on each treepath
+    $mainPropertyID = getMainPropertyID($itemTypeID, $clientID);
     foreach ($treePaths as $treePath) {
         //start with item
         $temporaryItemsInPath = array();
@@ -620,7 +622,16 @@ function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetPar
 
         $itemName = (isset($mainProperties[$itemTypeID]) && array_key_exists($itemID,$mainProperties[$itemTypeID]))?$mainProperties[$itemTypeID][$itemID]:getMainPropertyValue($itemTypeID, $itemID, $clientID);
 
-        $temporaryItemsInPath[] = array("nodeID" => $itemID, "nodeItemType" => $itemTypeID, "name" => $itemName, "parentID" => '', "parentItemType" => '', "parentPropertyID" => '', "childs" => '');
+        $temporaryItemsInPath[] = array(
+            "nodeID" => $itemID,
+            "nodeItemType" => $itemTypeID,
+            "nodeMainPropertyID" => $mainPropertyID,
+            "name" => $itemName,
+            "parentID" => '',
+            "parentItemType" => '',
+            "parentPropertyID" => '',
+            "childs" => ''
+        );
         if ($returnOrder) {
             $temporaryItemsInPath[0]["order"] = "0";
         }
@@ -677,7 +688,7 @@ function combineItemPaths($pathsArray, $itemsToAdd) {
     return $pathsArray;
 }
 
-//
+// 
 function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules) {
     $extFilterArr = explode(',', $extFilterRules);
 
@@ -782,8 +793,7 @@ function getRecursivePropertyID($itemTypeID, $clientID) {
 	return $row['ID'];
 }
 
-
-//
+// Normalize string for case-insensitive and accent-insensitive comparisons
 function normaliza ($cadena) {
     // Definition of original characters and their corresponding replacements.
 
