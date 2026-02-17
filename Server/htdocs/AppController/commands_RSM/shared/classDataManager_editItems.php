@@ -69,6 +69,7 @@ foreach ($entries as $entry) {
 
 $results['result'     ] = 'OK';
 $results['description'] = "Successfully updated item " . $entryArr[0] . " of type " . $itemTypeID . ".";
+$results['itemTypeID' ] = $itemTypeID;
 
 // Return results
 RSReturnArrayResults($results);
