@@ -229,6 +229,15 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             $tempPaths = getPathsForItem($clientID, $destinationItemTypeID, $filteredItem['ID'], $treePath, $parentID, $additionalProps, $pathProperties, $mainProperties, $returnOrder, $pathOrders);
             $results = combineItemPaths($results, $tempPaths);
         }
+
+    // ensure nodeMainPropertyID is included for every resulting node (especially when using filters/tree paths)
+    if (!empty($results)) {
+        foreach ($results as $idx => $row) {
+            if (!isset($row['nodeMainPropertyID'])) {
+                $results[$idx]['nodeMainPropertyID'] = getMainPropertyID($row['nodeItemType'], $clientID);
+            }
+        }
+    }
     }
 }
 

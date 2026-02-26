@@ -85,14 +85,15 @@ if ($clientID != 0 && $clientID != "") {
                     $additionalProps = "";
                 }
 
-                $results['result'          ] = "OK";
-                $results['nodeID'          ] = $itemID;
-                $results['nodeItemType'    ] = $itemTypeID;
-                $results['name'            ] = getMainPropertyValue($itemTypeID, $itemID, $clientID);
-                $results['parentID'        ] = $parentItemID;
-                $results['parentPropertyID'] = $parentPID;
-                $results['parentItemType'  ] = $parentItemTypeID;
-                $results['extraColumns'    ] = $additionalProps;
+                $results['result'            ] = "OK";
+                $results['nodeID'            ] = $itemID;
+                $results['nodeItemType'      ] = $itemTypeID;
+                $results['nodeMainPropertyID'] = getMainPropertyID($itemTypeID, $clientID);
+                $results['name'              ] = getMainPropertyValue($itemTypeID, $itemID, $clientID);
+                $results['parentID'          ] = $parentItemID;
+                $results['parentPropertyID'  ] = $parentPID;
+                $results['parentItemType'    ] = $parentItemTypeID;
+                $results['extraColumns'      ] = $additionalProps;
                 //$results['filtered'] = $filtered;
 
             } else {

@@ -13,6 +13,7 @@ require_once "../../../utilities/RSMverifyBody.php";
 
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
+
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMtokensManagement.php";
@@ -21,11 +22,14 @@ require_once "../../api_headers.php";
 
 // Definitions and validations
 $parameters = getRequestParams();
-verifyRequestParams($parameters);
+
+//verifyRequestParams($parameters);
+
 $RStoken =  getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);
+
 $propertyID = $parameters["propertyID"];
-$ID = $parameters["ID"];
+$ID = $parameters["itemID"];
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
@@ -97,6 +101,6 @@ if ($enable_file_cache && !empty($nombres_archivo)) {
 //validate params sent are the ones needed
 function verifyRequestParams($parameters)
 {
-    checkParamsContains($parameters, "ID");
+    checkParamsContains($parameters, "itemID");
     checkParamsContains($parameters, "propertyID");
 }

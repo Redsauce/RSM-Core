@@ -567,7 +567,19 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
                         if (count($treePath) > 2 || $parentID != $targetParentID) {
                             //$itemName = getMainPropertyValue($treePath[count($treePath) - 2]["itemTypeID"], $parentID, $clientID);
                             $itemName = (isset($mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]) && array_key_exists($parentID,$mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]))?$mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]][$parentID]:getItemPropertyValue($parentID, $treePath[count($treePath) - 2]["mainPropertyID"], $clientID, $treePath[count($treePath) - 2]["mainPropertyType"], $treePath[count($treePath) - 2]["itemTypeID"]);
-                            array_unshift($auxItemsInPath, array("nodeID" => $parentID, "nodeItemType" => $treePath[count($treePath) - 2]["itemTypeID"], "name" => $itemName, "parentID" => '', "parentItemType" => '', "parentPropertyID" => '', "childs" => $auxItemsInPath[0]["nodeID"] . ',' . $auxItemsInPath[0]["nodeItemType"]));
+                            // ensure the parent entry also carries its main property ID
+                            $parentItemType = $treePath[count($treePath) - 2]["itemTypeID"];
+                            $parentMainPropertyID = getMainPropertyID($parentItemType, $clientID);
+                            array_unshift($auxItemsInPath, array(
+                                "nodeID" => $parentID,
+                                "nodeItemType" => $parentItemType,
+                                "nodeMainPropertyID" => $parentMainPropertyID,
+                                "name" => $itemName,
+                                "parentID" => '',
+                                "parentItemType" => '',
+                                "parentPropertyID" => '',
+                                "childs" => $auxItemsInPath[0]["nodeID"] . ',' . $auxItemsInPath[0]["nodeItemType"]
+                            ));
                             if ($returnOrder) {
                                 $auxItemsInPath[0]["order"] = "0";
                             }
