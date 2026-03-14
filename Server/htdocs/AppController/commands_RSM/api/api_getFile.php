@@ -1,15 +1,15 @@
 <?php
 //****************************************//
-//api_getFile.php
+// api_getFile.php
 //
-//Description:
+// Description:
 //    returns a file from the cache or the database
 //
-//params:
+// params:
 //        itemID: integer: id of the item containing the file to retrieve
 //  propertyID: integer: id of the property of the item that contains the file
 //         token:  string: authentication string
-//returns:
+// returns:
 //    string: picture binary stream
 //****************************************//
 
@@ -54,40 +54,53 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
     // Original file name is in the string after the last "_" so decode it
     $nombre_descarga = base64_decode(rawurldecode(end($nombreSinExtension)));
 
+    // Decode HTML entities to real UTF-8
+    $nombre_descarga = html_entity_decode($nombre_descarga, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $nombre_descarga_header = rawurlencode($nombre_descarga);
+
     // The file was found in the cache. Return the cached file
-    if (strtolower($extension) == "apk"){
+    if (strtolower($extension) == "apk") {
         header('Content-type: application/vnd.android.package-archive');
     } else {
         header('Content-type: ' . mime_content_type($nombre_archivo));
     }
-    header('Content-Disposition: attachment; filename="' . $nombre_descarga . '"');
+
+    // Use UTF-8 compatible header
+    header("Content-Disposition: attachment; filename*=UTF-8''$nombre_descarga_header");
 
     readfile($nombre_archivo);
 } else {
     //file not in cache or using cache not allowed, generate new
-    $file          = getFile($clientID, $propertyID, $itemID);
+    $file = getFile($clientID, $propertyID, $itemID);
     if ($file) {
         $file_original = $file["RS_DATA"];
         $file_name     = $file["RS_NAME"];
         $extension     = pathinfo($file_name, PATHINFO_EXTENSION);
 
+        // Decode HTML entities in DB file name
+        $file_name = html_entity_decode($file_name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $file_name_header = rawurlencode($file_name);
+
         // If file data is empty but the size field is > 0 then the file is in media server
         if ($file["RS_SIZE"] > 0 && $file_original == '') {
-            $fileData = getMediaFile($clientID,$itemID,$propertyID);
+            $fileData = getMediaFile($clientID, $itemID, $propertyID);
             $file_original = $fileData['RS_DATA'];
         }
 
         // Return the original file
-        if (strtolower($extension) == "apk"){
+        if (strtolower($extension) == "apk") {
             header('Content-type: application/vnd.android.package-archive');
         } else {
             header("Content-type: application/" . $extension);
         }
-        header('Content-Disposition: attachment; filename="' . $file_name . '"');
+
+        // Use UTF-8 compatible header
+        header("Content-Disposition: attachment; filename*=UTF-8''$file_name_header");
+
         echo $file_original;
+
         if ($enable_file_cache) saveFileCache($file_original, $file_path, $file_name, $extension);
     } else {
         dieWithError(500);
     }
 }
-
