@@ -51,7 +51,8 @@ foreach ($itemTypeIDs as $itemTypeID) {
     foreach ($properties as $property) {
         // Check if user has read permission of the property
         if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
-            $propertiesArray[$property['id']] = $property['name'];
+            // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
+            $propertiesArray[$property['id']] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
     }
 
@@ -64,7 +65,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
         // Add the itemTypeID and the name to the array.
         $combinedArray['itemTypeID'] = $itemTypeID;
-        $combinedArray['name'] = $itemTypeIDName;
+        $combinedArray['name'] = html_entity_decode($itemTypeIDName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         //Add the properties to the array
         $combinedArray['properties'] = $propertiesArray;
@@ -75,7 +76,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
 }
 
 if (!empty($responseArray)) {
-    returnJsonResponse(json_encode($responseArray));
+    returnJsonResponse(json_encode($responseArray, JSON_UNESCAPED_UNICODE));
 } else {
     returnJsonMessage(200, '{}');
 }
