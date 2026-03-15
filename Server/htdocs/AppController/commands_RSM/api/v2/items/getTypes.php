@@ -18,6 +18,7 @@ checkCorrectRequestMethod('GET');
 
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
+require_once "../../../utilities/RSMlistsManagement.php";
 require_once "../../api_headers.php";
 
 // Verify if the request has a body and validate its content
@@ -46,6 +47,8 @@ foreach ($itemTypeIDs as $itemTypeID) {
     // Get properties associated with the current ItemTypeID
     $properties = getClientItemTypeProperties($itemTypeID, $clientID);
     $propertiesArray = array();
+    $propertiesTypesArray = array();
+    $propertiesListsArray = array();
 
     // Loop through each property
     foreach ($properties as $property) {
@@ -53,6 +56,21 @@ foreach ($itemTypeIDs as $itemTypeID) {
         if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
             $propertiesArray[$property['id']] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $propertiesTypesArray[$property['id']] = $property['type'];
+
+            if ($list = getPropertyList($property['id'], $clientID)) {
+                $propertiesListsArray[$property['id']] = array(
+                    'listID' => $list['listID'],
+                    'multiValues' => $list['multiValues'],
+                    'values' => array(),
+                );
+
+                $listValues = getListValues($list['listID'], $clientID);
+                foreach ($listValues as $value) {
+                    $value['value'] = html_entity_decode($value['value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $propertiesListsArray[$property['id']]['values'][] = $value;
+                }
+            }
         }
     }
 
@@ -69,6 +87,8 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
         //Add the properties to the array
         $combinedArray['properties'] = $propertiesArray;
+        $combinedArray['propertyTypes'] = $propertiesTypesArray;
+        $combinedArray['propertyLists'] = $propertiesListsArray;
         $combinedArray['icon'] = base64_encode(hex2bin($itemTypeIDIcon));
 
         array_push($responseArray, $combinedArray);
