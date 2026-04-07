@@ -21,7 +21,7 @@ $RSallowUncompressed = true;
 // definitions
 isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['RSdata'  ]) ? $RSdata   = $GLOBALS[$cstRS_POST]['RSdata'  ] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken  = $GLOBALS[$cstRS_POST][$cstRStoken] : $Rstoken = "";
+isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken  = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken = "";
 
 $chainValues  = array();
 $propertiesID = array();

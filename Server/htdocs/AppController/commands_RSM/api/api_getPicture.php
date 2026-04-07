@@ -37,10 +37,10 @@ require_once "../utilities/RSMtokensManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
 require_once "./api_headers.php";
 
-isset($GLOBALS["RS_GET"]["itemID"]    ) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
+isset($GLOBALS["RS_GET"]["itemID"    ]) ? $itemID     = $GLOBALS["RS_GET"]["itemID"    ] : dieWithError(400);
 isset($GLOBALS["RS_GET"]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET"]["propertyID"] : dieWithError(400);
-isset($GLOBALS["RS_GET"][$cstRStoken]   ) ? $RStoken    = $GLOBALS["RS_GET"][$cstRStoken]   : $RStoken = '';
-isset($GLOBALS["RS_GET"]["adj"]       ) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
+isset($GLOBALS["RS_GET"][$cstRStoken ]) ? $RStoken    = $GLOBALS["RS_GET"][$cstRStoken ] : $RStoken = '';
+isset($GLOBALS["RS_GET"]["adj"       ]) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
