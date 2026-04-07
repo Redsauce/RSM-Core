@@ -9,6 +9,11 @@ isset($GLOBALS[$cstRS_POST]['itemTypeID'      ]) ? $itemTypeID   = $GLOBALS[$cst
 isset($GLOBALS[$cstRS_POST]['parentID'        ]) ? $parentItemID = $GLOBALS[$cstRS_POST]['parentID'        ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['parentPropertyID']) ? $parentPID    = $GLOBALS[$cstRS_POST]['parentPropertyID'] : dieWithError(400);
 
+// Normalize root inputs: allow parentPropertyID to be empty when creating at the root.
+if ($parentItemID == 0 && $parentPID === "") {
+    $parentPID = "0";
+}
+
 $filterID = (($GLOBALS[$cstRS_POST]['filterID'] == "") ? ("0") : ($GLOBALS[$cstRS_POST]['filterID']));
 
 $allowedItemTypes = array();
@@ -21,32 +26,36 @@ if (isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) {
 if ($clientID != 0 && $clientID != "") {
     if ($itemTypeID != 0 && $itemTypeID != "") {
         if ($parentItemID != "") {
-            if ($parentPID != "") {
-                $parentItemTypeID = getClientPropertyReferredItemType($parentPID, $clientID);
-                if ($parentItemID != 0) {
-                    //check parent exists
-                    if ($parentItemTypeID != 0) {
-                        if (count(getItems($parentItemTypeID, $clientID, true, $parentItemID)) == 0) {
+            if ($parentPID != "" || $parentItemID == 0) {
+                if ($parentPID != 0 && $parentPID != "") {
+                    $parentItemTypeID = getClientPropertyReferredItemType($parentPID, $clientID);
+                    if ($parentItemID != 0) {
+                        //check parent exists
+                        if ($parentItemTypeID != 0) {
+                            if (count(getItems($parentItemTypeID, $clientID, true, $parentItemID)) == 0) {
+                                $results['result'] = "NOK";
+                                $results['description'] = "INVALID PARENT";
+                                // Return error and end execution
+                                RSReturnArrayResults($results);
+                                exit();
+                            }
+                        } else {
                             $results['result'] = "NOK";
-                            $results['description'] = "INVALID PARENT";
+                            $results['description'] = "INVALID PARENT PROPERTY";
                             // Return error and end execution
                             RSReturnArrayResults($results);
                             exit();
                         }
-                    } else {
-                        $results['result'] = "NOK";
-                        $results['description'] = "INVALID PARENT PROPERTY";
-                        // Return error and end execution
-                        RSReturnArrayResults($results);
-                        exit();
                     }
+                } else {
+                    $parentItemTypeID = 0;
                 }
 
                 // prepare the propertiesValues array
                 $propertiesValues = array();
 
                 // add to the propertiesValues array
-                if ($parentPID != 0) {
+                if ($parentPID != 0 && $parentPID != "") {
                     $propertiesValues[] = array('ID' => $parentPID, 'value' => $parentItemID);
                     $itemID = createItem($clientID, $propertiesValues);
                 } else {
