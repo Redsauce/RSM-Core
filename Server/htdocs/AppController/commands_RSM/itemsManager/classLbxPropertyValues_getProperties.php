@@ -1,21 +1,28 @@
 <?php
 // Database connection startup
-require_once "../utilities/RSdatabase.php";
-require_once "../utilities/RSMitemsManagement.php";
-require_once "../utilities/RSvalidationFunctions.php";
+require_once '../utilities/RSdatabase.php';
+require_once '../utilities/RSMitemsManagement.php';
+require_once '../utilities/RStools.php';
 
 // definitions
-$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
-$itemID     = $GLOBALS[$cstRS_POST][$cstItemID];
-$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
-$userID     = RSCheckUserAccess();
-$getLists   = isset($GLOBALS[$cstRS_POST]["getLists"]) ? $GLOBALS[$cstRS_POST]["getLists"] : '';
+isset($GLOBALS[$cstRS_POST][$cstClientID  ]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] : dieWithError(400);
+isset($GLOBALS[$cstRS_POST][$cstItemID    ]) ? $itemID = $GLOBALS[$cstRS_POST][$cstItemID] : dieWithError(400);
+(isset($GLOBALS[$cstRS_POST]["getLists"]) && $GLOBALS[$cstRS_POST]["getLists"] == 'true') ? $getLists = 'true' : $getLists = '';
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
 $itemTypeID = parseITID($itemTypeID, $clientID);
 
-$results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $userID);
+// Use token-based properties if RStoken is provided, otherwise use user-based
+$RStoken = isset($GLOBALS[$cstRS_POST]['RStoken']) ? $GLOBALS[$cstRS_POST]['RStoken'] : '';
+
+if ($RStoken != '') {
+    $results = getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken);
+} else {
+    $userID = RSCheckUserAccess();
+    $results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $userID);
+}
 
 $results[] = array('lists' => '');
 
