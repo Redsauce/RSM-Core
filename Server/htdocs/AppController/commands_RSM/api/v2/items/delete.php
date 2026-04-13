@@ -31,7 +31,7 @@ verifyBodyContent($requestBody);
 
 // Definitions
 $RStoken  = getRStoken();
-$clientID = RSclientFromToken(RStoken: $RStoken);
+$clientID = RSclientFromToken($RStoken);
 $RSuserID = getRSuserID();
 
 $responseArray = array();
