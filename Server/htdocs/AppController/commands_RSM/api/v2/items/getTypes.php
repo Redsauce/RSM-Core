@@ -56,7 +56,12 @@ foreach ($itemTypeIDs as $itemTypeID) {
         if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
             $propertiesArray[$property['id']] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            $propertiesTypesArray[$property['id']] = $property['type'];
+            if ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
+                $referredItemTypeID = getClientPropertyReferredItemType($property['id'], $clientID);
+                $propertiesTypesArray[$property['id']] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
+            } else {
+                $propertiesTypesArray[$property['id']] = $property['type'];
+            }
 
             if ($list = getPropertyList($property['id'], $clientID)) {
                 $propertiesListsArray[$property['id']] = array(
@@ -96,7 +101,8 @@ foreach ($itemTypeIDs as $itemTypeID) {
 }
 
 if (!empty($responseArray)) {
-    returnJsonResponse(json_encode($responseArray, JSON_UNESCAPED_UNICODE));
+    $json = json_encode($responseArray, JSON_UNESCAPED_UNICODE);
+    returnJsonResponse($json);
 } else {
     returnJsonMessage(200, '{}');
 }
