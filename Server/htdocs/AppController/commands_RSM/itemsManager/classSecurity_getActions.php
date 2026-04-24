@@ -33,8 +33,8 @@ if ($clientID != 0){
                 $results[$row['RS_ID']]['logo'       ] = bin2hex($row['RS_APPLICATION_LOGO']);
 
                 $clientItemTypeID  = getClientItemTypeID_RelatedWith_byName ($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                $clientName        = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
-                $clientDescription = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.description', $clientItemTypeID, $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                $clientName        = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                $clientDescription = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.description', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
                 $propertyID        = getClientPropertyID_RelatedWith_byName ($row['RS_CONFIGURATION_ITEMTYPE'].'.logo', $clientID);
                 $clientLogo        = getItemDataPropertyValue               ($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID);
 
