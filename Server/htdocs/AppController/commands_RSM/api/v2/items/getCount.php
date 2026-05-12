@@ -40,7 +40,10 @@ $itemTypeID = $requestBody->itemTypeID;
 //itemTypeID
 if ($itemTypeID == '') {
   $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+} else {
+  $itemTypeID = ParseITID($itemTypeID, $clientID);
 }
+
 if ($itemTypeID <= 0) {
   if ($RSallowDebug) {
     returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID);
@@ -106,6 +109,7 @@ if (count($itemsArray) != 0) {
     returnJsonMessage(200, '');
   }
 }
+
 function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
