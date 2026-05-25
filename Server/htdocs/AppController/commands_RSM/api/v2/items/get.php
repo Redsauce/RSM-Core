@@ -49,6 +49,19 @@ $RStoken  = getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
+// DEBUG
+error_log('DEBUG token=' . $RStoken);
+error_log('DEBUG clientID=' . $clientID);
+error_log('DEBUG propertyIDs=' . json_encode($propertyIDs));
+
+
+if ($itemTypeID == '') {
+  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+  error_log('DEBUG resolved itemTypeID=' . $itemTypeID);
+}
+// DEBUG
+
+
 // Params
 $propertyIDs    = $requestBody->propertyIDs;
 $filterRules    = $requestBody->filterRules;
