@@ -41,6 +41,7 @@ setAuthorizationTokenOnGlobals();
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
+require_once '../../../utilities/RSMlistsManagement.php';
 require_once '../../api_headers.php';
 
 // Definitions
@@ -104,7 +105,7 @@ if (is_array($originalIDs)) {
 $filterProperties = array();
 if (is_array($filterRules) && !empty($filterRules)) {
   foreach ($filterRules as $rule) {
-    $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => replaceUtf8Characters($rule->value), 'mode' => $rule->operation);
+    $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => parseProperyListValue($rule->value, $clientID), 'mode' => $rule->operation);
   }
 }
 
@@ -263,4 +264,22 @@ function verifyBodyContent($body)
   checkIsArray($body->IDs);
   checkIsArray($body->filterRules);
   checkIsArray($body->extFilterRules);
+}
+
+function parseProperyListValue($value, $clientID)
+{
+  if (!is_string($value)) {
+    return $value;
+  }
+
+  $appListValueID = getAppListValueID($value);
+  if ($appListValueID != '' && $appListValueID != '0') {
+    $clientListValueID = getClientListValueID_RelatedWith($appListValueID, $clientID);
+
+    if ($clientListValueID != '' && $clientListValueID != '0') {
+      return getValue($clientListValueID, $clientID);
+    }
+  }
+
+  return replaceUtf8Characters($value);
 }
