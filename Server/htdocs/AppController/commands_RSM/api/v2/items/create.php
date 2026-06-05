@@ -40,6 +40,8 @@ foreach ($requestBody as $item) {
   $correctProperties = array();
 
   foreach ($item as $propertyID => $propertyValue) {
+    $propertyID = ParsePID($propertyID, $clientID);
+
     // Only prepare properties where user has CREATE permission
     if ((RShasTokenPermission($RStoken, $propertyID, 'CREATE')) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
       $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
