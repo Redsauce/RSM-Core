@@ -39,6 +39,11 @@ if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($R
     }
 }
 
+$itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
+if (!RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this item") : returnJsonMessage(403, "");
+}
+
 // Process response
 $results = getAuditTrail($clientID, $propertyID, $ID);
 

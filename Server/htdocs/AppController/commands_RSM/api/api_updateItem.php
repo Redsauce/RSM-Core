@@ -37,6 +37,12 @@ foreach ($RSdata as $propertyID) {
 
 $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
 
+if ($itemTypeID != 0 && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $RSitemID)) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+    RSReturnArrayResults($results, false);
+}
+
 // Correct itemTypeID
 if ($itemTypeID != 0) {
     // For every property must be done one update

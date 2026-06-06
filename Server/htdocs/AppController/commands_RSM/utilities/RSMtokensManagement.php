@@ -39,6 +39,54 @@ function RSclientFromToken($RStoken) {
 	}
 }
 
+function RSgetTokenCustomerScope($RStoken) {
+	if ($RStoken == '') {
+		return array('customerItemTypeID' => 0, 'customerItemID' => 0, 'valid' => true, 'scoped' => false);
+	}
+
+	$results = RSQuery("SELECT RS_CUSTOMER_ITEM_TYPE_ID AS customerItemTypeID,
+                               RS_CUSTOMER_ITEM_ID AS customerItemID
+                        FROM rs_tokens
+                        WHERE RS_TOKEN = '" . $RStoken . "'");
+
+	if (!$results || $results->num_rows == 0) {
+		return array('customerItemTypeID' => 0, 'customerItemID' => 0, 'valid' => false, 'scoped' => false);
+	}
+
+	$row = $results->fetch_assoc();
+	$customerItemTypeID = isset($row['customerItemTypeID']) ? intval($row['customerItemTypeID']) : 0;
+	$customerItemID = isset($row['customerItemID']) ? intval($row['customerItemID']) : 0;
+	$scoped = ($customerItemTypeID > 0 && $customerItemID > 0);
+	$valid = (($customerItemTypeID == 0 && $customerItemID == 0) || $scoped);
+
+	return array(
+		'customerItemTypeID' => $customerItemTypeID,
+		'customerItemID' => $customerItemID,
+		'valid' => $valid,
+		'scoped' => $scoped
+	);
+}
+
+function RSisCustomerScopedToken($RStoken) {
+	$scope = RSgetTokenCustomerScope($RStoken);
+	return $scope['valid'] && $scope['scoped'];
+}
+
+function RSisTokenCustomerScopeValid($RStoken) {
+	$scope = RSgetTokenCustomerScope($RStoken);
+	return $scope['valid'];
+}
+
+function RSgetTokenCustomerItemTypeID($RStoken) {
+	$scope = RSgetTokenCustomerScope($RStoken);
+	return $scope['customerItemTypeID'];
+}
+
+function RSgetTokenCustomerItemID($RStoken) {
+	$scope = RSgetTokenCustomerScope($RStoken);
+	return $scope['customerItemID'];
+}
+
 // -----------------------------
 // Enable token for a clientID
 function RSenableToken($RStoken, $clientID) {
@@ -100,7 +148,9 @@ function RSdeleteTokens($RStoken, $clientID) {
 // -----------------------------
 function RStokensFromClient($clientID) {
 	$results = RSQuery("SELECT  RS_TOKEN AS  'token',
-                         RS_ENABLED       AS  'enabled'
+                         RS_ENABLED       AS  'enabled',
+                         RS_CUSTOMER_ITEM_TYPE_ID AS 'customerItemTypeID',
+                         RS_CUSTOMER_ITEM_ID AS 'customerItemID'
                          FROM rs_tokens
                          WHERE RS_CLIENT_ID = '" . $clientID . "'");
 	return $results;
@@ -115,11 +165,23 @@ function RScountToken($RStoken) {
 }
 
 // -----------------------------
-function RScreateToken($RStoken, $clientID) {
-	$results = RSQuery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_ENABLED)
+function RScreateToken($RStoken, $clientID, $customerItemTypeID = 0, $customerItemID = 0) {
+	$customerItemTypeID = intval($customerItemTypeID);
+	$customerItemID = intval($customerItemID);
+
+	if (($customerItemTypeID == 0 && $customerItemID != 0) || ($customerItemTypeID != 0 && $customerItemID == 0)) {
+		return false;
+	}
+
+	$customerItemTypeValue = ($customerItemTypeID > 0) ? "'" . $customerItemTypeID . "'" : "NULL";
+	$customerItemValue = ($customerItemID > 0) ? "'" . $customerItemID . "'" : "NULL";
+
+	$results = RSQuery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_CUSTOMER_ITEM_TYPE_ID, RS_CUSTOMER_ITEM_ID, RS_ENABLED)
                         SELECT COALESCE(MAX(RS_ID), 0)+1,
                             '" . $RStoken . "',
                             '" . $clientID . "',
+                            " . $customerItemTypeValue . ",
+                            " . $customerItemValue . ",
                             '0'
                         FROM rs_tokens");
 	return $results;

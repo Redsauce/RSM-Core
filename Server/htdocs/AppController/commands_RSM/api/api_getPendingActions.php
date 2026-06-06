@@ -49,6 +49,12 @@ $eventReturnProperties = array();
 
 // Filter results
 $eventResults = array();
+$eventFilterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $eventItemTypeID, $eventFilterProperties);
+if ($eventFilterProperties === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO EVENTS';
+    RSReturnArrayResults($results, false);
+}
 $eventResults = getFilteredItemsIDs($eventItemTypeID, $clientID, $eventFilterProperties, $eventReturnProperties, '', true, '', '', 'OR');
 
 // Join list of resulting event IDs
@@ -76,6 +82,12 @@ $orderBy = "scheduledEvents.priority";
 
 // Filter results
 $results = array();
+$filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+if ($filterProperties === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO SCHEDULED EVENTS';
+    RSReturnArrayResults($results, false);
+}
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, true, $numActions, '', 'AND', 0, false, "", true);
 
 //Update retrieved actions node

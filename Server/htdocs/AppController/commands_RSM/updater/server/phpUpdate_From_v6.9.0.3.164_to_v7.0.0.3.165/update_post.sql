@@ -1,6 +1,10 @@
 # Insert the application version with changes in the PHP layer
 INSERT INTO rs_dbchanges (RS_ID, RS_PREVIOUS_VERSION, RS_NEW_VERSION, RS_EXECUTION_DATE, RS_COMMENTS)
-VALUES (NULL, '6.9.0.3.164', '7.0.0.3.165', NOW(), 'Module scripts Editor has been removed');
+VALUES (NULL, '6.9.0.3.164', '7.0.0.3.165', NOW(), 'Module scripts Editor has been removed. Added customer scope columns to API tokens.');
+
+ALTER TABLE rs_tokens
+ADD IF NOT EXISTS RS_CUSTOMER_ITEM_TYPE_ID int(11) unsigned NULL COMMENT 'Customer item type scoped by this token',
+ADD IF NOT EXISTS RS_CUSTOMER_ITEM_ID int(11) unsigned NULL COMMENT 'Customer item scoped by this token';
 
 # Remove the reference to the scripts editor application
 DELETE FROM rs_actions WHERE RS_ID=8;

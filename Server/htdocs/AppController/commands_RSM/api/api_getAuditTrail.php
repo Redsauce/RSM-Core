@@ -22,6 +22,13 @@ if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($R
   RSReturnArrayQueryResults($results);
 }
 
+$itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+  $results['result'] = 'NOK';
+  $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+  RSReturnArrayQueryResults($results);
+}
+
 // Process response
 $results = getAuditTrail($clientID, $propertyID, $itemID);
 

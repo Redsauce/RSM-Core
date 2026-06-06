@@ -147,6 +147,12 @@ if ($orderBy != '') {
 
 // Filter results
 $results = array();
+$filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+if ($filterProperties === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM TYPE';
+    RSReturnArrayResults($results, false);
+}
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
 
 // And write XML Response

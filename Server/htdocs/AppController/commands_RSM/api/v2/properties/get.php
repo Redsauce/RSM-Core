@@ -39,6 +39,10 @@ if (!isset($RSuserID)) {
 // This function will return an ID also if an ID is passed
 $itemTypeID = parseITID($itemTypeID, $clientID);
 
+if (!empty($ID) && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this item") : returnJsonMessage(403, "");
+}
+
 if ($RSuserID > 0) {
     // We have user credentials
     $results = getPropertiesExtendedForItemAndUser($itemTypeID, $ID, $clientID, $RSuserID);

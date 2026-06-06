@@ -16,6 +16,7 @@
 require_once '../../../utilities/RStools.php';
 setAuthorizationTokenOnGlobals();
 require_once '../../../utilities/RSdatabase.php';
+require_once '../../../utilities/RSMitemsManagement.php';
 require_once '../../api_headers.php';
 require_once '../../../utilities/RSMverifyBody.php';
 
@@ -24,6 +25,7 @@ checkCorrectRequestMethod('GET');
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
+$RStoken = isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $GLOBALS[$cstRS_POST][$cstRStoken] : '';
 $clientID = getClientID();
 $login = sanitizeInput($requestBody->login);
 $password = sanitizeInput($requestBody->password);
@@ -41,6 +43,14 @@ if ($result->num_rows == 0) {
 }
 
 $ID = mysqli_fetch_assoc($result)['ID'];
+
+if (!RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $ID)) {
+  if ($RSallowDebug) {
+    returnJsonMessage(403, 'Token customer scope does not allow access to this staff item');
+  } else {
+    returnJsonMessage(403, '');
+  }
+}
 
 $response = json_encode(array('ID' => $ID));
 

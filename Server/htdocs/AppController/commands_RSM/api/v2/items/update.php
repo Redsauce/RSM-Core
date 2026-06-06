@@ -54,6 +54,8 @@ foreach ($requestBody as $item) {
     $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Properties must pertain to the same item type)') : returnJsonMessage(400, '');
   } elseif (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
     $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
+  } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+    $RSallowDebug ? returnJsonMessage(403, 'Not Updated (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
   }
 }
 

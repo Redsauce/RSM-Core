@@ -74,6 +74,17 @@ foreach ($RSdataSplit as $RSdataRow) {
         error_log('PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE');
         RSReturnArrayResults($results, false);
     }
+
+    $scopeValues = array();
+    foreach ($RSdataRow as $group) {
+        $chainValues = explode(":", $group);
+        $scopeValues[] = array('ID' => ParsePID($chainValues[0], $clientID), 'value' => base64_decode($chainValues[1]));
+    }
+    if (!RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $scopeValues)) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW CREATING THIS ITEM';
+        RSReturnArrayResults($results, false);
+    }
 }
 
 
@@ -102,6 +113,13 @@ foreach ($RSdataSplit as $RSdataRow) {
             $newValue = str_replace("'", "&#39;", $newValue);
             $values[] = array('ID' => $id, 'value' => $newValue);
         }
+    }
+
+    $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
+    if (!RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $values)) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW CREATING THIS ITEM';
+        RSReturnArrayResults($results, false);
     }
 
     // Create item and verify the result creation

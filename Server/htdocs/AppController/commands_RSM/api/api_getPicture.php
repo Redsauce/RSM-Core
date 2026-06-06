@@ -49,6 +49,9 @@ isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
 isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
+$itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) dieWithError(403);
+
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $itemID . "_" . $w . "_" . $h . "_" . $adj;
 $image_string = $directory . $image_name;

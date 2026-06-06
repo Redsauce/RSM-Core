@@ -92,6 +92,11 @@ if ($extFilterRules != '') {
 }
 
 //GET THE ITEMS
+$filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+if ($filterProperties === false) {
+  $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
+}
+
 $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', false, $limit = '', $implodedIDs, 'AND', 0, true, $formattedExtFilterRules, true);
 
 //  Parse itemsArray into a JSON.

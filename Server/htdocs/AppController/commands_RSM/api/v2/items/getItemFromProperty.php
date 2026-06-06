@@ -99,6 +99,10 @@ if (!verifyItemExists($filterItemID, $filteritemTypeID, $clientID)) {
     }
 }
 
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $filteritemTypeID, $filterItemID)) {
+    $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to the source item') : returnJsonMessage(403, '');
+}
+
 // Get the value of the property $filterItemID for the given $filterPropertyID
 $itemIDsToRetrieve = getItemPropertyValue($filterItemID, $filterPropertyID, $clientID);
 
@@ -108,6 +112,9 @@ $properties = getClientitemTypeProperties($itemTypeID, $clientID);
 // verify how many items are related
 if (strpos($itemIDsToRetrieve, ',') === false) {
     // single item identified, return it as usual for backwards compatibility
+    if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDsToRetrieve)) {
+        $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item') : returnJsonMessage(403, '');
+    }
 
     foreach ($properties as $property) {
         if (RShasTokenPermission($RStoken, $property['id'], 'READ') && (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
@@ -181,7 +188,11 @@ if (strpos($itemIDsToRetrieve, ',') === false) {
         }
     }
     // get the items
-    $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, array(), $properties, '', $translateIDs, '', $itemIDsToRetrieve, 'AND', 0, true, '', true);
+    $filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, array());
+    if ($filterProperties === false) {
+        $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
+    }
+    $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $properties, '', $translateIDs, '', $itemIDsToRetrieve, 'AND', 0, true, '', true);
 
     foreach ($itemsArray as $item) {
         foreach ($item as $propertyKey => $propertyValue) {

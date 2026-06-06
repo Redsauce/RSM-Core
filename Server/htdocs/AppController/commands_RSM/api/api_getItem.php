@@ -30,6 +30,12 @@ $translateIDs = false;
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
 
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+    RSReturnArrayResults($results, false);
+}
+
 $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
 $properties = array();

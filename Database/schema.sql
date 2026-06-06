@@ -978,6 +978,8 @@ CREATE TABLE IF NOT EXISTS `rs_tokens` (
   `RS_ID` int(11) unsigned NOT NULL COMMENT 'Starts from 1 for each client',
   `RS_TOKEN` char(32) COLLATE utf8_bin NOT NULL,
   `RS_CLIENT_ID` int(11) unsigned NOT NULL COMMENT 'Client that owns the token',
+  `RS_CUSTOMER_ITEM_TYPE_ID` int(11) unsigned DEFAULT NULL COMMENT 'Customer item type scoped by this token',
+  `RS_CUSTOMER_ITEM_ID` int(11) unsigned DEFAULT NULL COMMENT 'Customer item scoped by this token',
   `RS_ENABLED` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'A token can only be used from the outside if it is enabled'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

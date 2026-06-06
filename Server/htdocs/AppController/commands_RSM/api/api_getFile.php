@@ -36,6 +36,9 @@ isset($GLOBALS["RS_GET" ][$cstRStoken   ]) ? $RStoken    = $GLOBALS["RS_GET" ][$
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
 
+$itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) dieWithError(403);
+
 $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
 $file_name = "file_" . $itemID;
 $file_path = $directory . $file_name;

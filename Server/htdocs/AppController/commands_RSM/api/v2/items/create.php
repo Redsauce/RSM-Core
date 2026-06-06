@@ -49,6 +49,10 @@ foreach ($requestBody as $item) {
       $RSallowDebug ? returnJsonMessage(400, 'Not created (At least 1 property has no WRITE permissions or its not visible)') : returnJsonMessage(400, '');
     }
   }
+  $itemTypeID = getItemTypeIDFromProperties(array_column($correctProperties, 'ID'), $clientID);
+  if (!RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $correctProperties)) {
+    $RSallowDebug ? returnJsonMessage(403, 'Not created (Token customer scope does not allow creating this item)') : returnJsonMessage(403, '');
+  }
   $propertiesToCreate[] = $correctProperties;
 }
 

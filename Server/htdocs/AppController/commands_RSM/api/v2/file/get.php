@@ -40,6 +40,11 @@ if (getPropertyType($propertyID, $clientID) != 'file') {
     $RSallowDebug ? returnJsonMessage(404, "Property is not a file" ) : returnJsonMessage(404, "");
 }
 
+$itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this file" ) : returnJsonMessage(403, "");
+}
+
 // create file path
 $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
 $file_name = "file_" . $ID;

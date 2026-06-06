@@ -3428,6 +3428,121 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
     return $results;
 }
 
+function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID)
+{
+    if (!RSisTokenCustomerScopeValid($RStoken)) return 0;
+    if (!RSisCustomerScopedToken($RStoken)) return 0;
+
+    $customerItemTypeID = RSgetTokenCustomerItemTypeID($RStoken);
+    $itemTypeID = parseITID($itemTypeID, $clientID);
+
+    $result = RSQuery("SELECT RS_PROPERTY_ID
+                       FROM rs_item_properties
+                       WHERE RS_CLIENT_ID = " . intval($clientID) . "
+                       AND RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
+                       AND RS_TYPE = 'identifier'");
+
+    if (!$result) return 0;
+
+    $matchingProperties = array();
+    while ($row = $result->fetch_assoc()) {
+        if (intval(getClientPropertyReferredItemType($row['RS_PROPERTY_ID'], $clientID)) == intval($customerItemTypeID)) {
+            $matchingProperties[] = intval($row['RS_PROPERTY_ID']);
+        }
+    }
+
+    if (count($matchingProperties) != 1) return 0;
+
+    return $matchingProperties[0];
+}
+
+function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties)
+{
+    if (!RSisTokenCustomerScopeValid($RStoken)) return false;
+    if (!RSisCustomerScopedToken($RStoken)) return $filterProperties;
+
+    if (!is_array($filterProperties)) $filterProperties = array();
+
+    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
+    if ($customerDependencyPropertyID == 0) return false;
+
+    $filterProperties[] = array(
+        'ID' => $customerDependencyPropertyID,
+        'value' => RSgetTokenCustomerItemID($RStoken),
+        'mode' => '='
+    );
+
+    return $filterProperties;
+}
+
+function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)
+{
+    if (!RSisTokenCustomerScopeValid($RStoken)) return false;
+    if (!RSisCustomerScopedToken($RStoken)) return true;
+
+    $itemTypeID = parseITID($itemTypeID, $clientID);
+    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
+    if ($customerDependencyPropertyID == 0) return false;
+
+    $result = RSQuery("SELECT RS_ITEM_ID
+                       FROM rs_property_identifiers
+                       WHERE RS_CLIENT_ID = " . intval($clientID) . "
+                       AND RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
+                       AND RS_ITEM_ID = " . intval($itemID) . "
+                       AND RS_PROPERTY_ID = " . intval($customerDependencyPropertyID) . "
+                       AND RS_DATA = '" . intval(RSgetTokenCustomerItemID($RStoken)) . "'
+                       LIMIT 1");
+
+    return ($result && $result->num_rows > 0);
+}
+
+function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDs)
+{
+    if (!RSisTokenCustomerScopeValid($RStoken)) return false;
+    if (!RSisCustomerScopedToken($RStoken)) return true;
+
+    if (!is_array($itemIDs)) {
+        $itemIDs = explode(',', $itemIDs);
+    }
+
+    foreach ($itemIDs as $itemID) {
+        if ($itemID === '') continue;
+        if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) return false;
+    }
+
+    return true;
+}
+
+function RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $properties)
+{
+    if (!RSisTokenCustomerScopeValid($RStoken)) return false;
+    if (!RSisCustomerScopedToken($RStoken)) return true;
+
+    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
+    if ($customerDependencyPropertyID == 0) return false;
+
+    foreach ($properties as $property) {
+        if (isset($property['ID']) && intval(parsePID($property['ID'], $clientID)) == $customerDependencyPropertyID) {
+            return intval($property['value']) == intval(RSgetTokenCustomerItemID($RStoken));
+        }
+    }
+
+    return false;
+}
+
+function RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $staffItemID)
+{
+    global $definitions;
+
+    if (!RSisTokenCustomerScopeValid($RStoken)) return false;
+    if (!RSisCustomerScopedToken($RStoken)) return true;
+
+    $staffItemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['staff'], $clientID);
+    if ($staffItemTypeID == '' || $staffItemTypeID == '0') return false;
+
+    return RSitemMatchesTokenCustomerScope($RStoken, $clientID, $staffItemTypeID, $staffItemID);
+}
+
 //Function for removing accented chars
 //TO DO check why not working
 function Unaccent($string)

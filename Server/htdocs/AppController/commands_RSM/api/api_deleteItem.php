@@ -29,8 +29,13 @@ $itemTypeID = ParseITID($itemTypeID, $clientID);
 $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
 if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
-    deleteItem($itemTypeID, $itemID, $clientID);
-    $results['result'] = 'OK';
+    if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+    } else {
+        deleteItem($itemTypeID, $itemID, $clientID);
+        $results['result'] = 'OK';
+    }
 } else {
     $results['result'] = 'NOK';
     $results['description'] = 'YOU DONT HAVE PERMISSIONS TO DELETE THIS ITEM';

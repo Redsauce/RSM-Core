@@ -49,6 +49,8 @@ foreach ($requestBody as $itemType) {
     foreach ($itemType->IDs as $itemID) {
       if (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
         $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
+      } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+        $RSallowDebug ? returnJsonMessage(403, 'Not Deleted (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
       }
     }
   }

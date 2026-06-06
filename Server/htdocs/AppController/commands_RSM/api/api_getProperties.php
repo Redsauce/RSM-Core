@@ -16,6 +16,10 @@ if (!isset($RSuserID)) $RSuserID =  0;
 // This function will return an ID also if an ID is passed
 $itemTypeID = parseITID($itemTypeID, $clientID);
 
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+  dieWithError(403);
+}
+
 if ($RSuserID > 0) {
   // We have user credentials
   $results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $RSuserID);

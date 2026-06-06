@@ -79,6 +79,12 @@ $returnProperties = array();
 
 // Filter results
 $results = array();
+$filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+if ($filterProperties === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM TYPE';
+    RSReturnArrayResults($results, false);
+}
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', false, '', '', $filterJoining, 0, false, $extFilterRules, true);
 
 $result = array("total" => count($results));

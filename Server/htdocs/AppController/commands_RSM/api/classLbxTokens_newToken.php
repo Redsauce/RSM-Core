@@ -18,6 +18,13 @@ if (empty($GLOBALS[$cstRS_POST][$cstClientID])) {
     dieWithError(400);
 }
 
+$customerItemTypeID = isset($GLOBALS[$cstRS_POST]['customerItemTypeID']) ? $GLOBALS[$cstRS_POST]['customerItemTypeID'] : 0;
+$customerItemID     = isset($GLOBALS[$cstRS_POST]['customerItemID'])     ? $GLOBALS[$cstRS_POST]['customerItemID']     : 0;
+
+if (($customerItemTypeID == 0 && $customerItemID != 0) || ($customerItemTypeID != 0 && $customerItemID == 0)) {
+    dieWithError(400);
+}
+
 do {
     // We assume the token does not exist
     $exists = false;
@@ -46,10 +53,16 @@ do {
 
 // If the execution reaches this point, the token does not exist so we can insert it
 // RScreateToken() is defined in Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php
-$results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID]); 
+$results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID], $customerItemTypeID, $customerItemID);
+
+if (!$results) {
+    dieWithError(400);
+}
 
 // Generate a response array for RSM
 $response['token'] = $token;
+$response['customerItemTypeID'] = $customerItemTypeID;
+$response['customerItemID'] = $customerItemID;
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);

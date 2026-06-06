@@ -26,6 +26,10 @@ if ($RStoken == "") dieWithError(400);
 // Primero hemos de saber a que cliente pertenece el token proporcionado
 $clientID = RSclientFromToken($RStoken);
 
+if (RSisCustomerScopedToken($RStoken) || !RSisTokenCustomerScopeValid($RStoken)) {
+      dieWithError(403);
+}
+
 // Obtenemos una lista de triggerIDs relacionados con el nombre del trigger
 $actions = getActionsByURLTriggerName($RStrigger, $clientID);
 

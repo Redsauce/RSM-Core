@@ -60,6 +60,10 @@ foreach ($RSdataToJSON as $itemIDkey => $itemRow) {
         $results['description'] = 'INCONGRUENT PROPERTIES FOR THIS CLIENT';
         error_log('INCONGRUENT PROPERTIES FOR THIS CLIENT');
         break;
+    } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID[count($itemTypeID)-1], $itemIDkey)) {
+        $results['result']      = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THESE ITEMS';
+        break;
     }
 }
 

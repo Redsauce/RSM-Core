@@ -131,6 +131,11 @@ if (is_array($extFilterRules) && !empty(($extFilterRules))) {
 }
 
 // GET THE ITEMS
+$filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+if ($filterProperties === false) {
+  $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
+}
+
 $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, $limit = '', $IDs, 'AND', 0, true, $formattedExtFilterRules, true);
 $responseArray = array();
 

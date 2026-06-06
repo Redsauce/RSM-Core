@@ -46,12 +46,23 @@ $filterItemType = getItemTypeIDFromProperties(array($filterProperty), $clientID)
 // Get the value of the property $filterPropertyID for the given $filterProperty
 $valuePropertyRelated = getItemPropertyValue($filterPropertyID, $filterProperty, $clientID);
 
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $filterItemType, $filterPropertyID)) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THE SOURCE ITEM';
+    RSReturnArrayResults($results, false);
+}
+
 // get the properties of the itemType
 $properties = getClientItemTypeProperties($itemType, $clientID);
 
 //
 if (strpos($valuePropertyRelated, ",") === false) {
 	//single item identified, return it as usual for backwards compatibility
+    if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemType, $valuePropertyRelated)) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+        RSReturnArrayResults($results, false);
+    }
 	foreach ($properties as $property) {
 	    // Check if user has read permission of the property
 	    if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
@@ -129,7 +140,13 @@ if (strpos($valuePropertyRelated, ",") === false) {
 	}
 
 	// get the items
-	$results = getFilteredItemsIDs($itemType, $clientID, array(), $properties, '', $translateIDs, '', $valuePropertyRelated, 'AND', 0, true, '', true);
+    $filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemType, array());
+    if ($filterProperties === false) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM TYPE';
+        RSReturnArrayResults($results, false);
+    }
+	$results = getFilteredItemsIDs($itemType, $clientID, $filterProperties, $properties, '', $translateIDs, '', $valuePropertyRelated, 'AND', 0, true, '', true);
 }
 
 // And write XML Response back to the application without compression// Return results

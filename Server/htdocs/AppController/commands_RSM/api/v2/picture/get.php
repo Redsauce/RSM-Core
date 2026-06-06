@@ -64,6 +64,9 @@ $itemTypeID = getItemTypeIDFromProperties([$propertyID], $clientID);
 if (!verifyItemExists($ID, $itemTypeID, $clientID)) {
     $RSallowDebug ? returnJsonMessage(404, "Item doesn't exist" ) : returnJsonMessage(404, "");
 }
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this picture" ) : returnJsonMessage(403, "");
+}
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $ID . "_" . $w . "_" . $h . "_" . $adj;
