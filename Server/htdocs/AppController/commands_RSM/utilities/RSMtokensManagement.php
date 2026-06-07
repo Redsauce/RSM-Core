@@ -9,6 +9,9 @@
 // - RStokensFromClient
 // - RScountToken
 // - RScreateToken
+// - RSgetTokenCustomerScope
+// - RSisCustomerScopedToken
+// - RSisTokenCustomerScopeValid
 // - RSremovePermissionFromTokenProperty
 // - RScreateTokenPermission
 // - RSgetTokenPermissions
@@ -39,6 +42,9 @@ function RSclientFromToken($RStoken) {
 	}
 }
 
+// Return the optional customer scope configured for a token.
+// Standard tokens have both customer fields empty and must keep the previous behavior.
+// A token with only one customer field populated is invalid and must fail closed.
 function RSgetTokenCustomerScope($RStoken) {
 	if ($RStoken == '') {
 		return array('customerItemTypeID' => 0, 'customerItemID' => 0, 'valid' => true, 'scoped' => false);
@@ -67,11 +73,13 @@ function RSgetTokenCustomerScope($RStoken) {
 	);
 }
 
+// True only when the token has a complete customer item type + customer item pair.
 function RSisCustomerScopedToken($RStoken) {
 	$scope = RSgetTokenCustomerScope($RStoken);
 	return $scope['valid'] && $scope['scoped'];
 }
 
+// Used by item authorization helpers to reject partially configured customer scopes.
 function RSisTokenCustomerScopeValid($RStoken) {
 	$scope = RSgetTokenCustomerScope($RStoken);
 	return $scope['valid'];
@@ -146,6 +154,7 @@ function RSdeleteTokens($RStoken, $clientID) {
 }
 
 // -----------------------------
+// Includes customer scope fields so the RSM client can display/configure scoped tokens.
 function RStokensFromClient($clientID) {
 	$results = RSQuery("SELECT  RS_TOKEN AS  'token',
                          RS_ENABLED       AS  'enabled',
@@ -165,6 +174,8 @@ function RScountToken($RStoken) {
 }
 
 // -----------------------------
+// Creates either a standard token or a customer-scoped token.
+// Both customer fields must be supplied together; partial scope data is unsafe.
 function RScreateToken($RStoken, $clientID, $customerItemTypeID = 0, $customerItemID = 0) {
 	$customerItemTypeID = intval($customerItemTypeID);
 	$customerItemID = intval($customerItemID);

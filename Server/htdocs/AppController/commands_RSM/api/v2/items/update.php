@@ -55,6 +55,7 @@ foreach ($requestBody as $item) {
   } elseif (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
     $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
   } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+    // Reject before writing any property value if the target item belongs to another customer.
     $RSallowDebug ? returnJsonMessage(403, 'Not Updated (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
   }
 }

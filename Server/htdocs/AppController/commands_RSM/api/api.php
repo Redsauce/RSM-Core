@@ -26,6 +26,8 @@ if ($RStoken == "") dieWithError(400);
 // Primero hemos de saber a que cliente pertenece el token proporcionado
 $clientID = RSclientFromToken($RStoken);
 
+// Trigger payloads can run arbitrary event logic. Until the payload can be scoped safely,
+// customer-scoped tokens are rejected instead of risking cross-customer side effects.
 if (RSisCustomerScopedToken($RStoken) || !RSisTokenCustomerScopeValid($RStoken)) {
       dieWithError(403);
 }

@@ -3428,6 +3428,9 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
     return $results;
 }
 
+// Find the single direct identifier property that links an item type to the token customer item type.
+// The item type of a property is derived through categories, so this intentionally joins rs_categories.
+// If there is no match or more than one match, access fails closed to avoid leaking unrelated items.
 function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return 0;
@@ -3459,6 +3462,8 @@ function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID
     return $matchingProperties[0];
 }
 
+// Add the customer scope as a normal identifier filter for list/count/search endpoints.
+// Standard tokens return the original filters unchanged; invalid scoped tokens return false.
 function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
@@ -3478,6 +3483,8 @@ function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $fil
     return $filterProperties;
 }
 
+// Check direct access to one item before returning, updating, deleting, or streaming its data.
+// This is the central guard used by API v1/v2 endpoints for customer-scoped tokens.
 function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
@@ -3499,6 +3506,7 @@ function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $item
     return ($result && $result->num_rows > 0);
 }
 
+// Batch variant used before destructive operations; one out-of-scope item rejects the whole batch.
 function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDs)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
@@ -3516,6 +3524,8 @@ function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemI
     return true;
 }
 
+// Creation is allowed only when the payload explicitly sets the customer dependency to the token scope.
+// We do not silently inject the dependency because that would hide integration/configuration mistakes.
 function RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $properties)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
@@ -3533,6 +3543,8 @@ function RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemType
     return false;
 }
 
+// User IDs are internal rows, but users are linked to staff items through rs_users.RS_ITEM_ID.
+// Staff/user lookup endpoints validate that linked staff item instead of treating RS_USER_ID as an item.
 function RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $staffItemID)
 {
     global $definitions;

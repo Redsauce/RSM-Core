@@ -44,6 +44,7 @@ if ($result->num_rows == 0) {
 
 $ID = mysqli_fetch_assoc($result)['ID'];
 
+// Staff IDs are item IDs, so they must also respect customer-scoped token boundaries.
 if (!RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $ID)) {
   if ($RSallowDebug) {
     returnJsonMessage(403, 'Token customer scope does not allow access to this staff item');

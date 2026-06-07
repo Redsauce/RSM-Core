@@ -18,6 +18,7 @@ if (empty($GLOBALS[$cstRS_POST][$cstClientID])) {
     dieWithError(400);
 }
 
+// Optional scope sent by the RSM client UI. Both values must be provided together.
 $customerItemTypeID = isset($GLOBALS[$cstRS_POST]['customerItemTypeID']) ? $GLOBALS[$cstRS_POST]['customerItemTypeID'] : 0;
 $customerItemID     = isset($GLOBALS[$cstRS_POST]['customerItemID'])     ? $GLOBALS[$cstRS_POST]['customerItemID']     : 0;
 

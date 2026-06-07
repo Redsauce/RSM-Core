@@ -46,6 +46,7 @@ if ($result->num_rows == 0) {
 $user = mysqli_fetch_assoc($result);
 $ID = $user['ID'];
 
+// RS_USER_ID is internal; scope is validated through the linked staff item.
 if (!RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $user['staffItemID'])) {
   if ($RSallowDebug) {
     returnJsonMessage(403, 'Token customer scope does not allow access to this user');
