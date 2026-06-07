@@ -3436,11 +3436,14 @@ function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID
     $customerItemTypeID = RSgetTokenCustomerItemTypeID($RStoken);
     $itemTypeID = parseITID($itemTypeID, $clientID);
 
-    $result = RSQuery("SELECT RS_PROPERTY_ID
+    $result = RSQuery("SELECT rs_item_properties.RS_PROPERTY_ID
                        FROM rs_item_properties
-                       WHERE RS_CLIENT_ID = " . intval($clientID) . "
-                       AND RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
-                       AND RS_TYPE = 'identifier'");
+                       INNER JOIN rs_categories
+                       ON rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID
+                       AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
+                       WHERE rs_item_properties.RS_CLIENT_ID = " . intval($clientID) . "
+                       AND rs_categories.RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
+                       AND rs_item_properties.RS_TYPE = 'identifier'");
 
     if (!$result) return 0;
 
