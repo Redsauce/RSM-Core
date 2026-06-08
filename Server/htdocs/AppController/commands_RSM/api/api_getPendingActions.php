@@ -11,7 +11,8 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
-require_once "./api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 // Definitions
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : dieWithError(400);

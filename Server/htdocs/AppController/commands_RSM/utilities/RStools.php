@@ -713,6 +713,8 @@ function checkCorrectRequestMethod($requestMethod)
 {
     global $RSallowDebug;
 
+    header('Access-Control-Allow-Methods: ' . $requestMethod);
+
     if ($requestMethod != $_SERVER["REQUEST_METHOD"]) {
         if ($RSallowDebug) {
             returnJsonMessage(400, "Wrong request method");

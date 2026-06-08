@@ -37,12 +37,14 @@ require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
 
 // Todo: Uncomment once the Xojo ANdroid SDK can do requests with GET verb
+//header('Access-Control-Allow-Methods: GET');
 //checkCorrectRequestMethod('GET');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
 require_once '../../../utilities/RSMlistsManagement.php';
-require_once '../../api_headers.php';
+
+header('Access-Control-Allow-Origin: *');
 
 // Definitions
 $requestBody = getRequestBody();

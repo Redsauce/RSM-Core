@@ -19,7 +19,8 @@ checkCorrectRequestMethod('GET');
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMlistsManagement.php";
-require_once "../../api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 // Verify if the request has a body and validate its content
 $contentLength = intval($_SERVER['CONTENT_LENGTH'] ?? 0);

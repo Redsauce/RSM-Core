@@ -6,27 +6,28 @@
 //
 // EXAMPLE:
 //     {
+//         "clientID": "1",
 //         "login": "correo@gmail.com",
-//         "password": "12345",
+//         "password": "827ccb0eea8a706c4c34a16891f84e7b",
 //     }
+//
+// NOTE:
+//     The password must be sent as an MD5 hash, matching the value stored in the DB.
 //
 //***************************************************************************************
 
 // Database connection startup
 require_once '../../../utilities/RStools.php';
-setAuthorizationTokenOnGlobals();
-require_once '../../../utilities/RSdatabase.php';
-require_once '../../../utilities/RSMitemsManagement.php';
-require_once '../../api_headers.php';
 require_once '../../../utilities/RSMverifyBody.php';
+
+header('Access-Control-Allow-Origin: *');
 
 checkCorrectRequestMethod('GET');
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$RStoken = isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $GLOBALS[$cstRS_POST][$cstRStoken] : '';
-$clientID = getClientID();
+$clientID = sanitizeInput($requestBody->clientID);
 $login = sanitizeInput($requestBody->login);
 $password = sanitizeInput($requestBody->password);
 
@@ -44,15 +45,6 @@ if ($result->num_rows == 0) {
 
 $ID = mysqli_fetch_assoc($result)['ID'];
 
-// Staff IDs are item IDs, so they must also respect customer-scoped token boundaries.
-if (!RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $ID)) {
-  if ($RSallowDebug) {
-    returnJsonMessage(403, 'Token customer scope does not allow access to this staff item');
-  } else {
-    returnJsonMessage(403, '');
-  }
-}
-
 $response = json_encode(array('ID' => $ID));
 
 returnJsonResponse($response);
@@ -60,6 +52,7 @@ returnJsonResponse($response);
 function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
+  checkBodyContains($body, 'clientID');
   checkBodyContains($body, 'login');
   checkBodyContains($body, 'password');
 }

@@ -1,61 +1,47 @@
 <?php
 //***************************************************************************************
 // Description:
-//    Gets a user's userID.
+//    Gets all matching userID/clientID pairs for a login and password.
 // REQUEST BODY (JSON OBJECT):
 //
 // EXAMPLE:
 //     {
 //         "login": "correo@gmail.com",
-//         "password": "12345",
+//         "password": "827ccb0eea8a706c4c34a16891f84e7b",
 //     }
+//
+// NOTE:
+//     The password must be sent as an MD5 hash, matching the value stored in the DB.
 //
 //***************************************************************************************
 
 // Database connection startup
 require_once '../../../utilities/RStools.php';
-setAuthorizationTokenOnGlobals();
-require_once '../../../utilities/RSdatabase.php';
-require_once '../../../utilities/RSMitemsManagement.php';
-require_once '../../api_headers.php';
 require_once '../../../utilities/RSMverifyBody.php';
 
+header('Access-Control-Allow-Origin: *');
 checkCorrectRequestMethod('GET');
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$RStoken = isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $GLOBALS[$cstRS_POST][$cstRStoken] : '';
-$clientID = getClientID();
 $login = sanitizeInput($requestBody->login);
 $password = sanitizeInput($requestBody->password);
 
 
-$theQuery = "SELECT RS_USER_ID as 'ID', RS_ITEM_ID as 'staffItemID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
+$theQuery = "SELECT RS_USER_ID as 'userID', RS_CLIENT_ID as 'clientID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "'";
 
 $result = RSquery($theQuery);
 
-if ($result->num_rows == 0) {
-  if ($RSallowDebug) {
-    returnJsonMessage(200, 'No users found');
-  } else {
-    returnJsonMessage(200, '');
-  }
+$users = array();
+while ($user = mysqli_fetch_assoc($result)) {
+  $users[] = array(
+    'userID' => $user['userID'],
+    'clientID' => $user['clientID']
+  );
 }
 
-$user = mysqli_fetch_assoc($result);
-$ID = $user['ID'];
-
-// RS_USER_ID is internal; scope is validated through the linked staff item.
-if (!RSstaffItemMatchesTokenCustomerScope($RStoken, $clientID, $user['staffItemID'])) {
-  if ($RSallowDebug) {
-    returnJsonMessage(403, 'Token customer scope does not allow access to this user');
-  } else {
-    returnJsonMessage(403, '');
-  }
-}
-
-$response = json_encode(array('ID' => $ID));
+$response = json_encode(array('users' => $users));
 
 returnJsonResponse($response);
 

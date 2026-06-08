@@ -2,7 +2,8 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
-require_once "./api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 // Obtain the data needed by this script
 isset($GLOBALS[$cstRS_POST]['clientID'  ]) ? $itemID     = $GLOBALS[$cstRS_POST]['clientID'  ] : dieWithError(400);

@@ -13,7 +13,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
-require_once "./api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 $RSallowUncompressed = true;
 

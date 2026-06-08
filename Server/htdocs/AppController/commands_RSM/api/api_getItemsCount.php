@@ -20,7 +20,8 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
-require_once "./api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 $RSallowUncompressed = true;
 

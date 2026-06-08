@@ -26,7 +26,8 @@ require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMtokensManagement.php";
 require_once "../utilities/RSMcacheManagement.php";
-require_once "./api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]["clientID"  ] : dieWithError(400);
 isset($GLOBALS["RS_GET" ]["itemID"    ]) ? $itemID     = $GLOBALS["RS_GET" ]["itemID"    ] : dieWithError(400);

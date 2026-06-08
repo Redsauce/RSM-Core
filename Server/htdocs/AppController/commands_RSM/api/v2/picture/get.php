@@ -35,7 +35,8 @@ require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMtokensManagement.php";
 require_once "../../../utilities/RSMcacheManagement.php";
-require_once "../../api_headers.php";
+
+header('Access-Control-Allow-Origin: *');
 
 
 $parameters = getRequestParams();
