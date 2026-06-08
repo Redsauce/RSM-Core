@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //  Edits one or more items of the specified itemTypeID with the associated values
@@ -25,9 +26,6 @@ checkCorrectRequestMethod('PATCH');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
-
-header('Access-Control-Allow-Origin: *');
-
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 

@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Gets a user's staffID.
@@ -19,17 +20,14 @@
 // Database connection startup
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
-
-header('Access-Control-Allow-Origin: *');
-
 checkCorrectRequestMethod('GET');
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$clientID = sanitizeInput($requestBody->clientID);
-$login = sanitizeInput($requestBody->login);
-$password = sanitizeInput($requestBody->password);
+$clientID = htmlspecialchars($requestBody->clientID);
+$login = htmlspecialchars($requestBody->login);
+$password = htmlspecialchars($requestBody->password);
 
 $theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
 

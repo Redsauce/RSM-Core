@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Returns a file from the cache or the database
@@ -18,9 +19,6 @@ require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMtokensManagement.php";
 require_once "../../../utilities/RSMcacheManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 // Definitions and validations
 $parameters = getRequestParams();
 

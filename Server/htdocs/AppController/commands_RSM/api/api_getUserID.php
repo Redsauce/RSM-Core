@@ -1,11 +1,9 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RStools.php";
 require_once "../utilities/RSMitemsManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 $RSallowUncompressed = true;
 
 isset($GLOBALS[$cstRS_POST]["client"  ]) ? $clientID = $GLOBALS[$cstRS_POST]['client'  ] : dieWithError(400);

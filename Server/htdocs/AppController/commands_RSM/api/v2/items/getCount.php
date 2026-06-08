@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //    Returns the number of items from the specified itemType with filter conditions
@@ -22,9 +23,6 @@ checkCorrectRequestMethod('GET');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
-
-header('Access-Control-Allow-Origin: *');
-
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 

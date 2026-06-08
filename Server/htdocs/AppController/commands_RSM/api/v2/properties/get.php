@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //      Get grouped properties + values of the specified item (and itemType)
@@ -18,9 +19,6 @@ setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 // Definitions
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);

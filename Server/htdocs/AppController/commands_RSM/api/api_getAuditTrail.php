@@ -1,11 +1,9 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
-
-header('Access-Control-Allow-Origin: *');
-
 $RSallowUncompressed = true;
 
 // Check the variables

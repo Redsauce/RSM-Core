@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 
 // ****************************************************************************************
 //Description:
@@ -14,9 +15,6 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
-
-header('Access-Control-Allow-Origin: *');
-
 $RSallowUncompressed = true;
 
 // definitions

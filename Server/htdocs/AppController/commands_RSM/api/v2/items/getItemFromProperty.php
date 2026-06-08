@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //****************************************************************************************
 //Description:
 //    This endpoint is used to retrieve the parent item of another item through one of the son's identifier
@@ -50,9 +51,6 @@ checkCorrectRequestMethod('GET');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
-
-header('Access-Control-Allow-Origin: *');
-
 // Definitions
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);

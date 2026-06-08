@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //****************************************//
 //getScaledPicture.php
 //
@@ -35,10 +36,6 @@ require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMtokensManagement.php";
 require_once "../../../utilities/RSMcacheManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
-
 $parameters = getRequestParams();
 validateRequestParams($parameters);
 

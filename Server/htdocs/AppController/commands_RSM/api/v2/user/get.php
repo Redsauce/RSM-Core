@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Gets all matching userID/clientID pairs for a login and password.
@@ -18,15 +19,13 @@
 // Database connection startup
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
-
-header('Access-Control-Allow-Origin: *');
 checkCorrectRequestMethod('GET');
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 
-$login = sanitizeInput($requestBody->login);
-$password = sanitizeInput($requestBody->password);
+$login = htmlspecialchars($requestBody->login);
+$password = htmlspecialchars($requestBody->password);
 
 
 $theQuery = "SELECT RS_USER_ID as 'userID', RS_CLIENT_ID as 'clientID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "'";

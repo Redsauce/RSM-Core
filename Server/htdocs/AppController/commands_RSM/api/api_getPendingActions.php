@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //    Retrieves specified number of pending actions (events) and assign them to passed node
@@ -11,9 +12,6 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 // Definitions
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["nodeID"         ]) ? $nodeID          = $GLOBALS[$cstRS_POST]['nodeID'         ] : dieWithError(400);

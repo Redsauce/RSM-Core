@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Delete one or multiple item/s of the specified itemTypeID with the associated values
@@ -24,9 +25,6 @@ checkCorrectRequestMethod('DELETE');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
-
-header('Access-Control-Allow-Origin: *');
-
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 

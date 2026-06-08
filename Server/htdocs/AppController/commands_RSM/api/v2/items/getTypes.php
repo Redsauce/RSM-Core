@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Get one, multiple or all item types and its associated propertyIDS + NAME
@@ -19,9 +20,6 @@ checkCorrectRequestMethod('GET');
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMlistsManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 // Verify if the request has a body and validate its content
 $contentLength = intval($_SERVER['CONTENT_LENGTH'] ?? 0);
 if ($contentLength !== 0) {

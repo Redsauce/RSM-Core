@@ -103,11 +103,3 @@ function checkADJParamIsValid($body)
   }
 }
 
-//***************************************************************************************
-// Functions to sanitize the inputs received from the request body (api).
-//***************************************************************************************
-
-function sanitizeInput($input)
-{
-  return htmlspecialchars($input);
-}

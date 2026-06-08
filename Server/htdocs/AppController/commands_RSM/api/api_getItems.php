@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //    Retrieves items of the specified itemType with the associated values with filter conditions
@@ -24,9 +25,6 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMfiltersManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
-
-header('Access-Control-Allow-Origin: *');
-
 $RSallowUncompressed = true;
 
 // Definitions

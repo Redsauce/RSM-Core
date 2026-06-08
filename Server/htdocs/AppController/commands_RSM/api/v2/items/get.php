@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Get one or multiple item/s of the specified itemType with the associated values
@@ -43,9 +44,6 @@ setAuthorizationTokenOnGlobals();
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
 require_once '../../../utilities/RSMlistsManagement.php';
-
-header('Access-Control-Allow-Origin: *');
-
 // Definitions
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);

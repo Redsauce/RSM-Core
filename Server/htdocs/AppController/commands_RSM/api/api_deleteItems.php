@@ -1,4 +1,5 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 //*****************************************************************************
 //Description:
 //    Deletes an item of the specified itemType with the associated values
@@ -11,9 +12,6 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
-
-header('Access-Control-Allow-Origin: *');
-
 $RSallowUncompressed = true;
 
 // definitions
