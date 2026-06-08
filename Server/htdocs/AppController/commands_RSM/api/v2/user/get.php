@@ -28,7 +28,7 @@ $login = htmlspecialchars($requestBody->login);
 $password = htmlspecialchars($requestBody->password);
 
 
-$theQuery = "SELECT RS_USER_ID as 'userID', RS_CLIENT_ID as 'clientID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "'";
+$theQuery = "SELECT rs_users.RS_USER_ID as 'userID', rs_users.RS_CLIENT_ID as 'clientID', rs_clients.RS_NAME as 'clientName', rs_clients.RS_LOGO as 'clientLogo' FROM `rs_users` INNER JOIN `rs_clients` ON rs_clients.RS_ID = rs_users.RS_CLIENT_ID WHERE rs_users.RS_LOGIN = '" . $login . "' AND rs_users.RS_PASSWORD = '" . $password . "'";
 
 $result = RSquery($theQuery);
 
@@ -36,7 +36,9 @@ $users = array();
 while ($user = mysqli_fetch_assoc($result)) {
   $users[] = array(
     'userID' => $user['userID'],
-    'clientID' => $user['clientID']
+    'clientID' => $user['clientID'],
+    'clientName' => $user['clientName'],
+    'clientLogo' => bin2hex($user['clientLogo'])
   );
 }
 
