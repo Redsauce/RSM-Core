@@ -37,7 +37,7 @@ while ($user = mysqli_fetch_assoc($result)) {
   $users[] = array(
     'userID' => $user['userID'],
     'clientID' => $user['clientID'],
-    'clientName' => $user['clientName'],
+    'clientName' => html_entity_decode($user['clientName']),
     'clientLogo' => bin2hex($user['clientLogo'])
   );
 }
