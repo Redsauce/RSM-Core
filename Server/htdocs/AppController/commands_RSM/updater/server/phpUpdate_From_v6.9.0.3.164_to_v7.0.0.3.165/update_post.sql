@@ -6,7 +6,8 @@ VALUES (NULL, '6.9.0.3.164', '7.0.0.3.165', NOW(), 'Module scripts Editor has be
 # when a dev/staging database already received the columns manually.
 ALTER TABLE rs_tokens
 ADD IF NOT EXISTS RS_CUSTOMER_ITEM_TYPE_ID int(11) unsigned NULL COMMENT 'Customer item type scoped by this token',
-ADD IF NOT EXISTS RS_CUSTOMER_ITEM_ID int(11) unsigned NULL COMMENT 'Customer item scoped by this token';
+ADD IF NOT EXISTS RS_CUSTOMER_ITEM_ID int(11) unsigned NULL COMMENT 'Customer item scoped by this token',
+ADD IF NOT EXISTS RS_TOKEN_ALIAS VARCHAR(255) NULL COMMENT 'Token alias name';
 
 # Remove the reference to the scripts editor application
 DELETE FROM rs_actions WHERE RS_ID=8;

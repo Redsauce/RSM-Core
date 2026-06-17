@@ -9,6 +9,7 @@
 // - RStokensFromClient
 // - RScountToken
 // - RScreateToken
+// - RSeditToken
 // - RSgetTokenCustomerScope
 // - RSisCustomerScopedToken
 // - RSisTokenCustomerScopeValid
@@ -159,7 +160,8 @@ function RStokensFromClient($clientID) {
 	$results = RSQuery("SELECT  RS_TOKEN AS  'token',
                          RS_ENABLED       AS  'enabled',
                          RS_CUSTOMER_ITEM_TYPE_ID AS 'customerItemTypeID',
-                         RS_CUSTOMER_ITEM_ID AS 'customerItemID'
+                         RS_CUSTOMER_ITEM_ID AS 'customerItemID',
+                         RS_TOKEN_ALIAS AS 'tokenAlias'
                          FROM rs_tokens
                          WHERE RS_CLIENT_ID = '" . $clientID . "'");
 	return $results;
@@ -195,6 +197,34 @@ function RScreateToken($RStoken, $clientID, $customerItemTypeID = 0, $customerIt
                             " . $customerItemValue . ",
                             '0'
                         FROM rs_tokens");
+	return $results;
+}
+
+// -----------------------------
+// Edits the optional customer scope and alias for an existing token.
+// Omitted values are not updated.
+function RSeditToken($RStoken, $clientID, $customerItemTypeID = null, $customerItemID = null, $tokenAlias = null) {
+	global $mysqli;
+
+	$updates = array();
+
+	if (!is_null($customerItemTypeID) && !is_null($customerItemID)) {
+		$updates[] = "RS_CUSTOMER_ITEM_TYPE_ID = '" . intval($customerItemTypeID) . "'";
+		$updates[] = "RS_CUSTOMER_ITEM_ID = '" . intval($customerItemID) . "'";
+	}
+
+	if (!is_null($tokenAlias)) {
+		$updates[] = "RS_TOKEN_ALIAS = '" . $mysqli->real_escape_string($tokenAlias) . "'";
+	}
+
+	if (count($updates) == 0) {
+		return true;
+	}
+
+	$results = RSQuery("UPDATE rs_tokens
+                        SET " . implode(", ", $updates) . "
+                        WHERE RS_TOKEN = '" . $mysqli->real_escape_string($RStoken) . "'
+                        AND RS_CLIENT_ID = " . intval($clientID));
 	return $results;
 }
 
