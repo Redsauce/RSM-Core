@@ -174,6 +174,9 @@ function getAppListValueID($appListValueDef) {
     $result = RSquery("SELECT RS_ID FROM rs_lists_values_app WHERE RS_VALUE = '" . $value . "'");
     if ($result) {
         $appListValue = $result->fetch_assoc();
+        if (!$appListValue || !isset($appListValue['RS_ID'])) {
+            return '';
+        }
 
         return $appListValue['RS_ID'];
     } else {

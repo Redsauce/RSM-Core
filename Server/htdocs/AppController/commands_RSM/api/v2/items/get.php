@@ -53,11 +53,11 @@ $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 // Params
-$propertyIDs          = $requestBody->propertyIDs;
-$filterRules          = $requestBody->filterRules;
-$extFilterRules       = $requestBody->extFilterRules;
-$originalIDs          = $requestBody->IDs;
-$itemTypeID           = $requestBody->itemTypeID;
+$propertyIDs          = isset($requestBody->propertyIDs) ? $requestBody->propertyIDs : '';
+$filterRules          = isset($requestBody->filterRules) ? $requestBody->filterRules : array();
+$extFilterRules       = isset($requestBody->extFilterRules) ? $requestBody->extFilterRules : array();
+$originalIDs          = isset($requestBody->IDs) ? $requestBody->IDs : '';
+$itemTypeID           = isset($requestBody->itemTypeID) ? $requestBody->itemTypeID : '';
 
 // includeCategories filter
 $includeCategories = false;
@@ -208,7 +208,9 @@ if ($includeCategories) {
           $propertyIDsDictionary[(string) $rawPropertyID] = (string) $rawPropertyID;
         } else {
           $tempSystemProperty = getPropertyIDs_usingSysName(array($rawPropertyID), $clientID);
-          $propertyIDsDictionary[$tempSystemProperty[0]["ID"]] = $tempSystemProperty[0]["appName"];
+          if (is_array($tempSystemProperty) && isset($tempSystemProperty[0]["ID"]) && isset($tempSystemProperty[0]["appName"])) {
+            $propertyIDsDictionary[$tempSystemProperty[0]["ID"]] = $tempSystemProperty[0]["appName"];
+          }
         }
       }
     }
@@ -266,10 +268,10 @@ function verifyBodyContent($body)
 {
   checkIsJsonObject($body);
   checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
-  checkIsArray($body->propertyIDs);
-  checkIsArray($body->IDs);
-  checkIsArray($body->filterRules);
-  checkIsArray($body->extFilterRules);
+  if (isset($body->propertyIDs)) checkIsArray($body->propertyIDs);
+  if (isset($body->IDs)) checkIsArray($body->IDs);
+  if (isset($body->filterRules)) checkIsArray($body->filterRules);
+  if (isset($body->extFilterRules)) checkIsArray($body->extFilterRules);
 }
 
 function parseProperyListValue($value, $clientID)
