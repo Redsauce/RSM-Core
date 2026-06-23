@@ -98,13 +98,14 @@ if ($filterProperties === false) {
 }
 
 $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', false, $limit = '', $implodedIDs, 'AND', 0, true, $formattedExtFilterRules, true);
+$itemsCount = countItemsResult($itemsArray);
 
 //  Parse itemsArray into a JSON.
 $response = array(
-  'count' => count($itemsArray),
+  'count' => $itemsCount,
 );
 
-if (count($itemsArray) != 0) {
+if ($itemsCount != 0) {
   $response = json_encode($response);
   returnJsonResponse($response);
 } else {
@@ -123,4 +124,30 @@ function verifyBodyContent($body)
   if (isset($body->IDs)) checkIsArray($body->IDs);
   if (isset($body->filterRules)) checkIsArray($body->filterRules);
   if (isset($body->extFilterRules)) checkIsArray($body->extFilterRules);
+}
+
+function countItemsResult($itemsResult)
+{
+  if (is_array($itemsResult) || $itemsResult instanceof Countable) {
+    return count($itemsResult);
+  }
+
+  if (is_string($itemsResult) && file_exists($itemsResult)) {
+    $count = 0;
+    $reader = new XMLReader();
+
+    if ($reader->open($itemsResult)) {
+      while ($reader->read()) {
+        if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'row') {
+          $count++;
+        }
+      }
+
+      $reader->close();
+    }
+
+    return $count;
+  }
+
+  return 0;
 }
