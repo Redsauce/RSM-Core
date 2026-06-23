@@ -22,7 +22,9 @@ header('Access-Control-Allow-Origin: *');
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
-checkCorrectRequestMethod('PATCH');
+// Uncomment once Android is able to send requests with methods other than POST
+// checkCorrectRequestMethod('PATCH');
+checkCorrectRequestMethods(array('PATCH', 'POST'));
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
@@ -103,6 +105,22 @@ foreach ($requestBody as $item) {
   }
 }
 $RSallowDebug ? returnJsonMessage(200, 'Updated') : returnJsonMessage(200, '');
+
+function checkCorrectRequestMethods($requestMethods)
+{
+  global $RSallowDebug;
+
+  header('Access-Control-Allow-Methods: ' . implode(', ', $requestMethods));
+
+  if (!in_array($_SERVER["REQUEST_METHOD"], $requestMethods)) {
+    if ($RSallowDebug) {
+      returnJsonMessage(400, "Wrong request method");
+    } else {
+      RSError("checkCorrectRequestMethods: Wrong request method");
+      returnJsonMessage(400, "");
+    }
+  }
+}
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
