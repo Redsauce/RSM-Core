@@ -24,7 +24,6 @@ require_once '../../../utilities/RSMverifyBody.php';
 setAuthorizationTokenOnGlobals();
 // Uncomment once Android is able to send requests with methods other than POST
 // checkCorrectRequestMethod('PATCH');
-checkCorrectRequestMethod('POST');
 
 require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
