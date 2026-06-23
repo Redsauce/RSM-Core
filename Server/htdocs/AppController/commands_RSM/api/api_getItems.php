@@ -65,7 +65,14 @@ $filterPropertyIDs = array();
 if ($filterRules != '') {
     $rules = explode(",", $filterRules);
     foreach ($rules as $ruleN) {
+        if (trim($ruleN) == '') {
+            continue;
+        }
+
         $rule = explode(";", $ruleN);
+        if (count($rule) < 3) {
+            dieWithError(400);
+        }
 
         // Obtain the property value
         if (isBase64($rule[1])) {
