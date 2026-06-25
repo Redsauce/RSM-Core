@@ -46,6 +46,12 @@ if (!isset($requestBody) || empty($requestBody)) {
 $responseArray = array();
 
 foreach ($itemTypeIDs as $itemTypeID) {
+    $itemTypeID = ParseITID($itemTypeID, $clientID);
+
+    if ($itemTypeID == '' || $itemTypeID == '0') {
+        continue;
+    }
+
     $combinedArray = array();
 
     // Get properties associated with the current ItemTypeID
@@ -56,25 +62,19 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
     // Loop through each property
     foreach ($properties as $property) {
-        $propertyID = ParsePID($property['id'], $clientID);
-
-        if ($propertyID == '' || $propertyID == '0') {
-            continue;
-        }
-
         // Check if user has read permission of the property
-        if ((RShasTokenPermission($RStoken, $propertyID, "READ")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+        if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
-            $propertiesArray[$propertyID] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $propertiesArray[$property['id']] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
-                $referredItemTypeID = getClientPropertyReferredItemType($propertyID, $clientID);
-                $propertiesTypesArray[$propertyID] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
+                $referredItemTypeID = getClientPropertyReferredItemType($property['id'], $clientID);
+                $propertiesTypesArray[$property['id']] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
             } else {
-                $propertiesTypesArray[$propertyID] = $property['type'];
+                $propertiesTypesArray[$property['id']] = $property['type'];
             }
 
-            if ($list = getPropertyList($propertyID, $clientID)) {
-                $propertiesListsArray[$propertyID] = array(
+            if ($list = getPropertyList($property['id'], $clientID)) {
+                $propertiesListsArray[$property['id']] = array(
                     'listID' => $list['listID'],
                     'multiValues' => $list['multiValues'],
                     'values' => array(),
@@ -83,7 +83,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
                 $listValues = getListValues($list['listID'], $clientID);
                 foreach ($listValues as $value) {
                     $value['value'] = html_entity_decode($value['value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    $propertiesListsArray[$propertyID]['values'][] = $value;
+                    $propertiesListsArray[$property['id']]['values'][] = $value;
                 }
             }
         }
