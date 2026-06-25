@@ -39,7 +39,12 @@ foreach ($requestBody as $item) {
   $correctProperties = array();
 
   foreach ($item as $propertyID => $propertyValue) {
-    $propertyID = ParsePID($propertyID, $clientID);
+    $rawPropertyID = $propertyID;
+    $propertyID = parsePID($rawPropertyID, $clientID);
+
+    if ($propertyID <= 0) {
+      $RSallowDebug ? returnJsonMessage(400, 'Invalid propertyID: ' . $rawPropertyID) : returnJsonMessage(400, '');
+    }
 
     // Only prepare properties where user has CREATE permission
     if ((RShasTokenPermission($RStoken, $propertyID, 'CREATE')) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
