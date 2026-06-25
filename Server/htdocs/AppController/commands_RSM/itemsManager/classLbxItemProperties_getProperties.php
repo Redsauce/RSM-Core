@@ -3,8 +3,8 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-$clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
-$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$clientID   = $GLOBALS[$cstRS_POST][$cstClientID] ?? 0;
+$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID] ?? ($GLOBALS[$cstRS_POST]['itemtypeID'] ?? 0);
 
 if ($clientID != 0 && $itemTypeID != 0) {
 
