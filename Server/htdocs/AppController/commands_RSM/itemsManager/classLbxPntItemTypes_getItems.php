@@ -7,6 +7,7 @@ require_once "../utilities/RSMitemsManagement.php";
 
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$itemTypeID = parseITID($itemTypeID, $clientID);
 $pointerPropertyIDs = explode(',', $GLOBALS[$cstRS_POST][$cstPointerPropertyIDs]);
 $pointerItemID = $GLOBALS[$cstRS_POST][$cstPointerItemID];
 
