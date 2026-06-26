@@ -79,7 +79,7 @@ foreach ($RSdataSplit as $RSdataRow) {
         $chainValues = explode(":", $group);
         $scopeValues[] = array('ID' => ParsePID($chainValues[0], $clientID), 'value' => base64_decode($chainValues[1]));
     }
-    if (!RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $scopeValues)) {
+    if (RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemTypeID, $scopeValues) === false) {
         $results['result'] = 'NOK';
         $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW CREATING THIS ITEM';
         RSReturnArrayResults($results, false);
@@ -115,7 +115,8 @@ foreach ($RSdataSplit as $RSdataRow) {
     }
 
     $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
-    if (!RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $values)) {
+    $values = RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemTypeID, $values);
+    if ($values === false) {
         $results['result'] = 'NOK';
         $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW CREATING THIS ITEM';
         RSReturnArrayResults($results, false);

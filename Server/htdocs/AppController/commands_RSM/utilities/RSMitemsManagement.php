@@ -3524,23 +3524,34 @@ function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemI
     return true;
 }
 
-// Creation is allowed only when the payload explicitly sets the customer dependency to the token scope.
-// We do not silently inject the dependency because that would hide integration/configuration mistakes.
-function RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $properties)
+// Add the scoped customer dependency to a create payload.
+// If the caller already sent that property, it must match the token scope.
+function RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemTypeID, $properties)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
-    if (!RSisCustomerScopedToken($RStoken)) return true;
+    if (!RSisCustomerScopedToken($RStoken)) return $properties;
 
     $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
     if ($customerDependencyPropertyID == 0) return false;
 
     foreach ($properties as $property) {
         if (isset($property['ID']) && intval(parsePID($property['ID'], $clientID)) == $customerDependencyPropertyID) {
-            return intval($property['value']) == intval(RSgetTokenCustomerItemID($RStoken));
+            if (intval($property['value']) != intval(RSgetTokenCustomerItemID($RStoken))) return false;
+            return $properties;
         }
     }
 
-    return false;
+    $properties[] = array(
+        'ID' => $customerDependencyPropertyID,
+        'value' => RSgetTokenCustomerItemID($RStoken)
+    );
+
+    return $properties;
+}
+
+function RScreatePayloadMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $properties)
+{
+    return RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemTypeID, $properties) !== false;
 }
 
 // User IDs are internal rows, but users are linked to staff items through rs_users.RS_ITEM_ID.
