@@ -36,7 +36,14 @@ $RSuserID = getRSuserID();
 $responseArray = array();
 
 foreach ($requestBody as $itemType) {
-  $itemTypeID = ParseITID($itemType->itemTypeID, $clientID);
+  $rawItemTypeID = $itemType->itemTypeID;
+  $itemTypeID = parseITID($rawItemTypeID, $clientID);
+
+  if ($itemTypeID <= 0) {
+    $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $rawItemTypeID) : returnJsonMessage(400, '');
+  }
+
+  $itemType->parsedItemTypeID = $itemTypeID;
 
   // To delete an item, first we have to check that it has delete permissions for each of its properties
   $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
@@ -55,7 +62,7 @@ foreach ($requestBody as $itemType) {
   }
 }
 foreach ($requestBody as $itemType) {
-  deleteItems($itemType->itemTypeID, $clientID, implode(',', $itemType->IDs));
+  deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
 }
 
 $RSallowDebug ? returnJsonMessage(200, 'Deleted') : returnJsonMessage(200, '');

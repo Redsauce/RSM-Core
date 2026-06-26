@@ -11,6 +11,11 @@ header('Access-Control-Allow-Origin: *');
 //    {
 //      "IDs": ["6","7","8"]
 //    }
+//
+//  EXAMPLE 3:
+//    {
+//      "IDs": ["tasks","worksessions"]
+//    }
 //***************************************************************************************
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
@@ -41,6 +46,12 @@ if (!isset($requestBody) || empty($requestBody)) {
 $responseArray = array();
 
 foreach ($itemTypeIDs as $itemTypeID) {
+    $itemTypeID = ParseITID($itemTypeID, $clientID);
+
+    if ($itemTypeID == '' || $itemTypeID == '0') {
+        continue;
+    }
+
     $combinedArray = array();
 
     // Get properties associated with the current ItemTypeID
@@ -78,7 +89,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
         }
     }
 
-    // Only sent them when the user has permissions to see properties.
+    // Only send them when the user has permissions to see properties.
     if (!empty($propertiesArray)) {
         // Get the name of the ItemTypeID
         $itemTypeIDName = getClientItemTypeName($itemTypeID, $clientID);
