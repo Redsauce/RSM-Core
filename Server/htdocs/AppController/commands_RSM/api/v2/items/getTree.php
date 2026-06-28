@@ -7,13 +7,14 @@ header('Access-Control-Allow-Origin: *');
 // REQUEST BODY (JSON OBJECT):
 // {
 //   "roots": [
-//     { "itemTypeID": "projects", "ID": "123" }
+//     { "itemTypeID": "projects" }
 //   ],
 //   "allowedItemTypeIDs": ["projects", "tasks", "subtasks"],
 //   "filterID": "0",
-//   "fastFilter": "",
+//   "fastFilter": "search text",
 //   "returnOrder": true
 // }
+// fastFilter is plain text in this JSON API. Do not base64 encode it.
 //***************************************************************************************
 
 require_once '../../../utilities/RStools.php';
@@ -48,20 +49,10 @@ $rootNodes = array();
 
 foreach ($requestBody->roots as $root) {
     $parentItemTypeID = parseITID($root->itemTypeID, $clientID);
-    $parentID = isset($root->ID) ? $root->ID : $root->itemID;
+    $parentID = '0';
 
     if ($parentItemTypeID <= 0) {
         $RSallowDebug ? returnJsonMessage(400, 'Invalid root itemTypeID: ' . $root->itemTypeID) : returnJsonMessage(400, '');
-    }
-
-    if ($parentID !== '0' && $parentID !== 0) {
-        if (!verifyItemExists($parentID, $parentItemTypeID, $clientID)) {
-            $RSallowDebug ? returnJsonMessage(400, 'Root item does not exist: ' . $parentID) : returnJsonMessage(400, '');
-        }
-
-        if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $parentItemTypeID, $parentID)) {
-            $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to root item: ' . $parentID) : returnJsonMessage(403, '');
-        }
     }
 
     if (!canReadItemTypeMainProperty($RStoken, $RSuserID, $parentItemTypeID, $clientID)) {
@@ -105,10 +96,6 @@ function verifyBodyContent($body)
         checkIsJsonObject($root);
         checkBodyContains($root, 'itemTypeID');
 
-        if (!isset($root->ID) && !isset($root->itemID)) {
-            global $RSallowDebug;
-            $RSallowDebug ? returnJsonMessage(400, "Root must contain 'ID' or 'itemID'") : returnJsonMessage(400, '');
-        }
     }
 }
 
@@ -159,16 +146,14 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
     $results = array();
     $parentItemTypeMainPropertyID = getMainPropertyID($parentItemTypeID, $clientID);
     $parentItemTypeMainPropertyType = getPropertyType($parentItemTypeMainPropertyID, $clientID);
+    $isCustomerScopedToken = RSisCustomerScopedToken($RStoken);
 
     $pathProperties = array();
     $pathOrders = array();
     $mainProperties = array();
+    $mainPropertyNames = array();
 
     foreach ($destinationItemTypes as $destinationItemTypeID) {
-        if (!canReadItemTypeMainProperty($RStoken, getRSuserID(), $destinationItemTypeID, $clientID)) {
-            continue;
-        }
-
         $treePath = array();
         getTreePath(
             $clientID,
@@ -209,11 +194,20 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
             }
         }
 
-        $filteredItems = filterItems($clientID, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder);
+        $filteredItems = filterItemsForToken($clientID, $RStoken, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder);
 
         foreach ($filteredItems as $filteredItem) {
-            if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $destinationItemTypeID, $filteredItem['ID'])) {
+            if ($isCustomerScopedToken && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $destinationItemTypeID, $filteredItem['ID'])) {
                 continue;
+            }
+
+            if (isset($filteredItem['MAINPROP']) && $filteredItem['MAINPROP'] !== '') {
+                if (!isset($mainProperties[$destinationItemTypeID]) || !is_array($mainProperties[$destinationItemTypeID])) {
+                    $mainProperties[$destinationItemTypeID] = array();
+                }
+
+                $mainProperties[$destinationItemTypeID][$filteredItem['ID']] = $filteredItem['MAINPROP'];
+                $mainPropertyNames[buildTreeNodeKey($destinationItemTypeID, $filteredItem['ID'])] = $filteredItem['MAINPROP'];
             }
 
             $additionalProps = '';
@@ -233,27 +227,116 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
         if (!isset($row['nodeMainPropertyID'])) {
             $results[$idx]['nodeMainPropertyID'] = getMainPropertyID($row['nodeItemType'], $clientID);
         }
+
+        $nodeKey = buildTreeNodeKey($row['nodeItemType'], $row['nodeID']);
+        if ((!isset($row['name']) || $row['name'] === '') && isset($mainPropertyNames[$nodeKey])) {
+            $results[$idx]['name'] = $mainPropertyNames[$nodeKey];
+        }
     }
 
     return $results;
 }
 
+function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = 'MAINPROP')
+{
+    if ($fastFilter == '') {
+        return filterItems($clientID, $itemTypeID, $filterID, $fastFilter, $returnOrder, $mainPropName);
+    }
+
+    $ids = getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter);
+    if (empty($ids)) {
+        return array();
+    }
+
+    $filterProperties = array();
+    $returnProperties = array();
+    $operator = '';
+
+    $mainPropertyID = getMainPropertyID($itemTypeID, $clientID);
+    $returnProperties[] = array('ID' => $mainPropertyID, 'name' => $mainPropName);
+
+    if ($filterID > 0) {
+        $clauses = getFilterClauses($clientID, $filterID);
+        $properties = getFilterProperties($clientID, $filterID);
+
+        $result = RSquery('SELECT `RS_OPERATOR` FROM `rs_item_type_filters` WHERE `RS_CLIENT_ID`="' . $clientID . '" AND `RS_FILTER_ID`="' . $filterID . '"');
+        if ($result && $result->num_rows == 1) {
+            $res = $result->fetch_assoc();
+            $operator = $res['RS_OPERATOR'];
+        } else {
+            $operator = 'AND';
+        }
+
+        foreach ($properties as $property) {
+            $returnProperties[] = array('ID' => $property['conditionPropertyID'], 'name' => getClientPropertyName($property['conditionPropertyID'], $clientID));
+        }
+
+        foreach ($clauses as $clause) {
+            $filterProperties[] = array('ID' => $clause['conditionPropertyID'], 'value' => $clause['conditionValue'], 'mode' => $clause['conditionOperator']);
+        }
+    }
+
+    return getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', implode(',', $ids), $operator, $returnOrder);
+}
+
+function getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter)
+{
+    $fastFilterArr = preg_split('/\s+/', trim($fastFilter));
+    $idsForFilter = array();
+
+    foreach ($fastFilterArr as $fastFilterVal) {
+        if (normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8')) != '') {
+            $idsForFilter[$fastFilterVal] = array(-1);
+        }
+    }
+
+    if (empty($idsForFilter)) {
+        return array();
+    }
+
+    $propertyIDs = array();
+    foreach (getClientItemTypePropertiesId($itemTypeID, $clientID) as $propertyID) {
+        $propertyIDs[] = array('ID' => $propertyID);
+    }
+
+    $properties = getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs);
+    foreach ($properties as $property) {
+        $propertyID = $property['propertyID'];
+        $propertyType = getPropertyType($propertyID, $clientID);
+        if ($propertyType == 'file' || $propertyType == 'image') {
+            continue;
+        }
+
+        $propertyRows = getItemsPropertyValues($propertyID, $clientID, '', $propertyType, $itemTypeID, true);
+        foreach ($propertyRows as $propertyItemID => $propertyRowValue) {
+            foreach ($idsForFilter as $fastFilterVal => $ids) {
+                if (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal]) === false) {
+                    $idsForFilter[$fastFilterVal][] = $propertyItemID;
+                }
+            }
+        }
+    }
+
+    if (count($idsForFilter) > 1) {
+        $numericIdsForFilter = array_map('array_values', $idsForFilter);
+        $ids = array_shift($numericIdsForFilter);
+
+        foreach ($numericIdsForFilter as $filterArray) {
+            $ids = array_intersect($ids, $filterArray);
+        }
+
+        return $ids;
+    }
+
+    return reset($idsForFilter);
+}
+
 function buildRootNode($clientID, $parentItemTypeID, $parentID, $flatItems, $returnOrder)
 {
     $rootNode = array(
-        'nodeID' => (string) $parentID,
-        'nodeItemType' => (string) $parentItemTypeID,
-        'nodeMainPropertyID' => getMainPropertyID($parentItemTypeID, $clientID),
-        'name' => ($parentID === '0' || $parentID === 0) ? '' : html_entity_decode(getMainPropertyValue($parentItemTypeID, $parentID, $clientID), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-        'parentID' => '',
-        'parentItemType' => '',
-        'parentPropertyID' => '',
+        'itemTypeID' => (string) $parentItemTypeID,
         'children' => array()
     );
-
-    if ($returnOrder) {
-        $rootNode['order'] = '0';
-    }
 
     $childrenByParent = array();
     foreach ($flatItems as $item) {
