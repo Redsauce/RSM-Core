@@ -15,6 +15,11 @@ The system SHALL review and classify every PHP endpoint under `Server/htdocs/App
 - **WHEN** an API endpoint accepts `RStoken` and has not been classified
 - **THEN** the endpoint MUST fail closed for customer-scoped tokens
 
+#### Scenario: URL trigger endpoint is classified
+- **WHEN** `api/api.php` receives a valid customer-scoped token and a configured URL trigger name
+- **THEN** the endpoint MAY enqueue the client-configured trigger actions because the request does not target a specific item
+- **AND** the endpoint MUST still reject tokens with partial customer scope metadata
+
 ### Requirement: Token customer scope
 The system SHALL support API tokens with an optional customer item type and customer item association stored with the token record.
 
@@ -53,19 +58,62 @@ The RSM client token configuration endpoints SHALL support creating and managing
 - **WHEN** the RSM client deletes a customer-scoped token
 - **THEN** the system MUST delete the token and its permissions using the existing token ownership rules
 
+### Requirement: Edit token scope and alias
+The system SHALL provide a `classLbxTokens_editToken.php` API action that updates only the token fields included in the request, validates authentication against the client inferred from the selected token, and rejects incomplete or invalid customer item scope values.
+
+#### Scenario: Scope and alias are updated
+- **WHEN** the request includes a globally unique token, login/password credentials valid for the token's inferred client, a valid `itemTypeID` for that client, a valid `itemID` for that item type ID and client, and an alias
+- **THEN** the system SHALL update `rs_tokens.RS_CUSTOMER_ITEM_TYPE_ID`, `rs_tokens.RS_CUSTOMER_ITEM_ID`, and `rs_tokens.RS_TOKEN_ALIAS` for that token and return `result` as `OK`
+
+#### Scenario: Scope is updated without alias
+- **WHEN** the request includes a globally unique token, login/password credentials valid for the token's inferred client, a valid `itemTypeID` for that client, and a valid `itemID` for that item type ID and client, but does not include an alias
+- **THEN** the system SHALL update `rs_tokens.RS_CUSTOMER_ITEM_TYPE_ID` and `rs_tokens.RS_CUSTOMER_ITEM_ID`, preserve the existing `RS_TOKEN_ALIAS`, and return `result` as `OK`
+
+#### Scenario: Request omits client ID
+- **WHEN** the request includes a valid token and valid login/password credentials but no `clientID`
+- **THEN** the system SHALL infer the client from the token and process the request for that inferred client
+
+#### Scenario: Credentials do not belong to token client
+- **WHEN** the request includes a valid token and login/password credentials that are not valid for the token's inferred client
+- **THEN** the system SHALL NOT update any token row and SHALL return `result` as `NOK`
+
+#### Scenario: Only item type ID is supplied
+- **WHEN** the request includes a non-empty `itemTypeID` value and no `itemID` value
+- **THEN** the system SHALL reject the request without updating `rs_tokens`
+
+#### Scenario: Only item ID is supplied
+- **WHEN** the request includes no `itemTypeID` value and a non-empty `itemID` value
+- **THEN** the system SHALL reject the request without updating `rs_tokens`
+
+#### Scenario: Item does not exist for client
+- **WHEN** the request includes an `itemTypeID` and `itemID` pair that does not identify an existing item for the token's inferred client
+- **THEN** the system SHALL reject the request without updating `rs_tokens`
+
+#### Scenario: Alias-only request preserves scope
+- **WHEN** the request includes a token, login/password credentials valid for the token's inferred client, no `itemTypeID`, no `itemID`, and an alias
+- **THEN** the system SHALL leave `RS_CUSTOMER_ITEM_TYPE_ID` and `RS_CUSTOMER_ITEM_ID` unchanged, update `RS_TOKEN_ALIAS`, and return `result` as `OK`
+
+#### Scenario: No editable values are supplied
+- **WHEN** the request includes a token and login/password credentials valid for the token's inferred client, but no `itemTypeID`, no `itemID`, and no alias
+- **THEN** the system SHALL leave `rs_tokens` unchanged and return `result` as `OK`
+
 ### Requirement: Customer dependency definition
-For customer-scoped tokens, the system SHALL determine item access through a direct `identifier` property on the target item type that refers to the token customer item type and whose value equals the token customer item ID.
+For customer-scoped tokens, the system SHALL determine item access through a direct `identifier` or `identifiers` property on the target item type that refers to the token customer item type and whose value contains the token customer item ID.
 
 #### Scenario: Item has matching customer dependency
 - **WHEN** a customer-scoped token accesses an item whose customer dependency identifier refers to the token customer item type and equals the token customer item ID
 - **THEN** the item MUST be considered inside the token customer scope
 
+#### Scenario: Item has matching multi-identifier customer dependency
+- **WHEN** a customer-scoped token accesses an item whose customer dependency multi-identifier refers to the token customer item type and contains the token customer item ID in its comma-separated values
+- **THEN** the item MUST be considered inside the token customer scope
+
 #### Scenario: Item has no matching customer dependency
-- **WHEN** a customer-scoped token accesses an item with no customer dependency identifier, a different customer item type, or a different customer item ID
+- **WHEN** a customer-scoped token accesses an item with no customer dependency identifier or multi-identifier, a different customer item type, or no value matching the token customer item ID
 - **THEN** the item MUST be considered outside the token customer scope
 
 #### Scenario: Customer dependency is ambiguous
-- **WHEN** the system cannot determine a single direct customer dependency identifier for the item type
+- **WHEN** the system cannot determine a single direct customer dependency identifier or multi-identifier for the item type
 - **THEN** the system MUST deny customer-scoped token access to that item type
 
 ### Requirement: Shared customer-scope helpers
@@ -114,11 +162,11 @@ API v1 and v2 item read, list, count, search, properties, audit trail, pending a
 API v1 and v2 item create endpoints SHALL require customer-scoped token payloads to create only items inside the token customer scope.
 
 #### Scenario: Create with matching dependency
-- **WHEN** a customer-scoped token creates an item with the required customer dependency identifier referring to the token customer item type and set to the token customer item ID
+- **WHEN** a customer-scoped token creates an item with the required customer dependency identifier set to the token customer item ID, or the required customer dependency multi-identifier containing the token customer item ID
 - **THEN** the item creation MAY proceed to existing CREATE permission validation
 
 #### Scenario: Create without matching dependency
-- **WHEN** a customer-scoped token creates an item without the required customer dependency identifier or with a different customer item ID
+- **WHEN** a customer-scoped token creates an item without the required customer dependency identifier or multi-identifier, or with values that do not contain the token customer item ID
 - **THEN** the endpoint MUST reject the creation
 
 ### Requirement: Scoped item mutation

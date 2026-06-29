@@ -54,7 +54,8 @@ function RSgetTokenCustomerScope($RStoken) {
 	$results = RSQuery("SELECT RS_CUSTOMER_ITEM_TYPE_ID AS customerItemTypeID,
                                RS_CUSTOMER_ITEM_ID AS customerItemID
                         FROM rs_tokens
-                        WHERE RS_TOKEN = '" . $RStoken . "'");
+                        WHERE RS_TOKEN = '" . $RStoken . "'
+                        AND RS_ENABLED = '1'");
 
 	if (!$results || $results->num_rows == 0) {
 		return array('customerItemTypeID' => 0, 'customerItemID' => 0, 'valid' => false, 'scoped' => false);

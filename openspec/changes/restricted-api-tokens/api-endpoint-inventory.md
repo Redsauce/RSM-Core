@@ -32,10 +32,6 @@
 - `api/v2/staff/get.php`
 - `api/v2/user/get.php`
 
-### Fail-closed for customer-scoped tokens
-
-- `api/api.php`: trigger execution can enqueue arbitrary event logic from free-form payloads, so customer-scoped tokens are rejected.
-
 ### Token-management endpoints
 
 - `api/classLbxTokens_newToken.php`
@@ -56,3 +52,7 @@
 
 - `api/api_headers.php`: shared response header include; no direct request processing.
 - `api/public/timezones.php`: public static timezone data; no token or item data.
+
+### Trigger endpoints
+
+- `api/api.php`: queues configured URL trigger actions by trigger name for the token client. The request does not target a specific item, so customer-scoped tokens are allowed when their token scope metadata is valid; partial customer scope values still fail closed.

@@ -3428,10 +3428,10 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
     return $results;
 }
 
-// Find the single direct identifier property that links an item type to the token customer item type.
+// Find the single direct identifier/multi-identifier property that links an item type to the token customer item type.
 // The item type of a property is derived through categories, so this intentionally joins rs_categories.
 // If there is no match or more than one match, access fails closed to avoid leaking unrelated items.
-function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID)
+function RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return 0;
     if (!RSisCustomerScopedToken($RStoken)) return 0;
@@ -3439,27 +3439,37 @@ function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID
     $customerItemTypeID = RSgetTokenCustomerItemTypeID($RStoken);
     $itemTypeID = parseITID($itemTypeID, $clientID);
 
-    $result = RSQuery("SELECT rs_item_properties.RS_PROPERTY_ID
+    $result = RSQuery("SELECT rs_item_properties.RS_PROPERTY_ID,
+                              rs_item_properties.RS_TYPE
                        FROM rs_item_properties
                        INNER JOIN rs_categories
                        ON rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID
                        AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
                        WHERE rs_item_properties.RS_CLIENT_ID = " . intval($clientID) . "
                        AND rs_categories.RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
-                       AND rs_item_properties.RS_TYPE = 'identifier'");
+                       AND rs_item_properties.RS_TYPE IN ('identifier', 'identifiers')");
 
     if (!$result) return 0;
 
     $matchingProperties = array();
     while ($row = $result->fetch_assoc()) {
         if (intval(getClientPropertyReferredItemType($row['RS_PROPERTY_ID'], $clientID)) == intval($customerItemTypeID)) {
-            $matchingProperties[] = intval($row['RS_PROPERTY_ID']);
+            $matchingProperties[] = array(
+                'ID' => intval($row['RS_PROPERTY_ID']),
+                'type' => $row['RS_TYPE']
+            );
         }
     }
 
     if (count($matchingProperties) != 1) return 0;
 
     return $matchingProperties[0];
+}
+
+function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID)
+{
+    $property = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
+    return is_array($property) ? $property['ID'] : 0;
 }
 
 // Add the customer scope as a normal identifier filter for list/count/search endpoints.
@@ -3471,13 +3481,13 @@ function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $fil
 
     if (!is_array($filterProperties)) $filterProperties = array();
 
-    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
-    if ($customerDependencyPropertyID == 0) return false;
+    $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
+    if (!is_array($customerDependencyProperty)) return false;
 
     $filterProperties[] = array(
-        'ID' => $customerDependencyPropertyID,
+        'ID' => $customerDependencyProperty['ID'],
         'value' => RSgetTokenCustomerItemID($RStoken),
-        'mode' => '='
+        'mode' => $customerDependencyProperty['type'] == 'identifiers' ? 'IN' : '='
     );
 
     return $filterProperties;
@@ -3491,16 +3501,21 @@ function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $item
     if (!RSisCustomerScopedToken($RStoken)) return true;
 
     $itemTypeID = parseITID($itemTypeID, $clientID);
-    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
-    if ($customerDependencyPropertyID == 0) return false;
+    $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
+    if (!is_array($customerDependencyProperty)) return false;
+
+    $propertyTable = $customerDependencyProperty['type'] == 'identifiers' ? 'rs_property_multiIdentifiers' : 'rs_property_identifiers';
+    $dataClause = $customerDependencyProperty['type'] == 'identifiers'
+        ? "FIND_IN_SET('" . intval(RSgetTokenCustomerItemID($RStoken)) . "', RS_DATA) > 0"
+        : "RS_DATA = '" . intval(RSgetTokenCustomerItemID($RStoken)) . "'";
 
     $result = RSQuery("SELECT RS_ITEM_ID
-                       FROM rs_property_identifiers
+                       FROM " . $propertyTable . "
                        WHERE RS_CLIENT_ID = " . intval($clientID) . "
                        AND RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
                        AND RS_ITEM_ID = " . intval($itemID) . "
-                       AND RS_PROPERTY_ID = " . intval($customerDependencyPropertyID) . "
-                       AND RS_DATA = '" . intval(RSgetTokenCustomerItemID($RStoken)) . "'
+                       AND RS_PROPERTY_ID = " . intval($customerDependencyProperty['ID']) . "
+                       AND " . $dataClause . "
                        LIMIT 1");
 
     return ($result && $result->num_rows > 0);
@@ -3531,18 +3546,23 @@ function RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemType
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
     if (!RSisCustomerScopedToken($RStoken)) return $properties;
 
-    $customerDependencyPropertyID = RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID);
-    if ($customerDependencyPropertyID == 0) return false;
+    $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
+    if (!is_array($customerDependencyProperty)) return false;
 
     foreach ($properties as $property) {
-        if (isset($property['ID']) && intval(parsePID($property['ID'], $clientID)) == $customerDependencyPropertyID) {
-            if (intval($property['value']) != intval(RSgetTokenCustomerItemID($RStoken))) return false;
+        if (isset($property['ID']) && intval(parsePID($property['ID'], $clientID)) == $customerDependencyProperty['ID']) {
+            if ($customerDependencyProperty['type'] == 'identifiers') {
+                $values = array_map('trim', explode(',', (string) $property['value']));
+                if (!in_array((string) intval(RSgetTokenCustomerItemID($RStoken)), $values)) return false;
+            } elseif (intval($property['value']) != intval(RSgetTokenCustomerItemID($RStoken))) {
+                return false;
+            }
             return $properties;
         }
     }
 
     $properties[] = array(
-        'ID' => $customerDependencyPropertyID,
+        'ID' => $customerDependencyProperty['ID'],
         'value' => RSgetTokenCustomerItemID($RStoken)
     );
 
