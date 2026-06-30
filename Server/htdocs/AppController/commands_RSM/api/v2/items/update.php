@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //  Edits one or more items of the specified itemTypeID with the associated values
@@ -21,6 +20,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight(array('PATCH', 'POST'));
 setAuthorizationTokenOnGlobals();
 // Uncomment once Android is able to send requests with methods other than POST
 // checkCorrectRequestMethod('PATCH');

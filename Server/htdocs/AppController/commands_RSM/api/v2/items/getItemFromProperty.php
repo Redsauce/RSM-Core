@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //****************************************************************************************
 //Description:
 //    This endpoint is used to retrieve the parent item of another item through one of the son's identifier
@@ -46,6 +45,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 

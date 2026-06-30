@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //      Get grouped properties + values of the specified item (and itemType)
@@ -15,6 +14,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 require_once "../../../utilities/RSdatabase.php";

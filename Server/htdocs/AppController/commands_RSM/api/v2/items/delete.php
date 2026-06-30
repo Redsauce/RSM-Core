@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Delete one or multiple item/s of the specified itemTypeID with the associated values
@@ -20,6 +19,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight('DELETE');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('DELETE');
 

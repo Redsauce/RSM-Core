@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //  Creates one or more items (even from different types)
@@ -19,6 +18,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight('POST');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('POST');
 

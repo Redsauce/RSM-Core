@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Get one, multiple or all item types and its associated propertyIDS + NAME
@@ -19,6 +18,7 @@ header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 
