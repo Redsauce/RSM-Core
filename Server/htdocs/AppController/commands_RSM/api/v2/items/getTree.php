@@ -12,7 +12,8 @@ header('Access-Control-Allow-Origin: *');
 //   "allowedItemTypeIDs": ["projects", "tasks", "subtasks"],
 //   "filterID": "0",
 //   "fastFilter": "search text",
-//   "returnOrder": true
+//   "returnOrder": true,
+//   "userID": "3"
 // }
 // fastFilter is plain text in this JSON API. Do not base64 encode it.
 //***************************************************************************************
@@ -26,6 +27,7 @@ require_once '../../../utilities/RSdatabase.php';
 require_once '../../../utilities/RSMitemsManagement.php';
 require_once '../../../utilities/RSMfiltersManagement.php';
 require_once '../../../utilities/RSMlistsManagement.php';
+require_once '../../../utilities/RSMdefinitions.php';
 
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
@@ -38,12 +40,17 @@ $allowedItemTypes = normalizeItemTypeIDs($requestBody->allowedItemTypeIDs, $clie
 $filterID         = isset($requestBody->filterID) && $requestBody->filterID !== '' ? $requestBody->filterID : '0';
 $fastFilter       = isset($requestBody->fastFilter) ? $requestBody->fastFilter : '';
 $returnOrder      = !empty($requestBody->returnOrder) ? 1 : 0;
+$userFilterStaffID = getUserFilterStaffID($requestBody);
 
 if (empty($allowedItemTypes)) {
     $RSallowDebug ? returnJsonMessage(400, 'allowedItemTypeIDs must contain at least one valid itemTypeID') : returnJsonMessage(400, '');
 }
 
 $destinationItemTypes = getDestinationItemTypes($clientID, $filterID, $allowedItemTypes);
+if ($userFilterStaffID > 0) {
+    $destinationItemTypes = restrictDestinationItemTypesToAssignedStaffItemTypes($destinationItemTypes, $clientID);
+}
+
 $flatResults = array();
 $rootNodes = array();
 
@@ -68,7 +75,8 @@ foreach ($requestBody->roots as $root) {
         $destinationItemTypes,
         $filterID,
         $fastFilter,
-        $returnOrder
+        $returnOrder,
+        $userFilterStaffID
     );
 
     $flatResults = combineItemPaths($flatResults, $rootFlatResults);
@@ -141,7 +149,46 @@ function getDestinationItemTypes($clientID, $filterID, $allowedItemTypes)
     return array($filterItemTypeID);
 }
 
-function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $allowedItemTypes, $destinationItemTypes, $filterID, $fastFilter, $returnOrder)
+function getUserFilterStaffID($requestBody)
+{
+    global $RSallowDebug;
+
+    if (!isset($requestBody->userID) || $requestBody->userID === '') {
+        return 0;
+    }
+
+    if (!is_numeric($requestBody->userID) || intval($requestBody->userID) <= 0) {
+        $RSallowDebug ? returnJsonMessage(400, 'Invalid userID: ' . $requestBody->userID) : returnJsonMessage(400, '');
+    }
+
+    return intval($requestBody->userID);
+}
+
+function restrictDestinationItemTypesToAssignedStaffItemTypes($destinationItemTypes, $clientID)
+{
+    $assignedStaffItemTypeIDs = getAssignedStaffItemTypeIDs($clientID);
+
+    return array_values(array_intersect($destinationItemTypes, $assignedStaffItemTypeIDs));
+}
+
+function getAssignedStaffItemTypeIDs($clientID)
+{
+    global $definitions;
+
+    $itemTypeIDs = array();
+    $appItemTypeNames = array($definitions['projects'], $definitions['tasks'], $definitions['tasksGroup']);
+
+    foreach ($appItemTypeNames as $appItemTypeName) {
+        $itemTypeID = getClientItemTypeID_RelatedWith_byName($appItemTypeName, $clientID);
+        if ($itemTypeID > 0 && !in_array($itemTypeID, $itemTypeIDs)) {
+            $itemTypeIDs[] = $itemTypeID;
+        }
+    }
+
+    return $itemTypeIDs;
+}
+
+function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $allowedItemTypes, $destinationItemTypes, $filterID, $fastFilter, $returnOrder, $userFilterStaffID = 0)
 {
     $results = array();
     $parentItemTypeMainPropertyID = getMainPropertyID($parentItemTypeID, $clientID);
@@ -194,7 +241,7 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
             }
         }
 
-        $filteredItems = filterItemsForToken($clientID, $RStoken, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder);
+        $filteredItems = filterItemsForToken($clientID, $RStoken, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder, 'MAINPROP', $userFilterStaffID);
 
         foreach ($filteredItems as $filteredItem) {
             if ($isCustomerScopedToken && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $destinationItemTypeID, $filteredItem['ID'])) {
@@ -237,10 +284,10 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
     return $results;
 }
 
-function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = 'MAINPROP')
+function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = 'MAINPROP', $userFilterStaffID = 0)
 {
     if ($fastFilter == '') {
-        return filterItems($clientID, $itemTypeID, $filterID, $fastFilter, $returnOrder, $mainPropName);
+        return filterAssignedItemsForUser(filterItems($clientID, $itemTypeID, $filterID, $fastFilter, $returnOrder, $mainPropName), $clientID, $itemTypeID, $userFilterStaffID);
     }
 
     $ids = getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter);
@@ -276,7 +323,63 @@ function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastF
         }
     }
 
-    return getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', implode(',', $ids), $operator, $returnOrder);
+    return filterAssignedItemsForUser(getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', implode(',', $ids), $operator, $returnOrder), $clientID, $itemTypeID, $userFilterStaffID);
+}
+
+function filterAssignedItemsForUser($items, $clientID, $itemTypeID, $userFilterStaffID)
+{
+    if ($userFilterStaffID <= 0) {
+        return $items;
+    }
+
+    $staffPropertyID = getAssignedStaffPropertyIDForItemType($clientID, $itemTypeID);
+    if ($staffPropertyID <= 0) {
+        return array();
+    }
+
+    $staffPropertyType = getPropertyType($staffPropertyID, $clientID);
+    $staffValues = getItemsPropertyValues($staffPropertyID, $clientID, '', $staffPropertyType, $itemTypeID);
+    if (!is_array($staffValues)) {
+        return array();
+    }
+
+    $filteredItems = array();
+
+    foreach ($items as $item) {
+        if (!isset($item['ID']) || !isset($staffValues[$item['ID']])) {
+            continue;
+        }
+
+        $assignedStaffIDs = array_map('trim', explode(',', $staffValues[$item['ID']]));
+        if (in_array((string) $userFilterStaffID, $assignedStaffIDs, true)) {
+            $filteredItems[] = $item;
+        }
+    }
+
+    return $filteredItems;
+}
+
+function getAssignedStaffPropertyIDForItemType($clientID, $itemTypeID)
+{
+    global $definitions;
+
+    static $propertyIDsByClientAndItemType = array();
+    $cacheKey = $clientID . ':' . $itemTypeID;
+    if (array_key_exists($cacheKey, $propertyIDsByClientAndItemType)) {
+        return $propertyIDsByClientAndItemType[$cacheKey];
+    }
+
+    $appPropertiesByItemType = array(
+        getClientItemTypeID_RelatedWith_byName($definitions['projects'], $clientID) => $definitions['projectStaff'],
+        getClientItemTypeID_RelatedWith_byName($definitions['tasks'], $clientID) => $definitions['taskStaff'],
+        getClientItemTypeID_RelatedWith_byName($definitions['tasksGroup'], $clientID) => $definitions['tasksGroup.staff']
+    );
+
+    $propertyIDsByClientAndItemType[$cacheKey] = isset($appPropertiesByItemType[$itemTypeID])
+        ? getClientPropertyID_RelatedWith_byName($appPropertiesByItemType[$itemTypeID], $clientID)
+        : 0;
+
+    return $propertyIDsByClientAndItemType[$cacheKey];
 }
 
 function getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter)
