@@ -1,6 +1,7 @@
 <?php
 // Functions in this file related with the use of tokens in RSM
 // - RSclientFromToken
+// - RSisTokenEnabled
 // - RSenableToken
 // - RSdisableToken
 // - RSgetTokenID
@@ -24,12 +25,11 @@
 // - RShasTokenPermission
 
 // -----------------------------
-// Returns the clientID related with a token (only if exists and the relation is active) or 0 if there is no relation
+// Returns the clientID related with a token or 0 if there is no relation.
 function RSclientFromToken($RStoken) {
 
 	$theQuery = "SELECT `RS_CLIENT_ID` FROM `rs_tokens`
-                WHERE `RS_TOKEN` = '" . $RStoken . "'
-                AND `RS_ENABLED` = '1'";
+                WHERE `RS_TOKEN` = '" . $RStoken . "'";
 
 	$clients = RSQuery($theQuery);
 
@@ -41,6 +41,15 @@ function RSclientFromToken($RStoken) {
 		//query failed or client not related
 		return 0;
 	}
+}
+
+function RSisTokenEnabled($RStoken) {
+	$results = RSQuery("SELECT `RS_ID`
+                        FROM `rs_tokens`
+                        WHERE `RS_TOKEN` = '" . $RStoken . "'
+                        AND `RS_ENABLED` = '1'");
+
+	return ($results && $results->num_rows > 0);
 }
 
 // Return the optional customer scope configured for a token.
@@ -286,6 +295,11 @@ function RShasTokenPermissions($RStoken, $propertiesID, $permission) {
 
 function RShasTokenPermission($RStoken, $propertyId, $permission) {
 	global $cstRS_POST;
+
+	if (!RSisTokenEnabled($RStoken)) {
+		return false;
+	}
+
 	$tokenID = RSgetTokenID($RStoken);
 
 	// If the user needs a translated value related with itemTypes, we will see if the user has access to the translated main property of that itemtype

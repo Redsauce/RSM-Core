@@ -53,6 +53,7 @@ if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
 	$RSuserID = RSCheckUserAccess();
 
 	if (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
+		if (!RSisTokenEnabled($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -3);
 		// validates if their associated clients match.
 		if ($GLOBALS[$cstRS_POST][$cstClientID] != RSClientFromToken($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -3);
 
@@ -64,11 +65,13 @@ if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
 
 } elseif (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
 	// If we don't have a clientID, validates if there is a valid token sent through POST
+	if (!RSisTokenEnabled($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -6);
 	$GLOBALS[$cstRS_POST][$cstClientID] = RSClientFromToken($GLOBALS[$cstRS_POST][$cstRStoken]);
 	if ($GLOBALS[$cstRS_POST][$cstClientID] <= 0) RSReturnError("ACCESS DENIED", -6);
 
 } elseif (isset($GLOBALS[$cstRS_GET][$cstRStoken])) {
 	// If we don't have a clientID, validates if there is a valid token sent through GET
+	if (!RSisTokenEnabled($GLOBALS[$cstRS_GET][$cstRStoken])) RSReturnError("ACCESS DENIED", -7);
 	$GLOBALS[$cstRS_POST][$cstClientID] = RSClientFromToken($GLOBALS[$cstRS_GET][$cstRStoken]);
 	if ($GLOBALS[$cstRS_POST][$cstClientID] <= 0) RSReturnError("ACCESS DENIED", -7);
 
