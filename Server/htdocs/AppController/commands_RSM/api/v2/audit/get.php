@@ -5,7 +5,7 @@
 // REQUEST BODY (JSON OBJECT):
 //  EXAMPLE 1:
 //   {
-//     "ID": [471],
+//     "ID": [471, 472],
 //     "propertyID": 821
 //   }
 //***************************************************************************************
@@ -45,29 +45,37 @@ if (!RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
     $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this item") : returnJsonMessage(403, "");
 }
 
-// Process response
-$results = getAuditTrail($clientID, $propertyID, $ID);
+$itemIDs = $ID;
+$responseArray = array();
 
-// construct the first part using the common properties of the response
-$responseArray = array(
-    "propertyType" => $results[0]["propertyType"],
-    "changes" => array()
-);
-// loop through the results and add the not common properties to the response (the changes)
+foreach ($itemIDs as $itemID) {
+    $results = getAuditTrail($clientID, $propertyID, $itemID);
+    if (!is_array($results)) {
+        $results = array();
+    }
 
-foreach ($results as $item) {
-    $change = array(
-        "userName" => $item["userName"],
-        "description" => $item["description"] ?? "",
-        "changedDate" => $item["changedDate"],
-        "initialValue" => $item["initialValue"],
-        "finalValue" => $item["finalValue"]
+    $itemResponse = array(
+        "ID" => $itemID,
+        "propertyType" => !empty($results) ? $results[0]["propertyType"] : getPropertyType($propertyID, $clientID),
+        "changes" => array()
     );
-    $responseArray["changes"][] = $change;
+
+    foreach ($results as $item) {
+        $change = array(
+            "userName" => $item["userName"],
+            "description" => $item["description"] ?? "",
+            "changedDate" => $item["changedDate"],
+            "initialValue" => $item["initialValue"],
+            "finalValue" => $item["finalValue"]
+        );
+        $itemResponse["changes"][] = $change;
+    }
+
+    $responseArray[] = $itemResponse;
 }
 
 // verify if there are no changes
-if (empty($responseArray['changes'])) {
+if (emptyAuditTrailResponse($responseArray)) {
     if ($RSallowDebug) {
         returnJsonMessage(200, "Requested item does not have an Audit trail registered");
     } else {
@@ -84,4 +92,21 @@ function verifyBodyContent($body)
     checkIsJsonObject($body);
     checkBodyContains($body, "ID");
     checkBodyContains($body, "propertyID");
+    checkStringIsInteger($body->propertyID);
+    checkIsArray($body->ID);
+
+    foreach ($body->ID as $itemID) {
+        checkStringIsInteger($itemID);
+    }
+}
+
+function emptyAuditTrailResponse($responseArray)
+{
+    foreach ($responseArray as $item) {
+        if (!empty($item["changes"])) {
+            return false;
+        }
+    }
+
+    return true;
 }
