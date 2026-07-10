@@ -64,17 +64,24 @@ foreach ($itemTypeIDs as $itemTypeID) {
     foreach ($properties as $property) {
         // Check if user has read permission of the property
         if ((RShasTokenPermission($RStoken, $property['id'], "READ")) || (isPropertyVisible($RSuserID, $property['id'], $clientID))) {
+            // Return the application's property name when the property is related.
+            // Keep the numeric ID as a fallback for client properties without a relationship.
+            $propertyKey = getAppPropertyName_RelatedWith($property['id'], $clientID);
+            if ($propertyKey === '') {
+                $propertyKey = $property['id'];
+            }
+
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
-            $propertiesArray[$property['id']] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $propertiesArray[$propertyKey] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
                 $referredItemTypeID = getClientPropertyReferredItemType($property['id'], $clientID);
-                $propertiesTypesArray[$property['id']] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
+                $propertiesTypesArray[$propertyKey] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
             } else {
-                $propertiesTypesArray[$property['id']] = $property['type'];
+                $propertiesTypesArray[$propertyKey] = $property['type'];
             }
 
             if ($list = getPropertyList($property['id'], $clientID)) {
-                $propertiesListsArray[$property['id']] = array(
+                $propertiesListsArray[$propertyKey] = array(
                     'listID' => $list['listID'],
                     'multiValues' => $list['multiValues'],
                     'values' => array(),
@@ -83,7 +90,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
                 $listValues = getListValues($list['listID'], $clientID);
                 foreach ($listValues as $value) {
                     $value['value'] = html_entity_decode($value['value'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    $propertiesListsArray[$property['id']]['values'][] = $value;
+                    $propertiesListsArray[$propertyKey]['values'][] = $value;
                 }
             }
         }
