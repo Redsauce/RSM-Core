@@ -13,7 +13,8 @@
 //
 //  EXAMPLE 3:
 //    {
-//      "IDs": ["tasks","worksessions"]
+//      "IDs": ["tasks","worksessions"],
+//      "includeCategories": true
 //    }
 //***************************************************************************************
 require_once "../../../utilities/RStools.php";
@@ -25,6 +26,7 @@ checkCorrectRequestMethod('GET');
 require_once "../../../utilities/RSdatabase.php";
 require_once "../../../utilities/RSMitemsManagement.php";
 require_once "../../../utilities/RSMlistsManagement.php";
+
 // Verify if the request has a body and validate its content
 $contentLength = intval($_SERVER['CONTENT_LENGTH'] ?? 0);
 if ($contentLength !== 0) {
@@ -35,6 +37,7 @@ if ($contentLength !== 0) {
 $RStoken  = getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
+$includeCategories = isset($requestBody->includeCategories) && $requestBody->includeCategories;
 
 // Check if there is a request body sent
 if (!isset($requestBody) || empty($requestBody)) {
@@ -59,6 +62,10 @@ foreach ($itemTypeIDs as $itemTypeID) {
     $propertiesArray = array();
     $propertiesTypesArray = array();
     $propertiesListsArray = array();
+    $propertiesCategoriesArray = array();
+    $propertyCategories = $includeCategories
+        ? getItemTypePropertyCategories($itemTypeID, $clientID)
+        : array();
 
     // Loop through each property
     foreach ($properties as $property) {
@@ -73,6 +80,10 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
             $propertiesArray[$propertyKey] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($includeCategories && isset($propertyCategories[(string)$property['id']])) {
+                $propertiesCategoriesArray[$propertyKey] = $propertyCategories[(string)$property['id']];
+            }
+
             if ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
                 $referredItemTypeID = getClientPropertyReferredItemType($property['id'], $clientID);
                 $propertiesTypesArray[$propertyKey] = $property['type'] . (!empty($referredItemTypeID) ? ' ' . $referredItemTypeID : '');
@@ -111,6 +122,9 @@ foreach ($itemTypeIDs as $itemTypeID) {
         $combinedArray['properties'] = $propertiesArray;
         $combinedArray['propertyTypes'] = $propertiesTypesArray;
         $combinedArray['propertyLists'] = $propertiesListsArray;
+        if ($includeCategories) {
+            $combinedArray['propertyCategories'] = $propertiesCategoriesArray;
+        }
         $combinedArray['icon'] = base64_encode(hex2bin($itemTypeIDIcon));
 
         array_push($responseArray, $combinedArray);
@@ -129,4 +143,33 @@ function verifyBodyContent($body)
 {
     checkIsJsonObject($body);
     checkIsArray($body->IDs);
+}
+
+// Return the category name indexed by property ID for the requested item type.
+// Visibility is applied later together with the rest of the property metadata.
+function getItemTypePropertyCategories($itemTypeID, $clientID)
+{
+    $query = 'SELECT rs_item_properties.RS_PROPERTY_ID AS "propertyID",
+                     rs_categories.RS_NAME AS "categoryName"
+              FROM rs_categories
+              INNER JOIN rs_item_properties
+                ON rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID
+               AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
+              WHERE rs_categories.RS_CLIENT_ID = ' . intval($clientID) . '
+                AND rs_categories.RS_ITEMTYPE_ID = ' . intval($itemTypeID);
+
+    $queryResult = RSQuery($query);
+    $categories = array();
+
+    if ($queryResult) {
+        while ($row = $queryResult->fetch_assoc()) {
+            $categories[(string)$row['propertyID']] = html_entity_decode(
+                $row['categoryName'],
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+        }
+    }
+
+    return $categories;
 }

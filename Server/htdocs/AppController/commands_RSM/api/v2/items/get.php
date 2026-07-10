@@ -135,14 +135,15 @@ if ($filterProperties === false) {
   $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
 }
 
-$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, $limit = '', $IDs, 'AND', 0, true, $formattedExtFilterRules, true);
+$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, $limit = '', $IDs, 'AND', 0, !$includeCategories, $formattedExtFilterRules, true);
 $responseArray = array();
 
 // To construct the response, we have to verify if the includecategories filter is true
 if ($includeCategories) {
 
-  // obtain all the corresponding properties and its categories
-  $categorizedProperties = getPropertiesExtendedForToken($itemTypeID, $RStoken, $visiblePropertyIDs);
+  // The properties in $visiblePropertyIDs have already passed the endpoint's
+  // permission/visibility checks. Categories do not have their own permissions.
+  $categorizedProperties = getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visiblePropertyIDs);
   // parse all the different items of the original response
   foreach ($itemsArray as $item) {
     $combinedArray = array();
@@ -151,11 +152,23 @@ if ($includeCategories) {
     foreach ($categorizedProperties as $property) {
       $category = $property['Category'];
       $propertyID = $property['propertyID'];
+      $itemPropertyKey = $property['propertyKey'];
+      $outputPropertyKey = $itemPropertyKey;
+
+      if ($systemNames) {
+        $systemName = getAppPropertyName_RelatedWith($propertyID, $clientID);
+        if ($systemName !== '') {
+          $outputPropertyKey = $systemName;
+        }
+      }
+
       // save the values in the new array, with its corresponding categories
-      if (isset($item[$propertyID])) {
-        $combinedArray[$category][$propertyID] = html_entity_decode($item[$propertyID]);
+      if (isset($item[$itemPropertyKey])) {
+        $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$itemPropertyKey]);
+      } elseif (isset($item[$propertyID])) {
+        $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$propertyID]);
       } else {
-        $combinedArray[$category][$propertyID] = '';
+        $combinedArray[$category][$outputPropertyKey] = '';
       }
     }
     // construct the response array by pushing each one of the items
@@ -270,6 +283,50 @@ function verifyBodyContent($body)
   if (isset($body->IDs)) checkIsArray($body->IDs);
   if (isset($body->filterRules)) checkIsArray($body->filterRules);
   if (isset($body->extFilterRules)) checkIsArray($body->extFilterRules);
+}
+
+// Return category metadata for properties already authorized by this endpoint.
+function getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visiblePropertyIDs)
+{
+  $propertyKeys = array();
+
+  foreach ($visiblePropertyIDs as $property) {
+    $propertyID = intval($property['ID'] ?? 0);
+    if ($propertyID > 0) {
+      $propertyKeys[(string)$propertyID] = (string)($property['name'] ?? $propertyID);
+    }
+  }
+
+  if (empty($propertyKeys)) {
+    return array();
+  }
+
+  $query = 'SELECT rs_categories.RS_NAME AS "Category",
+                   rs_item_properties.RS_PROPERTY_ID AS "propertyID"
+            FROM rs_categories
+            INNER JOIN rs_item_properties
+              ON rs_categories.RS_CLIENT_ID = rs_item_properties.RS_CLIENT_ID
+             AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
+            WHERE rs_categories.RS_CLIENT_ID = ' . intval($clientID) . '
+              AND rs_categories.RS_ITEMTYPE_ID = ' . intval($itemTypeID) . '
+              AND rs_item_properties.RS_PROPERTY_ID IN (' . implode(',', array_keys($propertyKeys)) . ')
+            ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
+
+  $queryResult = RSQuery($query);
+  $results = array();
+
+  if ($queryResult) {
+    while ($row = $queryResult->fetch_assoc()) {
+      $propertyID = (string)$row['propertyID'];
+      $results[] = array(
+        'Category' => html_entity_decode($row['Category'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'propertyID' => $propertyID,
+        'propertyKey' => $propertyKeys[$propertyID]
+      );
+    }
+  }
+
+  return $results;
 }
 
 function parseProperyListValue($value, $clientID)
