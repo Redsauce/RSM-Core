@@ -148,7 +148,9 @@ if ($includeCategories) {
   foreach ($itemsArray as $item) {
     $combinedArray = array();
     $combinedArray['ID'] = $item['ID'];
-    // loop through the categories and save its values
+
+    // Categories are only added when they contain at least one property visible
+    // to the caller.
     foreach ($categorizedProperties as $property) {
       $category = $property['Category'];
       $propertyID = $property['propertyID'];
