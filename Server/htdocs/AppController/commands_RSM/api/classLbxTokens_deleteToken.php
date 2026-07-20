@@ -14,39 +14,9 @@ require_once "../utilities/RSdatabase.php";
 // First of all we must retrieve the ID pertaining to the token
 $token    = $GLOBALS[$cstRS_POST]['token'   ];
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID] ;
-$tokenID  = RSgetTokenID($token);
-
-// Check if the token exists.....
-if ($tokenID != "") {
-    // The token exists. Now we build the query to delete the token properties
-    $results = RSdeleteTokenProperties($tokenID, $clientID);
-
-    // Check the query results
-    if (!$results) {
-        // There was a problem executing the query
-        $response['result'     ] = "NOK";
-        $response['description'] = "ERROR EXECUTING QUERY TO DELETE TOKEN PROPERTIES";
-
-        // And write XML Response back to the application
-        RSReturnArrayResults($response);
-    }
-
-    // Now we build the query to delete the tokens
-    $results = RSdeleteTokens($token, $clientID);
-
-    // Check the query results
-    if (!$results) {
-        // There was a problem executing the query
-        $response['result'     ] = "NOK";
-        $response['description'] = "ERROR EXECUTING QUERY TO DELETE TOKEN";
-
-        // And write XML Response back to the application
-        RSReturnArrayResults($response);
-    }
-}
-
-// Generate a response array for RSM
-$response['result'] = "OK";
+$results = RSdeleteTokenSafely($token, $clientID);
+$response['result'] = $results ? "OK" : "NOK";
+if (!$results) $response['description'] = "MASTER TOKEN HAS CHILD TOKENS OR COULD NOT BE DELETED";
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
