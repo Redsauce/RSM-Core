@@ -66,6 +66,17 @@ foreach ($itemTypeIDs as $itemTypeID) {
     $propertyCategories = $includeCategories
         ? getItemTypePropertyCategories($itemTypeID, $clientID)
         : array();
+    $visibleCategoryIDs = array();
+    $categoriesArray = array();
+
+    if ($includeCategories) {
+        foreach (getClientItemTypeCategories($itemTypeID, $clientID) as $category) {
+            $categoriesArray[(string)$category['id']] = array(
+                'id' => $category['id'],
+                'name' => html_entity_decode($category['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            );
+        }
+    }
 
     // Loop through each property
     foreach ($properties as $property) {
@@ -81,7 +92,9 @@ foreach ($itemTypeIDs as $itemTypeID) {
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
             $propertiesArray[$propertyKey] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
             if ($includeCategories && isset($propertyCategories[(string)$property['id']])) {
-                $propertiesCategoriesArray[$propertyKey] = $propertyCategories[(string)$property['id']];
+                $category = $propertyCategories[(string)$property['id']];
+                $propertiesCategoriesArray[$propertyKey] = $category['name'];
+                $visibleCategoryIDs[(string)$category['id']] = true;
             }
 
             if ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
@@ -107,7 +120,12 @@ foreach ($itemTypeIDs as $itemTypeID) {
         }
     }
 
-    // Only send them when the user has permissions to see properties.
+    if ($includeCategories) {
+        // Only expose categories containing at least one property visible to the caller.
+        $categoriesArray = array_values(array_intersect_key($categoriesArray, $visibleCategoryIDs));
+    }
+
+    // Only send item types when the user has permissions to see properties.
     if (!empty($propertiesArray)) {
         // Get the name of the ItemTypeID
         $itemTypeIDName = getClientItemTypeName($itemTypeID, $clientID);
@@ -123,6 +141,7 @@ foreach ($itemTypeIDs as $itemTypeID) {
         $combinedArray['propertyTypes'] = $propertiesTypesArray;
         $combinedArray['propertyLists'] = $propertiesListsArray;
         if ($includeCategories) {
+            $combinedArray['categories'] = $categoriesArray;
             $combinedArray['propertyCategories'] = $propertiesCategoriesArray;
         }
         $combinedArray['icon'] = base64_encode(hex2bin($itemTypeIDIcon));
@@ -145,11 +164,12 @@ function verifyBodyContent($body)
     checkIsArray($body->IDs);
 }
 
-// Return the category name indexed by property ID for the requested item type.
+// Return the category metadata indexed by property ID for the requested item type.
 // Visibility is applied later together with the rest of the property metadata.
 function getItemTypePropertyCategories($itemTypeID, $clientID)
 {
     $query = 'SELECT rs_item_properties.RS_PROPERTY_ID AS "propertyID",
+                     rs_categories.RS_CATEGORY_ID AS "categoryID",
                      rs_categories.RS_NAME AS "categoryName"
               FROM rs_categories
               INNER JOIN rs_item_properties
@@ -163,10 +183,13 @@ function getItemTypePropertyCategories($itemTypeID, $clientID)
 
     if ($queryResult) {
         while ($row = $queryResult->fetch_assoc()) {
-            $categories[(string)$row['propertyID']] = html_entity_decode(
-                $row['categoryName'],
-                ENT_QUOTES | ENT_HTML5,
-                'UTF-8'
+            $categories[(string)$row['propertyID']] = array(
+                'id' => $row['categoryID'],
+                'name' => html_entity_decode(
+                    $row['categoryName'],
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8'
+                ),
             );
         }
     }
