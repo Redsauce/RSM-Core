@@ -21,8 +21,17 @@ if (empty($GLOBALS[$cstRS_POST][$cstClientID])) {
 // Optional scope sent by the RSM client UI. Both values must be provided together.
 $customerItemTypeID = isset($GLOBALS[$cstRS_POST]['customerItemTypeID']) ? $GLOBALS[$cstRS_POST]['customerItemTypeID'] : 0;
 $customerItemID     = isset($GLOBALS[$cstRS_POST]['customerItemID'])     ? $GLOBALS[$cstRS_POST]['customerItemID']     : 0;
+$isMasterTemplate   = isset($GLOBALS[$cstRS_POST]['isMasterTemplate'])   ? filter_var($GLOBALS[$cstRS_POST]['isMasterTemplate'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : false;
+$parentMasterTokenID = isset($GLOBALS[$cstRS_POST]['parentMasterTokenID']) ? $GLOBALS[$cstRS_POST]['parentMasterTokenID'] : 0;
 
 if (($customerItemTypeID == 0 && $customerItemID != 0) || ($customerItemTypeID != 0 && $customerItemID == 0)) {
+    dieWithError(400);
+}
+if (is_null($isMasterTemplate) || !is_numeric($parentMasterTokenID) || intval($parentMasterTokenID) < 0) {
+    dieWithError(400);
+}
+$parentMasterTokenID = intval($parentMasterTokenID);
+if ($isMasterTemplate && $parentMasterTokenID > 0) {
     dieWithError(400);
 }
 
@@ -54,7 +63,7 @@ do {
 
 // If the execution reaches this point, the token does not exist so we can insert it
 // RScreateToken() is defined in Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php
-$results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID], $customerItemTypeID, $customerItemID);
+$results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID], $customerItemTypeID, $customerItemID, $isMasterTemplate, $parentMasterTokenID);
 
 if (!$results) {
     dieWithError(400);
@@ -64,6 +73,8 @@ if (!$results) {
 $response['token'] = $token;
 $response['customerItemTypeID'] = $customerItemTypeID;
 $response['customerItemID'] = $customerItemID;
+$response['isMasterTemplate'] = $isMasterTemplate ? 1 : 0;
+$response['parentMasterTokenID'] = $parentMasterTokenID;
 
 // And write XML Response back to the application
 RSReturnArrayResults($response);
