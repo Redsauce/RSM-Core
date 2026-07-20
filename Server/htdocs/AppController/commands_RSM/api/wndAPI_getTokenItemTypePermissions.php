@@ -16,8 +16,9 @@ require_once "../utilities/RSMitemsManagement.php";
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $RStoken  = $GLOBALS[$cstRS_POST]['token'   ];
 
-// First of all recover the tokenID pertaining to the passed token
-$tokenID = RSgetTokenID($RStoken);
+$managedToken = RSgetTokenMetadata($RStoken, $clientID);
+$tokenID = RSgetEffectivePermissionTokenID($RStoken, true);
+if (is_null($managedToken) || $tokenID <= 0) dieWithError(400);
 
 // Obtain the properties from table tokens_permissions and their number of assigned permissions
 $properties = RSQuery("SELECT RS_PROPERTY_ID, COUNT(RS_PERMISSION) AS numPermissions FROM rs_token_permissions WHERE RS_CLIENT_ID = " . $clientID . " AND RS_TOKEN_ID = " . $tokenID . " GROUP BY RS_PROPERTY_ID");
@@ -59,7 +60,12 @@ foreach ($itemTypesRelated as $itemTypeRelated) {
     } else {
         $check = 'SOME';
     }
-    $visibleProperties[] = array('ID' => $itemTypeRelated, 'check' => $check);
+    $visibleProperties[] = array(
+        'ID' => $itemTypeRelated,
+        'check' => $check,
+        'inherited' => $managedToken['isChild'] ? 1 : 0,
+        'parentMasterTokenID' => $managedToken['isChild'] ? $managedToken['parentMasterTokenID'] : 0
+    );
 }
 
 RSReturnArrayQueryResults($visibleProperties);

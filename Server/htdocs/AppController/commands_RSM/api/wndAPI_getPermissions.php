@@ -16,11 +16,15 @@
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 
-// First of all recover the tokenID pertaining to the passed token
-$tokenID = RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
+$managedToken = RSgetTokenMetadata($GLOBALS[$cstRS_POST]['token'], $GLOBALS[$cstRS_POST][$cstClientID]);
+$tokenID = RSgetEffectivePermissionTokenID($GLOBALS[$cstRS_POST]['token'], true);
+if (is_null($managedToken) || $tokenID <= 0) dieWithError(400);
+$inherited = $managedToken['isChild'] ? 1 : 0;
+$parentMasterTokenID = $managedToken['isChild'] ? $managedToken['parentMasterTokenID'] : 0;
 
 // Now we build the query
-$theQuery = "SELECT RS_PERMISSION AS  'permission', RS_PROPERTY_ID as 'propertyID' 
+$theQuery = "SELECT RS_PERMISSION AS  'permission', RS_PROPERTY_ID as 'propertyID',
+                    " . $inherited . " AS 'inherited', " . $parentMasterTokenID . " AS 'parentMasterTokenID'
                    FROM rs_token_permissions
                   WHERE RS_CLIENT_ID = '" . $GLOBALS[$cstRS_POST][$cstClientID] . "' AND (1 ";
 
