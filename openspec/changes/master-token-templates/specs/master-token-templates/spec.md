@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Token roles and management contract
-The system SHALL support standalone tokens, master token templates, and child tokens. Token creation SHALL accept optional `isMasterTemplate` and `parentMasterTokenID` fields, and token listing operations SHALL return both fields. Omitting both fields SHALL create a standalone token. A token's role and parent relationship MUST be immutable after creation.
+The system SHALL support standalone tokens, master token templates, and child tokens. Token creation SHALL accept optional `isMasterTemplate` and `parentMasterToken`, retain `parentMasterTokenID` for backward compatibility, and token listing operations SHALL return the stored relationship metadata. Omitting all role and parent fields SHALL create a standalone token. A token's role and parent relationship MUST be immutable after creation.
 
 #### Scenario: Existing caller creates a token
 - **WHEN** a caller creates a token without `isMasterTemplate` or `parentMasterTokenID`
@@ -12,11 +12,19 @@ The system SHALL support standalone tokens, master token templates, and child to
 - **THEN** the system stores the token as a master template and returns its master status in token listings
 
 #### Scenario: Create a child token
-- **WHEN** an authorized administrator creates a token with `parentMasterTokenID` referencing a valid master in the same client
+- **WHEN** an authorized administrator creates a token with `parentMasterToken` referencing a valid master in the same client
 - **THEN** the system stores the token as a non-master child and returns the parent ID in token listings
 
+#### Scenario: Create a child with the legacy numeric parent field
+- **WHEN** an authorized administrator creates a token with `parentMasterTokenID` referencing a valid master in the same client
+- **THEN** the system preserves the existing numeric-ID creation behavior
+
+#### Scenario: Conflicting parent references
+- **WHEN** a creation request supplies `parentMasterToken` together with a positive `parentMasterTokenID`
+- **THEN** the system rejects the ambiguous request without creating a token
+
 #### Scenario: Edit attempts to change a role
-- **WHEN** an edit request supplies `isMasterTemplate` or `parentMasterTokenID` for an existing token
+- **WHEN** an edit request supplies `isMasterTemplate`, `parentMasterToken`, or `parentMasterTokenID` for an existing token
 - **THEN** the system rejects the role or parent change and leaves the token relationship unchanged
 
 ### Requirement: Valid direct master relationships

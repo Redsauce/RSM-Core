@@ -5,6 +5,7 @@
 // - RSenableToken
 // - RSdisableToken
 // - RSgetTokenID
+// - RSgetMasterTokenID
 // - RSdeleteTokenProperties
 // - RSdeleteTokens
 // - RStokensFromClient
@@ -109,6 +110,14 @@ function RSgetTokenMetadataByID($tokenID, $clientID) {
 	if (!$results || $results->num_rows == 0) return null;
 	$row = $results->fetch_assoc();
 	return RSgetTokenMetadata($row['token'], $clientID);
+}
+
+// Resolve an administrator-supplied master token string to its client-local ID.
+// Only a valid direct master in the requested client is eligible as a parent.
+function RSgetMasterTokenID($RStoken, $clientID) {
+	$metadata = RSgetTokenMetadata($RStoken, $clientID);
+	if (is_null($metadata) || !$metadata['relationshipValid'] || !$metadata['isMasterTemplate']) return 0;
+	return $metadata['tokenID'];
 }
 
 // API credential validity. Masters never authenticate. Children additionally

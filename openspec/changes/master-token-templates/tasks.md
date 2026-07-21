@@ -20,6 +20,7 @@
 - [x] 3.4 Update enable/disable behavior so changing a master does not rewrite child rows and gates every child, while disabling one child affects only that child and leaves its master and siblings unchanged.
 - [x] 3.5 Update deletion handling to reject referenced-master deletion and to clean up any unexpected permission rows when deleting a child.
 - [x] 3.6 Return clear `NOK` responses for invalid parents, cross-client references, master-as-child creation, referenced-master deletion, and attempts to change an existing token's role or parent.
+- [x] 3.7 Accept `parentMasterToken` during token creation, resolve it to a valid same-client master ID server-side, reject conflicting parent references, and preserve `parentMasterTokenID` compatibility.
 
 ## 4. Permission Administration and Resolution
 
@@ -43,3 +44,4 @@
 - [x] 6.3 Add API v1 and v2 authentication tests proving masters cannot authenticate, valid children use master permissions, a disabled master blocks all children, re-enabling it restores only enabled valid children, and disabling one child does not affect its master or siblings.
 - [x] 6.4 Add regression tests proving existing standalone and customer-scoped tokens preserve their current authentication, permissions, and scope behavior.
 - [x] 6.5 Run PHP syntax checks and the relevant automated/API verification suite, then document any endpoint-specific response differences.
+- [x] 6.6 Add focused verification for token-string parent resolution and rerun PHP syntax and master-token tests.

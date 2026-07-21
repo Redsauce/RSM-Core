@@ -135,6 +135,9 @@ assertMasterToken(RSisTokenEnabled('sibling'), 'Disabling one child must not aff
 assertMasterToken(!RSisTokenEnabled('dangling'), 'Dangling child must fail closed');
 assertMasterToken(!RSisTokenEnabled('chained'), 'Inheritance chain must fail closed');
 assertMasterToken(!RSisTokenEnabled('cross-client-child'), 'Cross-client parent must fail closed');
+assertMasterToken(RSgetMasterTokenID('master', 7) === 10, 'Master token string must resolve to its client-local ID');
+assertMasterToken(RSgetMasterTokenID('master', 8) === 0, 'Master token lookup must be restricted to the requested client');
+assertMasterToken(RSgetMasterTokenID('standalone', 7) === 0, 'A standalone token must not resolve as a master parent');
 assertMasterToken(RSgetEffectivePermissionTokenID('child') === 10, 'Child must resolve its master permission owner');
 assertMasterToken(RShasTokenPermission('child', 100, 'READ'), 'Child must use a permission granted to its master');
 assertMasterToken(!RShasTokenPermission('child', 101, 'READ'), 'Unexpected child permission row must be ignored');
@@ -167,7 +170,10 @@ $migration = file_get_contents($repoRoot . '/Server/htdocs/AppController/command
 
 assertMasterToken(strpos($newTokenEndpoint, "['isMasterTemplate']") !== false, 'Token creation API must accept isMasterTemplate');
 assertMasterToken(strpos($newTokenEndpoint, "['parentMasterTokenID']") !== false, 'Token creation API must accept parentMasterTokenID');
+assertMasterToken(strpos($newTokenEndpoint, "['parentMasterToken']") !== false, 'Token creation API must accept parentMasterToken');
+assertMasterToken(strpos($newTokenEndpoint, 'RSgetMasterTokenID') !== false, 'Token creation API must resolve a master token string server-side');
 assertMasterToken(strpos($editTokenEndpoint, 'TOKEN ROLE AND MASTER RELATIONSHIP ARE IMMUTABLE') !== false, 'Token edit API must reject immutable role fields');
+assertMasterToken(strpos($editTokenEndpoint, "['parentMasterToken']") !== false, 'Token edit API must reject parentMasterToken reassignment');
 assertMasterToken(strpos($tokenUtilities, "RS_MASTER_TEMPLATE AS 'isMasterTemplate'") !== false, 'Token listing must expose master status');
 assertMasterToken(strpos($tokenUtilities, "RS_PARENT_MASTER_TOKEN AS 'parentMasterTokenID'") !== false, 'Token listing must expose parent ID');
 assertMasterToken(strpos($permissionReadEndpoint, 'RSgetEffectivePermissionTokenID') !== false, 'Permission reads must resolve inherited permissions');

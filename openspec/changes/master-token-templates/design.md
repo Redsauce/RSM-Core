@@ -25,7 +25,7 @@ RSM stores tokens in `rs_tokens` and their per-property CREATE, READ, WRITE, and
 
 ### Set immutable roles during creation
 
-Token creation accepts optional `isMasterTemplate` and `parentMasterTokenID` fields. `isMasterTemplate = true` creates a master and requires parent `0`; a positive `parentMasterTokenID` creates a child and requires `isMasterTemplate` to be false or omitted; omitting both creates a standalone token.
+Token creation accepts optional `isMasterTemplate`, `parentMasterToken`, and backward-compatible `parentMasterTokenID` fields. `isMasterTemplate = true` creates a master and requires no parent; a valid `parentMasterToken` or positive `parentMasterTokenID` creates a child and requires `isMasterTemplate` to be false or omitted; omitting both parent fields creates a standalone token. The preferred API field is `parentMasterToken`: the server resolves it to the client-local numeric ID before persistence so callers do not need database identifiers. Supplying it together with a positive `parentMasterTokenID` is rejected as ambiguous.
 
 Token listings return both fields. The role and parent are immutable after creation: edit handlers do not accept changes to these fields and MUST reject them if supplied. Administrators who need a different role or parent must create a new token and retire the old one.
 
@@ -41,7 +41,7 @@ Add `RS_PARENT_MASTER_TOKEN` as an unsigned integer with `0` as “no parent”.
 
 Database constraints in the current schema cannot express all cross-row rules reliably, so shared creation helpers enforce them transactionally. Add an index on `(RS_CLIENT_ID, RS_PARENT_MASTER_TOKEN)` for child lookup and deletion validation.
 
-Alternative considered: store the parent's token string. Rejected because the numeric client-local ID is already the intended relationship key and avoids propagating credential material through management payloads.
+Alternative considered: store the parent's token string. Rejected because the numeric client-local ID remains the intended relationship key. The management API may accept that string as an authorized lookup value, but resolves it immediately and persists only the numeric ID.
 
 ### Separate management lookup from authentication lookup
 

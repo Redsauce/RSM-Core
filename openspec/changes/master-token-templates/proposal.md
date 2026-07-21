@@ -4,7 +4,7 @@ Administrators currently have to duplicate and maintain the same property permis
 
 ## What Changes
 
-- Add optional `isMasterTemplate` and `parentMasterTokenID` fields to token creation, backed by `rs_tokens.RS_MASTER_TEMPLATE` and `rs_tokens.RS_PARENT_MASTER_TOKEN`; omission creates an ordinary standalone token.
+- Add optional `isMasterTemplate`, `parentMasterToken`, and backward-compatible `parentMasterTokenID` fields to token creation, backed by `rs_tokens.RS_MASTER_TEMPLATE` and `rs_tokens.RS_PARENT_MASTER_TOKEN`; omission creates an ordinary standalone token.
 - Treat a token's standalone, master, or child role as immutable after creation; this change does not support converting, associating, detaching, or reassigning existing tokens.
 - Return master-template and parent information from token listing/management calls.
 - Store property permissions only for standard tokens and master templates. Child tokens resolve all property permissions from their referenced master template and must not retain rows in `rs_token_permissions`.
