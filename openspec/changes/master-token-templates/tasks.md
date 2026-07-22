@@ -21,6 +21,8 @@
 - [x] 3.5 Update deletion handling to reject referenced-master deletion and to clean up any unexpected permission rows when deleting a child.
 - [x] 3.6 Return clear `NOK` responses for invalid parents, cross-client references, master-as-child creation, referenced-master deletion, and attempts to change an existing token's role or parent.
 - [x] 3.7 Accept `parentMasterToken` during token creation, resolve it to a valid same-client master ID server-side, reject conflicting parent references, and preserve `parentMasterTokenID` compatibility.
+- [x] 3.8 Return the client-local `tokenID` from token creation and token listing responses.
+- [x] 3.9 Use the established public field name `ID` instead of `tokenID` in token creation and listing responses.
 
 ## 4. Permission Administration and Resolution
 
@@ -45,3 +47,5 @@
 - [x] 6.4 Add regression tests proving existing standalone and customer-scoped tokens preserve their current authentication, permissions, and scope behavior.
 - [x] 6.5 Run PHP syntax checks and the relevant automated/API verification suite, then document any endpoint-specific response differences.
 - [x] 6.6 Add focused verification for token-string parent resolution and rerun PHP syntax and master-token tests.
+- [x] 6.7 Verify creation and listing expose `tokenID`, then rerun PHP syntax, master-token tests, and strict OpenSpec validation.
+- [x] 6.8 Verify creation and listing expose `ID`, then rerun PHP syntax, master-token tests, and strict OpenSpec validation.

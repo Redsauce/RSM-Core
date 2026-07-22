@@ -172,10 +172,12 @@ assertMasterToken(strpos($newTokenEndpoint, "['isMasterTemplate']") !== false, '
 assertMasterToken(strpos($newTokenEndpoint, "['parentMasterTokenID']") !== false, 'Token creation API must accept parentMasterTokenID');
 assertMasterToken(strpos($newTokenEndpoint, "['parentMasterToken']") !== false, 'Token creation API must accept parentMasterToken');
 assertMasterToken(strpos($newTokenEndpoint, 'RSgetMasterTokenID') !== false, 'Token creation API must resolve a master token string server-side');
+assertMasterToken(strpos($newTokenEndpoint, "\$response['ID']") !== false, 'Token creation API must return the new client-local ID');
 assertMasterToken(strpos($editTokenEndpoint, 'TOKEN ROLE AND MASTER RELATIONSHIP ARE IMMUTABLE') !== false, 'Token edit API must reject immutable role fields');
 assertMasterToken(strpos($editTokenEndpoint, "['parentMasterToken']") !== false, 'Token edit API must reject parentMasterToken reassignment');
 assertMasterToken(strpos($tokenUtilities, "RS_MASTER_TEMPLATE AS 'isMasterTemplate'") !== false, 'Token listing must expose master status');
 assertMasterToken(strpos($tokenUtilities, "RS_PARENT_MASTER_TOKEN AS 'parentMasterTokenID'") !== false, 'Token listing must expose parent ID');
+assertMasterToken(strpos($tokenUtilities, "RS_ID AS 'ID'") !== false, 'Token listing must expose each client-local ID');
 assertMasterToken(strpos($permissionReadEndpoint, 'RSgetEffectivePermissionTokenID') !== false, 'Permission reads must resolve inherited permissions');
 assertMasterToken(substr_count($securityCheck, 'RSisTokenEnabled(') >= 3, 'POST and GET API authentication paths must use centralized token validation');
 assertMasterToken(strpos($schema, '`RS_PARENT_MASTER_TOKEN`') !== false, 'Canonical schema must define RS_PARENT_MASTER_TOKEN');

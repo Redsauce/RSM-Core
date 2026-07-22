@@ -11,6 +11,7 @@
 //    parentMasterTokenID: Optional legacy numeric master ID used to create a child
 //
 // RETURN
+//        ID: Client-local numeric ID of the created token
 //     token: The token itself, as a 32-character string (MD5 hash)
 // ***************************************************************************************
 
@@ -85,6 +86,7 @@ if (!$results) {
 }
 
 // Generate a response array for RSM
+$response['ID'] = RSgetTokenID($token);
 $response['token'] = $token;
 $response['customerItemTypeID'] = $customerItemTypeID;
 $response['customerItemID'] = $customerItemID;

@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Token roles and management contract
-The system SHALL support standalone tokens, master token templates, and child tokens. Token creation SHALL accept optional `isMasterTemplate` and `parentMasterToken`, retain `parentMasterTokenID` for backward compatibility, and token listing operations SHALL return the stored relationship metadata. Omitting all role and parent fields SHALL create a standalone token. A token's role and parent relationship MUST be immutable after creation.
+The system SHALL support standalone tokens, master token templates, and child tokens. Token creation SHALL accept optional `isMasterTemplate` and `parentMasterToken`, retain `parentMasterTokenID` for backward compatibility, and token creation and listing operations SHALL return the token's client-local `ID` together with the stored relationship metadata. Omitting all role and parent fields SHALL create a standalone token. A token's role and parent relationship MUST be immutable after creation.
 
 #### Scenario: Existing caller creates a token
 - **WHEN** a caller creates a token without `isMasterTemplate` or `parentMasterTokenID`
@@ -22,6 +22,14 @@ The system SHALL support standalone tokens, master token templates, and child to
 #### Scenario: Conflicting parent references
 - **WHEN** a creation request supplies `parentMasterToken` together with a positive `parentMasterTokenID`
 - **THEN** the system rejects the ambiguous request without creating a token
+
+#### Scenario: Creation returns the new token ID
+- **WHEN** an authorized administrator successfully creates any token role
+- **THEN** the response includes the generated token string and its client-local `ID`
+
+#### Scenario: Listing exposes relationship IDs
+- **WHEN** an authorized administrator lists a client's tokens
+- **THEN** every row includes its `ID` so a child's `parentMasterTokenID` can be matched to its master row
 
 #### Scenario: Edit attempts to change a role
 - **WHEN** an edit request supplies `isMasterTemplate`, `parentMasterToken`, or `parentMasterTokenID` for an existing token

@@ -6,7 +6,7 @@ Administrators currently have to duplicate and maintain the same property permis
 
 - Add optional `isMasterTemplate`, `parentMasterToken`, and backward-compatible `parentMasterTokenID` fields to token creation, backed by `rs_tokens.RS_MASTER_TEMPLATE` and `rs_tokens.RS_PARENT_MASTER_TOKEN`; omission creates an ordinary standalone token.
 - Treat a token's standalone, master, or child role as immutable after creation; this change does not support converting, associating, detaching, or reassigning existing tokens.
-- Return master-template and parent information from token listing/management calls.
+- Return each token's client-local `ID`, master-template status, and parent information from token creation and listing calls.
 - Store property permissions only for standard tokens and master templates. Child tokens resolve all property permissions from their referenced master template and must not retain rows in `rs_token_permissions`.
 - Reject API authentication with a token whose `RS_MASTER_TEMPLATE` value is true, regardless of its configured permissions.
 - Require both the child token and its parent master template to be enabled; disabling or unpublishing a master immediately prevents all of its children from authenticating until the master is enabled again.

@@ -286,7 +286,8 @@ function RSdeleteTokenSafely($RStoken, $clientID) {
 // -----------------------------
 // Includes customer scope fields so the RSM client can display/configure scoped tokens.
 function RStokensFromClient($clientID) {
-	$results = RSQuery("SELECT  RS_TOKEN AS  'token',
+	$results = RSQuery("SELECT  RS_ID AS 'ID',
+	                     RS_TOKEN AS  'token',
                          RS_ENABLED       AS  'enabled',
                          RS_CUSTOMER_ITEM_TYPE_ID AS 'customerItemTypeID',
                          RS_CUSTOMER_ITEM_ID AS 'customerItemID',

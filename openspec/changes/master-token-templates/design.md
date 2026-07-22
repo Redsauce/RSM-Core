@@ -27,7 +27,7 @@ RSM stores tokens in `rs_tokens` and their per-property CREATE, READ, WRITE, and
 
 Token creation accepts optional `isMasterTemplate`, `parentMasterToken`, and backward-compatible `parentMasterTokenID` fields. `isMasterTemplate = true` creates a master and requires no parent; a valid `parentMasterToken` or positive `parentMasterTokenID` creates a child and requires `isMasterTemplate` to be false or omitted; omitting both parent fields creates a standalone token. The preferred API field is `parentMasterToken`: the server resolves it to the client-local numeric ID before persistence so callers do not need database identifiers. Supplying it together with a positive `parentMasterTokenID` is rejected as ambiguous.
 
-Token listings return both fields. The role and parent are immutable after creation: edit handlers do not accept changes to these fields and MUST reject them if supplied. Administrators who need a different role or parent must create a new token and retire the old one.
+Token creation and listing responses return the token's client-local `ID` together with its role and parent fields. This lets management clients match `parentMasterTokenID` to the corresponding master row without using the token credential as a relational key. The role and parent are immutable after creation: edit handlers do not accept changes to these fields and MUST reject them if supplied. Administrators who need a different role or parent must create a new token and retire the old one.
 
 Alternative considered: one `masterToken` parameter with overloaded boolean/ID meaning. Rejected because it cannot clearly distinguish “this is a master” from “this is a child of master N”.
 
