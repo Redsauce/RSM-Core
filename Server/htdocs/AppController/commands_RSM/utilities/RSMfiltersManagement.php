@@ -493,6 +493,40 @@ function loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $tar
         $recursiveParentID = $recursiveParentIDs[$i];
         $auxItemsInPath = $temporaryItemsInPath;
         if ((count($treePath) > 1 || $recursiveParentID != $targetParentID) && $recursiveParentID > 0) {
+            // Stop when the recursive parent is already part of this branch. Without this check,
+            // relations such as A -> B -> A keep growing the path until PHP runs out of memory.
+            $recursiveParentAlreadyInPath = false;
+            foreach ($temporaryItemsInPath as $itemInPath) {
+                if (
+                    (string) $itemInPath['nodeID'] === (string) $recursiveParentID
+                    && (string) $itemInPath['nodeItemType'] === (string) $treePath[count($treePath) - 1]['itemTypeID']
+                ) {
+                    $recursiveParentAlreadyInPath = true;
+                    break;
+                }
+            }
+
+            if ($recursiveParentAlreadyInPath) {
+                // The cyclic edge is omitted, but the items collected before it must remain visible.
+                // A cyclic component has no natural root, so expose its items as root-level siblings.
+                if ((string) $targetParentID === '0') {
+                    $recursiveItemTypeID = $treePath[count($treePath) - 1]["itemTypeID"];
+                    $recursivePropertyID = $treePath[count($treePath) - 1]["recursivePropertyID"];
+                    foreach ($auxItemsInPath as &$cyclicItem) {
+                        $cyclicItem["parentID"] = 0;
+                        $cyclicItem["parentItemType"] = $recursiveItemTypeID;
+                        $cyclicItem["parentPropertyID"] = $recursivePropertyID;
+                        $cyclicItem["childs"] = '';
+                        if ($returnOrder) {
+                            $cyclicItem["order"] = "0";
+                        }
+                    }
+                    unset($cyclicItem);
+                    $temporaryBranches[] = $auxItemsInPath;
+                }
+                continue;
+            }
+
             $auxItemsInPath[0]["parentID"] = $recursiveParentID;
             $auxItemsInPath[0]["parentItemType"] = $treePath[count($treePath) - 1]["itemTypeID"];
             $auxItemsInPath[0]["parentPropertyID"] = $treePath[count($treePath) - 1]["recursivePropertyID"];
