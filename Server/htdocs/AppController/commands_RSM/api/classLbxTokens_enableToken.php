@@ -14,8 +14,12 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 
+$clientID = RSrequireTokenManagementAccess();
+$token = isset($GLOBALS[$cstRS_POST]['token']) ? $GLOBALS[$cstRS_POST]['token'] : '';
+RSrequireTokenOwnedByClient($token, $clientID);
+
 // Set the token as enabled in the database
-$results = RSenableToken($GLOBALS[$cstRS_POST]['token'],$GLOBALS[$cstRS_POST][$cstClientID]);
+$results = RSenableToken($token, $clientID);
 
 // Generate a response array for RSM
 if (!$results) {

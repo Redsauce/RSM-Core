@@ -25,21 +25,84 @@
 // - RShasTokenPermissions
 // - RShasTokenPermission
 
+// Require an authenticated RSM user with access to the API module for the
+// requested client. API-token authentication alone is not sufficient.
+function RSrequireTokenManagementAccess() {
+	global $cstRS_POST;
+	global $cstClientID;
+	global $mysqli;
+
+	if (!isset($GLOBALS[$cstRS_POST][$cstClientID])
+		|| !is_numeric($GLOBALS[$cstRS_POST][$cstClientID])
+		|| intval($GLOBALS[$cstRS_POST][$cstClientID]) <= 0) {
+		error_log('RSrequireTokenManagementAccess: clientID is missing or invalid');
+		RSReturnError('ACCESS DENIED', -5);
+	}
+
+	$clientID = intval($GLOBALS[$cstRS_POST][$cstClientID]);
+	$userID = RSCheckUserAccess();
+	if ($userID <= 0) {
+		error_log('RSrequireTokenManagementAccess: RSM user authentication failed for clientID ' . $clientID);
+		RSReturnError('ACCESS DENIED', -5);
+	}
+
+	$actionName = 'rsm.mainpanel.api.access';
+	try {
+		$stmt = $mysqli->prepare("SELECT 1
+					FROM rs_actions a
+					INNER JOIN rs_actions_clients ac
+						ON ac.RS_ACTION_ID = a.RS_ID
+					INNER JOIN rs_actions_groups ag
+						ON ag.RS_ACTION_CLIENT_ID = ac.RS_ID
+						AND ag.RS_CLIENT_ID = ac.RS_CLIENT_ID
+					INNER JOIN rs_users_groups ug
+						ON ug.RS_GROUP_ID = ag.RS_GROUP_ID
+						AND ug.RS_CLIENT_ID = ag.RS_CLIENT_ID
+					WHERE a.RS_NAME = ?
+					AND ac.RS_CLIENT_ID = ?
+					AND ug.RS_USER_ID = ?
+					LIMIT 1");
+		$stmt->bind_param('sii', $actionName, $clientID, $userID);
+		$stmt->execute();
+		$stmt->store_result();
+		$hasAccess = $stmt->num_rows > 0;
+		$stmt->close();
+	} catch (mysqli_sql_exception $exception) {
+		error_log('RSrequireTokenManagementAccess: database error for clientID ' . $clientID . ': ' . $exception->getMessage());
+		$hasAccess = false;
+	}
+
+	if (!$hasAccess) {
+		error_log('RSrequireTokenManagementAccess: userID ' . intval($userID) . ' has no rsm.mainpanel.api.access action for clientID ' . $clientID);
+		RSReturnError('ACCESS DENIED', -5);
+	}
+	return $clientID;
+}
+
+// Reject token-management operations when the target belongs to another client.
+function RSrequireTokenOwnedByClient($RStoken, $clientID) {
+	$metadata = RSgetTokenMetadata($RStoken, $clientID);
+	if (is_null($metadata)) {
+		error_log('RSrequireTokenOwnedByClient: token does not belong to clientID ' . intval($clientID));
+		RSReturnError('ACCESS DENIED', -5);
+	}
+	return $metadata;
+}
+
 // -----------------------------
 // Returns the clientID related with a token or 0 if there is no relation.
 function RSclientFromToken($RStoken) {
+	global $mysqli;
 
-	$theQuery = "SELECT `RS_CLIENT_ID` FROM `rs_tokens`
-                WHERE `RS_TOKEN` = '" . $RStoken . "'";
-
-	$clients = RSQuery($theQuery);
-
-	// Analyze results
-	if ($clients && $clients->num_rows > 0) {
-		$row = $clients->fetch_assoc();
-		return $row['RS_CLIENT_ID'];
-	} else {
-		//query failed or client not related
+	try {
+		$stmt = $mysqli->prepare('SELECT RS_CLIENT_ID FROM rs_tokens WHERE RS_TOKEN = ? LIMIT 1');
+		$stmt->bind_param('s', $RStoken);
+		$stmt->execute();
+		$stmt->bind_result($clientID);
+		$found = $stmt->fetch();
+		$stmt->close();
+		return $found ? intval($clientID) : 0;
+	} catch (mysqli_sql_exception $exception) {
 		return 0;
 	}
 }
@@ -201,21 +264,35 @@ function RSgetTokenCustomerItemID($RStoken) {
 // -----------------------------
 // Enable token for a clientID
 function RSenableToken($RStoken, $clientID) {
-	$results = RSQuery("UPDATE  rs_tokens
-               SET  RS_ENABLED   = 1
-               WHERE  RS_TOKEN   = '" . $RStoken . "'
-               AND  RS_CLIENT_ID = " . $clientID);
-	return $results;
+	global $mysqli;
+	$clientID = intval($clientID);
+
+	try {
+		$stmt = $mysqli->prepare('UPDATE rs_tokens SET RS_ENABLED = 1 WHERE RS_TOKEN = ? AND RS_CLIENT_ID = ?');
+		$stmt->bind_param('si', $RStoken, $clientID);
+		$results = $stmt->execute();
+		$stmt->close();
+		return $results;
+	} catch (mysqli_sql_exception $exception) {
+		return false;
+	}
 }
 
 // -----------------------------
 // Disable token for a clientID
 function RSdisableToken($RStoken, $clientID) {
-	$results = RSQuery("UPDATE  rs_tokens
-               SET  RS_ENABLED   = 0
-               WHERE  RS_TOKEN   = '" . $RStoken . "'
-               AND  RS_CLIENT_ID = " . $clientID);
-	return $results;
+	global $mysqli;
+	$clientID = intval($clientID);
+
+	try {
+		$stmt = $mysqli->prepare('UPDATE rs_tokens SET RS_ENABLED = 0 WHERE RS_TOKEN = ? AND RS_CLIENT_ID = ?');
+		$stmt->bind_param('si', $RStoken, $clientID);
+		$results = $stmt->execute();
+		$stmt->close();
+		return $results;
+	} catch (mysqli_sql_exception $exception) {
+		return false;
+	}
 }
 
 // -----------------------------

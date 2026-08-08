@@ -19,8 +19,9 @@ require_once "../utilities/RSMitemsManagement.php";
 
 $response = array();
 
+$clientID = RSrequireTokenManagementAccess();
 $RStoken = isset($GLOBALS[$cstRS_POST]['token']) ? $GLOBALS[$cstRS_POST]['token'] : "";
-$clientID = $RStoken != "" ? RSclientFromToken($RStoken) : 0;
+RSrequireTokenOwnedByClient($RStoken, $clientID);
 
 $hasItemTypeID = isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) && $GLOBALS[$cstRS_POST][$cstItemTypeID] !== "";
 $hasItemID = isset($GLOBALS[$cstRS_POST]['itemID']) && $GLOBALS[$cstRS_POST]['itemID'] !== "";
@@ -29,29 +30,9 @@ $hasImmutableRoleFields = isset($GLOBALS[$cstRS_POST]['isMasterTemplate'])
     || isset($GLOBALS[$cstRS_POST]['parentMasterToken'])
     || isset($GLOBALS[$cstRS_POST]['parentMasterTokenID']);
 
-if ($RStoken == "" || $clientID <= 0) {
-    $response['result'] = "NOK";
-    RSReturnArrayResults($response);
-}
-
 if ($hasImmutableRoleFields) {
     $response['result'] = "NOK";
     $response['description'] = "TOKEN ROLE AND MASTER RELATIONSHIP ARE IMMUTABLE";
-    RSReturnArrayResults($response);
-}
-
-$GLOBALS[$cstRS_POST][$cstClientID] = $clientID;
-
-if (!isset($GLOBALS[$cstRS_POST]['RSLogin']) && isset($GLOBALS[$cstRS_POST]['login'])) {
-    $GLOBALS[$cstRS_POST]['RSLogin'] = $GLOBALS[$cstRS_POST]['login'];
-}
-
-if (!isset($GLOBALS[$cstRS_POST]['RSuserMD5Password']) && isset($GLOBALS[$cstRS_POST]['password'])) {
-    $GLOBALS[$cstRS_POST]['RSuserMD5Password'] = $GLOBALS[$cstRS_POST]['password'];
-}
-
-if (RSCheckUserAccess() <= 0) {
-    $response['result'] = "NOK";
     RSReturnArrayResults($response);
 }
 

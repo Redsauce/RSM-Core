@@ -10,8 +10,10 @@
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 
+$clientID = RSrequireTokenManagementAccess();
+
 // Now we build the query
-$results = RStokensFromClient($GLOBALS[$cstRS_POST][$cstClientID]);
+$results = RStokensFromClient($clientID);
 
 // And write XML Response back to the application
 RSReturnQueryResults($results);

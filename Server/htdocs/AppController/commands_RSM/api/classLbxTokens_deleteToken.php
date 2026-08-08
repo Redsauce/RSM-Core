@@ -12,8 +12,9 @@
 require_once "../utilities/RSdatabase.php";
 
 // First of all we must retrieve the ID pertaining to the token
-$token    = $GLOBALS[$cstRS_POST]['token'   ];
-$clientID = $GLOBALS[$cstRS_POST][$cstClientID] ;
+$clientID = RSrequireTokenManagementAccess();
+$token = isset($GLOBALS[$cstRS_POST]['token']) ? $GLOBALS[$cstRS_POST]['token'] : '';
+RSrequireTokenOwnedByClient($token, $clientID);
 $results = RSdeleteTokenSafely($token, $clientID);
 $response['result'] = $results ? "OK" : "NOK";
 if (!$results) $response['description'] = "MASTER TOKEN HAS CHILD TOKENS OR COULD NOT BE DELETED";

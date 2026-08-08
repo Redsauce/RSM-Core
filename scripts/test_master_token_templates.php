@@ -19,9 +19,50 @@ class MasterTokenFakeResult {
     }
 }
 
+class MasterTokenFakeStatement {
+    private $query;
+    private $params = array();
+    private $rows = array();
+    private $result;
+
+    public function __construct($query) { $this->query = $query; }
+
+    public function bind_param($types, &...$params) {
+        $this->params = &$params;
+        return true;
+    }
+
+    public function execute() {
+        global $masterTokenRows;
+
+        if (strpos($this->query, 'SELECT RS_CLIENT_ID FROM rs_tokens WHERE RS_TOKEN = ?') !== false) {
+            $token = $this->params[0];
+            $this->rows = isset($masterTokenRows[$token])
+                ? array(array($masterTokenRows[$token]['RS_CLIENT_ID']))
+                : array();
+        }
+        return true;
+    }
+
+    public function bind_result(&$result) {
+        $this->result = &$result;
+        return true;
+    }
+
+    public function fetch() {
+        if (count($this->rows) === 0) return null;
+        $row = array_shift($this->rows);
+        $this->result = $row[0];
+        return true;
+    }
+
+    public function close() { return true; }
+}
+
 class MasterTokenFakeMysqli {
     public $inTransaction = false;
     public function real_escape_string($value) { return addslashes($value); }
+    public function prepare($query) { return new MasterTokenFakeStatement($query); }
     public function begin_transaction() { $this->inTransaction = true; }
     public function commit() { $this->inTransaction = false; }
     public function rollback() { $this->inTransaction = false; }

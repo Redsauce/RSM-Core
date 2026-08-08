@@ -53,38 +53,68 @@ function RSCheckCompatibleDB($serviceMode) {
 
 // Check if the current user has access to work with the selected database
 function RSCheckUserAccess() {
-    // If we rerturn -1: There was an error executing the query
+    // If we return -1: The input is invalid or there was an error executing the query
     // If we return 0: RSM could not match the provided data to a single user in a single customer
     // If we return an integer: This is the ID of the user for the passed clientID
     
     global $cstRS_POST;
     global $cstClientID;
+    global $mysqli;
 
-    if (!isset($GLOBALS[$cstRS_POST]['RSLogin'])) return 0;
-
-    // We don't allow the script to continue execution with an empty clientID since the queries would throw an error
-    if ((isset($GLOBALS[$cstRS_POST][$cstClientID])) && ($GLOBALS[$cstRS_POST][$cstClientID] == "")) return -1;
-
-    if ((isset($GLOBALS[$cstRS_POST]['RSuserMD5Password'])) && ($GLOBALS[$cstRS_POST]['RSuserMD5Password'] != "")) {
-        // Continue checking the username and password.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_LOGIN`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND `RS_PASSWORD` ='" . $GLOBALS[$cstRS_POST]['RSuserMD5Password'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
-
-    } else {
-        // There is no defined password. Use the login as a badge.
-        $theQuery = "SELECT `RS_USER_ID` FROM `rs_users` WHERE `RS_BADGE`='" . $GLOBALS[$cstRS_POST]['RSLogin'] . "' AND RS_CLIENT_ID = " . $GLOBALS[$cstRS_POST][$cstClientID];
+    // A login is always required, both for password and badge authentication.
+    if (!isset($GLOBALS[$cstRS_POST]['RSLogin'])) {
+        error_log('RSCheckUserAccess: RSLogin is missing');
+        return 0;
     }
 
-    $users = RSQuery($theQuery);
+    // Validate the client before sending it to MySQL. Apart from rejecting malformed
+    // requests, this guarantees that the authenticated user is checked against one
+    // concrete customer and cannot select another client through crafted SQL input.
+    if (!isset($GLOBALS[$cstRS_POST][$cstClientID])
+        || !is_numeric($GLOBALS[$cstRS_POST][$cstClientID])
+        || intval($GLOBALS[$cstRS_POST][$cstClientID]) <= 0) {
+        error_log('RSCheckUserAccess: clientID is missing or invalid');
+        return -1;
+    }
 
-    // Check if the query failed
-    if (!$users) return -1;
+    $login = $GLOBALS[$cstRS_POST]['RSLogin'];
+    $clientID = intval($GLOBALS[$cstRS_POST][$cstClientID]);
 
-    // User not found or multiple users found
-    if ($users->num_rows != 1) return 0;
+    try {
+        // When a password is supplied, authenticate with the RSM login and its stored
+        // MD5 password. Prepared parameters keep credentials separate from the SQL.
+        if (isset($GLOBALS[$cstRS_POST]['RSuserMD5Password']) && $GLOBALS[$cstRS_POST]['RSuserMD5Password'] != "") {
+            $password = $GLOBALS[$cstRS_POST]['RSuserMD5Password'];
+            $stmt = $mysqli->prepare('SELECT RS_USER_ID FROM rs_users WHERE RS_LOGIN = ? AND RS_PASSWORD = ? AND RS_CLIENT_ID = ?');
+            $stmt->bind_param('ssi', $login, $password, $clientID);
+        } else {
+            // If no password is supplied, preserve the existing badge authentication
+            // behavior: RSLogin contains the badge value to look up for this client.
+            $stmt = $mysqli->prepare('SELECT RS_USER_ID FROM rs_users WHERE RS_BADGE = ? AND RS_CLIENT_ID = ?');
+            $stmt->bind_param('si', $login, $clientID);
+        }
 
-    // A single user was found with the provided login and password
-    $row = $users->fetch_assoc();
-    return $row['RS_USER_ID'];
+        // Buffer the result so num_rows can verify that the credentials identify one
+        // and only one user. No match or an ambiguous match must fail closed.
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows != 1) {
+            error_log('RSCheckUserAccess: credentials matched ' . intval($stmt->num_rows) . ' users for clientID ' . $clientID);
+            $stmt->close();
+            return 0;
+        }
+
+        // Return the authenticated user's numeric ID to the authorization layer.
+        $stmt->bind_result($userID);
+        $stmt->fetch();
+        $stmt->close();
+        return intval($userID);
+    } catch (mysqli_sql_exception $exception) {
+        // Database errors are not authentication failures caused by bad credentials.
+        // Return -1 so callers can reject the request and distinguish this condition.
+        error_log('RSCheckUserAccess: database error for clientID ' . $clientID . ': ' . $exception->getMessage());
+        return -1;
+    }
 }
 
 

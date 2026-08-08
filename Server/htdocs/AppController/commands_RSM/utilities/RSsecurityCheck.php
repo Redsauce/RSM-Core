@@ -47,8 +47,16 @@ if (isset($GLOBALS[$cstRS_GET]['r'])) {
 	unset($GLOBALS[$cstRS_GET]['r']);
 }
 
-// If a clientID is given...
-if (isset($GLOBALS[$cstRS_POST][$cstClientID])) {
+// If a non-empty clientID is given, validate access against that specific client.
+// RSvalidateUser sends an empty clientID during the initial login lookup, so only
+// that empty value must follow the client-independent compatibility check below.
+if (isset($GLOBALS[$cstRS_POST][$cstClientID])
+	&& $GLOBALS[$cstRS_POST][$cstClientID] !== '') {
+	if (!is_numeric($GLOBALS[$cstRS_POST][$cstClientID])
+		|| intval($GLOBALS[$cstRS_POST][$cstClientID]) <= 0) {
+		RSReturnError("ACCESS DENIED", -5);
+	}
+
 	// and a token is given too...
 	$RSuserID = RSCheckUserAccess();
 
