@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //****************************************//
 //getScaledPicture.php
 //
@@ -29,6 +28,7 @@ header('Access-Control-Allow-Origin: *');
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
 
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 

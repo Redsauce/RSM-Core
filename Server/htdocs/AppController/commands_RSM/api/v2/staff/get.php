@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Gets a user's staffID.
@@ -20,6 +19,7 @@ header('Access-Control-Allow-Origin: *');
 // Database connection startup
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight('GET');
 checkCorrectRequestMethod('GET');
 
 $requestBody = getRequestBody();

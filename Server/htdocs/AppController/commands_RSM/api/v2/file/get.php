@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 //***************************************************************************************
 // Description:
 //    Returns a file from the cache or the database
@@ -12,6 +11,7 @@ header('Access-Control-Allow-Origin: *');
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
 
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 

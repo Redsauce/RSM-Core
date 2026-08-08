@@ -980,7 +980,9 @@ CREATE TABLE IF NOT EXISTS `rs_tokens` (
   `RS_CLIENT_ID` int(11) unsigned NOT NULL COMMENT 'Client that owns the token',
   `RS_CUSTOMER_ITEM_TYPE_ID` int(11) unsigned DEFAULT NULL COMMENT 'Customer item type scoped by this token',
   `RS_CUSTOMER_ITEM_ID` int(11) unsigned DEFAULT NULL COMMENT 'Customer item scoped by this token',
-  `RS_ENABLED` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'A token can only be used from the outside if it is enabled'
+  `RS_ENABLED` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'A token can only be used from the outside if it is enabled',
+  `RS_MASTER_TEMPLATE` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Master templates define permissions for child tokens and cannot authenticate',
+  `RS_PARENT_MASTER_TOKEN` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Client-local RS_ID of the master template used for permissions'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -1398,7 +1400,7 @@ ALTER TABLE `rs_server_addresses`
 -- Indexes for table `rs_tokens`
 --
 ALTER TABLE `rs_tokens`
- ADD PRIMARY KEY (`RS_TOKEN`), ADD UNIQUE KEY `RS_ID` (`RS_ID`,`RS_CLIENT_ID`);
+ ADD PRIMARY KEY (`RS_TOKEN`), ADD UNIQUE KEY `RS_ID` (`RS_ID`,`RS_CLIENT_ID`), ADD KEY `RS_PARENT_MASTER_TOKEN` (`RS_CLIENT_ID`,`RS_PARENT_MASTER_TOKEN`);
 
 --
 -- Indexes for table `rs_token_permissions`

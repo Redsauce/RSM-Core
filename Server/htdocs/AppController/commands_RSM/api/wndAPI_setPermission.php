@@ -22,6 +22,7 @@ $tokenID = RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
 // And add the permission to the database
 $results = RScreateTokenPermission($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],$GLOBALS[$cstRS_POST][$cstPropertyID],$GLOBALS[$cstRS_POST]['permission']);
                                                     
-$response['result'] = "OK";
+$response['result'] = $results ? "OK" : "NOK";
+if (!$results) $response['description'] = "CHILD TOKENS CANNOT OWN PERMISSIONS";
 
 RSReturnArrayResults($response);

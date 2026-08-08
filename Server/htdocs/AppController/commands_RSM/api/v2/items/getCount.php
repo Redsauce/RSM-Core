@@ -1,5 +1,4 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 // ****************************************************************************************
 //Description:
 //    Returns the number of items from the specified itemType with filter conditions
@@ -18,6 +17,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once '../../../utilities/RStools.php';
 require_once '../../../utilities/RSMverifyBody.php';
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 

@@ -122,6 +122,8 @@ function getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $u
 function getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken)
 {
     $clientID = RSclientFromToken($RStoken);
+    $permissionTokenID = RSgetEffectivePermissionTokenID($RStoken);
+    if ($permissionTokenID <= 0) return array();
 
     // build a fast query to get user properties
     $theQuery_getProperties = 'SELECT DISTINCT rs_categories.RS_NAME AS "cName",
@@ -134,13 +136,12 @@ function getPropertiesExtendedForItemAndToken($itemTypeID, $itemID, $RStoken)
         FROM rs_categories
                 INNER JOIN rs_item_properties USING (RS_CLIENT_ID, RS_CATEGORY_ID)
                 INNER JOIN rs_token_permissions USING (RS_CLIENT_ID, RS_PROPERTY_ID)
-                INNER JOIN rs_tokens USING (RS_CLIENT_ID)
 
         WHERE rs_categories.RS_ITEMTYPE_ID                 =     ' . $itemTypeID . '
                 AND rs_categories.RS_CLIENT_ID                 =     ' . $clientID . '
                 AND rs_item_properties.RS_CLIENT_ID        =     ' . $clientID . '
                 AND rs_token_permissions.RS_CLIENT_ID    =     ' . $clientID . '
-                AND rs_tokens.RS_TOKEN                                 = \'' . $RStoken . '\'
+                AND rs_token_permissions.RS_TOKEN_ID       =     ' . $permissionTokenID . '
 
         ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
 
@@ -3905,6 +3906,8 @@ function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs)
     $formattedPropertyIDs = rtrim($formattedPropertyIDs, ',') . ')';
 
     $clientID = RSclientFromToken($RStoken);
+    $permissionTokenID = RSgetEffectivePermissionTokenID($RStoken);
+    if ($permissionTokenID <= 0) return array();
 
     // build a fast query to get user properties
     $theQuery_getProperties = 'SELECT DISTINCT rs_categories.RS_NAME AS "cName",
@@ -3916,10 +3919,9 @@ function getPropertiesExtendedForToken($itemTypeID, $RStoken, $propertyIDs)
                                                AND rs_categories.RS_CATEGORY_ID = rs_item_properties.RS_CATEGORY_ID
                 INNER JOIN rs_token_permissions ON rs_categories.RS_CLIENT_ID = rs_token_permissions.RS_CLIENT_ID
                                                 AND rs_item_properties.RS_PROPERTY_ID = rs_token_permissions.RS_PROPERTY_ID
-                INNER JOIN rs_tokens ON rs_categories.RS_CLIENT_ID = rs_tokens.RS_CLIENT_ID
         WHERE rs_categories.RS_ITEMTYPE_ID                 =     ' . $itemTypeID . '
                 AND rs_token_permissions.RS_CLIENT_ID    =     ' . $clientID . '
-                AND rs_tokens.RS_TOKEN                                 = \'' . $RStoken . '\'
+                AND rs_token_permissions.RS_TOKEN_ID       =     ' . $permissionTokenID . '
                 AND rs_item_properties.RS_PROPERTY_ID IN ' . $formattedPropertyIDs . '
                 AND rs_token_permissions.RS_PERMISSION = "READ"
         ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';

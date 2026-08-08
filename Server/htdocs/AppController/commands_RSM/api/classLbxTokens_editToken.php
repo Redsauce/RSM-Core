@@ -25,9 +25,18 @@ $clientID = $RStoken != "" ? RSclientFromToken($RStoken) : 0;
 $hasItemTypeID = isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) && $GLOBALS[$cstRS_POST][$cstItemTypeID] !== "";
 $hasItemID = isset($GLOBALS[$cstRS_POST]['itemID']) && $GLOBALS[$cstRS_POST]['itemID'] !== "";
 $hasTokenAlias = isset($GLOBALS[$cstRS_POST]['tokenAlias']);
+$hasImmutableRoleFields = isset($GLOBALS[$cstRS_POST]['isMasterTemplate'])
+    || isset($GLOBALS[$cstRS_POST]['parentMasterToken'])
+    || isset($GLOBALS[$cstRS_POST]['parentMasterTokenID']);
 
 if ($RStoken == "" || $clientID <= 0) {
     $response['result'] = "NOK";
+    RSReturnArrayResults($response);
+}
+
+if ($hasImmutableRoleFields) {
+    $response['result'] = "NOK";
+    $response['description'] = "TOKEN ROLE AND MASTER RELATIONSHIP ARE IMMUTABLE";
     RSReturnArrayResults($response);
 }
 

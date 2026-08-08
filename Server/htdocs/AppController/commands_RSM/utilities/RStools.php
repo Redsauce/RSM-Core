@@ -584,6 +584,33 @@ function setAuthorizationTokenOnGlobals()
     }
 }
 
+function setApiCorsHeaders($allowedMethods = array())
+{
+    if (!is_array($allowedMethods)) {
+        $allowedMethods = array($allowedMethods);
+    }
+
+    $allowedMethods = array_map('strtoupper', $allowedMethods);
+    if (!in_array('OPTIONS', $allowedMethods)) {
+        $allowedMethods[] = 'OPTIONS';
+    }
+
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: ' . implode(', ', $allowedMethods));
+    header('Access-Control-Allow-Headers: Authorization, Content-Type');
+}
+
+function handleApiCorsPreflight($allowedMethods = array())
+{
+    setApiCorsHeaders($allowedMethods);
+
+    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+        header('Access-Control-Max-Age: 86400');
+        http_response_code(204);
+        exit;
+    }
+}
+
 // Returns the property value with the "'" and "&" characters escaped
 function replaceUtf8Characters($propertyValue)
 {
@@ -713,9 +740,12 @@ function checkCorrectRequestMethod($requestMethod)
 {
     global $RSallowDebug;
 
-    header('Access-Control-Allow-Methods: ' . $requestMethod);
+    setApiCorsHeaders($requestMethod);
 
-    if ($requestMethod != $_SERVER["REQUEST_METHOD"]) {
+    $allowedMethods = is_array($requestMethod) ? $requestMethod : array($requestMethod);
+    $allowedMethods = array_map('strtoupper', $allowedMethods);
+
+    if (!in_array($_SERVER["REQUEST_METHOD"], $allowedMethods)) {
         if ($RSallowDebug) {
             returnJsonMessage(400, "Wrong request method");
         } else {

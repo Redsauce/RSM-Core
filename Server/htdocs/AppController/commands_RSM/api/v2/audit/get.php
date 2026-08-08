@@ -13,6 +13,7 @@
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
 
+handleApiCorsPreflight('GET');
 setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('GET');
 
