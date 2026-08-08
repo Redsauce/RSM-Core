@@ -8,7 +8,7 @@
 //   The only needed parameter is the clientID that is already passed in every petition
 //
 // RETURN
-//     token: The token itself, as a 32-character string (MD5 hash)
+//     token: The token itself, as a 32-character random hexadecimal string
 // ***************************************************************************************
 
 // Database connection startup
@@ -26,33 +26,18 @@ if (($customerItemTypeID == 0 && $customerItemID != 0) || ($customerItemTypeID !
     dieWithError(400);
 }
 
+// Generate secure 32-character tokens until one is not already stored.
 do {
-    // We assume the token does not exist
-    $exists = false;
+    $token = bin2hex(random_bytes(16));
+    $countResult = RScountToken($token);
+    $countRow = $countResult ? $countResult->fetch_assoc() : null;
 
-    // Let's generate a token (32 chars hex string)
-    // We use random_bytes for cryptographic security instead of md5(rand)
-    try {
-        $token = bin2hex(random_bytes(16));
-    } catch (Exception $e) {
-        // Fallback if random_bytes fails
-        $token = md5(uniqid(rand(), true));
+    if (!$countRow || !isset($countRow['total'])) {
+        dieWithError(400);
     }
+} while ((int) $countRow['total'] > 0);
 
-    // Ask the database for tokens like the new one
-    $results = RScountToken($token);
-
-    // Obtain the data from the query
-    if ($results && $result = $results->fetch_assoc()) {
-        // Check if we found a token like ours in the database
-        if ($result['total'] != 0) {
-            $exists = true; // The token is already stored in the database. We must generate a new one
-        }
-    }
-
-} while ($exists);
-
-// If the execution reaches this point, the token does not exist so we can insert it
+// Insert the generated token.
 // RScreateToken() is defined in Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php
 $results = RScreateToken($token, $GLOBALS[$cstRS_POST][$cstClientID], $customerItemTypeID, $customerItemID);
 
