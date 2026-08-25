@@ -223,4 +223,4 @@ ALTER TABLE rs_tokens ADD INDEX IF NOT EXISTS RS_PARENT_MASTER_TOKEN (RS_CLIENT_
 
 # Create the application property for files attached to financial documents
 INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_TYPE)
-VALUES ('financial.documents.file', 37, 'File attached to the financial document', 'file');
+VALUES ('financial.documents.file', 37, 'File attached to the financial document', 'identifier2property');
