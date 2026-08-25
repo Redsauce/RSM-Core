@@ -220,3 +220,7 @@ DELETE FROM rs_lists_app where RS_NAME = 'studies.status';
 ALTER TABLE rs_tokens ADD IF NOT EXISTS RS_MASTER_TEMPLATE BOOL DEFAULT FALSE NOT NULL;
 ALTER TABLE rs_tokens ADD IF NOT EXISTS RS_PARENT_MASTER_TOKEN int(11) unsigned DEFAULT 0 NOT NULL;
 ALTER TABLE rs_tokens ADD INDEX IF NOT EXISTS RS_PARENT_MASTER_TOKEN (RS_CLIENT_ID, RS_PARENT_MASTER_TOKEN);
+
+# Create the application property for files attached to financial documents
+INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_TYPE)
+VALUES ('financial.documents.file', 37, 'File attached to the financial document', 'file');
