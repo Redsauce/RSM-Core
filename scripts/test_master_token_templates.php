@@ -87,6 +87,8 @@ $masterTokenRows = array(
 
 $masterTokenPermissions = array(
     '10:100:READ' => true,
+    '10:200:READ' => true,
+    '10:201:READ' => true,
     '11:101:READ' => true, // unexpected child row must never be used
     '1:102:WRITE' => true,
 );
@@ -161,6 +163,19 @@ function RSQuery($query, $registerError = true) {
 }
 
 function ParsePID($propertyID, $clientID) { return intval($propertyID); }
+function getPropertyType($propertyID, $clientID) {
+    if (intval($propertyID) === 200) return 'identifiers';
+    if (intval($propertyID) === 201) return 'text';
+    return 'text';
+}
+function getClientPropertyReferredItemType($propertyID, $clientID) {
+    if (intval($propertyID) === 200) return 39;
+    return 0;
+}
+function getMainPropertyID($itemTypeID, $clientID) {
+    if (intval($itemTypeID) === 39) return 300;
+    return 0;
+}
 
 require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php';
 
@@ -181,6 +196,13 @@ assertMasterToken(RSgetMasterTokenID('master', 8) === 0, 'Master token lookup mu
 assertMasterToken(RSgetMasterTokenID('standalone', 7) === 0, 'A standalone token must not resolve as a master parent');
 assertMasterToken(RSgetEffectivePermissionTokenID('child') === 10, 'Child must resolve its master permission owner');
 assertMasterToken(RShasTokenPermission('child', 100, 'READ'), 'Child must use a permission granted to its master');
+assertMasterToken(RShasTokenPermission('child', 200, 'READ'), 'Identifier property must be readable without translation permission expansion');
+$GLOBALS[$cstRS_POST]['translateIDs'] = 'true';
+assertMasterToken(!RShasTokenPermission('child', 200, 'READ'), 'Translated identifiers must require READ on the related main property');
+$masterTokenPermissions['10:300:READ'] = true;
+assertMasterToken(RShasTokenPermission('child', 200, 'READ'), 'Translated identifiers must pass when the related main property is readable');
+assertMasterToken(RShasTokenPermission('child', 201, 'READ'), 'Non-identifier properties must not require translation permissions');
+unset($GLOBALS[$cstRS_POST]['translateIDs']);
 assertMasterToken(!RShasTokenPermission('child', 101, 'READ'), 'Unexpected child permission row must be ignored');
 assertMasterToken(!RScreateTokenPermission(11, 7, 100, 'READ'), 'Permission writes targeting children must be rejected');
 assertMasterToken(RSisCustomerScopedToken('standalone'), 'Existing customer-scoped standalone token must keep its scope');
@@ -205,6 +227,7 @@ $newTokenEndpoint = file_get_contents($repoRoot . '/Server/htdocs/AppController/
 $editTokenEndpoint = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/api/classLbxTokens_editToken.php');
 $securityCheck = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/utilities/RSsecurityCheck.php');
 $tokenUtilities = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/utilities/RSMtokensManagement.php');
+$v2GetItemsEndpoint = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/api/v2/items/get.php');
 $permissionReadEndpoint = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/api/wndAPI_getPermissions.php');
 $schema = file_get_contents($repoRoot . '/Database/schema.sql');
 $migration = file_get_contents($repoRoot . '/Server/htdocs/AppController/commands_RSM/updater/server/phpUpdate_From_v6.9.0.3.164_to_v7.0.0.3.165/update_post.sql');
@@ -219,6 +242,7 @@ assertMasterToken(strpos($editTokenEndpoint, "['parentMasterToken']") !== false,
 assertMasterToken(strpos($tokenUtilities, "RS_MASTER_TEMPLATE AS 'isMasterTemplate'") !== false, 'Token listing must expose master status');
 assertMasterToken(strpos($tokenUtilities, "RS_PARENT_MASTER_TOKEN AS 'parentMasterTokenID'") !== false, 'Token listing must expose parent ID');
 assertMasterToken(strpos($tokenUtilities, "RS_ID AS 'ID'") !== false, 'Token listing must expose each client-local ID');
+assertMasterToken(strpos($v2GetItemsEndpoint, "['translateIDs'] = 'true'") !== false, 'v2 item reads must expose translateIDs to the shared v1 permission rule');
 assertMasterToken(strpos($permissionReadEndpoint, 'RSgetEffectivePermissionTokenID') !== false, 'Permission reads must resolve inherited permissions');
 assertMasterToken(substr_count($securityCheck, 'RSisTokenEnabled(') >= 3, 'POST and GET API authentication paths must use centralized token validation');
 assertMasterToken(strpos($schema, '`RS_PARENT_MASTER_TOKEN`') !== false, 'Canonical schema must define RS_PARENT_MASTER_TOKEN');

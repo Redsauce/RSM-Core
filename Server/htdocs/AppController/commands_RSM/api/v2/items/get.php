@@ -67,6 +67,9 @@ if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
 $translateIDs = false;
 if (isset($requestBody->translateIDs) && $requestBody->translateIDs) {
   $translateIDs = true;
+  // v1 reads translateIDs from the sanitized POST globals inside RShasTokenPermission().
+  // v2 receives JSON, so mirror the flag there to reuse the same permission rule.
+  $GLOBALS[$cstRS_POST]['translateIDs'] = 'true';
 }
 
 // systemNames
@@ -88,7 +91,8 @@ if ($itemTypeID <= 0) {
 }
 
 //propertyIDs
-if ($propertyIDs == '') {
+$allPropertiesRequested = ($propertyIDs == '');
+if ($allPropertiesRequested) {
   $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
 
@@ -112,9 +116,19 @@ $visiblePropertyIDs = array();
 
 if (is_array($propertyIDs)) {
   foreach ($propertyIDs as $singlePropertyID) {
-    if (RShasTokenPermission($RStoken, $singlePropertyID, 'READ') || (isPropertyVisible($RSuserID, $singlePropertyID, $clientID))) {
-      $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    $hasTokenReadPermission = RShasTokenPermission($RStoken, $singlePropertyID, 'READ');
+    $hasVisibleProperty = isPropertyVisible($RSuserID, $singlePropertyID, $clientID);
+    if (!$hasTokenReadPermission && !$hasVisibleProperty) {
+      // For explicit properties, v1 rejects the request instead of silently
+      // dropping the property. This includes translated identifiers whose
+      // related main property is not readable by the token.
+      if (!$allPropertiesRequested) {
+        $RSallowDebug ? returnJsonMessage(403, 'No permissions to read these items') : returnJsonMessage(403, '');
+      }
+      continue;
     }
+
+    $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
   }
 }
 
