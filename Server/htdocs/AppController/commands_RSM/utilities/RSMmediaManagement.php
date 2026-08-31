@@ -30,7 +30,6 @@ function getMediaFile($clientID,$itemID,$propertyID){
     $file['RS_DATA'] = curl_exec($ch);
 
     // close cURL resource, and free up system resources
-    curl_close($ch);
 
     $file['RS_NAME'] = $curlFileName;
 
@@ -67,7 +66,6 @@ function setMediaFile($clientID,$itemID,$propertyID,$file_data,$file_name){
     $xmlret = curl_exec($ch);
 
     // close cURL resource, and free up system resources
-    curl_close($ch);
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
@@ -114,7 +112,6 @@ function deleteMediaFile($clientID,$itemID,$propertyID){
     $xmlret = curl_exec($ch);
 
     // close cURL resource, and free up system resources
-    curl_close($ch);
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
@@ -161,7 +158,6 @@ function duplicateMediaProperty($clientID,$propertyIDstart,$propertyIDend){
     $xmlret = curl_exec($ch);
 
     // close cURL resource, and free up system resources
-    curl_close($ch);
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
@@ -207,7 +203,6 @@ function deleteMediaProperty($clientID,$propertyID){
     $xmlret = curl_exec($ch);
 
     // close cURL resource, and free up system resources
-    curl_close($ch);
 
     // parse xml
     $xml = simplexml_load_string($xmlret);
