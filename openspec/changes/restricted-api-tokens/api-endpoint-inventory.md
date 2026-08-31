@@ -30,7 +30,6 @@
 - `api/v2/picture/get.php`
 - `api/v2/properties/get.php`
 - `api/v2/staff/get.php`
-- `api/v2/user/get.php`
 
 ### Token-management endpoints
 

@@ -46,7 +46,7 @@
 - [x] 3.7 Enforce customer scope in `api/v2/file/get.php` and `api/v2/picture/get.php` before returning binary property data.
 - [x] 3.8 Enforce customer scope in `api/v2/properties/get.php` before returning item property metadata or values.
 - [x] 3.9 Enforce customer scope in `api/v2/audit/get.php` before returning audit trail data.
-- [x] 3.10 Enforce fail-closed customer scope behavior in `api/v2/staff/get.php` and `api/v2/user/get.php`, validating user lookup through the linked `rs_users.RS_ITEM_ID` staff item rather than `RS_USER_ID`.
+- [x] 3.10 Enforce fail-closed customer scope behavior in `api/v2/staff/get.php`, validating lookup through the linked `rs_users.RS_ITEM_ID` staff item rather than `RS_USER_ID`.
 
 ## 4. API v1 Item and Property Endpoints
 
