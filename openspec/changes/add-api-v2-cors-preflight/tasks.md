@@ -14,6 +14,6 @@
 ## 3. Verification
 
 - [x] 3.1 Run PHP syntax checks on all modified PHP files.
-- [ ] 3.2 Verify `OPTIONS /api/v2/items/get.php` returns 2xx and includes `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods` containing `GET`, `POST`, and `OPTIONS`, `Access-Control-Allow-Headers: Authorization, Content-Type`, and `Access-Control-Max-Age: 86400`.
-- [ ] 3.3 Verify representative non-GET endpoints, including `items/create.php`, return 2xx preflight responses with the correct method in `Access-Control-Allow-Methods`.
-- [ ] 3.4 Verify real API v2 requests still include `Access-Control-Allow-Origin: *` and preserve existing authentication, validation, permission, and response behavior.
+- [x] 3.2 Verify `OPTIONS /api/v2/items/get.php` returns 2xx and includes `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods` containing `GET`, `POST`, and `OPTIONS`, `Access-Control-Allow-Headers: Authorization, Content-Type`, and `Access-Control-Max-Age: 86400`.
+- [x] 3.3 Verify representative non-GET endpoints, including `items/create.php`, return 2xx preflight responses with the correct method in `Access-Control-Allow-Methods`.
+- [x] 3.4 Verify real API v2 requests still include `Access-Control-Allow-Origin: *` and preserve existing authentication, validation, permission, and response behavior.

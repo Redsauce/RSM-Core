@@ -64,18 +64,18 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Verify standard tokens still authenticate and authorize existing API v1 item operations without customer-scope filtering.
-- [ ] 5.2 Verify standard tokens still authenticate and authorize existing API v2 item operations without customer-scope filtering.
-- [ ] 5.3 Verify customer-scoped tokens can read/list/count only items with the matching customer dependency.
+- [x] 5.1 Verify standard tokens still authenticate and authorize existing API v1 item operations without customer-scope filtering.
+- [x] 5.2 Verify standard tokens still authenticate and authorize existing API v2 item operations without customer-scope filtering.
+- [x] 5.3 Verify customer-scoped tokens can read/list/count only items with the matching customer dependency.
 - [ ] 5.4 Verify customer-scoped tokens cannot create, update, or delete items outside their customer scope.
-- [ ] 5.5 Verify customer-scoped tokens cannot read file or picture data from items outside their customer scope.
-- [ ] 5.6 Verify customer-scoped tokens cannot read properties or audit trail from items outside their customer scope.
+- [x] 5.5 Verify customer-scoped tokens cannot read file or picture data from items outside their customer scope.
+- [x] 5.6 Verify customer-scoped tokens cannot read properties or audit trail from items outside their customer scope.
 - [ ] 5.7 Verify customer-scoped tokens cannot retrieve staff/user IDs unless the matched staff item is inside scope.
-- [ ] 5.8 Verify property permissions are still required when customer scope passes.
+- [x] 5.8 Verify property permissions are still required when customer scope passes.
 - [x] 5.9 Verify every API PHP endpoint appears in the endpoint inventory with an enforcement or exemption decision.
 - [x] 5.10 Run the available PHP linting or endpoint-level regression checks for all touched API and utility files.
 - [ ] 5.11 Verify a valid edit-token request without `clientID` updates the expected scope fields for the selected token after inferring the client from that token.
-- [ ] 5.12 Verify a valid edit-token request that omits `tokenAlias` preserves the existing `RS_TOKEN_ALIAS`.
-- [ ] 5.13 Verify a valid edit-token request that omits both `itemTypeID` and `itemID` but includes `tokenAlias` preserves both scope fields and updates the alias.
-- [ ] 5.14 Verify a valid edit-token request that omits `itemTypeID`, `itemID`, and `tokenAlias` leaves `rs_tokens` unchanged.
-- [ ] 5.15 Verify edit-token requests with invalid login/password for the token's client, partial scope values, or a missing item do not update `rs_tokens`.
+- [x] 5.12 Verify a valid edit-token request that omits `tokenAlias` preserves the existing `RS_TOKEN_ALIAS`.
+- [x] 5.13 Verify a valid edit-token request that omits both `itemTypeID` and `itemID` but includes `tokenAlias` preserves both scope fields and updates the alias.
+- [x] 5.14 Verify a valid edit-token request that omits `itemTypeID`, `itemID`, and `tokenAlias` leaves `rs_tokens` unchanged.
+- [x] 5.15 Verify edit-token requests with invalid login/password for the token's client, partial scope values, or a missing item do not update `rs_tokens`.

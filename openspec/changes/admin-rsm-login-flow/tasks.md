@@ -16,7 +16,7 @@
 
 - [ ] 3.1 Manually verify `api/v2/user/get.php` returns every matching `userID`/`clientID` pair for valid `login` and MD5 `password` without `RStoken` or `clientID`.
 - [ ] 3.2 Manually verify `api/v2/user/get.php` rejects invalid credentials and plaintext password values that do not match the stored MD5 hash.
-- [ ] 3.3 Manually verify `api/v2/staff/get.php` rejects a request with valid credentials but missing `clientID`.
-- [ ] 3.4 Manually verify `api/v2/staff/get.php` returns the staff item ID for valid `clientID`, `login`, and MD5 `password` without any token.
-- [ ] 3.5 Manually verify `api/v2/staff/get.php` does not return a staff item ID for wrong-client credentials.
+- [x] 3.3 Manually verify `api/v2/staff/get.php` rejects a request with valid credentials but missing `clientID`.
+- [x] 3.4 Manually verify `api/v2/staff/get.php` returns the staff item ID for valid `clientID`, `login`, and MD5 `password` without any token.
+- [x] 3.5 Manually verify `api/v2/staff/get.php` does not return a staff item ID for wrong-client credentials.
 - [x] 3.6 Run PHP linting on `api/v2/user/get.php` and `api/v2/staff/get.php`.
