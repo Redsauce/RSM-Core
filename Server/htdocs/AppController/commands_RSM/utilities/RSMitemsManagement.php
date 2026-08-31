@@ -3175,6 +3175,400 @@ function IQ_getItems($itemTypeID, $clientID, $sort = true, $ids = '', $limit = '
     return RSQuery("SELECT items.RS_ITEM_ID AS 'ID', " . convertData('mainProps.RS_DATA', $mainPropertyType) . " AS 'mainValue' " . "FROM rs_items items LEFT JOIN " . $propertiesTables[$mainPropertyType] . " mainProps " . "ON ( " . "mainProps.RS_PROPERTY_ID = " . $mainPropertyID . " AND " . "mainProps.RS_ITEMTYPE_ID = items.RS_ITEMTYPE_ID        AND " . "mainProps.RS_ITEM_ID         = items.RS_ITEM_ID                AND " . "mainProps.RS_CLIENT_ID     = items.RS_CLIENT_ID " . ") " . "WHERE (" . "items.RS_ITEMTYPE_ID = " . $itemTypeID . " " . "AND items.RS_CLIENT_ID = " . $clientID . $inClause . ")" . $orderBy . $limitClause);
 }
 
+
+// Cache local para una sola llamada a getFilteredItemsIDs() dentro del flujo optimizado.
+// Este cache solo guarda metadatos estables durante la lectura: tipo, default y propiedad principal.
+// No es global para evitar datos obsoletos si un endpoint modifica metadatos en la misma request.
+// Cuando $metadataCache es null, el helper llama directamente a la funcion original y no cachea nada.
+function RSMgetFilteredPropertyType($propertyID, $clientID, &$metadataCache)
+{
+    // Cache desactivado para caminos donde no esperamos reutilizar este dato.
+    if ($metadataCache === null) {
+        return getPropertyType($propertyID, $clientID);
+    }
+
+    // El bucket separa tipos de propiedad de otros metadatos cacheados.
+    if (!isset($metadataCache['propertyType'])) {
+        $metadataCache['propertyType'] = array();
+    }
+
+    // La clave incluye cliente porque el mismo ID de propiedad puede existir por cliente.
+    $key = $clientID . ':' . $propertyID;
+    if (!array_key_exists($key, $metadataCache['propertyType'])) {
+        $metadataCache['propertyType'][$key] = getPropertyType($propertyID, $clientID);
+    }
+
+    return $metadataCache['propertyType'][$key];
+}
+
+function RSMgetFilteredPropertyDefaultValue($propertyID, $clientID, &$metadataCache)
+{
+    // El default se consulta durante filtros; cachearlo evita repetir la misma lectura.
+    if ($metadataCache === null) {
+        return getClientPropertyDefaultValue($propertyID, $clientID);
+    }
+
+    if (!isset($metadataCache['propertyDefault'])) {
+        $metadataCache['propertyDefault'] = array();
+    }
+
+    $key = $clientID . ':' . $propertyID;
+    if (!array_key_exists($key, $metadataCache['propertyDefault'])) {
+        $metadataCache['propertyDefault'][$key] = getClientPropertyDefaultValue($propertyID, $clientID);
+    }
+
+    return $metadataCache['propertyDefault'][$key];
+}
+
+function RSMgetFilteredMainPropertyID($itemTypeID, $clientID, &$metadataCache)
+{
+    // mainValue necesita la propiedad principal del item type para construir el ORDER BY.
+    if ($metadataCache === null) {
+        return getMainPropertyID($itemTypeID, $clientID);
+    }
+
+    if (!isset($metadataCache['mainPropertyID'])) {
+        $metadataCache['mainPropertyID'] = array();
+    }
+
+    $key = $clientID . ':' . $itemTypeID;
+    if (!array_key_exists($key, $metadataCache['mainPropertyID'])) {
+        $metadataCache['mainPropertyID'][$key] = getMainPropertyID($itemTypeID, $clientID);
+    }
+
+    return $metadataCache['mainPropertyID'][$key];
+}
+
+// Primera fase: obtener solo los IDs que cumplen los filtros.
+// Las propiedades de retorno se cargan despues para evitar joins grandes.
+function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties = array(), $orderBy = '', $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, &$metadataCache = array())
+{
+    global $propertiesTables;
+
+    if ($filtersJoining == "") {
+        $filtersJoining = "AND";
+    }
+
+    $queryPartSELECT = "SELECT DISTINCT rs_items.RS_ITEM_ID AS 'ID'";
+    if ($returnOrder) {
+        // Algunos callers necesitan conservar el orden propio del item.
+        $queryPartSELECT .= ", rs_items.RS_ORDER AS 'ITEM_ORDER'";
+    }
+
+    $queryPartFROM = "FROM rs_items";
+
+    if ($ids != '') {
+        $queryPartWHERE = "
+            WHERE (rs_items.RS_ITEMTYPE_ID = " . $itemTypeID . "
+                    AND rs_items.RS_CLIENT_ID = " . $clientID . "
+                    AND rs_items.RS_ITEM_ID IN (" . $ids . "))";
+    } else {
+        $queryPartWHERE = "
+            WHERE (rs_items.RS_ITEMTYPE_ID = " . $itemTypeID . "
+                    AND rs_items.RS_CLIENT_ID = " . $clientID . ")";
+    }
+
+    $filterPropertyIds = array();
+    $rejectedFilterPropertyIds = array();
+
+    if (is_array($filterProperties) && count($filterProperties) > 0) {
+        $arrEquals = array('IN', '<-IN', '=', '>=', '<=', 'SAME_OR_BEFORE', 'SAME_OR_AFTER', 'TIME_SAME_OR_BEFORE', 'TIME_SAME_OR_AFTER', 'LIKE', 'GE', 'LE');
+
+        foreach ($filterProperties as $property) {
+            if ($property['ID'] == '0' || $property['ID'] == '')
+                continue;
+
+            if (!array_key_exists($property['ID'], $filterPropertyIds) && !in_array($property['ID'], $rejectedFilterPropertyIds)) {
+                $filterPropertyType = RSMgetFilteredPropertyType($property['ID'], $clientID, $metadataCache);
+                $filterPropertyDefault = RSMgetFilteredPropertyDefaultValue($property['ID'], $clientID, $metadataCache);
+
+                if ($filterPropertyType != "file" && $filterPropertyType != "image") {
+                    $filterPropertyIds[$property['ID']] = array("type" => $filterPropertyType, "default" => $filterPropertyDefault, "defaultCompare" => 0, "filters" => array());
+                } else {
+                    $rejectedFilterPropertyIds[] = $property['ID'];
+                }
+            }
+
+            if (!in_array($property['ID'], $rejectedFilterPropertyIds)) {
+                $filterPropertyIds[$property['ID']]["filters"][] = $property;
+                if ($property['value'] == $filterPropertyIds[$property['ID']]["default"] && (isset($property['mode']) && in_array($property['mode'], $arrEquals))) {
+                    $filterPropertyIds[$property['ID']]["defaultCompare"] = 1;
+                }
+            }
+        }
+
+        $subQueryCount = 0;
+        $filterPartWHERE = "";
+        foreach ($filterPropertyIds as $propertyId => $propertyValue) {
+            if ($propertyValue["defaultCompare"] == 1) {
+                $queryPartFROM .= " LEFT JOIN " . $propertiesTables[$propertyValue["type"]] . " filter" . $propertyId . " ON (rs_items.RS_ITEMTYPE_ID = filter" . $propertyId . ".RS_ITEMTYPE_ID AND rs_items.RS_ITEM_ID = filter" . $propertyId . ".RS_ITEM_ID AND rs_items.RS_CLIENT_ID = filter" . $propertyId . ".RS_CLIENT_ID AND filter" . $propertyId . ".RS_PROPERTY_ID = " . $propertyId . ")";
+                $filterPartWHERE .= "(";
+            } else {
+                $queryPartFROM .= " INNER JOIN " . $propertiesTables[$propertyValue["type"]] . " filter" . $propertyId . " ON (rs_items.RS_ITEMTYPE_ID = filter" . $propertyId . ".RS_ITEMTYPE_ID AND rs_items.RS_ITEM_ID = filter" . $propertyId . ".RS_ITEM_ID AND rs_items.RS_CLIENT_ID = filter" . $propertyId . ".RS_CLIENT_ID)";
+                $filterPartWHERE .= "(filter" . $propertyId . ".RS_PROPERTY_ID = " . $propertyId . " AND (";
+            }
+
+            if ($orderBy == $propertyId)
+                $orderBy = 'filter' . $propertyId . '.RS_DATA';
+
+            foreach ($propertyValue["filters"] as $filter) {
+                $tmpFilter = "";
+
+                if (!isset($filter['translate'])) {
+                    if (isset($filter['mode'])) {
+                        $tmpFilter = _getFilterClause($filter);
+                    } else {
+                        $tmpFilter = "FIND_IN_SET('" . $filter['value'] . "', filter" . $propertyId . ".RS_DATA) > 0";
+                    }
+                } else {
+                    $subQueryCount++;
+                    if (isset($filter['mode'])) {
+                        $tmpFilter = _getTranslatedFilterClause($filter, $propertyValue['type'], $subQueryCount, $clientID);
+                    } else {
+                        $tmpFilter = "'" . $filter['value'] . "' IN " . _getTranslatedFilterSubquery($filter, $propertyValue['type'], $subQueryCount, $clientID);
+                    }
+                }
+
+                if (!(strtolower($filtersJoining) == "and" && ($filter['value'] != $propertyValue['default'] || (isset($filter['mode']) && !in_array($filter['mode'], $arrEquals))))) {
+                    $tmpFilter = "(" . $tmpFilter . " OR filter" . $propertyId . ".RS_DATA IS NULL)";
+                }
+
+                $filterPartWHERE .= $tmpFilter . " " . $filtersJoining . " ";
+            }
+
+            $filterPartWHERE = substr($filterPartWHERE, 0, 0 - (strlen($filtersJoining) + 1)) . ")";
+
+            if ($propertyValue["defaultCompare"] != 1) {
+                $filterPartWHERE .= ")";
+            }
+
+            $filterPartWHERE .= " " . $filtersJoining . " ";
+        }
+
+        if ($filterPartWHERE != "") {
+            $queryPartWHERE .= " AND ( " . substr($filterPartWHERE, 0, 0 - (strlen($filtersJoining) + 1)) . ")";
+        }
+    }
+
+    // Si se ordena por una propiedad, se une solo esa propiedad para ordenar.
+    if ($orderBy == 'mainValue') {
+        $mainPropertyID = RSMgetFilteredMainPropertyID($itemTypeID, $clientID, $metadataCache);
+        $mainPropertyType = RSMgetFilteredPropertyType($mainPropertyID, $clientID, $metadataCache);
+        if ($mainPropertyID != '' && $mainPropertyID != '0' && $mainPropertyType != '') {
+            $queryPartFROM .= " LEFT JOIN " . $propertiesTables[$mainPropertyType] . " orderValue ON (rs_items.RS_ITEMTYPE_ID = orderValue.RS_ITEMTYPE_ID AND rs_items.RS_ITEM_ID = orderValue.RS_ITEM_ID AND rs_items.RS_CLIENT_ID = orderValue.RS_CLIENT_ID AND orderValue.RS_PROPERTY_ID = " . $mainPropertyID . ")";
+            $orderBy = 'orderValue.RS_DATA';
+        }
+    } elseif (is_array($returnProperties) && count($returnProperties) > 0) {
+        foreach ($returnProperties as $property) {
+            if ($property['ID'] == 0) continue;
+            if ($orderBy == $property['name'] || $orderBy == $property['ID']) {
+                $orderPropertyType = RSMgetFilteredPropertyType($property['ID'], $clientID, $metadataCache);
+                if ($orderPropertyType != '') {
+                    $queryPartFROM .= " LEFT JOIN " . $propertiesTables[$orderPropertyType] . " orderValue ON (rs_items.RS_ITEMTYPE_ID = orderValue.RS_ITEMTYPE_ID AND rs_items.RS_ITEM_ID = orderValue.RS_ITEM_ID AND rs_items.RS_CLIENT_ID = orderValue.RS_CLIENT_ID AND orderValue.RS_PROPERTY_ID = " . $property['ID'] . ")";
+                    $orderBy = 'orderValue.RS_DATA';
+                }
+                break;
+            }
+        }
+    }
+
+    ($orderBy == '') ? $queryPartORDERBY = '' : $queryPartORDERBY = 'ORDER BY ' . $orderBy;
+    ($limit != '') ? $queryPartLIMIT = 'LIMIT ' . $limit : $queryPartLIMIT = '';
+
+    return RSQuery($queryPartSELECT . " " . $queryPartFROM . " " . $queryPartWHERE . " " . $queryPartORDERBY . " " . $queryPartLIMIT);
+}
+
+// Segunda fase: con los IDs ya filtrados, leer las propiedades por lotes.
+function RShydrateFilteredItemsProperties($items, $itemTypeID, $clientID, $returnProperties, &$propertiesToTranslate = array(), $returnOrder = 0, &$metadataCache = array())
+{
+    if (!is_array($items) || count($items) == 0 || !is_array($returnProperties) || count($returnProperties) == 0) {
+        return $items;
+    }
+
+    // Preparar la lista de IDs para las consultas IN (...).
+    $itemIDs = array();
+    foreach ($items as $item) {
+        if (isset($item['ID'])) {
+            $itemIDs[] = intval($item['ID']);
+        }
+    }
+
+    $itemIDs = array_values(array_unique($itemIDs));
+    if (count($itemIDs) == 0) {
+        return $items;
+    }
+
+    // Cada propiedad se lee aparte, evitando un JOIN por columna devuelta.
+    foreach ($returnProperties as $property) {
+        if ($property['ID'] == 0) continue;
+
+        $propertyID = intval($property['ID']);
+        $propertyName = $property['name'];
+        $propertyType = RSMgetFilteredPropertyType($propertyID, $clientID, $metadataCache);
+        if ($propertyType == '') continue;
+
+        foreach ($items as $index => $item) {
+            if (!array_key_exists($propertyName, $items[$index])) {
+                $items[$index][$propertyName] = null;
+            }
+        }
+
+        if ($propertyType != "file" && $propertyType != "image" && isIdentifier($propertyID, $clientID, $propertyType)) {
+            // Guardar metadatos para traducir identificadores al final.
+            $property['type'] = $propertyType;
+            $propertiesToTranslate[] = $property;
+        }
+
+        // getItemsPropertyValues ya devuelve los valores indexados por item.
+        $orderArray = array();
+        $values = getItemsPropertyValues($propertyID, $clientID, implode(',', $itemIDs), $propertyType, $itemTypeID, false, $returnOrder, $orderArray);
+        if (!is_array($values)) continue;
+
+        foreach ($items as $index => $item) {
+            $itemID = $item['ID'];
+            if (array_key_exists($itemID, $values)) {
+                $items[$index][$propertyName] = $values[$itemID];
+            }
+            if ($returnOrder && array_key_exists($itemID, $orderArray)) {
+                $items[$index][$propertyName . '_ord'] = $orderArray[$itemID];
+            }
+        }
+    }
+
+    return $items;
+}
+
+// Para respuestas grandes, escribir el array hidratado en XML temporal.
+// Mantiene el contrato anterior de devolver un archivo cuando se permite.
+function RSfilteredItemsArrayToXML($items, $clientID, $itemTypeID, $propertiesToTranslate = array(), $extFilterRules = "", $decodeEntities = false)
+{
+    global $RStempPath;
+    global $cstCDATAseparator;
+    global $cstMainPropertyID;
+    global $cstMainPropertyType;
+    global $cstReferredItemTypeID;
+    global $cstUTF8;
+
+    if (!is_array($items)) return false;
+
+    $filename = @tempnam($RStempPath, "RSR");
+    if (!$filename) return false;
+
+    $writer = new XMLWriter();
+    $writer->openUri($filename);
+    $writer->setIndentString('  ');
+    $writer->setIndent(true);
+    $writer->startDocument('1.0', 'UTF-8');
+    $writer->startElement('RSRecordset');
+    $writer->startElement('rows');
+
+    // Preparar filtros externos una sola vez antes de escribir filas.
+    $extFilterArr = explode(',', $extFilterRules);
+    $extFilters = array();
+    if ($extFilterRules != "") {
+        foreach ($extFilterArr as $extFilterItem) {
+            $filterArr = explode(';', $extFilterItem);
+            $ascendantItemTypeID = getItemTypeIDFromProperties(array($filterArr[0]), $clientID);
+            $filterProperties = array(array('ID' => parsePID($filterArr[0], $clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, $cstUTF8)), 'mode' => $filterArr[2]));
+            $validAscendants = getFilteredItemsIDs($ascendantItemTypeID, $clientID, $filterProperties, array());
+            $ascendantItemTypeMainPropertyID = getMainPropertyID($ascendantItemTypeID, $clientID);
+            $ascendantItemTypeMainPropertyType = getPropertyType($ascendantItemTypeMainPropertyID, $clientID);
+            $allowedItemTypes = array();
+            if (isset($filterArr[3]) && $filterArr[3] != "") $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
+            $treePath = array();
+            getTreePath($clientID, $treePath, array(array('itemTypeID' => $ascendantItemTypeID, $cstMainPropertyID => $ascendantItemTypeMainPropertyID, $cstMainPropertyType => $ascendantItemTypeMainPropertyType)), $itemTypeID, $allowedItemTypes, 4);
+            $extFilters[] = array('ascendantItemTypeID' => $ascendantItemTypeID, 'validAscendants' => $validAscendants, 'treePath' => $treePath);
+        }
+    }
+
+    // Preparar la informacion necesaria para traducir identificadores.
+    $propertiesToReplace = array();
+    foreach ($propertiesToTranslate as $propertyKey => $property) {
+        if (($property['type'] == 'identifier') || ($property['type'] == 'identifiers')) {
+            $referredItemTypeID = getClientPropertyReferredItemType($property['ID'], $clientID);
+            $mainPropertyID = getMainPropertyID($referredItemTypeID, $clientID);
+            $mainPropertyType = getPropertyType($mainPropertyID, $clientID);
+            $propertiesToTranslate[$propertyKey][$cstReferredItemTypeID] = $referredItemTypeID;
+            $propertiesToTranslate[$propertyKey][$cstMainPropertyID] = $mainPropertyID;
+            $propertiesToTranslate[$propertyKey][$cstMainPropertyType] = $mainPropertyType;
+        }
+
+        if (!isset($property['trName'])) {
+            $propertiesToReplace[$propertiesToTranslate[$propertyKey]['name']] = $propertiesToTranslate[$propertyKey];
+            unset($propertiesToTranslate[$propertyKey]);
+        }
+    }
+
+    foreach ($items as $row) {
+        if (count($extFilters) == 0) {
+            $found = true;
+        }
+
+        foreach ($extFilters as $extFilter) {
+            $tempPaths = getPathsForItem($clientID, $itemTypeID, $row['ID'], $extFilter['treePath'], 0, "");
+            $found = false;
+            foreach ($extFilter['validAscendants'] as $validAscendant) {
+                foreach ($tempPaths as $element) {
+                    if ($element["nodeID"] == $validAscendant["ID"] && $element["nodeItemType"] == $extFilter['ascendantItemTypeID']) {
+                        $found = true;
+                        break 2;
+                    }
+                }
+            }
+            if (!$found) break;
+        }
+
+        if ($found) {
+            $writer->startElement('row');
+            foreach ($row as $field => $value) {
+                if (array_key_exists($field, $propertiesToReplace)) {
+                    $value = getTranslatedValue($clientID, $propertiesToReplace[$field], $value);
+                }
+
+                if ($value === null) {
+                    // Las propiedades ausentes se escriben vacias en el XML.
+                    $value = '';
+                }
+
+                if ($decodeEntities) {
+                    $field = html_entity_decode($field, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                    $value = html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                }
+
+                $writer->startElement('column');
+                $writer->writeAttribute('name', $field);
+                $writer->writeCData(str_replace("]]>", $cstCDATAseparator, $value));
+                $writer->endElement();
+            }
+
+            foreach ($propertiesToTranslate as $propertyKey => $property) {
+                $field = $propertiesToTranslate[$propertyKey]['trName'];
+                $sourceValue = isset($row[$propertiesToTranslate[$propertyKey]['name']]) ? $row[$propertiesToTranslate[$propertyKey]['name']] : '';
+                $value = getTranslatedValue($clientID, $propertiesToTranslate[$propertyKey], $sourceValue);
+
+                if ($decodeEntities) {
+                    $field = html_entity_decode($field, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                    $value = html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                }
+
+                $writer->startElement('column');
+                $writer->writeAttribute('name', $field);
+                $writer->writeCData(str_replace("]]>", $cstCDATAseparator, $value));
+                $writer->endElement();
+            }
+            $writer->endElement();
+        }
+    }
+
+    $writer->endElement();
+    $writer->flush();
+    $writer->endElement();
+    $writer->endDocument();
+
+    return $filename;
+}
+
+
 // If possible, use the function getFilteredItemsIDs instead of this one.
 // getFilteredItemsIDs is more complete and returns an array.
 // **********************************************************************
@@ -3368,35 +3762,27 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
 function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy = '', $translateIds = false, $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, $allowFileResults = false, $extFilterRules = "", $decodeEntities = false)
 {
     $propertiesToTranslate = array();
+    // Activar cache solo cuando filtros u ordenacion pueden reutilizar metadatos entre fases.
+    // En listados simples no se activa para no anadir coste cuando no hay nada que reutilizar.
+    $metadataCache = ((is_array($filterProperties) && count($filterProperties) > 0) || $orderBy != '') ? array() : null;
     $optimizerValue = 1000;
 
     //prepare debug memory usage monitoring array
     //$lastValues=array('i'=>0,'startUsage'=>0,'startPeakUsage'=>0,'startAllocated'=>0,'startPeakallocated'=>0);
     //mem_increase_check($lastValues);
 
-    // query the database
-    $result = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $limit, $ids, $filtersJoining, $propertiesToTranslate, $returnOrder);
+    // Camino optimizado: primero IDs, despues propiedades.
+    $result = IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $limit, $ids, $filtersJoining, $returnOrder, $metadataCache);
 
     //debug memory usage
     //mem_increase_check($lastValues);
 
     // build the results array
     if ($result) {
-        //check if reached minimum results for fie use or not
-        $results = false;
-        if ($allowFileResults && $result->num_rows > $optimizerValue) {
-            $results = mysqlToXML($result, $clientID, $itemTypeID, $translateIds ? $propertiesToTranslate : array(), $extFilterRules, $decodeEntities);
-        }
+        $results = array();
 
-        // create results array if size < optimizerValue or file creation failed
-        if (!$results) {
-            if ($allowFileResults) {
-                $results = new SplFixedArray($result->num_rows);
-            } else {
-                $results = array();
-            }
-
-            $i = 0;
+        // create results array
+        $i = 0;
             while ($auxVarResult = $result->fetch_assoc()) {
 
                 if ($decodeEntities) {
@@ -3413,11 +3799,18 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
                 $results[$i] = $auxVarResult;
                 $i++;
             }
-            if ($translateIds) $results = _translateIds($results, $propertiesToTranslate, $clientID);
 
-            // Check for external rules & apply them if exist
-            if ($extFilterRules != '') $results = applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules);
-        }
+            $results = RShydrateFilteredItemsProperties($results, $itemTypeID, $clientID, $returnProperties, $propertiesToTranslate, $returnOrder, $metadataCache);
+            if ($allowFileResults && count($results) > $optimizerValue) {
+                // Para respuestas grandes se conserva la salida por archivo temporal.
+                $fileResults = RSfilteredItemsArrayToXML($results, $clientID, $itemTypeID, $translateIds ? $propertiesToTranslate : array(), $extFilterRules, $decodeEntities);
+                if ($fileResults) return $fileResults;
+            }
+
+        if ($translateIds) $results = _translateIds($results, $propertiesToTranslate, $clientID);
+
+        // Check for external rules & apply them if exist
+        if ($extFilterRules != '') $results = applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules);
 
         //debug memory usage
         //mem_increase_check($lastValues);

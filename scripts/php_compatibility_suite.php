@@ -31,6 +31,7 @@ class CompatibilitySuite
         $this->lintPhpFiles();
         $this->scanPhp85Compatibility();
         $this->runExistingRegressions();
+        $this->runDatabaseDiffTests();
         $this->runHttpSmokeTests();
 
         $this->line('');
@@ -61,7 +62,11 @@ class CompatibilitySuite
         echo "  - PHP version gate: requires PHP 8.5.x, minimum 8.5.1\n";
         echo "  - Recursive php -l linting for Server/ and scripts/\n";
         echo "  - Token-based PHP 8.5 compatibility scan\n";
-        echo "  - Existing regression script: scripts/test_master_token_templates.php\n\n";
+        echo "  - Existing regression scripts: scripts/test_master_token_templates.php, scripts/test_dynamic_item_joins.php\n\n";
+        echo "Optional MariaDB differential checks:\n";
+        echo "  RSM_COMPAT_DB_DIFF=1\n";
+        echo "      Creates and drops local database rsm_dynamic_join_diff.\n";
+        echo "      Loads random deterministic item data and compares legacy HEAD vs current optimized responses.\n\n";
         echo "Optional HTTP smoke checks:\n";
         echo "  RSM_COMPAT_BASE_URL\n";
         echo "      Example: https://rsm-dev.redsauce.net/AppController/commands_RSM\n";
@@ -204,19 +209,52 @@ class CompatibilitySuite
     private function runExistingRegressions(): void
     {
         $this->start('Existing regression scripts');
-        $script = $this->root . '/scripts/test_master_token_templates.php';
+        $scripts = array(
+            $this->root . '/scripts/test_master_token_templates.php',
+            $this->root . '/scripts/test_dynamic_item_joins.php',
+        );
+
+        $outputs = array();
+        foreach ($scripts as $script) {
+            if (!is_file($script)) {
+                $this->fail('Existing regression scripts', 'Missing ' . $this->relative($script));
+                return;
+            }
+
+            $result = $this->runProcess(array(PHP_BINARY, '-d', 'error_reporting=E_ALL', '-d', 'display_errors=1', $script));
+            if ($result['exitCode'] !== 0) {
+                $this->fail('Existing regression scripts', trim($result['stdout'] . $result['stderr']));
+                return;
+            }
+            $outputs[] = trim($result['stdout']);
+        }
+
+        $this->pass('Existing regression scripts', implode('; ', array_filter($outputs)));
+    }
+
+    private function runDatabaseDiffTests(): void
+    {
+        // Prueba opcional: compara legacy y codigo actual con datos MariaDB reales.
+        $enabled = getenv('RSM_COMPAT_DB_DIFF');
+        if ($enabled === false || !in_array(strtolower((string) $enabled), array('1', 'true', 'yes'), true)) {
+            $this->skips[] = 'Optional MariaDB differential tests: RSM_COMPAT_DB_DIFF is not enabled';
+            return;
+        }
+
+        $this->start('Optional MariaDB differential tests');
+        $script = $this->root . '/scripts/test_dynamic_item_joins_db.php';
         if (!is_file($script)) {
-            $this->fail('Existing regression scripts', 'Missing ' . $this->relative($script));
+            $this->fail('Optional MariaDB differential tests', 'Missing ' . $this->relative($script));
             return;
         }
 
         $result = $this->runProcess(array(PHP_BINARY, '-d', 'error_reporting=E_ALL', '-d', 'display_errors=1', $script));
         if ($result['exitCode'] !== 0) {
-            $this->fail('Existing regression scripts', trim($result['stdout'] . $result['stderr']));
+            $this->fail('Optional MariaDB differential tests', trim($result['stdout'] . $result['stderr']));
             return;
         }
 
-        $this->pass('Existing regression scripts', trim($result['stdout']));
+        $this->pass('Optional MariaDB differential tests', trim($result['stdout']));
     }
 
     private function runHttpSmokeTests(): void
