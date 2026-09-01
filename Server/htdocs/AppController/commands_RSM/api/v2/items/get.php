@@ -116,19 +116,19 @@ $visiblePropertyIDs = array();
 
 if (is_array($propertyIDs)) {
   foreach ($propertyIDs as $singlePropertyID) {
-    $hasTokenReadPermission = RShasTokenPermission($RStoken, $singlePropertyID, 'READ');
-    $hasVisibleProperty = isPropertyVisible($RSuserID, $singlePropertyID, $clientID);
+    $parsedPropertyID = ParsePID($singlePropertyID, $clientID);
+    $hasTokenReadPermission = RShasTokenPermission($RStoken, $parsedPropertyID, 'READ');
+    $hasVisibleProperty = isPropertyVisible($RSuserID, $parsedPropertyID, $clientID);
     if (!$hasTokenReadPermission && !$hasVisibleProperty) {
-      // For explicit properties, v1 rejects the request instead of silently
-      // dropping the property. This includes translated identifiers whose
-      // related main property is not readable by the token.
+      // v1 validates parsed property IDs. Keep doing that here so system names
+      // and numeric IDs follow the same translated-identifier permission path.
       if (!$allPropertiesRequested) {
         $RSallowDebug ? returnJsonMessage(403, 'No permissions to read these items') : returnJsonMessage(403, '');
       }
       continue;
     }
 
-    $visiblePropertyIDs[] = array('ID' => ParsePID($singlePropertyID, $clientID), 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    $visiblePropertyIDs[] = array('ID' => $parsedPropertyID, 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
   }
 }
 
