@@ -113,23 +113,53 @@ if (is_array($filterRules) && !empty($filterRules)) {
 
 // Build array with the visible propertyIds (if they is visible for us, then we have permissions)
 $visiblePropertyIDs = array();
+$inaccessibleProperties = array();
+$unresolvedPropertyNames = array();
 
 if (is_array($propertyIDs)) {
   foreach ($propertyIDs as $singlePropertyID) {
+    if ($singlePropertyID === null || trim((string)$singlePropertyID) === '' || trim((string)$singlePropertyID) === '0') {
+      continue;
+    }
+
     $parsedPropertyID = ParsePID($singlePropertyID, $clientID);
+
+    if (!is_numeric($parsedPropertyID) || intval($parsedPropertyID) <= 0) {
+      $unresolvedPropertyNames[] = (string)$singlePropertyID;
+      continue;
+    }
+
     $hasTokenReadPermission = RShasTokenPermission($RStoken, $parsedPropertyID, 'READ');
     $hasVisibleProperty = isPropertyVisible($RSuserID, $parsedPropertyID, $clientID);
     if (!$hasTokenReadPermission && !$hasVisibleProperty) {
       // v1 validates parsed property IDs. Keep doing that here so system names
       // and numeric IDs follow the same translated-identifier permission path.
       if (!$allPropertiesRequested) {
-        $RSallowDebug ? returnJsonMessage(403, 'No permissions to read these items') : returnJsonMessage(403, '');
+        if (!$RSallowDebug) {
+          returnJsonMessage(403, 'No permissions to read all the items requested');
+        }
+
+        // In debug mode, inspect every requested property so the response can
+        // identify all properties that failed both access checks.
+        $inaccessibleProperties[] = formatPropertyAccessDebugDetail(
+          $singlePropertyID,
+          $parsedPropertyID,
+          getClientPropertyName($parsedPropertyID, $clientID),
+          'missing token READ permission and property visibility'
+        );
       }
       continue;
     }
 
     $visiblePropertyIDs[] = array('ID' => $parsedPropertyID, 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
   }
+}
+
+if (!empty($inaccessibleProperties)) {
+  returnJsonMessage(
+    403,
+    'Unable to read requested properties: ' . implode(', ', $inaccessibleProperties) . '.'
+  );
 }
 
 // Build a string with the extFilterRules
@@ -162,6 +192,7 @@ if ($includeCategories) {
   foreach ($itemsArray as $item) {
     $combinedArray = array();
     $combinedArray['ID'] = $item['ID'];
+    $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
 
     // Categories are only added when they contain at least one property visible
     // to the caller.
@@ -209,6 +240,7 @@ if ($includeCategories) {
           $propertyValue = (string) $column;
           $combinedArray[$columnName] = html_entity_decode($propertyValue);
         }
+        $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
         // We append the processed row array to our final response.
         $responseArray[] = $combinedArray;
       }
@@ -277,6 +309,7 @@ if ($includeCategories) {
 
         $decodedItem[$resolvedKey] = is_string($value) ? html_entity_decode($value) : $value;
       }
+      $decodedItem = addUnresolvedPropertyPlaceholders($decodedItem, $unresolvedPropertyNames);
       // We append the decoded row array to our final response.
       $responseArray[] = $decodedItem;
     }
@@ -361,4 +394,49 @@ function parseProperyListValue($value, $clientID)
   }
 
   return replaceUtf8Characters($value);
+}
+
+// Build a JSON-safe description for a property rejected during debug requests.
+function formatPropertyAccessDebugDetail($requestedIdentifier, $parsedPropertyID, $propertyName, $reason)
+{
+  $details = array('requested: ' . escapeJsonMessageFragment($requestedIdentifier));
+
+  if (intval($parsedPropertyID) > 0) {
+    $details[] = 'resolved ID: ' . intval($parsedPropertyID);
+  }
+
+  if ($propertyName !== '') {
+    $details[] = 'name: ' . escapeJsonMessageFragment($propertyName);
+  }
+
+  $details[] = $reason;
+  return '[' . implode('; ', $details) . ']';
+}
+
+// returnJsonMessage() wraps messages in JSON, so dynamic fragments must be escaped first.
+function escapeJsonMessageFragment($value)
+{
+  $encodedValue = json_encode((string)$value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  if ($encodedValue === false) {
+    return '';
+  }
+
+  return substr($encodedValue, 1, -1);
+}
+
+// Preserve requested system properties that have no relationship for this client.
+function addUnresolvedPropertyPlaceholders($item, $propertyNames)
+{
+  foreach ($propertyNames as $propertyName) {
+    if (!array_key_exists($propertyName, $item)) {
+      $item[$propertyName] = '0';
+    }
+
+    $translatedPropertyName = $propertyName . 'trs';
+    if (!array_key_exists($translatedPropertyName, $item)) {
+      $item[$translatedPropertyName] = '';
+    }
+  }
+
+  return $item;
 }
