@@ -3449,6 +3449,73 @@ function RShydrateFilteredItemsProperties($items, $itemTypeID, $clientID, $retur
     return $items;
 }
 
+// Hydrate large results in bounded batches and write them directly to XML.
+// This avoids retaining every returned property value in PHP memory.
+function RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $returnProperties, $translateIds = false, $returnOrder = 0, $decodeEntities = false, &$metadataCache = array(), $chunkSize = 500)
+{
+    global $RStempPath, $cstCDATAseparator, $cstUTF8;
+
+    $filename = @tempnam($RStempPath, 'RSR');
+    if (!$filename) return false;
+
+    $writer = new XMLWriter();
+    if (!$writer->openUri($filename)) {
+        @unlink($filename);
+        return false;
+    }
+
+    $writer->setIndentString('  ');
+    $writer->setIndent(true);
+    $writer->startDocument('1.0', 'UTF-8');
+    $writer->startElement('RSRecordset');
+    $writer->startElement('rows');
+
+    $chunkSize = max(1, intval($chunkSize));
+    while (true) {
+        $items = array();
+        while (count($items) < $chunkSize && ($row = $result->fetch_assoc())) {
+            $items[] = $row;
+        }
+
+        if (empty($items)) break;
+
+        $propertiesToTranslate = array();
+        $items = RShydrateFilteredItemsProperties($items, $itemTypeID, $clientID, $returnProperties, $propertiesToTranslate, $returnOrder, $metadataCache);
+        if ($translateIds) {
+            $items = _translateIds($items, $propertiesToTranslate, $clientID);
+        }
+
+        foreach ($items as $item) {
+            $writer->startElement('row');
+            foreach ($item as $field => $value) {
+                if ($value === null) $value = '';
+
+                $field = (string)$field;
+                $value = (string)$value;
+                if ($decodeEntities) {
+                    $field = html_entity_decode($field, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                    $value = html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, $cstUTF8);
+                }
+
+                $writer->startElement('column');
+                $writer->writeAttribute('name', $field);
+                $writer->writeCData(str_replace(']]>', $cstCDATAseparator, $value));
+                $writer->endElement();
+            }
+            $writer->endElement();
+        }
+
+        unset($items);
+    }
+
+    $writer->endElement();
+    $writer->endElement();
+    $writer->endDocument();
+    $writer->flush();
+
+    return $filename;
+}
+
 // Para respuestas grandes, escribir el array hidratado en XML temporal.
 // Mantiene el contrato anterior de devolver un archivo cuando se permite.
 function RSfilteredItemsArrayToXML($items, $clientID, $itemTypeID, $propertiesToTranslate = array(), $extFilterRules = "", $decodeEntities = false)
@@ -3790,23 +3857,18 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
 
     // build the results array
     if ($result) {
+        // External filters currently require a complete result set. Without
+        // them, stream large reads in bounded chunks before hydrating all rows.
+        if ($allowFileResults && $extFilterRules === '' && $result->num_rows > $optimizerValue) {
+            $fileResults = RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $returnProperties, $translateIds, $returnOrder, $decodeEntities, $metadataCache);
+            if ($fileResults) return $fileResults;
+        }
+
         $results = array();
 
         // create results array
         $i = 0;
             while ($auxVarResult = $result->fetch_assoc()) {
-
-                if ($decodeEntities) {
-                    // Ensure UTF-8 compatibility
-                    $aux_array = array();
-
-                    foreach ($auxVarResult as $key => $res) {
-                        $aux_array[html_entity_decode($key, ENT_COMPAT | ENT_QUOTES, "UTF-8")] = html_entity_decode($res, ENT_COMPAT | ENT_QUOTES, "UTF-8");
-                    }
-
-                    $auxVarResult = $aux_array;
-                }
-
                 $results[$i] = $auxVarResult;
                 $i++;
             }
@@ -3816,6 +3878,21 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
                 // Para respuestas grandes se conserva la salida por archivo temporal.
                 $fileResults = RSfilteredItemsArrayToXML($results, $clientID, $itemTypeID, $translateIds ? $propertiesToTranslate : array(), $extFilterRules, $decodeEntities);
                 if ($fileResults) return $fileResults;
+            }
+
+            // The ID-only query runs before property hydration. Decode after
+            // hydration so the requested property values are decoded as well.
+            if ($decodeEntities) {
+                foreach ($results as $resultIndex => $resultRow) {
+                    $decodedRow = array();
+                    foreach ($resultRow as $key => $value) {
+                        $decodedKey = html_entity_decode((string)$key, ENT_COMPAT | ENT_QUOTES, "UTF-8");
+                        $decodedRow[$decodedKey] = is_string($value)
+                            ? html_entity_decode($value, ENT_COMPAT | ENT_QUOTES, "UTF-8")
+                            : $value;
+                    }
+                    $results[$resultIndex] = $decodedRow;
+                }
             }
 
         if ($translateIds) $results = _translateIds($results, $propertiesToTranslate, $clientID);

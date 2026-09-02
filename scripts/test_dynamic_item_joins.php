@@ -12,7 +12,6 @@ if ($source === false) {
     fwrite(STDERR, "Unable to read RSMitemsManagement.php\n");
     exit(1);
 }
-
 function dynamicJoinAssert($condition, $message) {
     if (!$condition) {
         fwrite(STDERR, "FAIL: " . $message . "\n");
@@ -46,6 +45,7 @@ $cachedPropertyDefaultSource = extractFunctionSource($source, 'RSMgetFilteredPro
 $cachedMainPropertySource = extractFunctionSource($source, 'RSMgetFilteredMainPropertyID');
 $idOnlySource = extractFunctionSource($source, 'IQ_getFilteredItemIDsOnly');
 $hydrateSource = extractFunctionSource($source, 'RShydrateFilteredItemsProperties');
+$streamXmlSource = extractFunctionSource($source, 'RSstreamFilteredItemsPropertiesToXML');
 $arrayXmlSource = extractFunctionSource($source, 'RSfilteredItemsArrayToXML');
 $filterClauseSource = extractFunctionSource($source, '_getFilterClause');
 $translatedFilterClauseSource = extractFunctionSource($source, '_getTranslatedFilterClause');
@@ -56,10 +56,10 @@ dynamicJoinAssert(strpos($getFilteredSource, 'IQ_getFilteredItemIDsOnly(') !== f
 dynamicJoinAssert(strpos($getFilteredSource, 'IQ_getFilteredItemsIDs(') === false, 'getFilteredItemsIDs must not call the legacy joined-return query');
 dynamicJoinAssert(strpos($idOnlySource, "rs_items.RS_ORDER AS 'ITEM_ORDER'") !== false, 'ID-only query must preserve returnOrder');
 dynamicJoinAssert(strpos($idOnlySource, 'orderValue.RS_DATA') !== false, 'ID-only query must support order-only property joins');
+dynamicJoinAssert(strpos($getFilteredSource, 'RSstreamFilteredItemsPropertiesToXML(') !== false, 'large file-result path must use chunked XML streaming');
 dynamicJoinAssert(strpos($getFilteredSource, 'RSfilteredItemsArrayToXML(') !== false, 'large file-result path must use optimized array XML writer');
 // Static guard: the cache must be created inside getFilteredItemsIDs(), not as global state.
 dynamicJoinAssert(strpos($getFilteredSource, '$metadataCache = (') !== false, 'optimized path must keep metadata cache local to one call');
-
 class DynamicJoinFakeResult {
     private $rows;
     private $position = 0;
@@ -93,6 +93,7 @@ $dynamicJoinQueries = array();
 $dynamicJoinRows = array(array('ID' => 2), array('ID' => 1));
 $dynamicJoinTranslated = false;
 $dynamicJoinPropertyTypeCalls = array();
+$dynamicJoinHydrationBatchSizes = array();
 
 function RSQuery($query, $registerError = true) {
     global $dynamicJoinQueries, $dynamicJoinRows;
@@ -118,11 +119,15 @@ function isSingleIdentifier($propertyType) { return $propertyType == 'identifier
 function isMultiIdentifier($propertyType) { return $propertyType == 'identifiers'; }
 function convertData($fieldName, $fieldType) { return $fieldName; }
 function getItemsPropertyValues($propertyID, $clientID, $itemIDs = '', $propertyType = '', $itemTypeID = '', $translateIds = false, $returnOrder = 0, &$orderArray = array()) {
+    global $dynamicJoinHydrationBatchSizes;
+    if ($itemIDs !== '') {
+        $dynamicJoinHydrationBatchSizes[] = count(explode(',', $itemIDs));
+    }
     if ($returnOrder) {
         $orderArray[1] = '4';
         $orderArray[2] = '3';
     }
-    if ($propertyID == 10) return array(1 => 'one', 2 => 'two');
+    if ($propertyID == 10) return array(1 => 'one &aacute;', 2 => 'two');
     if ($propertyID == 30) return array(1 => '100', 2 => '200');
     return array();
 }
@@ -149,6 +154,7 @@ eval($translatedFilterClauseSource);
 eval($translatedFilterSubquerySource);
 eval($idOnlySource);
 eval($hydrateSource);
+eval($streamXmlSource);
 eval($arrayXmlSource);
 eval($getFilteredSource);
 
@@ -175,6 +181,11 @@ $dynamicJoinRows = array(array('ID' => 1));
 getFilteredItemsIDs(5, 7, array(), $returnProperties, 'name', false, '', '', 'AND', 0, false, '', false);
 dynamicJoinAssert(isset($dynamicJoinPropertyTypeCalls['7:10']) && $dynamicJoinPropertyTypeCalls['7:10'] === 1, 'property type cache must reuse order metadata during hydration');
 
+// Runtime path: entity decoding must happen after the second-phase hydration.
+$dynamicJoinRows = array(array('ID' => 1));
+$decoded = getFilteredItemsIDs(5, 7, array(), $returnProperties, '', false, '', '', 'AND', 0, false, '', true);
+dynamicJoinAssert($decoded[0]['name'] === 'one á', 'decodeEntities must decode hydrated property values');
+
 // Runtime path: mainValue ordering joins only the main property for ordering.
 $dynamicJoinQueries = array();
 IQ_getFilteredItemIDsOnly(5, 7, array(), $returnProperties, 'mainValue', '', '', 'AND', 0);
@@ -197,15 +208,19 @@ dynamicJoinAssert($dynamicJoinTranslated === true, 'translateIds path must recei
 dynamicJoinAssert($translated[0]['translated'] === 'yes', 'translateIds path must run _translateIds after hydration');
 
 // Runtime path: large allowFileResults responses still return an XML temp file.
+$dynamicJoinHydrationBatchSizes = array();
 $dynamicJoinRows = array();
 for ($i = 1; $i <= 1001; $i++) {
     $dynamicJoinRows[] = array('ID' => $i);
 }
 $file = getFilteredItemsIDs(5, 7, array(), array(array('ID' => 10, 'name' => 'name')), '', false, '', '', 'AND', 0, true, '', false);
 dynamicJoinAssert(is_string($file) && file_exists($file), 'large allowFileResults path must return a temp XML file');
+dynamicJoinAssert(!empty($dynamicJoinHydrationBatchSizes), 'large allowFileResults path must hydrate properties');
+dynamicJoinAssert(max($dynamicJoinHydrationBatchSizes) <= 500, 'large allowFileResults path must hydrate at most 500 items per batch');
 $xml = file_get_contents($file);
 @unlink($file);
 dynamicJoinAssert(strpos($xml, '<RSRecordset>') !== false, 'large allowFileResults XML must contain RSRecordset');
 dynamicJoinAssert(strpos($xml, 'name="ID"') !== false, 'large allowFileResults XML must contain ID columns');
+dynamicJoinAssert(substr_count($xml, '<row>') === 1001, 'large allowFileResults XML must preserve every streamed item');
 
 echo "dynamic item join optimization tests passed\n";
