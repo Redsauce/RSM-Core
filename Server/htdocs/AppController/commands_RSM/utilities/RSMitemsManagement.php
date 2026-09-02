@@ -425,8 +425,15 @@ function getPropertyType($propertyID, $clientID)
     return '';
 }
 
-function getPropertyValue($PropertyName, $itemID, $clientID)
+// Accept both the current signature (property, item, client) and the legacy
+// signature (property, item type, item, client). The item type is not needed
+// because it is inferred from the property relationship.
+function getPropertyValue($PropertyName, $itemTypeID, $itemID, $clientID = null)
 {
+    if ($clientID === null) {
+        $clientID = $itemID;
+        $itemID = $itemTypeID;
+    }
 
     $propertyID = getClientPropertyID_RelatedWith_byName($PropertyName, $clientID);
 
