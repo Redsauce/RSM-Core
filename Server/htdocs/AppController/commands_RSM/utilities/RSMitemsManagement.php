@@ -612,8 +612,11 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
             if ($response['auditTrail'] == 1) {
                 // save the change into the Audit Trail table using prepared statement
                 $currentDate = date('Y-m-d H:i:s');
+                // The legacy interpolated query stored an empty string when no
+                // token was present. Preserve that behavior for this NOT NULL column.
+                $auditToken = ($RStoken === null) ? '' : (string)$RStoken;
                 $stmt = $mysqli->prepare('INSERT INTO ' . $auditTrailPropertiesTables[$propertyType] . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_USER_ID, RS_TOKEN, RS_DESCRIPTION, RS_CHANGED_DATE, RS_INITIAL_VALUE, RS_FINAL_VALUE) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)');
-                $stmt->bind_param('iiiiissss', $clientID, $itemTypeID, $itemID, $propertyID, $userID, $RStoken, $currentDate, $previousValue, $value);
+                $stmt->bind_param('iiiiissss', $clientID, $itemTypeID, $itemID, $propertyID, $userID, $auditToken, $currentDate, $previousValue, $value);
                 $saveQuery = $stmt->execute();
                 $stmt->close();
 
@@ -2395,6 +2398,7 @@ function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType
 function getAuditTrail($clientID, $propertyID, $itemID)
 {
     global $auditTrailPropertiesTables;
+    $results = array();
 
     // Obtein the itemType pertaining to the passed property
     $itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
