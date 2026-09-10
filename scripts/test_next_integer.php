@@ -230,10 +230,11 @@ nextIntegerAssert(strpos($endpointSource, 'finally') !== false && strpos($endpoi
 echo "next integer endpoint tests passed\n";
 
 // Exercise persistence, conflict detection, rollback, and release without a server.
-function getPropertyType($propertyID, $clientID) { return 'integer'; }
+function getPropertyType($propertyID, $clientID) { return array(101 => 'date', 102 => 'text')[$propertyID] ?? 'integer'; }
 function RSError($message) { }
 function getItemPropertyValue($itemID, $propertyID, $clientID) {
-    return $GLOBALS['allocationValues'][$itemID][$propertyID] ?? '';
+    if ($itemID === null || $propertyID === null) return null;
+    return $GLOBALS['allocationValues'][$itemID][$propertyID] ?? null;
 }
 function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $value, $type, $userID) {
     if ($GLOBALS['allocationFailProperty'] === $propertyID) return -1;
@@ -278,3 +279,53 @@ function nextIntegerTestAllocation($clientID, $itemTypeID, $itemID, $propertyID,
         }, $yearScope, $seriesScope);
 }
 
+
+// Execute the actual legacy command: this catches scope-construction bugs that
+// helper-only tests miss, including RSM's null result for a missing property.
+class InvoiceNumberResponse extends Exception {
+    public $result;
+    public function __construct($result) { parent::__construct('response'); $this->result = $result; }
+}
+function RSReturnArrayResults($result) { throw new InvoiceNumberResponse($result); }
+function RSCheckUserAccess() { return 1; }
+function dieWithError($code) { throw new RuntimeException('Unexpected HTTP ' . $code); }
+function getClientItemTypeID_RelatedWith_byName($name, $clientID) { return 8; }
+function getClientPropertyID_RelatedWith_byName($name, $clientID) {
+    return array('invoice.client.invoiceID' => 300, 'invoice.client.invoiceDate' => 101,
+        'invoice.client.serie' => $GLOBALS['invoiceSeriesPropertyID'])[$name] ?? 0;
+}
+class InvoiceGlobalResult {
+    public function fetch_assoc() { return array('value' => $GLOBALS['invoiceResetYear']); }
+}
+function RSQuery($query) { return new InvoiceGlobalResult(); }
+function runInvoiceNumberCommand($source) {
+    global $mysqli, $cstRS_POST;
+    try { eval($source); } catch (InvoiceNumberResponse $response) { return $response->result; }
+    throw new RuntimeException('Invoice command did not respond');
+}
+$invoiceNumberSource = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/financialDocuments/wndFinancialDocuments_generateInvoiceDateAndID.php');
+$invoiceNumberSource = preg_replace('/^require_once .*;\R/m', '', substr($invoiceNumberSource, 5));
+$cstRS_POST = 'invoiceTestPost';
+$GLOBALS[$cstRS_POST] = array('clientID' => 7, 'invoiceID' => '10');
+foreach (array(0, 102) as $invoiceSeriesPropertyID) {
+    foreach (array(null, '', 'A', '0') as $seriesValue) {
+        foreach (array('0', '1') as $invoiceResetYear) {
+            $allocationValues = array(10 => array(300 => 0));
+            if ($seriesValue !== null) $allocationValues[10][102] = $seriesValue;
+            $allocationFailProperty = null;
+            $nextIntegerScalarQueue = array(453);
+            $nextIntegerExecutions = array();
+            $nextIntegerLocks = array();
+            $result = runInvoiceNumberCommand($invoiceNumberSource);
+            nextIntegerAssert($result['result'] === 'OK' && $result['ID'] === 454, 'legacy command must allocate with missing, empty or populated series');
+            nextIntegerAssert($allocationValues[10][101] === date('Y-m-d'), 'legacy command must persist the date');
+            $aggregate = array_values(array_filter($nextIntegerExecutions, function ($execution) { return strpos($execution['query'], 'MAX(') !== false; }))[0];
+            $hasSeries = $invoiceSeriesPropertyID > 0 && $seriesValue !== null && $seriesValue !== '';
+            nextIntegerAssert((strpos($aggregate['query'], 'seriesValue') !== false) === $hasSeries, 'only a configured and populated series may filter the maximum');
+            nextIntegerAssert((strpos($aggregate['query'], 'yearValue') !== false) === ($invoiceResetYear === '1'), 'global annual reset must be respected');
+            if ($hasSeries) nextIntegerAssert(in_array($seriesValue, $aggregate['parameters'], true), 'series value including zero must remain a bound filter');
+            nextIntegerAssert(count($nextIntegerLocks) === 0, 'legacy command must release its lock');
+        }
+    }
+}
+echo "legacy invoice number command tests passed\n";

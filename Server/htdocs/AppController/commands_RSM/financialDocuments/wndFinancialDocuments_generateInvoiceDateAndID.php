@@ -46,8 +46,11 @@ foreach ($invoiceIDs as $invoiceID) {
     $yearScope = array('propertyID' => $invoiceDatePropertyID, 'type' => getPropertyType($invoiceDatePropertyID, $clientID), 'year' => intval(substr($date, 0, 4)));
   }
 
-  // Preserve the legacy rule: an empty series does not restrict the maximum.
-  $currentInvoiceSerie = getItemPropertyValue($invoiceID, $invoiceSeriePropertyID, $clientID);
+  // An unmapped property or missing value is also an absent series. The item
+  // getter returns null in these cases, which must not create an invalid scope.
+  $currentInvoiceSerie = $invoiceSeriePropertyID > 0
+    ? (string)(getItemPropertyValue($invoiceID, $invoiceSeriePropertyID, $clientID) ?? '')
+    : '';
   $seriesScope = $currentInvoiceSerie !== ''
     ? array('propertyID' => $invoiceSeriePropertyID, 'type' => getPropertyType($invoiceSeriePropertyID, $clientID), 'value' => $currentInvoiceSerie)
     : null;
