@@ -1078,11 +1078,12 @@ function getClientItemTypeIcon($clientItemTypeID, $clientID)
 }
 
 // Return the list of categories of the item type passed
-function getClientItemTypeCategories($clientItemTypeID, $clientID)
+function getClientItemTypeCategories($clientItemTypeID, $clientID, $failOnError = false)
 {
 
     $result = RSQuery("SELECT RS_CATEGORY_ID, RS_NAME, RS_ORDER FROM rs_categories WHERE RS_ITEMTYPE_ID = " . $clientItemTypeID . " AND RS_CLIENT_ID = " . $clientID . " ORDER BY RS_ORDER");
 
+    if (!$result && $failOnError) throw new RuntimeException('Unable to read item categories');
     $categoriesList = array();
 
     if ($result) {
@@ -1095,13 +1096,13 @@ function getClientItemTypeCategories($clientItemTypeID, $clientID)
 }
 
 // Return the list of properties of the item type passed (the category will be omitted)
-function getClientItemTypeProperties($clientItemTypeID, $clientID, $avoidDuplicateProperty = 0)
+function getClientItemTypeProperties($clientItemTypeID, $clientID, $avoidDuplicateProperty = 0, $failOnError = false)
 {
-    $categoriesList = getClientItemTypeCategories($clientItemTypeID, $clientID);
+    $categoriesList = getClientItemTypeCategories($clientItemTypeID, $clientID, $failOnError);
 
     $propertiesList = array();
     foreach ($categoriesList as $category)
-        $propertiesList = array_merge($propertiesList, getClientCategoryProperties($category['id'], $clientID, $avoidDuplicateProperty));
+        $propertiesList = array_merge($propertiesList, getClientCategoryProperties($category['id'], $clientID, $avoidDuplicateProperty, $failOnError));
 
     return $propertiesList;
 }
@@ -1176,7 +1177,7 @@ function getClientCategoryItemType($clientCategoryID, $clientID)
 }
 
 // Return the list of properties of the category passed
-function getClientCategoryProperties($clientCategoryID, $clientID, $avoidDuplicateProperty = 0)
+function getClientCategoryProperties($clientCategoryID, $clientID, $avoidDuplicateProperty = 0, $failOnError = false)
 {
 
     $query = "SELECT RS_PROPERTY_ID, RS_NAME, RS_TYPE, RS_ORDER FROM rs_item_properties WHERE RS_CATEGORY_ID = " . $clientCategoryID . " AND RS_CLIENT_ID = " . $clientID;
@@ -1188,6 +1189,7 @@ function getClientCategoryProperties($clientCategoryID, $clientID, $avoidDuplica
     $query = $query . ' ORDER BY RS_ORDER';
     $result = RSQuery($query);
 
+    if (!$result && $failOnError) throw new RuntimeException('Unable to read category properties');
     $propertiesList = array();
 
     if ($result) {
@@ -1737,12 +1739,24 @@ function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0")
     return $newID;
 }
 
+// Caller must own a transaction. The row lock coordinates concurrent API copies.
+function RSlockItemTypeForDuplication($itemTypeID, $clientID)
+{
+    $result = RSQuery('SELECT RS_LAST_ITEM_ID FROM rs_item_types WHERE RS_ITEMTYPE_ID = '
+        . intval($itemTypeID) . ' AND RS_CLIENT_ID = ' . intval($clientID) . ' FOR UPDATE');
+    return $result && $result->num_rows === 1;
+}
+
 // Make copies of the item passed
 function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descendants = array(), &$copiedItems = array(), &$itemTypeProperties = array())
 {
     global $propertiesTables, $RSuserID;
 
-    if ($numCopies < 1) return -1;
+    $itemTypeID = intval($itemTypeID);
+    $clientID = intval($clientID);
+    $numCopies = intval($numCopies);
+    if ($numCopies < 1 || $itemTypeID < 1 || $clientID < 1) return -1;
+    if (!preg_match('/^[0-9]+(,[0-9]+)*$/D', (string)$itemIDs)) return -1;
 
     $originalItemIDs = explode(",", $itemIDs);
 
@@ -1772,49 +1786,33 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
     }
 
     foreach ($itemTypeProperties[$itemTypeID] as $property) {
-        // retrieve the item property value to copy
-        $propertyOrders = array();
-        $propertyValues = getItemsPropertyValues($property['id'], $clientID, $itemIDs, $property['type'], $itemTypeID, false, 1, $propertyOrders);
-
+        if (!isset($propertiesTables[$property['type']])) return -1;
+        $table = $propertiesTables[$property['type']];
+        $propertyID = intval($property['id']);
+        $valueColumns = 'RS_DATA';
         if ($property['type'] == 'image' || $property['type'] == 'file') {
-            // build the query to insert properties for the items duplicated
-            $theQuery_copyProperties = 'INSERT INTO ' . $propertiesTables[$property['type']] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_NAME, RS_SIZE, RS_DATA, RS_CLIENT_ID) VALUES ';
-
-            for ($i = 0; $i < count($originalItemIDs); $i++) {
-                // retrieve the item property value to copy
-                $propertyData = getItemDataPropertyValue($originalItemIDs[$i], $property['id'], $clientID, $property['type'], $itemTypeID);
-                $propertyImageValues = explode(":", $propertyValues[$originalItemIDs[$i]]);
-
-                for ($j = 0; $j < $numCopies; $j++) {
-                    $theQuery_copyProperties .= '(' . $itemTypeID . ',' . $newItemsIDs[$originalItemIDs[$i]][$j] . ',' . $property['id'] . ',"' . $propertyImageValues[0] . '",' . $propertyImageValues[1] . ',0x' . $propertyData . ',' . $clientID . '),';
-                }
-            }
+            $valueColumns = 'RS_NAME, RS_SIZE, RS_DATA';
         } elseif ($property['type'] == 'identifier' || $property['type'] == 'identifiers') {
-            // build the query to insert properties for the items duplicated
-            $theQuery_copyProperties = 'INSERT INTO ' . $propertiesTables[$property['type']] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_CLIENT_ID, RS_ORDER) VALUES ';
-
-            for ($i = 0; $i < count($originalItemIDs); $i++) {
-                for ($j = 0; $j < $numCopies; $j++) {
-                    $theQuery_copyProperties .= '(' . $itemTypeID . ',' . $newItemsIDs[$originalItemIDs[$i]][$j] . ',' . $property['id'] . ',"' . $propertyValues[$originalItemIDs[$i]] . '",' . $clientID . ',"' . $propertyOrders[$originalItemIDs[$i]] . '"),';
-                }
-            }
-        } else {
-            // build the query to insert properties for the items duplicated
-            $theQuery_copyProperties = 'INSERT INTO ' . $propertiesTables[$property['type']] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_DATA, RS_CLIENT_ID) VALUES ';
-
-            for ($i = 0; $i < count($originalItemIDs); $i++) {
-                for ($j = 0; $j < $numCopies; $j++) {
-                    $theQuery_copyProperties .= '(' . $itemTypeID . ',' . $newItemsIDs[$originalItemIDs[$i]][$j] . ',' . $property['id'] . ',"' . $propertyValues[$originalItemIDs[$i]] . '",' . $clientID . '),';
-                }
-            }
+            $valueColumns = 'RS_DATA, RS_ORDER';
         }
 
-        // remove last comma and execute query
-        RSQuery(substr($theQuery_copyProperties, 0, -1));
+        // Copy stored values directly: binary content, quotes and ordering stay
+        // intact, and missing properties remain missing rather than synthesized.
+        $selects = array();
+        foreach ($originalItemIDs as $originalItemID) {
+            foreach ($newItemsIDs[$originalItemID] as $newItemID) {
+                $selects[] = 'SELECT ' . $itemTypeID . ',' . $newItemID . ',' . $propertyID . ',' . $clientID . ',' . $valueColumns
+                    . ' FROM ' . $table . ' WHERE RS_CLIENT_ID = ' . $clientID
+                    . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_PROPERTY_ID = ' . $propertyID
+                    . ' AND RS_ITEM_ID = ' . intval($originalItemID);
+            }
+        }
+        if (!RSQuery('INSERT INTO ' . $table . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_CLIENT_ID, ' . $valueColumns . ') '
+            . implode(' UNION ALL ', $selects))) return -1;
     }
 
-    // Update the item type with the latest ID created for the item
-    RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newItemsIDs[array_keys($newItemsIDs)[count($originalItemIDs) - 1]][$numCopies - 1] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID);
+    // Never move the allocation counter backwards if another writer advanced it.
+    if (!RSQuery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = GREATEST(RS_LAST_ITEM_ID, ' . $newItemsIDs[array_keys($newItemsIDs)[count($originalItemIDs) - 1]][$numCopies - 1] . ') WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID)) return -1;
 
     // Save the original item and its copies ids to avoid repeating
     $copiedItems[$itemTypeID] += $newItemsIDs;

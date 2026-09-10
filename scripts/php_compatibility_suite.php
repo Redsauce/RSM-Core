@@ -213,6 +213,7 @@ class CompatibilitySuite
             $this->root . '/scripts/test_master_token_templates.php',
             $this->root . '/scripts/test_dynamic_item_joins.php',
             $this->root . '/scripts/test_next_integer.php',
+            $this->root . '/scripts/test_duplicate_item.php',
         );
 
         $outputs = array();
