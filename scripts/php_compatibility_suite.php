@@ -62,7 +62,7 @@ class CompatibilitySuite
         echo "  - PHP version gate: requires PHP 8.5.x, minimum 8.5.1\n";
         echo "  - Recursive php -l linting for Server/ and scripts/\n";
         echo "  - Token-based PHP 8.5 compatibility scan\n";
-        echo "  - Existing regression scripts: scripts/test_master_token_templates.php, scripts/test_dynamic_item_joins.php\n\n";
+        echo "  - Existing regression scripts: scripts/test_master_token_templates.php, scripts/test_dynamic_item_joins.php, scripts/test_next_integer.php\n\n";
         echo "Optional MariaDB differential checks:\n";
         echo "  RSM_COMPAT_DB_DIFF=1\n";
         echo "      Creates and drops local database rsm_dynamic_join_diff.\n";
@@ -212,6 +212,7 @@ class CompatibilitySuite
         $scripts = array(
             $this->root . '/scripts/test_master_token_templates.php',
             $this->root . '/scripts/test_dynamic_item_joins.php',
+            $this->root . '/scripts/test_next_integer.php',
         );
 
         $outputs = array();
@@ -242,19 +243,26 @@ class CompatibilitySuite
         }
 
         $this->start('Optional MariaDB differential tests');
-        $script = $this->root . '/scripts/test_dynamic_item_joins_db.php';
-        if (!is_file($script)) {
-            $this->fail('Optional MariaDB differential tests', 'Missing ' . $this->relative($script));
-            return;
+        $scripts = array(
+            $this->root . '/scripts/test_dynamic_item_joins_db.php',
+            $this->root . '/scripts/test_next_integer_db.php',
+        );
+        $outputs = array();
+        foreach ($scripts as $script) {
+            if (!is_file($script)) {
+                $this->fail('Optional MariaDB differential tests', 'Missing ' . $this->relative($script));
+                return;
+            }
+
+            $result = $this->runProcess(array(PHP_BINARY, '-d', 'error_reporting=E_ALL', '-d', 'display_errors=1', $script));
+            if ($result['exitCode'] !== 0) {
+                $this->fail('Optional MariaDB differential tests', trim($result['stdout'] . $result['stderr']));
+                return;
+            }
+            $outputs[] = trim($result['stdout']);
         }
 
-        $result = $this->runProcess(array(PHP_BINARY, '-d', 'error_reporting=E_ALL', '-d', 'display_errors=1', $script));
-        if ($result['exitCode'] !== 0) {
-            $this->fail('Optional MariaDB differential tests', trim($result['stdout'] . $result['stderr']));
-            return;
-        }
-
-        $this->pass('Optional MariaDB differential tests', trim($result['stdout']));
+        $this->pass('Optional MariaDB differential tests', implode('; ', array_filter($outputs)));
     }
 
     private function runHttpSmokeTests(): void

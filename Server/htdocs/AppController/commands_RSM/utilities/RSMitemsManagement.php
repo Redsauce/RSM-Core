@@ -2319,6 +2319,192 @@ function getItemPropertyValue($itemID, $propertyID, $clientID, $propertyType = '
     return;
 }
 
+// Execute a scalar prepared query used by the next-integer sequence helpers.
+function RSnextIntegerExecuteScalar($query, $parameterTypes = '', $parameterValues = array())
+{
+    global $mysqli;
+
+    $statement = $mysqli->prepare($query);
+    if (!$statement) return false;
+
+    if ($parameterTypes !== '') {
+        $bindArguments = array($parameterTypes);
+        foreach ($parameterValues as $index => $value) {
+            $parameterValues[$index] = $value;
+            $bindArguments[] = &$parameterValues[$index];
+        }
+        call_user_func_array(array($statement, 'bind_param'), $bindArguments);
+    }
+
+    $statement->execute();
+    $scalar = null;
+    $statement->bind_result($scalar);
+    $hasResult = $statement->fetch();
+    $statement->close();
+
+    return $hasResult ? $scalar : false;
+}
+
+// Return the next positive integer for a property, optionally scoped by year,
+// series, and the customer restriction carried by the token.
+function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
+{
+    global $propertiesTables;
+
+    $clientID = intval($clientID);
+    $itemTypeID = intval($itemTypeID);
+    $propertyID = intval($propertyID);
+    if ($clientID <= 0 || $itemTypeID <= 0 || $propertyID <= 0) return false;
+    if (!isset($propertiesTables['integer'])) return false;
+
+    $query = 'SELECT COALESCE(MAX(targetValue.RS_DATA), 0) AS maxValue'
+        . ' FROM ' . $propertiesTables['integer'] . ' targetValue';
+    $where = array(
+        'targetValue.RS_CLIENT_ID = ' . $clientID,
+        'targetValue.RS_ITEMTYPE_ID = ' . $itemTypeID,
+        'targetValue.RS_PROPERTY_ID = ' . $propertyID,
+        'targetValue.RS_DATA > 0'
+    );
+    $parameterTypes = '';
+    $parameterValues = array();
+
+    if (is_array($yearScope)) {
+        $yearPropertyID = intval($yearScope['propertyID'] ?? 0);
+        $yearPropertyType = (string)($yearScope['type'] ?? '');
+        $year = intval($yearScope['year'] ?? 0);
+        if ($yearPropertyID <= 0 || !in_array($yearPropertyType, array('date', 'datetime'), true) || $year < 1000 || $year > 9998) return false;
+
+        $query .= ' INNER JOIN ' . $propertiesTables[$yearPropertyType] . ' yearValue'
+            . ' ON yearValue.RS_CLIENT_ID = targetValue.RS_CLIENT_ID'
+            . ' AND yearValue.RS_ITEMTYPE_ID = targetValue.RS_ITEMTYPE_ID'
+            . ' AND yearValue.RS_ITEM_ID = targetValue.RS_ITEM_ID'
+            . ' AND yearValue.RS_PROPERTY_ID = ' . $yearPropertyID;
+        $where[] = 'yearValue.RS_DATA >= ?';
+        $where[] = 'yearValue.RS_DATA < ?';
+        $parameterTypes .= 'ss';
+        $parameterValues[] = sprintf('%04d-01-01', $year);
+        $parameterValues[] = sprintf('%04d-01-01', $year + 1);
+    }
+
+    if (is_array($seriesScope)) {
+        $seriesPropertyID = intval($seriesScope['propertyID'] ?? 0);
+        $seriesPropertyType = (string)($seriesScope['type'] ?? '');
+        if ($seriesPropertyID <= 0 || !isset($propertiesTables[$seriesPropertyType]) || in_array($seriesPropertyType, array('file', 'image'), true)) return false;
+
+        $query .= ' INNER JOIN ' . $propertiesTables[$seriesPropertyType] . ' seriesValue'
+            . ' ON seriesValue.RS_CLIENT_ID = targetValue.RS_CLIENT_ID'
+            . ' AND seriesValue.RS_ITEMTYPE_ID = targetValue.RS_ITEMTYPE_ID'
+            . ' AND seriesValue.RS_ITEM_ID = targetValue.RS_ITEM_ID'
+            . ' AND seriesValue.RS_PROPERTY_ID = ' . $seriesPropertyID;
+        // Internal callers may scope a sequence to a set of related items.
+        // An empty set matches nothing, rather than becoming an unscoped query.
+        if (isset($seriesScope['values'])) {
+            if (!is_array($seriesScope['values'])) return false;
+            $values = $seriesScope['values'];
+            $where[] = count($values) ? 'seriesValue.RS_DATA IN (' . implode(',', array_fill(0, count($values), '?')) . ')' : '1 = 0';
+        } else {
+            $values = array($seriesScope['value'] ?? '');
+            $where[] = 'seriesValue.RS_DATA = ?';
+        }
+        foreach ($values as $value) {
+            if (!is_scalar($value)) return false;
+            $parameterTypes .= 's';
+            $parameterValues[] = (string)$value;
+        }
+    }
+
+    if (is_array($customerScope)) {
+        $customerPropertyID = intval($customerScope['propertyID'] ?? 0);
+        $customerPropertyType = (string)($customerScope['type'] ?? '');
+        $customerItemID = intval($customerScope['itemID'] ?? 0);
+        if ($customerPropertyID <= 0 || $customerItemID <= 0 || !in_array($customerPropertyType, array('identifier', 'identifiers'), true)) return false;
+
+        $query .= ' INNER JOIN ' . $propertiesTables[$customerPropertyType] . ' customerValue'
+            . ' ON customerValue.RS_CLIENT_ID = targetValue.RS_CLIENT_ID'
+            . ' AND customerValue.RS_ITEMTYPE_ID = targetValue.RS_ITEMTYPE_ID'
+            . ' AND customerValue.RS_ITEM_ID = targetValue.RS_ITEM_ID'
+            . ' AND customerValue.RS_PROPERTY_ID = ' . $customerPropertyID;
+        $where[] = $customerPropertyType === 'identifiers'
+            ? 'FIND_IN_SET(?, customerValue.RS_DATA) > 0'
+            : 'customerValue.RS_DATA = ?';
+        $parameterTypes .= 's';
+        $parameterValues[] = (string)$customerItemID;
+    }
+
+    $query .= ' WHERE ' . implode(' AND ', $where);
+    $maximum = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
+    if ($maximum === false || $maximum === null || !is_numeric($maximum)) return false;
+
+    return max(0, intval($maximum)) + 1;
+}
+
+function RSgetNextIntegerLockName($clientID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
+{
+    $lockParts = array('client=' . intval($clientID), 'property=' . intval($propertyID));
+    if (is_array($yearScope)) {
+        $lockParts[] = 'yearProperty=' . intval($yearScope['propertyID'] ?? 0);
+        $lockParts[] = 'year=' . intval($yearScope['year'] ?? 0);
+    }
+    if (is_array($seriesScope)) {
+        $lockParts[] = 'seriesProperty=' . intval($seriesScope['propertyID'] ?? 0);
+        if (isset($seriesScope['values'])) {
+            $values = array_values(array_unique(array_map('strval', $seriesScope['values'])));
+            sort($values, SORT_STRING);
+            $lockParts[] = count($values) === 1 ? 'series=' . $values[0] : 'seriesSet=' . json_encode($values);
+        } else {
+            $lockParts[] = 'series=' . (string)($seriesScope['value'] ?? '');
+        }
+    }
+    if (is_array($customerScope)) {
+        $lockParts[] = 'customerProperty=' . intval($customerScope['propertyID'] ?? 0);
+        $lockParts[] = 'customerItem=' . intval($customerScope['itemID'] ?? 0);
+    }
+
+    return 'rsm-next-int:' . substr(hash('sha256', implode("\x1f", $lockParts)), 0, 48);
+}
+
+function RSacquireNextIntegerLock($lockName, $timeoutSeconds = 5)
+{
+    $result = RSnextIntegerExecuteScalar('SELECT GET_LOCK(?, ?)', 'si', array((string)$lockName, max(0, intval($timeoutSeconds))));
+    return intval($result) === 1;
+}
+
+function RSreleaseNextIntegerLock($lockName)
+{
+    $result = RSnextIntegerExecuteScalar('SELECT RELEASE_LOCK(?)', 's', array((string)$lockName));
+    return intval($result) === 1;
+}
+
+// Owns its transaction: call outside an existing transaction. The callback must
+// persist the number and its scope properties and return true only on success.
+function RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $persist, $yearScope = null, $seriesScope = null)
+{
+    global $mysqli;
+
+    if (getPropertyType($propertyID, $clientID) !== 'integer') return false;
+    $lockName = RSgetNextIntegerLockName($clientID, $propertyID, $yearScope, $seriesScope);
+    if (!RSacquireNextIntegerLock($lockName)) return false;
+    $transactionStarted = false;
+    try {
+        if (!$mysqli->begin_transaction()) return false;
+        $transactionStarted = true;
+        $next = RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope, $seriesScope);
+        if ($next === false || $persist($next) !== true) return false;
+        if (!$mysqli->commit()) return false;
+        $transactionStarted = false;
+        return $next;
+    } catch (Throwable $exception) {
+        RSError('nextInteger allocation: ' . $exception->getMessage());
+        return false;
+    } finally {
+        try {
+            if ($transactionStarted) $mysqli->rollback();
+        } finally {
+            RSreleaseNextIntegerLock($lockName);
+        }
+    }
+}
+
 // Return the value of the property passed
 function getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType = '', $itemTypeID = '')
 {

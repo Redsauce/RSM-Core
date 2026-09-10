@@ -43,7 +43,6 @@ if (($currentOperationID > 0) || ($currentInvoiceDate != '')) {
 }
 
 // --- calculate the internal ID the operation will be receive (the max ID for the current year and current account) ---
-$maxID = 0;
 
 // the account may be a "part" of a more general account (example, accounts 431 and 432 are a part of the account 43...), so we have to retrieve this account
 $filterProperties = array();
@@ -73,40 +72,24 @@ while ($row = $subAccountsQueryResults->fetch_assoc()) {
     $subAccounts[] = $row['ID'];
 }
 
-if (count($subAccounts) > 0) {
-    // get subAccountID property
-    $subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
-
-    // build filter properties array
-    $filterProperties = array();
-    if (count($subAccounts) > 1) {
-        $filterProperties[] = array('ID' => $subAccountPropertyID, 'value' => implode(',', $subAccounts), 'mode' => '<-IN');
-    } else {
-        $filterProperties[] = array('ID' => $subAccountPropertyID, 'value' => $subAccounts[0]);
-    }
-    $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') - 1) . '-12-31', 'mode' => 'AFTER');
-    $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') + 1) . '-01-01', 'mode' => 'BEFORE');
-
-    // build return properties array
-    $returnProperties = array();
-    $returnProperties[] = array('ID' => $operationIDPropertyID, 'name' => 'operationID');
-
-    // get current year's operations for the account
-    $currentYearOperations = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
-
-    while ($row = $currentYearOperations->fetch_assoc()) {
-        if ($row['operationID'] > $maxID) {
-            // update maxID
-            $maxID = $row['operationID'];
-        }
-    }
+$date = date('Y-m-d');
+$subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
+$yearScope = array('propertyID' => $invoiceDatePropertyID, 'type' => getPropertyType($invoiceDatePropertyID, $clientID), 'year' => intval(substr($date, 0, 4)));
+$seriesScope = array('propertyID' => $subAccountPropertyID, 'type' => getPropertyType($subAccountPropertyID, $clientID), 'values' => $subAccounts);
+$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $operationIDPropertyID,
+    function ($next) use ($clientID, $itemTypeID, $operationID, $operationIDPropertyID, $invoiceDatePropertyID, $date, $RSuserID) {
+        // Keep this command's existing number/date rules inside the allocation lock.
+        if (getItemPropertyValue($operationID, $operationIDPropertyID, $clientID) > 0
+            || getItemPropertyValue($operationID, $invoiceDatePropertyID, $clientID) != '') return false;
+        if (setPropertyValueByID($operationIDPropertyID, $itemTypeID, $operationID, $clientID, $next, '', $RSuserID) !== 0) return false;
+        return setPropertyValueByID($invoiceDatePropertyID, $itemTypeID, $operationID, $clientID, $date, '', $RSuserID) === 0;
+    }, $yearScope, $seriesScope);
+if ($nextID === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'ERROR ASSIGNING NUMBER AND DATE';
+    RSReturnArrayResults($results);
+    exit;
 }
-
-// update the operationID property, assigning the max retrieved +1
-setPropertyValueByID($operationIDPropertyID, $itemTypeID, $operationID, $clientID, $maxID + 1, '', $RSuserID);
-
-// set operation invoiceDate property to the current date
-setPropertyValueByID($invoiceDatePropertyID, $itemTypeID, $operationID, $clientID, date('Y-m-d'), '', $RSuserID);
 
 $results['result'] = 'OK';
 $results['ID'] = $operationID;
