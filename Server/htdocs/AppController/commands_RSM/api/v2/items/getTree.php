@@ -190,6 +190,7 @@ function getAssignedStaffItemTypeIDs($clientID)
 
 function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $allowedItemTypes, $destinationItemTypes, $filterID, $fastFilter, $returnOrder, $staffFilterID = 0)
 {
+    if (!RSisTokenCustomerScopeValid($RStoken)) return array();
     $results = array();
     $parentItemTypeMainPropertyID = getMainPropertyID($parentItemTypeID, $clientID);
     $parentItemTypeMainPropertyType = getPropertyType($parentItemTypeMainPropertyID, $clientID);
@@ -271,6 +272,21 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
     }
 
     foreach ($results as $idx => $row) {
+        // Al construir el árbol pueden añadirse padres que no estaban en la consulta inicial.
+        // Quita los items y las referencias a padres o hijos que el token no puede consultar.
+        if ($isCustomerScopedToken) {
+            if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $row['nodeItemType'], $row['nodeID'])
+                || (intval($row['parentID']) > 0 && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $row['parentItemType'], $row['parentID']))) {
+                unset($results[$idx]);
+                continue;
+            }
+            $children = array();
+            foreach (explode(';', $row['childs']) as $child) {
+                $identity = explode(',', $child);
+                if (count($identity) === 2 && RSitemMatchesTokenCustomerScope($RStoken, $clientID, $identity[1], $identity[0])) $children[] = $child;
+            }
+            $results[$idx]['childs'] = implode(';', $children);
+        }
         if (!isset($row['nodeMainPropertyID'])) {
             $results[$idx]['nodeMainPropertyID'] = getMainPropertyID($row['nodeItemType'], $clientID);
         }
@@ -281,17 +297,17 @@ function getTreeFlatItems($clientID, $RStoken, $parentItemTypeID, $parentID, $al
         }
     }
 
-    return $results;
+    return array_values($results);
 }
 
 function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = 'MAINPROP', $staffFilterID = 0)
 {
-    if ($fastFilter == '') {
+    if ($fastFilter == '' && !RSisCustomerScopedToken($RStoken)) {
         return filterAssignedItemsForStaff(filterItems($clientID, $itemTypeID, $filterID, $fastFilter, $returnOrder, $mainPropName), $clientID, $itemTypeID, $staffFilterID);
     }
 
-    $ids = getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter);
-    if (empty($ids)) {
+    $ids = $fastFilter == '' ? array() : getFastFilterItemIDsForToken($clientID, $RStoken, $itemTypeID, $fastFilter);
+    if ($fastFilter != '' && empty($ids)) {
         return array();
     }
 
@@ -323,6 +339,8 @@ function filterItemsForToken($clientID, $RStoken, $itemTypeID, $filterID, $fastF
         }
     }
 
+    $filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
+    if ($filterProperties === false) return array();
     return filterAssignedItemsForStaff(getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', implode(',', $ids), $operator, $returnOrder), $clientID, $itemTypeID, $staffFilterID);
 }
 

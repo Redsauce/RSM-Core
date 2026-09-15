@@ -26,6 +26,7 @@
 - `api/v2/items/get.php`
 - `api/v2/items/getCount.php`
 - `api/v2/items/getItemFromProperty.php`
+- `api/v2/items/getTree.php`: scoped destination queries and checks on expanded path nodes and parent/child identities.
 - `api/v2/items/update.php`
 - `api/v2/picture/get.php`
 - `api/v2/properties/get.php`

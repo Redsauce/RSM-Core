@@ -3218,6 +3218,11 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
         $arrEquals = array('IN', '<-IN', '=', '>=', '<=', 'SAME_OR_BEFORE', 'SAME_OR_AFTER', 'TIME_SAME_OR_BEFORE', 'TIME_SAME_OR_AFTER', 'LIKE', 'GE', 'LE');
 
         foreach ($filterProperties as $property) {
+            // Exige que el resultado tenga este ID, aunque los demás filtros usen OR.
+            if (isset($property['itemID'])) {
+                $queryPartWHERE .= " AND rs_items.RS_ITEM_ID = " . intval($property['itemID']);
+                continue;
+            }
             if ($property['ID'] == '0' || $property['ID'] == '')
                 continue;
 
@@ -3429,9 +3434,9 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
     return $results;
 }
 
-// Find the single direct identifier/multi-identifier property that links an item type to the token customer item type.
-// The item type of a property is derived through categories, so this intentionally joins rs_categories.
-// If there is no match or more than one match, access fails closed to avoid leaking unrelated items.
+// Busca la propiedad identifier o identifiers que relaciona estos items con el tipo del padre.
+// Consulta rs_categories para saber a qué tipo de item pertenece cada propiedad.
+// Debe encontrar una sola propiedad: si no hay ninguna o hay varias, devuelve 0.
 function RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return 0;
@@ -3473,14 +3478,22 @@ function RSgetTokenCustomerDependencyPropertyID($RStoken, $itemTypeID, $clientID
     return is_array($property) ? $property['ID'] : 0;
 }
 
-// Add the customer scope as a normal identifier filter for list/count/search endpoints.
-// Standard tokens return the original filters unchanged; invalid scoped tokens return false.
+// Añade el filtro que limita los resultados al padre del token o a los items relacionados con él.
+// Si se consulta el tipo del padre, solo admite el ID del padre configurado en el token.
+// Los tokens sin restricción conservan sus filtros. Devuelve false si no puede aplicar la restricción.
 function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
     if (!RSisCustomerScopedToken($RStoken)) return $filterProperties;
+    if (!RSisTokenEnabled($RStoken) || intval(RSclientFromToken($RStoken)) !== intval($clientID)) return false;
 
     if (!is_array($filterProperties)) $filterProperties = array();
+
+    $itemTypeID = parseITID($itemTypeID, $clientID);
+    if (intval($itemTypeID) === intval(RSgetTokenCustomerItemTypeID($RStoken))) {
+        $filterProperties[] = array('itemID' => RSgetTokenCustomerItemID($RStoken));
+        return $filterProperties;
+    }
 
     $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
     if (!is_array($customerDependencyProperty)) return false;
@@ -3494,14 +3507,25 @@ function RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $fil
     return $filterProperties;
 }
 
-// Check direct access to one item before returning, updating, deleting, or streaming its data.
-// This is the central guard used by API v1/v2 endpoints for customer-scoped tokens.
+// Comprueba si el item es el padre del token o un item de otro tipo relacionado con él.
+// Las API v1 y v2 usan esta función antes de leer o modificar sus datos.
+// Los permisos de lectura, escritura o borrado se comprueban por separado.
 function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
     if (!RSisCustomerScopedToken($RStoken)) return true;
+    if (!RSisTokenEnabled($RStoken) || intval(RSclientFromToken($RStoken)) !== intval($clientID)) return false;
+    if (!is_scalar($itemID) || !ctype_digit((string) $itemID) || intval($itemID) <= 0) return false;
 
     $itemTypeID = parseITID($itemTypeID, $clientID);
+    if (intval($itemTypeID) === intval(RSgetTokenCustomerItemTypeID($RStoken))) {
+        if (intval($itemID) !== intval(RSgetTokenCustomerItemID($RStoken))) return false;
+        $result = RSQuery("SELECT RS_ITEM_ID FROM rs_items
+                           WHERE RS_CLIENT_ID = " . intval($clientID) . "
+                           AND RS_ITEMTYPE_ID = " . intval($itemTypeID) . "
+                           AND RS_ITEM_ID = " . intval($itemID) . " LIMIT 1");
+        return $result && $result->num_rows > 0;
+    }
     $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
     if (!is_array($customerDependencyProperty)) return false;
 
@@ -3522,7 +3546,8 @@ function RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $item
     return ($result && $result->num_rows > 0);
 }
 
-// Batch variant used before destructive operations; one out-of-scope item rejects the whole batch.
+// Comprueba todos los IDs antes de modificar nada.
+// Si el token no puede acceder a uno de los items, devuelve false para toda la lista.
 function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDs)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
@@ -3532,20 +3557,24 @@ function RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemI
         $itemIDs = explode(',', $itemIDs);
     }
 
+    if (empty($itemIDs)) return false;
     foreach ($itemIDs as $itemID) {
-        if ($itemID === '') continue;
         if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) return false;
     }
 
     return true;
 }
 
-// Add the scoped customer dependency to a create payload.
-// If the caller already sent that property, it must match the token scope.
+// Al crear un item relacionado, añade la propiedad que lo vincula al padre del token.
+// Si la petición ya incluye esa propiedad, comprueba que apunta a ese padre.
 function RSapplyTokenCustomerScopeToCreatePayload($RStoken, $clientID, $itemTypeID, $properties)
 {
     if (!RSisTokenCustomerScopeValid($RStoken)) return false;
     if (!RSisCustomerScopedToken($RStoken)) return $properties;
+    if (!RSisTokenEnabled($RStoken) || intval(RSclientFromToken($RStoken)) !== intval($clientID)) return false;
+    $itemTypeID = parseITID($itemTypeID, $clientID);
+    // El token puede acceder a su padre, pero no crear otros items del mismo tipo.
+    if (intval($itemTypeID) === intval(RSgetTokenCustomerItemTypeID($RStoken))) return false;
 
     $customerDependencyProperty = RSgetTokenCustomerDependencyProperty($RStoken, $itemTypeID, $clientID);
     if (!is_array($customerDependencyProperty)) return false;
