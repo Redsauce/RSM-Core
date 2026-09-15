@@ -52,7 +52,6 @@ function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, 
     curl_setopt($ch, CURLOPT_HEADER, 0);
     $xmlret = curl_exec($ch);
 
-    curl_close($ch);
 
     header('Content-type: application/xml');
 

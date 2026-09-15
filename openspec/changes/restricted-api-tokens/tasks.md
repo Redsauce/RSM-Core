@@ -46,7 +46,7 @@
 - [x] 3.7 Enforce customer scope in `api/v2/file/get.php` and `api/v2/picture/get.php` before returning binary property data.
 - [x] 3.8 Enforce customer scope in `api/v2/properties/get.php` before returning item property metadata or values.
 - [x] 3.9 Enforce customer scope in `api/v2/audit/get.php` before returning audit trail data.
-- [x] 3.10 Enforce fail-closed customer scope behavior in `api/v2/staff/get.php` and `api/v2/user/get.php`, validating user lookup through the linked `rs_users.RS_ITEM_ID` staff item rather than `RS_USER_ID`.
+- [x] 3.10 Enforce fail-closed customer scope behavior in `api/v2/staff/get.php`, validating lookup through the linked `rs_users.RS_ITEM_ID` staff item rather than `RS_USER_ID`.
 
 ## 4. API v1 Item and Property Endpoints
 
@@ -64,18 +64,18 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Verify standard tokens still authenticate and authorize existing API v1 item operations without customer-scope filtering.
-- [ ] 5.2 Verify standard tokens still authenticate and authorize existing API v2 item operations without customer-scope filtering.
-- [ ] 5.3 Verify customer-scoped tokens can read/list/count only items with the matching customer dependency.
+- [x] 5.1 Verify standard tokens still authenticate and authorize existing API v1 item operations without customer-scope filtering.
+- [x] 5.2 Verify standard tokens still authenticate and authorize existing API v2 item operations without customer-scope filtering.
+- [x] 5.3 Verify customer-scoped tokens can read/list/count only items with the matching customer dependency.
 - [ ] 5.4 Verify customer-scoped tokens cannot create, update, or delete items outside their customer scope.
-- [ ] 5.5 Verify customer-scoped tokens cannot read file or picture data from items outside their customer scope.
-- [ ] 5.6 Verify customer-scoped tokens cannot read properties or audit trail from items outside their customer scope.
+- [x] 5.5 Verify customer-scoped tokens cannot read file or picture data from items outside their customer scope.
+- [x] 5.6 Verify customer-scoped tokens cannot read properties or audit trail from items outside their customer scope.
 - [ ] 5.7 Verify customer-scoped tokens cannot retrieve staff/user IDs unless the matched staff item is inside scope.
-- [ ] 5.8 Verify property permissions are still required when customer scope passes.
+- [x] 5.8 Verify property permissions are still required when customer scope passes.
 - [x] 5.9 Verify every API PHP endpoint appears in the endpoint inventory with an enforcement or exemption decision.
 - [x] 5.10 Run the available PHP linting or endpoint-level regression checks for all touched API and utility files.
 - [ ] 5.11 Verify a valid edit-token request without `clientID` updates the expected scope fields for the selected token after inferring the client from that token.
-- [ ] 5.12 Verify a valid edit-token request that omits `tokenAlias` preserves the existing `RS_TOKEN_ALIAS`.
-- [ ] 5.13 Verify a valid edit-token request that omits both `itemTypeID` and `itemID` but includes `tokenAlias` preserves both scope fields and updates the alias.
-- [ ] 5.14 Verify a valid edit-token request that omits `itemTypeID`, `itemID`, and `tokenAlias` leaves `rs_tokens` unchanged.
-- [ ] 5.15 Verify edit-token requests with invalid login/password for the token's client, partial scope values, or a missing item do not update `rs_tokens`.
+- [x] 5.12 Verify a valid edit-token request that omits `tokenAlias` preserves the existing `RS_TOKEN_ALIAS`.
+- [x] 5.13 Verify a valid edit-token request that omits both `itemTypeID` and `itemID` but includes `tokenAlias` preserves both scope fields and updates the alias.
+- [x] 5.14 Verify a valid edit-token request that omits `itemTypeID`, `itemID`, and `tokenAlias` leaves `rs_tokens` unchanged.
+- [x] 5.15 Verify edit-token requests with invalid login/password for the token's client, partial scope values, or a missing item do not update `rs_tokens`.

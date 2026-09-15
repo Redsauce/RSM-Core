@@ -39,41 +39,35 @@ foreach ($invoiceIDs as $invoiceID) {
   // execute query
   $result = RSQuery($theQuery);
 
-  // build filter properties array
-  $filterProperties = array();
-
   $row = $result->fetch_assoc();
-
-  // filter by the current year
-  if (isset($row['value']) && ($row['value'] == '1')) {
-    $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') - 1) . '-12-31', 'mode' => 'AFTER');
-    $filterProperties[] = array('ID' => $invoiceDatePropertyID, 'value' => (date('Y') + 1) . '-01-01', 'mode' => 'BEFORE');
-  }
-  
-  // get current invoice serie and filter when available
-  $currentInvoiceSerie = getItemPropertyValue($invoiceID, $invoiceSeriePropertyID, $clientID);
-  if ($currentInvoiceSerie !== '') {
-    $filterProperties[] = array('ID' => $invoiceSeriePropertyID, 'value' => $currentInvoiceSerie);
+  $date = date('Y-m-d');
+  $yearScope = null;
+  if (isset($row['value']) && $row['value'] == '1') {
+    $yearScope = array('propertyID' => $invoiceDatePropertyID, 'type' => getPropertyType($invoiceDatePropertyID, $clientID), 'year' => intval(substr($date, 0, 4)));
   }
 
-  // build return properties array
-  $returnProperties   = array();
-  $returnProperties[] = array('ID' => $invoiceIDPropertyID, 'name' => 'invoiceID');
-
-  // get current year's invoices
-  $currentYearInvoices = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
-
-  $maxID = 0;
-    
-  if ($currentYearInvoices) {
-    while ($row = $currentYearInvoices->fetch_assoc()) if ($row['invoiceID'] > $maxID) $maxID = $row['invoiceID'];
+  // An unmapped property or missing value is also an absent series. The item
+  // getter returns null in these cases, which must not create an invalid scope.
+  $currentInvoiceSerie = $invoiceSeriePropertyID > 0
+    ? (string)(getItemPropertyValue($invoiceID, $invoiceSeriePropertyID, $clientID) ?? '')
+    : '';
+  $seriesScope = $currentInvoiceSerie !== ''
+    ? array('propertyID' => $invoiceSeriePropertyID, 'type' => getPropertyType($invoiceSeriePropertyID, $clientID), 'value' => $currentInvoiceSerie)
+    : null;
+  $nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $invoiceIDPropertyID,
+      function ($next) use ($clientID, $itemTypeID, $invoiceID, $invoiceIDPropertyID, $invoiceDatePropertyID, $date, $RSuserID) {
+          // Keep this command's existing number/date rules inside the allocation lock.
+          if (getItemPropertyValue($invoiceID, $invoiceIDPropertyID, $clientID) > 0
+              || getItemPropertyValue($invoiceID, $invoiceDatePropertyID, $clientID) != '') return false;
+          if (setPropertyValueByID($invoiceIDPropertyID, $itemTypeID, $invoiceID, $clientID, $next, '', $RSuserID) !== 0) return false;
+          return setPropertyValueByID($invoiceDatePropertyID, $itemTypeID, $invoiceID, $clientID, $date, '', $RSuserID) === 0;
+      }, $yearScope, $seriesScope);
+  if ($nextID === false) {
+      $results['result'] = 'NOK';
+      $results['description'] = 'ERROR ASSIGNING NUMBER AND DATE';
+      RSReturnArrayResults($results);
+      exit;
   }
-
-  // update invoiceID property
-  setPropertyValueByID($invoiceIDPropertyID, $itemTypeID, $invoiceID, $clientID, $maxID + 1, '', $RSuserID);
-
-  // update invoiceDate property
-  setPropertyValueByID($invoiceDatePropertyID, $itemTypeID, $invoiceID, $clientID, date('Y-m-d'), '', $RSuserID);
 
   // get the clientID in the invoiceClient
   $invoiceClientID = getItemPropertyValue($invoiceID, $invoiceClientIDPropertyID, $clientID);
@@ -92,8 +86,8 @@ foreach ($invoiceIDs as $invoiceID) {
   }
 
   $results['result'      ] = 'OK';
-  $results['ID'          ] = $maxID + 1;
-  $results['date'        ] = date('Y-m-d');
+  $results['ID'          ] = $nextID;
+  $results['date'        ] = $date;
   $results['invoiceIDpID'] = $invoiceIDPropertyID;
 }
 

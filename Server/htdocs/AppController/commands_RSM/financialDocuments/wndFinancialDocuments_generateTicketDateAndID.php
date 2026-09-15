@@ -31,28 +31,25 @@ if ($currentTicketID > 0 || $currentTicketDate != '') {
     RSReturnArrayResults($results);
 }
 
-// build return properties array
-$returnProperties   = array();
-$returnProperties[] = array('ID' => $ticketIDPropertyID, 'name' => 'ticketID');
-
-// get current year's invoices
-$currentYearTickets = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
-
-$maxID = 0;
-
-if ($currentYearTickets) {
-    while ($row = $currentYearTickets->fetch_assoc()) if ($row['ticketID'] > $maxID) $maxID = $row['ticketID'];
+$date = date('Y-m-d');
+$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $ticketIDPropertyID,
+    function ($next) use ($clientID, $itemTypeID, $ticketID, $ticketIDPropertyID, $ticketDatePropertyID, $date, $RSuserID) {
+        // Keep this command's existing number/date rules inside the allocation lock.
+        if (getItemPropertyValue($ticketID, $ticketIDPropertyID, $clientID) > 0
+            || getItemPropertyValue($ticketID, $ticketDatePropertyID, $clientID) != '') return false;
+        if (setPropertyValueByID($ticketIDPropertyID, $itemTypeID, $ticketID, $clientID, $next, '', $RSuserID) !== 0) return false;
+        return setPropertyValueByID($ticketDatePropertyID, $itemTypeID, $ticketID, $clientID, $date, '', $RSuserID) === 0;
+    });
+if ($nextID === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'ERROR ASSIGNING NUMBER AND DATE';
+    RSReturnArrayResults($results);
+    exit;
 }
 
-// update ticketID property
-setPropertyValueByID($ticketIDPropertyID, $itemTypeID, $ticketID, $clientID, $maxID + 1, '', $RSuserID);
-
-// update invoiceDate property
-setPropertyValueByID($ticketDatePropertyID, $itemTypeID, $ticketID, $clientID, date('Y-m-d'), '', $RSuserID);
-
 $results['result'     ] = 'OK';
-$results['ID'         ] = $maxID + 1;
-$results['date'       ] = date('Y-m-d');
+$results['ID'         ] = $nextID;
+$results['date'       ] = $date;
 $results['ticketIDpID'] = $ticketIDPropertyID;
 
 // Return results

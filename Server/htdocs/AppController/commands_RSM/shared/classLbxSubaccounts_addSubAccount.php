@@ -18,33 +18,27 @@ $personalIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['sub
 
 
 
-// calculate the personal ID (the max ID for the subaccounts pertaining to the current account + 1)
-$maxID = 0;
-
-// build filter properties array
-$filterProperties = array();
-$filterProperties[] = array('ID' => $accountPropertyID, 'value' => $accountID);
-
-$returnProperties = array();
-$returnProperties[] = array('ID' => $personalIDPropertyID, 'name' => 'personalID');
-
-// get subaccounts
-$subAccountsQueryResults = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties);
-
-while ($row = $subAccountsQueryResults->fetch_assoc()) {
-	if ($row['personalID'] > $maxID) {
-		// update maxID
-		$maxID = $row['personalID'];
-	}
+// Allocate within the parent account and keep creation inside the sequence lock.
+$seriesScope = array('propertyID' => $accountPropertyID, 'type' => getPropertyType($accountPropertyID, $clientID), 'value' => $accountID);
+$newSubAccountID = null;
+$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $personalIDPropertyID,
+    function ($next) use ($clientID, $itemTypeID, $accountPropertyID, $accountID, $personalIDPropertyID, &$newSubAccountID) {
+        $values = array(
+            array('ID' => $accountPropertyID, 'value' => $accountID),
+            array('ID' => $personalIDPropertyID, 'value' => $next)
+        );
+        $newSubAccountID = createItem($clientID, $values, $itemTypeID);
+        // createItem does not report individual property-write failures.
+        return $newSubAccountID > 0
+            && getItemPropertyValue($newSubAccountID, $personalIDPropertyID, $clientID) == $next
+            && getItemPropertyValue($newSubAccountID, $accountPropertyID, $clientID) == $accountID;
+    }, null, $seriesScope);
+if ($nextID === false) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'ERROR CREATING ITEM';
+    RSReturnArrayResults($results);
+    exit;
 }
-
-
-// now create the new subaccount
-$values = array();
-$values[]=array('ID' => $accountPropertyID, 'value' => $accountID);
-$values[]=array('ID' => $personalIDPropertyID, 'value' => $maxID+1);
-
-$newSubAccountID = createItem($clientID,$values);
 
 $results['ID'] = $newSubAccountID;
 $results['mainValue'] = getClientItemMainPropertyValue($newSubAccountID, $itemTypeID, $clientID);
