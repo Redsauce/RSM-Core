@@ -4,10 +4,11 @@ RSM needs an API operation to duplicate an item of any configured type. The exis
 
 ## What Changes
 
-- Add `POST /api/v2/items/duplicate.php` accepting one source `itemTypeID` and `itemID`, returning the new item ID.
+- Add `POST /api/v2/items/duplicate.php` accepting one source `itemTypeID` and `itemID`, accepting optional `descendants` edges and returning the new item ID and, when requested, the complete copy mapping.
 - Duplicate one item in the same client and item type using the shared item manager.
 - Copy properties according to RSM configuration: exclude every property marked `RS_AVOID_DUPLICATION`, without document-specific resets or automatically generated numbers/dates.
-- Copy eligible relation values as references; do not recursively duplicate related items or descendants.
+- Copy explicitly selected dependent items, including chains, and remap the selected relations to the new items. Other references remain unchanged.
+- Reuse children shared by multiple parents: retain their identity and append new parents to their existing relation.
 - Enforce existing API v2 authentication, effective READ/CREATE permissions, and customer-token scope. Reject unauthorized requests rather than silently producing a partial copy.
 - Return success only after the complete duplication is persisted; roll back failed copies.
 - Preserve existing PHP callers and the separate next-integer endpoint.

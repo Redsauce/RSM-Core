@@ -799,9 +799,7 @@ function replaceIdentifier($oldId, $newId, $itemTypeID, $itemID, $propertyID, $c
     }
 
     // update value
-    setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, implode(',', $idsList), $propertyType, $userID);
-
-    return true;
+    return setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, implode(',', $idsList), $propertyType, $userID) === 0;
 }
 // *********************************************
 // ************** APP ITEM TYPES ***************
@@ -1748,7 +1746,7 @@ function RSlockItemTypeForDuplication($itemTypeID, $clientID)
 }
 
 // Make copies of the item passed
-function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descendants = array(), &$copiedItems = array(), &$itemTypeProperties = array())
+function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descendants = array(), &$copiedItems = array(), &$itemTypeProperties = array(), $validateSharedItem = null)
 {
     global $propertiesTables, $RSuserID;
 
@@ -1874,10 +1872,28 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
             $childsToCopy = array();
             $childsToMove = array();
             foreach ($childs as $child) {
+                // A new copy encountered through another relation is not a source.
+                if (isset($copiedItems[$descendant[0]]) && in_array_recursive($child['ID'], $copiedItems[$descendant[0]])) continue;
+                if ($propertyType === 'identifiers') {
+                    $parentValues = getItemPropertyValue($child['ID'], $descendant[1], $clientID, $propertyType, $descendant[0]);
+                    $parentIDs = array_values(array_unique(array_filter(explode(',', (string)$parentValues), function ($id) { return intval($id) > 0; })));
+                    if (count($parentIDs) > 1) {
+                        // Shared children keep their identity and original parents.
+                        // The caller owns authorization; invoke its validator before
+                        // and after changing an existing child's relation.
+                        if ($validateSharedItem) $validateSharedItem($descendant[0], $child['ID'], $descendant[1]);
+                        foreach ($newItemsIDs[$child['parent']] as $newParentID) {
+                            if (!in_array($newParentID, $parentIDs)) $parentIDs[] = (string)$newParentID;
+                        }
+                        if (setPropertyValueByID($descendant[1], $descendant[0], $child['ID'], $clientID, implode(',', $parentIDs), $propertyType, $RSuserID) !== 0) return -1;
+                        if ($validateSharedItem) $validateSharedItem($descendant[0], $child['ID'], $descendant[1]);
+                        continue;
+                    }
+                }
                 // Check if the item has been already copied
                 if (array_key_exists($descendant[0], $copiedItems) && array_key_exists($child['ID'], $copiedItems[$descendant[0]])) {
                     // As the item has already been copied we move current property to parent in new branch
-                    if (array_key_exists($child['ID'], $childsToMove)) {
+                    if (!array_key_exists($child['ID'], $childsToMove)) {
                         $childsToMove[$child['ID']] = array();
                     }
                     $childsToMove[$child['ID']][] = $child['parent'];
@@ -1899,7 +1915,7 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
             }
 
             if (count($childsToCopy) > 0) {
-                if (duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties) == -1) {
+                if (duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties, $validateSharedItem) == -1) {
                     return -1;
                 }
             }
@@ -1909,9 +1925,10 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
                     //foreach ($copiedItems[$descendant[0]][$originalChildID] as $copiedChildID) {
                     foreach ($parents as $parent) {
                         // change parent of new child items to corresponding duplicated item
-                        // Try to replace only the old parent with new one in the property and if it fails simply overwrite property with new value
-                        if (!replaceIdentifier($parent, $newItemsIDs[$parent][$j], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $descendant[1], $clientID, $RSuserID)) {
-                            setPropertyValueByID($descendant[1], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $clientID, $newItemsIDs[$parent][$j], '', $RSuserID);
+                        if ($propertyType === 'identifiers') {
+                            if (!replaceIdentifier($parent, $newItemsIDs[$parent][$j], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $descendant[1], $clientID, $RSuserID)) return -1;
+                        } elseif (setPropertyValueByID($descendant[1], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $clientID, $newItemsIDs[$parent][$j], '', $RSuserID) !== 0) {
+                            return -1;
                         }
                     }
                 }

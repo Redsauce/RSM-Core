@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Authenticated generic duplication
-The system SHALL provide `POST /api/v2/items/duplicate.php` to duplicate exactly one existing item within the authenticated client and the same item type. The body SHALL contain only `itemTypeID` and `itemID`. The endpoint SHALL support standard API v2 OPTIONS handling.
+The system SHALL provide `POST /api/v2/items/duplicate.php` to duplicate one existing root item and its explicitly selected descendants within the authenticated client and the same item type. The body SHALL contain `itemTypeID`, `itemID` and optionally `descendants`; other fields SHALL be rejected. The endpoint SHALL support standard API v2 OPTIONS handling.
 
 #### Scenario: Valid source
 - **WHEN** an authorized caller supplies a valid item type and source item ID
@@ -58,14 +58,14 @@ Duplication SHALL preserve eligible property content using RSM's typed storage s
 - **THEN** the copy SHALL remain empty for that property without causing malformed SQL or a partial copy
 
 ### Requirement: Single-item reference behavior
-The endpoint SHALL copy eligible reference values and ordering without duplicating referenced items or descendants. It SHALL NOT apply the reference document endpoint's concept-copying or field-clearing rules.
+Without selected dependencies, the endpoint SHALL copy eligible reference values and ordering without duplicating referenced items or descendants. It SHALL NOT apply the reference document endpoint's concept-copying or field-clearing rules.
 
 #### Scenario: Related items
 - **WHEN** the source references another item through a duplicable property
 - **THEN** the copy SHALL reference the same item, and no additional related item SHALL be created
 
 #### Scenario: Incoming child relation
-- **WHEN** child items reference the source
+- **WHEN** child items reference the source and their dependency relation is not selected
 - **THEN** those items SHALL remain unchanged and SHALL NOT be duplicated or reparented
 
 ### Requirement: Authorization and tenant isolation
@@ -112,3 +112,52 @@ A successful request SHALL return HTTP 200 with numeric `itemTypeID`, `sourceIte
 #### Scenario: Existing document caller
 - **WHEN** a caller uses the existing document duplication PHP
 - **THEN** its existing request, response and document-specific behavior SHALL remain available
+
+### Requirement: Explicit dependent graph
+The optional `descendants` field SHALL be an array of objects containing only `itemTypeID` and `dependencyPropertyID`. Each property SHALL be an eligible identifier or identifiers property belonging to the supplied dependent type. Its referred type SHALL be reachable from the root through selected edges. The endpoint SHALL reject invalid or disconnected edges with 400, without creating copies. Mapped type identifiers SHALL be supported. The shared copier's configured recursive relation for a selected dependent type SHALL also be validated and followed.
+
+#### Scenario: Invoice and concepts
+- **WHEN** the caller selects the concept-to-invoice dependency
+- **THEN** the invoice and its existing concepts SHALL be copied and new concepts SHALL reference the new invoice
+- **AND** unrelated concepts and other clients' items SHALL remain unchanged
+
+#### Scenario: Chains and shared children
+- **WHEN** selected dependencies form chains or reach a child through multiple parents or paths
+- **THEN** every reachable exclusive source tuple SHALL be copied exactly once; shared children SHALL follow the reuse rule below
+- **AND** selected references to copied parents SHALL point to their copies, preserving external references and using the existing setters' ordering semantics
+
+#### Scenario: Cyclic or self dependency
+- **WHEN** explicitly selected relations form a cycle or self dependency
+- **THEN** traversal SHALL terminate, each source SHALL be copied once and selected references SHALL point to the corresponding copies
+
+#### Scenario: Excluded dependency
+- **WHEN** a selected dependency is excluded by duplication configuration
+- **THEN** the request SHALL fail with 400 without overriding configuration
+
+#### Scenario: Child access or persistence failure
+- **WHEN** any selected type lacks required READ/CREATE access, any source or destination fails customer scope, or any discovery/copy/remapping operation fails
+- **THEN** the entire operation SHALL fail with no persisted copies or allocation changes
+
+#### Scenario: Extended response
+- **WHEN** the request includes `descendants`
+- **THEN** the root response SHALL additionally contain `copiedItems`, an array of numeric `{itemTypeID, sourceItemID, newItemID}` mappings including the root
+- **AND** an empty array SHALL copy only the root, whereas omission SHALL preserve the original response shape
+
+### Requirement: Reuse shared children
+A child whose selected identifiers dependency contains multiple distinct parent IDs SHALL retain its identity. Duplication SHALL append the copied parent IDs to that existing relation while retaining the original parents. It SHALL NOT copy that child or traverse its subtree through the shared relation. Reused items SHALL NOT appear in copiedItems.
+
+#### Scenario: Child belongs to several parents
+- **WHEN** a child references parents A and B and A is duplicated as A2
+- **THEN** the existing child SHALL reference A, B and A2 and no copy of that child SHALL be created
+
+#### Scenario: Several copied parents
+- **WHEN** multiple parents or multiple copies of a parent are created
+- **THEN** all new parent IDs SHALL be appended to the shared child's list exactly once
+
+#### Scenario: Exclusive child
+- **WHEN** an identifiers relation contains only one parent
+- **THEN** the child SHALL be copied normally and the copied relation SHALL reference the new parent
+
+#### Scenario: Shared-child authorization and rollback
+- **WHEN** WRITE access on the shared relation or customer scope is denied, or persistence fails
+- **THEN** the complete request SHALL fail and roll back both created items and modifications to existing shared children
