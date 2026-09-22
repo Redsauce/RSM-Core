@@ -39,6 +39,7 @@ $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
 $properties = array();
 $attributes = array();
+$results = array();
 
 $properties = getClientItemTypeProperties($itemTypeID, $clientID);
 

@@ -98,22 +98,30 @@ The system SHALL provide a `classLbxTokens_editToken.php` API action that update
 - **THEN** the system SHALL leave `rs_tokens` unchanged and return `result` as `OK`
 
 ### Requirement: Customer dependency definition
-For customer-scoped tokens, the system SHALL determine item access through a direct `identifier` or `identifiers` property on the target item type that refers to the token customer item type and whose value contains the token customer item ID.
+For customer-scoped tokens, the system SHALL determine scope by exact existing parent identity for the configured customer item type, and through a direct `identifier` or `identifiers` property for other target item types. Parent identity MUST match the token client, customer item type, and customer item ID without requiring a self-reference. For other types, the dependency MUST refer to the token customer item type and contain the token customer item ID. The `scoped-token-parent-access` capability defines the parent exception.
+
+#### Scenario: Own parent has no self-reference
+- **WHEN** a customer-scoped token accesses its existing configured parent in its client
+- **THEN** that exact parent MUST be considered inside scope without requiring a customer dependency
+
+#### Scenario: Another parent refers to the configured parent
+- **WHEN** a customer-scoped token accesses another item of the configured customer item type, even with a dependency pointing to its own parent
+- **THEN** that item MUST be considered outside scope
 
 #### Scenario: Item has matching customer dependency
-- **WHEN** a customer-scoped token accesses an item whose customer dependency identifier refers to the token customer item type and equals the token customer item ID
+- **WHEN** a customer-scoped token accesses an item of another type whose customer dependency identifier refers to the token customer item type and equals the token customer item ID
 - **THEN** the item MUST be considered inside the token customer scope
 
 #### Scenario: Item has matching multi-identifier customer dependency
-- **WHEN** a customer-scoped token accesses an item whose customer dependency multi-identifier refers to the token customer item type and contains the token customer item ID in its comma-separated values
+- **WHEN** a customer-scoped token accesses an item of another type whose customer dependency multi-identifier refers to the token customer item type and contains the token customer item ID in its comma-separated values
 - **THEN** the item MUST be considered inside the token customer scope
 
 #### Scenario: Item has no matching customer dependency
-- **WHEN** a customer-scoped token accesses an item with no customer dependency identifier or multi-identifier, a different customer item type, or no value matching the token customer item ID
+- **WHEN** a customer-scoped token accesses an item of another type with no customer dependency identifier or multi-identifier, a different customer item type, or no value matching the token customer item ID
 - **THEN** the item MUST be considered outside the token customer scope
 
 #### Scenario: Customer dependency is ambiguous
-- **WHEN** the system cannot determine a single direct customer dependency identifier or multi-identifier for the item type
+- **WHEN** the target is not of the configured parent type and the system cannot determine a single direct customer dependency identifier or multi-identifier for the item type
 - **THEN** the system MUST deny customer-scoped token access to that item type
 
 ### Requirement: Shared customer-scope helpers
@@ -129,7 +137,8 @@ The system SHALL centralize customer-scope checks in shared utility functions us
 
 #### Scenario: Endpoint filters item queries
 - **WHEN** an endpoint lists, counts, searches, or feeds items for a customer-scoped token
-- **THEN** the endpoint MUST use a shared filter helper or shared query path that applies the customer dependency constraint consistently
+- **THEN** the endpoint MUST use a shared filter helper or shared query path that applies exact parent identity for the configured parent type and the customer dependency constraint for other types
+- **AND** the parent identity constraint MUST be combined with caller filters using AND before counts or pagination, independently of the caller's property-filter operator
 
 ### Requirement: Scoped item-backed reads
 API v1 and v2 item read, list, count, search, properties, audit trail, pending actions, feeds, file, and picture endpoints SHALL restrict customer-scoped token responses to data from items inside the token customer scope.
@@ -161,8 +170,12 @@ API v1 and v2 item read, list, count, search, properties, audit trail, pending a
 ### Requirement: Scoped item creation
 API v1 and v2 item create endpoints SHALL require customer-scoped token payloads to create only items inside the token customer scope.
 
+#### Scenario: Create another parent
+- **WHEN** a customer-scoped token creates an item of its configured customer item type
+- **THEN** the endpoint MUST reject creation because a new item is not the existing configured parent, even if the payload contains a matching dependency
+
 #### Scenario: Create with matching dependency
-- **WHEN** a customer-scoped token creates an item with the required customer dependency identifier set to the token customer item ID, or the required customer dependency multi-identifier containing the token customer item ID
+- **WHEN** a customer-scoped token creates an item of another type with the required customer dependency identifier set to the token customer item ID, or the required customer dependency multi-identifier containing the token customer item ID
 - **THEN** the item creation MAY proceed to existing CREATE permission validation
 
 #### Scenario: Create without matching dependency
@@ -187,6 +200,11 @@ API v1 and v2 item update and delete endpoints SHALL allow customer-scoped token
 #### Scenario: Batch mutation contains out-of-scope item
 - **WHEN** a customer-scoped token submits a batch update or delete containing at least one out-of-scope item
 - **THEN** the endpoint MUST reject the batch without partially mutating in-scope items
+
+#### Scenario: Delete has no explicit target IDs
+- **WHEN** a token supplies an empty target list for an item type
+- **THEN** the endpoint MUST skip that group without deleting anything or rejecting the request for having no targets
+- **AND** non-empty groups MUST retain all scope and permission checks
 
 ### Requirement: Existing token permissions remain required
 Customer scope SHALL be enforced in addition to existing token property permissions and visibility checks.
@@ -215,5 +233,5 @@ API v1 and v2 staff and user lookup endpoints SHALL NOT expose staff item IDs or
 - **THEN** the system MUST treat `RS_USER_ID` as an internal `rs_users` identifier and MUST use the linked `rs_users.RS_ITEM_ID` staff item, not `RS_USER_ID`, for customer-scope validation
 
 #### Scenario: Staff item cannot be scoped
-- **WHEN** a customer-scoped token requests staff or user lookup and staff items do not have a direct customer dependency identifier
+- **WHEN** a customer-scoped token requests staff or user lookup and the linked staff item is neither the exact configured parent nor an item of another type with a valid direct customer dependency
 - **THEN** the endpoint MUST deny the lookup for that customer-scoped token

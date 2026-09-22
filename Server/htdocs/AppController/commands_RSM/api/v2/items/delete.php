@@ -45,6 +45,9 @@ foreach ($requestBody as $itemType) {
 
   $itemType->parsedItemTypeID = $itemTypeID;
 
+  // Si la lista de IDs está vacía, no hay nada que borrar.
+  if (empty($itemType->IDs)) continue;
+
   // To delete an item, first we have to check that it has delete permissions for each of its properties
   $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
@@ -62,6 +65,7 @@ foreach ($requestBody as $itemType) {
   }
 }
 foreach ($requestBody as $itemType) {
+  if (empty($itemType->IDs)) continue;
   deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
 }
 
@@ -76,5 +80,8 @@ function verifyBodyContent($body)
     checkBodyContains($item, 'itemTypeID');
     checkBodyContains($item, 'IDs');
     checkIsArray($item->IDs);
+    foreach ($item->IDs as $itemID) {
+      checkStringIsInteger($itemID);
+    }
   }
 }

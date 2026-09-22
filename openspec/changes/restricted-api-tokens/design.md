@@ -2,7 +2,7 @@
 
 API tokens are stored in `rs_tokens` and authorize API access through `rs_token_permissions`. The existing `RS_CLIENT_ID` identifies the RSM client that owns the token and is also used to resolve item types, properties, and permissions. It does not represent the customer item that an external integration should be limited to.
 
-Items can reference other items through `identifier` and `identifiers` properties. The new token scope must use a customer dependency property whose referred item type matches the customer item type stored on the token and whose value contains the customer item ID stored on the token.
+Items can reference other items through `identifier` and `identifiers` properties. For other item types, token scope uses a customer dependency property whose referred item type matches the customer item type stored on the token and whose value contains the customer item ID stored on the token. The coordinated `allow-scoped-token-parent-access` change authorizes only the exact existing parent for the configured customer item type, without a self-reference; its parent-specific rules take precedence over dependency checks throughout this design.
 
 ## Goals / Non-Goals
 
@@ -26,7 +26,7 @@ Items can reference other items through `identifier` and `identifiers` propertie
 
 Add `RS_CUSTOMER_ITEM_TYPE_ID` and `RS_CUSTOMER_ITEM_ID` as nullable unsigned integer columns on `rs_tokens`. Both columns must be `NULL` or `0` for a standard token. Both columns must be positive for a customer-scoped token. Partial scope data is invalid and must fail closed. Add `RS_TOKEN_ALIAS` so administrators can label tokens without changing the token string.
 
-A scoped token can only interact with items that depend on the pair `(RS_CUSTOMER_ITEM_TYPE_ID, RS_CUSTOMER_ITEM_ID)`. Storing the item type is necessary because item IDs alone are not globally meaningful and because the authorization check must verify that the dependency property refers to the expected customer item type.
+A scoped token can interact with its exact existing parent or items of other types that depend on the pair `(RS_CUSTOMER_ITEM_TYPE_ID, RS_CUSTOMER_ITEM_ID)`, subject to existing permissions. Storing the item type is necessary because item IDs alone are not globally meaningful and because the authorization check must verify that the dependency property refers to the expected customer item type.
 
 Alternative considered: reuse `RS_CLIENT_ID`. This was rejected because `RS_CLIENT_ID` already identifies the RSM tenant/client that owns the token and is required for existing permission and metadata resolution.
 
@@ -34,7 +34,7 @@ Alternative considered: reuse `RS_CLIENT_ID`. This was rejected because `RS_CLIE
 
 The implementation will provide a shared helper that can determine whether an item type has a customer dependency property. That property MUST be either a single-value `identifier` or a multi-value `identifiers` property whose referred item type equals `rs_tokens.RS_CUSTOMER_ITEM_TYPE_ID`. For `identifier`, the helper checks `rs_property_identifiers.RS_DATA` for exact equality with `rs_tokens.RS_CUSTOMER_ITEM_ID`. For `identifiers`, the helper checks `rs_property_multiIdentifiers.RS_DATA` as a comma-separated list and accepts the item when one value matches `rs_tokens.RS_CUSTOMER_ITEM_ID`.
 
-The dependency property still must be unambiguous: if more than one direct `identifier`/`identifiers` property refers to the token customer item type for the same target item type, the implementation fails closed.
+For other item types, the dependency property still must be unambiguous: if more than one direct `identifier`/`identifiers` property refers to the token customer item type, the implementation fails closed. Parent-type access instead requires exact client/type/item identity and rejects every other parent even if linked to the configured parent. Creation of another parent is rejected. Shared parent query constraints use item identity with AND. Deletion retains its existing reference cleanup without adding permission checks on other items that reference the deleted item.
 
 ### Enforce scope as an additional authorization check
 
