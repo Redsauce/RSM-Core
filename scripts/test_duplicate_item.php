@@ -149,6 +149,17 @@ foreach (array(null, array(), (object)array(), (object)array('itemTypeID'=>'8','
 resetDuplicateFixture(); $copyBody->itemTypeID = 'unknown'; duplicateAssert(invokeDuplicateEndpoint()[0] === 400,'Unknown type');
 resetDuplicateFixture(); $copyBody->itemID = 999; duplicateAssert(invokeDuplicateEndpoint()[0] === 404,'Missing source');
 resetDuplicateFixture(); $copyBody->itemTypeID = 'generic.type'; duplicateAssert(invokeDuplicateEndpoint()[0] === 200,'Mapped type');
+foreach (array(array('READ'), array('CREATE'), array('READ', 'CREATE')) as $deniedPermissions) {
+    resetDuplicateFixture(); $RSallowDebug = true;
+    foreach ($deniedPermissions as $permission) $copyDenied[] = '100:' . $permission;
+    $before = $copyRows;
+    duplicateAssert(invokeDuplicateEndpoint() === array(403,
+        'No permission to duplicate all eligible properties (clientID=7, itemTypeID=8, propertyID=100, failed=' . implode(',', $deniedPermissions) . ')'),
+        'Debug response must identify the failing property and permission checks');
+    duplicateAssert($copyRows === $before && $mysqli->rollbacks === 1, 'Diagnostic failure must roll back');
+    $RSallowDebug = false;
+    duplicateAssert(invokeDuplicateEndpoint() === array(403, ''), 'Non-debug response must not disclose permission details');
+}
 foreach (array('READ','CREATE') as $permission) {
     resetDuplicateFixture(); $copyDenied = array('100:'.$permission); $before = $copyRows;
     duplicateAssert(invokeDuplicateEndpoint()[0] === 403 && $copyRows === $before,'Permission failure must not copy');

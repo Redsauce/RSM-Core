@@ -53,11 +53,23 @@ try {
     $permissionIDs = array_column($properties, 'id');
     if (count($permissionIDs) === 0) $permissionIDs = array(getMainPropertyID($itemTypeID, $clientID));
     foreach ($permissionIDs as $propertyID) {
-        if (intval($propertyID) <= 0
-            || !(RShasTokenPermission($RStoken, $propertyID, 'READ') || isPropertyVisible($RSuserID, $propertyID, $clientID))
-            || !(RShasTokenPermission($RStoken, $propertyID, 'CREATE') || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+        $deniedChecks = array();
+        if (intval($propertyID) <= 0) {
+            $deniedChecks[] = 'invalid propertyID';
+        } else {
+            foreach (array('READ', 'CREATE') as $permission) {
+                if (!(RShasTokenPermission($RStoken, $propertyID, $permission) || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+                    $deniedChecks[] = $permission;
+                }
+            }
+        }
+        if (count($deniedChecks) > 0) {
             $failureCode = 403;
-            $failureMessage = 'No permission to duplicate all eligible properties';
+            // Numeric context only; never expose the Authorization credential.
+            // The response below discloses this detail only when debug is enabled.
+            $failureMessage = 'No permission to duplicate all eligible properties'
+                . ' (clientID=' . intval($clientID) . ', itemTypeID=' . $itemTypeID
+                . ', propertyID=' . intval($propertyID) . ', failed=' . implode(',', $deniedChecks) . ')';
             throw new RuntimeException($failureMessage);
         }
     }
