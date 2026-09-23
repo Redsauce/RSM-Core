@@ -1,8 +1,8 @@
 ## 1. Sequence calculation utilities
 
-- [x] 1.1 Add a validated database-side `MAX()` helper to `RSMitemsManagement.php` for an integer property with optional year and series scopes.
+- [x] 1.1 Add a validated database-side last-numbered-item helper to `RSMitemsManagement.php` for an integer property with optional year and series scopes.
 - [x] 1.2 Add bounded advisory-lock acquire/release helpers to `RSMitemsManagement.php`, keyed by client, property, year, and series.
-- [x] 1.3 Add unit-level regression tests for global, year-only, series-only, and combined maximum calculations.
+- [x] 1.3 Add unit-level regression tests for global, year-only, series-only, and combined last-item calculations.
 
 ## 2. API v2 endpoint
 
@@ -17,12 +17,12 @@
 
 - [x] 3.1 Add endpoint tests for malformed or incomplete scopes, unresolved properties, invalid property types, nonexistent items, existing positive values, and denied access.
 - [x] 3.2 Add integration coverage proving concurrent requests in one scope receive distinct consecutive values and different scopes do not block each other.
-- [x] 3.3 Verify a large sequence uses the aggregate query without materializing all matching items in PHP.
+- [x] 3.3 Verify a large sequence uses a bounded ordered query without materializing all matching items in PHP.
 - [x] 3.4 Run PHP syntax checks, the compatibility suite, and API smoke tests.
 
 ## 4. Legacy callers
 
-- [x] 4.1 Extend the shared aggregate with an internal set-of-values scope and canonical lock keys.
+- [x] 4.1 Extend the shared last-item query with an internal set-of-values scope and canonical lock keys.
 - [x] 4.2 Centralize transactional integer allocation; keep date writes in the legacy callers and migrate the four legacy callers preserving their scopes and response contracts.
 - [x] 4.3 Add scope-isolation and persistence coverage; run local regressions and compatibility checks, and attempt the optional database tests.
 
