@@ -8,8 +8,12 @@ The system SHALL expose an authenticated API v2 POST endpoint that calculates an
 - **THEN** the endpoint SHALL write `1` to the requested item property and return the assigned value
 
 #### Scenario: Subsequent unscoped value
-- **WHEN** an authorized caller requests assignment without year or series scope and the largest existing value of that property is `41`
+- **WHEN** an authorized caller requests assignment without year or series scope and the last numbered item has value `41`
 - **THEN** the endpoint SHALL write and return `42`
+
+#### Scenario: Latest item resets the sequence value
+- **WHEN** the numbered items in item order contain `1`, `2`, `3`, `4`, and `1`
+- **THEN** the endpoint SHALL write and return `2`, even though an earlier item contains `4`
 
 #### Scenario: Application property name
 - **WHEN** the caller supplies a mapped application property name instead of a numeric client property ID
@@ -19,7 +23,7 @@ The system SHALL expose an authenticated API v2 POST endpoint that calculates an
 The endpoint SHALL support an optional year scope defined by a `year` and `yearPropertyID` pair.
 
 #### Scenario: Year-scoped sequence
-- **WHEN** the request specifies year `2026`, the largest target-property value among items dated in 2026 is `12`, and a larger value exists outside 2026
+- **WHEN** the request specifies year `2026`, the last target-property item dated in 2026 has value `12`, and a larger value exists on an earlier item outside 2026
 - **THEN** the endpoint SHALL write and return `13`
 
 #### Scenario: Year omitted
@@ -38,7 +42,7 @@ The endpoint SHALL support an optional year scope defined by a `year` and `yearP
 The endpoint SHALL support an optional series scope defined by a `series` and `seriesPropertyID` pair.
 
 #### Scenario: Series-scoped sequence
-- **WHEN** the request specifies a series, the largest target-property value among items with that exact series is `7`, and a larger value exists in another series
+- **WHEN** the request specifies a series, the last target-property item with that exact series has value `7`, and a larger value exists on an earlier item in another series
 - **THEN** the endpoint SHALL write and return `8`
 
 #### Scenario: Series omitted
@@ -54,10 +58,10 @@ The endpoint SHALL support an optional series scope defined by a `series` and `s
 - **THEN** the endpoint SHALL reject the request without writing
 
 ### Requirement: Combined scopes
-When both optional scopes are supplied, the endpoint SHALL calculate the maximum over the intersection of the requested year and series.
+When both optional scopes are supplied, the endpoint SHALL select the last numbered item in the intersection of the requested year and series.
 
 #### Scenario: Year and series intersection
-- **WHEN** year `2026` and series `A` are supplied and the maximum for their intersection is `25`
+- **WHEN** year `2026` and series `A` are supplied and the last target-property item in their intersection has value `25`
 - **THEN** the endpoint SHALL write and return `26`, regardless of larger values in other years or series
 
 ### Requirement: Target validation
@@ -100,11 +104,11 @@ The endpoint SHALL enforce API v2 write authorization and token customer scope b
 
 #### Scenario: Customer-scoped sequence
 - **WHEN** an authorized customer-scoped token requests a valid assignment
-- **THEN** the maximum calculation and sequence lock SHALL include only items belonging to that token customer
+- **THEN** the last-item calculation and sequence lock SHALL include only items belonging to that token customer
 
 #### Scenario: Scope belongs to token client
 - **WHEN** the request is valid and authorized
-- **THEN** the maximum calculation SHALL include only records belonging to the client resolved from the token
+- **THEN** the last-item calculation SHALL include only records belonging to the client resolved from the token
 
 ### Requirement: Atomic allocation
 The endpoint SHALL serialize allocation for the same client, target property, year scope, and series scope until the selected value has been persisted.
@@ -121,12 +125,12 @@ The endpoint SHALL serialize allocation for the same client, target property, ye
 - **WHEN** the endpoint cannot acquire the sequence lock within its configured timeout
 - **THEN** it SHALL return a retryable conflict or service-unavailable response without writing
 
-### Requirement: Efficient maximum calculation
-The system SHALL calculate the maximum in the database without loading every matching item or property value into PHP memory.
+### Requirement: Efficient last-item calculation
+The system SHALL select the last matching numbered item in the database without loading every matching item or property value into PHP memory.
 
 #### Scenario: Large sequence
 - **WHEN** the sequence contains many thousands of matching items
-- **THEN** the endpoint SHALL use an aggregate maximum query and retain bounded PHP memory usage
+- **THEN** the endpoint SHALL use a bounded ordered query and retain bounded PHP memory usage
 
 ### Requirement: Response contract
 The endpoint SHALL return a JSON response describing a successful assignment and SHALL use the existing API v2 error-message policy for failures.
@@ -155,5 +159,5 @@ The four legacy number generators SHALL use the shared calculation while preserv
 - **THEN** the allocation transaction SHALL roll back and the sequence lock SHALL be released without reporting success
 
 #### Scenario: Related-item set scope
-- **WHEN** a legacy generator scopes its maximum to a set of related items
-- **THEN** the aggregate SHALL restrict the maximum to that set, treating an empty set as no matches
+- **WHEN** a legacy generator scopes its sequence to a set of related items
+- **THEN** the last-item query SHALL restrict the sequence to that set, treating an empty set as no matches

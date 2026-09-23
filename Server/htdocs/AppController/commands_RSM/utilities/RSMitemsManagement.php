@@ -2361,7 +2361,10 @@ function RSnextIntegerExecuteScalar($query, $parameterTypes = '', $parameterValu
 }
 
 // Return the next positive integer for a property, optionally scoped by year,
-// series, and the customer restriction carried by the token.
+// series, and the customer restriction carried by the token. The sequence is
+// based on the last numbered item (highest RS_ITEM_ID), not on the largest
+// number currently stored. This preserves the sequence after a manual edit to
+// an older item's number.
 function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
 {
     global $propertiesTables;
@@ -2372,7 +2375,7 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
     if ($clientID <= 0 || $itemTypeID <= 0 || $propertyID <= 0) return false;
     if (!isset($propertiesTables['integer'])) return false;
 
-    $query = 'SELECT COALESCE(MAX(targetValue.RS_DATA), 0) AS maxValue'
+    $query = 'SELECT COALESCE((SELECT targetValue.RS_DATA'
         . ' FROM ' . $propertiesTables['integer'] . ' targetValue';
     $where = array(
         'targetValue.RS_CLIENT_ID = ' . $clientID,
@@ -2446,11 +2449,12 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
         $parameterValues[] = (string)$customerItemID;
     }
 
-    $query .= ' WHERE ' . implode(' AND ', $where);
-    $maximum = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
-    if ($maximum === false || $maximum === null || !is_numeric($maximum)) return false;
+    $query .= ' WHERE ' . implode(' AND ', $where)
+        . ' ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1), 0) AS lastValue';
+    $lastValue = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
+    if ($lastValue === false || $lastValue === null || !is_numeric($lastValue)) return false;
 
-    return max(0, intval($maximum)) + 1;
+    return max(0, intval($lastValue)) + 1;
 }
 
 function RSgetNextIntegerLockName($clientID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)

@@ -4,7 +4,7 @@ RSM currently generates sequential invoice numbers through a feature-specific PH
 
 ## What Changes
 
-- Add an authenticated API v2 endpoint that accepts a target item and an integer property, calculates `MAX(property) + 1`, writes the value to that item, and returns the assigned value.
+- Add an authenticated API v2 endpoint that accepts a target item and an integer property, takes the number from the last numbered item in sequence order (`RS_ITEM_ID`) and adds one, writes the value to that item, and returns the assigned value.
 - Allow the sequence to be optionally scoped by year, series, or both; when neither is supplied, use all items belonging to the target property's item type.
 - Accept client property IDs or application property names and validate that target and scope properties belong to the same item type.
 - Reject invalid property types, nonexistent items, unauthorized writes, customer-scope violations, incomplete scope definitions, and attempts to replace an already assigned positive number.
@@ -25,5 +25,5 @@ None.
 
 - Adds a new endpoint under `Server/htdocs/AppController/commands_RSM/api/v2/items/`.
 - Reuses existing request validation, token/client resolution, property metadata, item validation, customer scoping, and `setPropertyValueByID()` infrastructure.
-- Adds the reusable sequence locking and maximum-value queries to `RSMitemsManagement.php`; the API endpoint only validates and orchestrates calls to the item manager.
+- Adds reusable sequence locking and last-numbered-item queries to `RSMitemsManagement.php`; the API endpoint only validates and orchestrates calls to the item manager.
 - Adds regression coverage for unscoped, year-scoped, series-scoped, combined-scope, authorization, validation, and concurrency behavior.
