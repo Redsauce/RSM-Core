@@ -134,24 +134,25 @@ foreach (array(
     eval(extractNextIntegerFunction($itemsManagementSource, $functionName));
 }
 
-$nextIntegerScalarQueue[] = 41;
+$nextIntegerScalarQueue[] = 5;
 $next = RSgetNextIntegerPropertyValue(7, 8, 100);
-nextIntegerAssert($next === 42, 'unscoped sequence must return maximum plus one');
+nextIntegerAssert($next === 6, 'unscoped sequence must return the last item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
-nextIntegerAssert(strpos($execution['query'], 'MAX(targetValue.RS_DATA)') !== false, 'calculation must use database MAX');
+nextIntegerAssert(strpos($execution['query'], 'ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1') !== false, 'calculation must use the last numbered item');
+nextIntegerAssert(strpos($execution['query'], 'MAX(targetValue.RS_DATA)') === false, 'calculation must not use the largest number');
 nextIntegerAssert(strpos($execution['query'], 'yearValue') === false && strpos($execution['query'], 'seriesValue') === false, 'unscoped query must not add scope joins');
 nextIntegerAssert(count($execution['parameters']) === 0, 'unscoped query must not bind scope values');
 
 $nextIntegerScalarQueue[] = 12;
 $next = RSgetNextIntegerPropertyValue(7, 8, 100, array('propertyID' => 101, 'type' => 'date', 'year' => 2026));
-nextIntegerAssert($next === 13, 'year-scoped sequence must return scoped maximum plus one');
+nextIntegerAssert($next === 13, 'year-scoped sequence must return the last matching item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
 nextIntegerAssert(strpos($execution['query'], 'rs_property_dates yearValue') !== false, 'year scope must join the date property table');
 nextIntegerAssert($execution['parameters'] === array('2026-01-01', '2027-01-01'), 'year scope must use inclusive/exclusive year boundaries');
 
 $nextIntegerScalarQueue[] = 7;
 $next = RSgetNextIntegerPropertyValue(7, 8, 100, null, array('propertyID' => 102, 'type' => 'text', 'value' => 'A'));
-nextIntegerAssert($next === 8, 'series-scoped sequence must return scoped maximum plus one');
+nextIntegerAssert($next === 8, 'series-scoped sequence must return the last matching item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
 nextIntegerAssert(strpos($execution['query'], 'rs_property_text seriesValue') !== false, 'series scope must join its property table');
 nextIntegerAssert($execution['parameters'] === array('A'), 'series scope must bind exact series value');
@@ -164,7 +165,7 @@ $next = RSgetNextIntegerPropertyValue(
     array('propertyID' => 101, 'type' => 'datetime', 'year' => 2026),
     array('propertyID' => 102, 'type' => 'text', 'value' => 'B')
 );
-nextIntegerAssert($next === 26, 'combined scope must return intersection maximum plus one');
+nextIntegerAssert($next === 26, 'combined scope must return the last matching item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
 nextIntegerAssert(strpos($execution['query'], 'yearValue') !== false && strpos($execution['query'], 'seriesValue') !== false, 'combined query must include both joins');
 nextIntegerAssert($execution['parameters'] === array('2026-01-01', '2027-01-01', 'B'), 'combined query must bind both scopes in order');
@@ -176,14 +177,14 @@ nextIntegerAssert(RSgetNextIntegerPropertyValue(7, 8, 100, null, array('property
 
 $nextIntegerScalarQueue[] = 3;
 $next = RSgetNextIntegerPropertyValue(7, 8, 100, null, null, array('propertyID' => 103, 'type' => 'identifier', 'itemID' => 99));
-nextIntegerAssert($next === 4, 'customer-scoped sequence must return its scoped maximum plus one');
+nextIntegerAssert($next === 4, 'customer-scoped sequence must return the last item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
 nextIntegerAssert(strpos($execution['query'], 'rs_property_identifiers customerValue') !== false, 'customer scope must join its dependency property');
 nextIntegerAssert($execution['parameters'] === array('99'), 'customer scope must bind the token customer item');
 
 $setScope = array('propertyID' => 103, 'type' => 'identifier', 'values' => array(9, 2, 9));
 $nextIntegerScalarQueue[] = 18;
-nextIntegerAssert(RSgetNextIntegerPropertyValue(7, 8, 100, null, $setScope) === 19, 'set scope must return its maximum plus one');
+nextIntegerAssert(RSgetNextIntegerPropertyValue(7, 8, 100, null, $setScope) === 19, 'set scope must return the last item number plus one');
 $execution = $nextIntegerExecutions[count($nextIntegerExecutions) - 1];
 nextIntegerAssert($execution['parameters'] === array('9', '2', '9'), 'set values must be bound');
 nextIntegerAssert(strpos($execution['query'], 'IN (?,?,?)') !== false, 'set scope must restrict related items');
@@ -212,7 +213,7 @@ nextIntegerAssert(RSacquireNextIntegerLock($globalLock), 'released sequence lock
 nextIntegerAssert(strpos($endpointSource, 'RSMnextIntegerManagement.php') === false, 'endpoint must use the shared item manager directly');
 nextIntegerAssert(strpos($endpointSource, 'SELECT ') === false && strpos($endpointSource, '->prepare(') === false, 'API endpoint must not contain database queries');
 nextIntegerAssert(strpos($itemsManagementSource, 'IQ_getFilteredItemsIDs') !== false, 'item manager source must remain readable as a complete utility');
-nextIntegerAssert(strpos($itemsManagementSource, 'MAX(targetValue.RS_DATA)') !== false, 'large sequences must use a scalar aggregate query in RSMitemsManagement');
+nextIntegerAssert(strpos($itemsManagementSource, 'ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1') !== false, 'sequences must use a bounded last-item query in RSMitemsManagement');
 nextIntegerAssert(strpos($endpointSource, "checkCorrectRequestMethod('POST')") !== false, 'endpoint must require POST');
 nextIntegerAssert(strpos($endpointSource, 'RShasTokenPermission($RStoken, $propertyID, \'WRITE\')') !== false, 'endpoint must enforce target WRITE access');
 nextIntegerAssert(substr_count($endpointSource, 'RShasTokenPermission($RStoken') >= 3, 'endpoint must enforce READ access on optional scopes');
@@ -319,11 +320,11 @@ foreach (array(0, 102) as $invoiceSeriesPropertyID) {
             $result = runInvoiceNumberCommand($invoiceNumberSource);
             nextIntegerAssert($result['result'] === 'OK' && $result['ID'] === 454, 'legacy command must allocate with missing, empty or populated series');
             nextIntegerAssert($allocationValues[10][101] === date('Y-m-d'), 'legacy command must persist the date');
-            $aggregate = array_values(array_filter($nextIntegerExecutions, function ($execution) { return strpos($execution['query'], 'MAX(') !== false; }))[0];
+            $sequenceQuery = array_values(array_filter($nextIntegerExecutions, function ($execution) { return strpos($execution['query'], 'ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1') !== false; }))[0];
             $hasSeries = $invoiceSeriesPropertyID > 0 && $seriesValue !== null && $seriesValue !== '';
-            nextIntegerAssert((strpos($aggregate['query'], 'seriesValue') !== false) === $hasSeries, 'only a configured and populated series may filter the maximum');
-            nextIntegerAssert((strpos($aggregate['query'], 'yearValue') !== false) === ($invoiceResetYear === '1'), 'global annual reset must be respected');
-            if ($hasSeries) nextIntegerAssert(in_array($seriesValue, $aggregate['parameters'], true), 'series value including zero must remain a bound filter');
+            nextIntegerAssert((strpos($sequenceQuery['query'], 'seriesValue') !== false) === $hasSeries, 'only a configured and populated series may filter the sequence');
+            nextIntegerAssert((strpos($sequenceQuery['query'], 'yearValue') !== false) === ($invoiceResetYear === '1'), 'global annual reset must be respected');
+            if ($hasSeries) nextIntegerAssert(in_array($seriesValue, $sequenceQuery['parameters'], true), 'series value including zero must remain a bound filter');
             nextIntegerAssert(count($nextIntegerLocks) === 0, 'legacy command must release its lock');
         }
     }

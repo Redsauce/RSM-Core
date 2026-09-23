@@ -13,7 +13,7 @@ The reference `financialDocuments/wndFinancialDocuments_duplicateDocument.php` c
 - Validate access before copying and avoid partial persisted copies on failure.
 
 **Non-Goals:**
-- Duplicating descendants, concepts, related items, or whole graphs.
+- Automatically including dependencies not explicitly selected by the caller.
 - Multiple source items, multiple copies, property overrides, or caller-supplied exclusion lists.
 - Resetting dates, generating business numbers, applying series/year globals, or invoking nextInteger.
 - Changing the existing document-specific endpoint or introducing a database schema.
@@ -28,7 +28,7 @@ Add `POST /api/v2/items/duplicate.php` with the standard OPTIONS/CORS handling a
 {"itemTypeID": "98", "itemID": "123"}
 ```
 
-`itemTypeID` resolves through `parseITID()` for the token client, accepting the same numeric or mapped identifiers as existing APIs. `itemID` is one positive integer (JSON integer or digit string), not a list. Client and user identity come exclusively from authentication. Unsupported fields, including copy counts and descendants, are rejected to avoid implying unsupported behavior.
+`itemTypeID` resolves through `parseITID()` for the token client, accepting the same numeric or mapped identifiers as existing APIs. `itemID` is one positive integer (JSON integer or digit string), not a list. Client and user identity come exclusively from authentication. Optional `descendants` is an array of objects containing only `itemTypeID` and a positive numeric `dependencyPropertyID`. The property belongs to the dependent type and references its parent type. Unsupported fields, including copy counts, are rejected.
 
 Successful HTTP 200 response:
 
@@ -46,7 +46,7 @@ Read the configured eligible-property list for the resolved client/type. Call `d
 
 Only properties allowed by `RS_AVOID_DUPLICATION = 0` are copied. Excluded properties receive no value row from this operation, including no explicit default initialization; subsequent reads follow RSM's normal missing-value semantics. They are never copied and then cleared. An eligible property retains its source value regardless of its name or business meaning, including numbers, dates and series. No numbered-property exception is added.
 
-Eligible identifier and identifiers properties keep their references and order. They do not cause target items to be copied or references to be remapped. File/image values retain their binary content and metadata using shared storage handling; absent binary values must not cause malformed inserts. No special document behavior is inherited.
+Eligible identifier and identifiers properties keep their references and order. Only explicitly selected incoming dependency relations trigger additional copies and remapping; other references remain unchanged. File/image values retain their binary content and metadata using shared storage handling; absent binary values must not cause malformed inserts. No special document behavior is inherited.
 
 ### Authorization and customer isolation
 
@@ -74,10 +74,34 @@ Deploy the new endpoint with any narrowly required shared-helper changes after r
 
 ## Open Questions
 
-None blocking this proposal. Single-item, non-recursive copying and omitted excluded values are the proposed initial contract.
+None. One root item, explicitly selected dependencies and omitted excluded values define the contract.
 
 ## Implementation notes
 
 The endpoint passes the authorized property metadata into the existing duplicateItem cache argument. Metadata helpers accept an optional failOnError flag so the API fails closed on configuration read errors; existing callers keep their default behavior. A transaction locks the item-type allocation row via RSlockItemTypeForDuplication before copying. Duplicate allocation conflicts fail cleanly and roll back.
 
 Property copying now uses INSERT ... SELECT in the shared helper, preserving stored binary content, reference ordering and raw values without PHP string escaping or conversions. Missing source rows remain missing. Every property insert and counter update is checked; the counter update never decreases its existing value. Legacy batch/descendant parameters retain their signatures.
+
+## Explicit dependent copies
+
+Failure diagnostics are persisted through RSError only after transaction rollback, because its database inserts use the same connection. Debug-mode 500 responses identify the failing phase without returning raw SQL or property values; the server log retains the exception and phase.
+
+Example (illustrative IDs):
+
+```json
+{"itemTypeID":98,"itemID":123,"descendants":[{"itemTypeID":99,"dependencyPropertyID":456},{"itemTypeID":100,"dependencyPropertyID":789}]}
+```
+
+Property 456 belongs to type 99 and references type 98; property 789 belongs to type 100 and references type 99. The array order does not matter. Every selected edge must be reachable from the root type. Relations must be eligible `identifier` or `identifiers` properties; excluded, foreign, non-relation and disconnected properties cause 400. Duplicate edges are normalized. No child IDs are supplied: only existing items linked to reached parents are included. Empty or omitted descendants copies only the root. The shared copier also follows a dependent type's configured recursive relation; the endpoint verifies that it is eligible before invoking the copier.
+
+Lock all selected type allocation rows in numeric order. Authorize eligible properties and customer dependency configuration for every selected type before invoking the shared copier. Convert validated edges into the existing parent-type-keyed `descendants` array and call `duplicateItem` once. Its existing traversal locates and copies the dependent items and updates their relations using the existing property setters. No separate graph discovery or remapping helpers are needed. The endpoint checks root scope before copying and every source/destination in the returned copy map before commit; any scope rejection rolls back the transaction. Reference ordering follows the existing setters' behavior.
+
+Shared-code changes are limited to retaining all parents of an already copied child and propagating relation-write errors instead of treating them as successful updates. Permissions remain the endpoint's responsibility.
+
+When `descendants` is present, the normal root response additionally contains `copiedItems`, an array of `{itemTypeID, sourceItemID, newItemID}` objects including the root and all copied descendants. Omission retains the original response exactly. An empty array returns a mapping containing only the root. Mapping order beyond the root is not a public guarantee.
+
+## Shared children
+
+A child reached through an `identifiers` dependency containing more than one distinct positive parent ID is reused. Append each new parent ID to the existing child's list without removing the old parents or adding duplicates. Do not copy that child or traverse its subtree through that relation; omit it from `copiedItems`. An exclusive child (one current parent, including an identifiers property with one value) still follows normal duplication. This rule is generic and has no item-type-specific exceptions.
+
+The existing duplicateItem traversal implements this behavior and accepts an optional caller-supplied validation callback propagated through recursion. The API supplies the callback to check WRITE permission on the existing child's dependency property and customer scope before and after the update. The internal copier does not implement permission policy. Its existing seven-argument callers remain valid. The endpoint transaction covers both new copies and modifications to existing shared children.

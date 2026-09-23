@@ -799,9 +799,7 @@ function replaceIdentifier($oldId, $newId, $itemTypeID, $itemID, $propertyID, $c
     }
 
     // update value
-    setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, implode(',', $idsList), $propertyType, $userID);
-
-    return true;
+    return setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, implode(',', $idsList), $propertyType, $userID) === 0;
 }
 // *********************************************
 // ************** APP ITEM TYPES ***************
@@ -1748,7 +1746,7 @@ function RSlockItemTypeForDuplication($itemTypeID, $clientID)
 }
 
 // Make copies of the item passed
-function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descendants = array(), &$copiedItems = array(), &$itemTypeProperties = array())
+function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descendants = array(), &$copiedItems = array(), &$itemTypeProperties = array(), $validateSharedItem = null)
 {
     global $propertiesTables, $RSuserID;
 
@@ -1874,10 +1872,28 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
             $childsToCopy = array();
             $childsToMove = array();
             foreach ($childs as $child) {
+                // A new copy encountered through another relation is not a source.
+                if (isset($copiedItems[$descendant[0]]) && in_array_recursive($child['ID'], $copiedItems[$descendant[0]])) continue;
+                if ($propertyType === 'identifiers') {
+                    $parentValues = getItemPropertyValue($child['ID'], $descendant[1], $clientID, $propertyType, $descendant[0]);
+                    $parentIDs = array_values(array_unique(array_filter(explode(',', (string)$parentValues), function ($id) { return intval($id) > 0; })));
+                    if (count($parentIDs) > 1) {
+                        // Shared children keep their identity and original parents.
+                        // The caller owns authorization; invoke its validator before
+                        // and after changing an existing child's relation.
+                        if ($validateSharedItem) $validateSharedItem($descendant[0], $child['ID'], $descendant[1]);
+                        foreach ($newItemsIDs[$child['parent']] as $newParentID) {
+                            if (!in_array($newParentID, $parentIDs)) $parentIDs[] = (string)$newParentID;
+                        }
+                        if (setPropertyValueByID($descendant[1], $descendant[0], $child['ID'], $clientID, implode(',', $parentIDs), $propertyType, $RSuserID) !== 0) return -1;
+                        if ($validateSharedItem) $validateSharedItem($descendant[0], $child['ID'], $descendant[1]);
+                        continue;
+                    }
+                }
                 // Check if the item has been already copied
                 if (array_key_exists($descendant[0], $copiedItems) && array_key_exists($child['ID'], $copiedItems[$descendant[0]])) {
                     // As the item has already been copied we move current property to parent in new branch
-                    if (array_key_exists($child['ID'], $childsToMove)) {
+                    if (!array_key_exists($child['ID'], $childsToMove)) {
                         $childsToMove[$child['ID']] = array();
                     }
                     $childsToMove[$child['ID']][] = $child['parent'];
@@ -1899,7 +1915,7 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
             }
 
             if (count($childsToCopy) > 0) {
-                if (duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties) == -1) {
+                if (duplicateItem($descendant[0], implode(',', $childsToCopy), $clientID, $numCopies, $descendants, $copiedItems, $itemTypeProperties, $validateSharedItem) == -1) {
                     return -1;
                 }
             }
@@ -1909,9 +1925,10 @@ function duplicateItem($itemTypeID, $itemIDs, $clientID, $numCopies = 1, $descen
                     //foreach ($copiedItems[$descendant[0]][$originalChildID] as $copiedChildID) {
                     foreach ($parents as $parent) {
                         // change parent of new child items to corresponding duplicated item
-                        // Try to replace only the old parent with new one in the property and if it fails simply overwrite property with new value
-                        if (!replaceIdentifier($parent, $newItemsIDs[$parent][$j], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $descendant[1], $clientID, $RSuserID)) {
-                            setPropertyValueByID($descendant[1], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $clientID, $newItemsIDs[$parent][$j], '', $RSuserID);
+                        if ($propertyType === 'identifiers') {
+                            if (!replaceIdentifier($parent, $newItemsIDs[$parent][$j], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $descendant[1], $clientID, $RSuserID)) return -1;
+                        } elseif (setPropertyValueByID($descendant[1], $descendant[0], $copiedItems[$descendant[0]][$originalChildID][$j], $clientID, $newItemsIDs[$parent][$j], '', $RSuserID) !== 0) {
+                            return -1;
                         }
                     }
                 }
@@ -2344,7 +2361,10 @@ function RSnextIntegerExecuteScalar($query, $parameterTypes = '', $parameterValu
 }
 
 // Return the next positive integer for a property, optionally scoped by year,
-// series, and the customer restriction carried by the token.
+// series, and the customer restriction carried by the token. The sequence is
+// based on the last numbered item (highest RS_ITEM_ID), not on the largest
+// number currently stored. This preserves the sequence after a manual edit to
+// an older item's number.
 function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
 {
     global $propertiesTables;
@@ -2355,7 +2375,7 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
     if ($clientID <= 0 || $itemTypeID <= 0 || $propertyID <= 0) return false;
     if (!isset($propertiesTables['integer'])) return false;
 
-    $query = 'SELECT COALESCE(MAX(targetValue.RS_DATA), 0) AS maxValue'
+    $query = 'SELECT COALESCE((SELECT targetValue.RS_DATA'
         . ' FROM ' . $propertiesTables['integer'] . ' targetValue';
     $where = array(
         'targetValue.RS_CLIENT_ID = ' . $clientID,
@@ -2429,11 +2449,12 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
         $parameterValues[] = (string)$customerItemID;
     }
 
-    $query .= ' WHERE ' . implode(' AND ', $where);
-    $maximum = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
-    if ($maximum === false || $maximum === null || !is_numeric($maximum)) return false;
+    $query .= ' WHERE ' . implode(' AND ', $where)
+        . ' ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1), 0) AS lastValue';
+    $lastValue = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
+    if ($lastValue === false || $lastValue === null || !is_numeric($lastValue)) return false;
 
-    return max(0, intval($maximum)) + 1;
+    return max(0, intval($lastValue)) + 1;
 }
 
 function RSgetNextIntegerLockName($clientID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
