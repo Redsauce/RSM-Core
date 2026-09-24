@@ -3491,6 +3491,14 @@ function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $r
         $arrEquals = array('IN', '<-IN', '=', '>=', '<=', 'SAME_OR_BEFORE', 'SAME_OR_AFTER', 'TIME_SAME_OR_BEFORE', 'TIME_SAME_OR_AFTER', 'LIKE', 'GE', 'LE');
 
         foreach ($filterProperties as $property) {
+            // This internal filter is used by customer-scoped tokens when the
+            // requested item type is the configured parent type. Keep it as a
+            // mandatory identity condition, independent of filtersJoining.
+            if (isset($property['itemID'])) {
+                $queryPartWHERE .= " AND rs_items.RS_ITEM_ID = " . intval($property['itemID']);
+                continue;
+            }
+
             if ($property['ID'] == '0' || $property['ID'] == '')
                 continue;
 
