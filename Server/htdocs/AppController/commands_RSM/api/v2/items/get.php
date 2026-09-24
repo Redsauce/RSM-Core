@@ -107,7 +107,7 @@ if (is_array($originalIDs)) {
 $filterProperties = array();
 if (is_array($filterRules) && !empty($filterRules)) {
   foreach ($filterRules as $rule) {
-    $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => parseProperyListValue($rule->value, $clientID), 'mode' => $rule->operation);
+    $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => parseFilterRuleValue($rule->value, $rule->operation, $clientID), 'mode' => $rule->operation);
   }
 }
 
@@ -394,6 +394,34 @@ function parseProperyListValue($value, $clientID)
   }
 
   return replaceUtf8Characters($value);
+}
+
+// <-IN receives a JSON array and is converted to a safely quoted SQL value list.
+// The shared item filtering code consumes this list inside its existing IN (...)
+// clause. Other operators keep their previous scalar-value behaviour.
+function parseFilterRuleValue($value, $operation, $clientID)
+{
+  if ($operation !== '<-IN') {
+    return parseProperyListValue($value, $clientID);
+  }
+
+  if (!is_array($value) || empty($value)) {
+    returnJsonMessage(400, 'The <-IN operator requires a non-empty array value');
+  }
+
+  global $mysqli;
+  $parsedValues = array();
+
+  foreach ($value as $singleValue) {
+    if (!is_string($singleValue) && !is_int($singleValue) && !is_float($singleValue)) {
+      returnJsonMessage(400, 'The <-IN operator only accepts string or numeric values');
+    }
+
+    $escapedValue = $mysqli->real_escape_string(replaceUtf8Characters((string)$singleValue));
+    $parsedValues[] = "'" . $escapedValue . "'";
+  }
+
+  return implode(',', $parsedValues);
 }
 
 // Build a JSON-safe description for a property rejected during debug requests.
