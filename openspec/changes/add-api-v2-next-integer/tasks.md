@@ -1,8 +1,8 @@
 ## 1. Sequence calculation utilities
 
-- [x] 1.1 Add a validated database-side last-numbered-item helper to `RSMitemsManagement.php` for an integer property with optional year and series scopes.
+- [x] 1.1 Add a validated database-side sequence helper to `RSMitemsManagement.php` for an integer property with optional year and series scopes.
 - [x] 1.2 Add bounded advisory-lock acquire/release helpers to `RSMitemsManagement.php`, keyed by client, property, year, and series.
-- [x] 1.3 Add unit-level regression tests for global, year-only, series-only, and combined last-item calculations.
+- [x] 1.3 Add unit-level regression tests for global, year-only, series-only, and combined sequence calculations.
 
 ## 2. API v2 endpoint
 
@@ -22,7 +22,7 @@
 
 ## 4. Legacy callers
 
-- [x] 4.1 Extend the shared last-item query with an internal set-of-values scope and canonical lock keys.
+- [x] 4.1 Extend the shared sequence query with an internal set-of-values scope and canonical lock keys.
 - [x] 4.2 Centralize transactional integer allocation; keep date writes in the legacy callers and migrate the four legacy callers preserving their scopes and response contracts.
 - [x] 4.3 Add scope-isolation and persistence coverage; run local regressions and compatibility checks, and attempt the optional database tests.
 
@@ -34,3 +34,12 @@ Validation of the legacy migration: local next-integer regressions and the PHP 8
 
 - [x] 5.1 Wrap API number assignment and audit persistence in one transaction, rolling back failures before releasing the sequence lock.
 - [x] 5.2 Add regression assertions for begin, commit, rollback, and rollback-before-unlock behavior.
+
+## 6. UTC period filtering and documented examples
+
+- [x] 6.1 Replace the caller-supplied year contract with a required date `filterPropertyID`, deriving the period and stored date from UTC.
+- [x] 6.2 Calculate the maximum number in the current period and fall back to the newest populated earlier period.
+- [x] 6.3 Persist the generated integer and UTC date atomically and return both in the response.
+- [x] 6.4 Document request and calculation examples in `nextInteger.php` and update focused regressions.
+
+Validation: endpoint/helper PHP lint, focused next-integer regressions, and strict OpenSpec validation pass. The optional MariaDB test could not run because this PHP CLI lacks the `mysqli` extension. The full compatibility suite reaches this change successfully but remains blocked by the pre-existing parse error in `api/v2/items/duplicate.php` and its duplicate-item regression fixture.

@@ -1,17 +1,33 @@
 <?php
 // ****************************************************************************************
 // Description:
-//   Atomically calculate and assign the next positive value of an integer property.
+//   Atomically assign the next positive integer and today's UTC date.
+//
+// HOW THE SEQUENCE WORKS:
+//   - propertyID is the integer property that receives the generated number.
+//   - filterPropertyID is a date property on the same item type. The endpoint
+//     writes gmdate('Y-m-d') to it; callers do not send a date or year.
+//   - Within the current UTC year, the next number is MAX(propertyID) + 1.
+//   - If the current year has no numbered items, the endpoint uses the maximum
+//     from the newest earlier year that has data. If no year has data, it uses 1.
+//   - Optional series and customer-token restrictions are applied before the
+//     maximum is calculated.
 //
 // REQUEST BODY (JSON OBJECT):
 // {
 //   "itemID": "123",
 //   "propertyID": "invoice.client.invoiceID",
-//   "year": 2026,                                  // optional with yearPropertyID
-//   "yearPropertyID": "invoice.client.invoiceDate",
+//   "filterPropertyID": "invoice.client.invoiceDate",
 //   "series": "A",                               // optional with seriesPropertyID
 //   "seriesPropertyID": "invoice.client.serie"
 // }
+//
+// EXAMPLES (assuming the current UTC year is 2029):
+//   2029 values [10, 14, 12]              => assigns 15 and date 2029-MM-DD.
+//   2029 empty; 2028 values [110, 111]    => assigns 112 and date 2029-MM-DD.
+//   2029/2028 empty; 2027 maximum is 80   => assigns 81 and date 2029-MM-DD.
+//   No current or earlier period has data => assigns 1 and today's UTC date.
+//   2029 values [1, 2, 3, 4, 1]           => assigns 5 (maximum, not last item).
 // ****************************************************************************************
 
 require_once '../../../utilities/RStools.php';
@@ -60,38 +76,33 @@ if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID))
     returnJsonMessage(403, $RSallowDebug ? 'Token customer scope does not allow access to item ' . $itemID : 'No permissions to write the requested item');
 }
 
-$hasYear = property_exists($requestBody, 'year');
 $hasSeries = property_exists($requestBody, 'series');
 
-$yearScope = null;
-if ($hasYear) {
-    $year = (string)$requestBody->year;
-    if (!ctype_digit($year) || strlen($year) !== 4 || intval($year) < 1000 || intval($year) > 9998) {
-        $RSallowDebug ? returnJsonMessage(400, 'year must be a four-digit year between 1000 and 9998') : returnJsonMessage(400, '');
-    }
-
-    $yearPropertyID = ParsePID($requestBody->yearPropertyID, $clientID);
-    if (!is_numeric($yearPropertyID) || intval($yearPropertyID) <= 0) {
-        $RSallowDebug ? returnJsonMessage(400, 'Invalid yearPropertyID') : returnJsonMessage(400, '');
-    }
-    $yearPropertyID = intval($yearPropertyID);
-    $yearPropertyType = getPropertyType($yearPropertyID, $clientID);
-    if (!in_array($yearPropertyType, array('date', 'datetime'), true)) {
-        $RSallowDebug ? returnJsonMessage(400, 'yearPropertyID must identify a date or datetime property') : returnJsonMessage(400, '');
-    }
-    if (intval(getClientPropertyItemType($yearPropertyID, $clientID)) !== $itemTypeID) {
-        $RSallowDebug ? returnJsonMessage(400, 'yearPropertyID must belong to the target item type') : returnJsonMessage(400, '');
-    }
-    if (!(RShasTokenPermission($RStoken, $yearPropertyID, 'READ') || isPropertyVisible($RSuserID, $yearPropertyID, $clientID))) {
-        returnJsonMessage(403, $RSallowDebug ? 'No READ permission or visibility for year property ' . $yearPropertyID : 'No permissions to read all the scope properties requested');
-    }
-
-    $yearScope = array(
-        'propertyID' => $yearPropertyID,
-        'type' => $yearPropertyType,
-        'year' => intval($year)
-    );
+$filterPropertyID = ParsePID($requestBody->filterPropertyID, $clientID);
+if (!is_numeric($filterPropertyID) || intval($filterPropertyID) <= 0) {
+    $RSallowDebug ? returnJsonMessage(400, 'Invalid filterPropertyID') : returnJsonMessage(400, '');
 }
+$filterPropertyID = intval($filterPropertyID);
+$filterPropertyType = getPropertyType($filterPropertyID, $clientID);
+if ($filterPropertyType !== 'date') {
+    $RSallowDebug ? returnJsonMessage(400, 'filterPropertyID must identify a date property') : returnJsonMessage(400, '');
+}
+if (intval(getClientPropertyItemType($filterPropertyID, $clientID)) !== $itemTypeID) {
+    $RSallowDebug ? returnJsonMessage(400, 'filterPropertyID must belong to the target item type') : returnJsonMessage(400, '');
+}
+if (!(RShasTokenPermission($RStoken, $filterPropertyID, 'READ') || isPropertyVisible($RSuserID, $filterPropertyID, $clientID))) {
+    returnJsonMessage(403, $RSallowDebug ? 'No READ permission or visibility for filter property ' . $filterPropertyID : 'No permissions to read the requested filter property');
+}
+if (!(RShasTokenPermission($RStoken, $filterPropertyID, 'WRITE') || isPropertyVisible($RSuserID, $filterPropertyID, $clientID))) {
+    returnJsonMessage(403, $RSallowDebug ? 'No WRITE permission or visibility for filter property ' . $filterPropertyID : 'No permissions to write the requested filter property');
+}
+
+$periodLockScope = array(
+    'propertyID' => $filterPropertyID,
+    'type' => 'date',
+    'year' => 0,
+    'fallbackToPreviousPeriod' => true
+);
 
 $seriesScope = null;
 if ($hasSeries) {
@@ -135,12 +146,14 @@ if (RSisCustomerScopedToken($RStoken)) {
     );
 }
 
-$lockName = RSgetNextIntegerLockName($clientID, $propertyID, $yearScope, $seriesScope, $customerScope);
+$lockName = RSgetNextIntegerLockName($clientID, $propertyID, $periodLockScope, $seriesScope, $customerScope);
 $lockAcquired = false;
 $failureCode = 0;
 $failureDebugMessage = '';
 $assignedValue = null;
 $transactionStarted = false;
+$currentDate = null;
+$yearScope = null;
 
 try {
     $lockAcquired = RSacquireNextIntegerLock($lockName, 5);
@@ -148,6 +161,15 @@ try {
         $failureCode = 503;
         $failureDebugMessage = 'The number sequence is busy; retry the request';
     } else {
+        // Resolve the date after acquiring the year-independent rolling lock,
+        // so a request crossing UTC midnight uses the actual assignment date.
+        $currentDate = gmdate('Y-m-d');
+        $yearScope = array(
+            'propertyID' => $filterPropertyID,
+            'type' => 'date',
+            'year' => intval(substr($currentDate, 0, 4)),
+            'fallbackToPreviousPeriod' => true
+        );
         if (!$mysqli->begin_transaction()) {
             $failureCode = 500;
             $failureDebugMessage = 'Unable to start the next integer transaction';
@@ -158,9 +180,10 @@ try {
             // number, audit trail, and update bookkeeping succeed or roll back
             // together.
             $currentValue = getItemPropertyValue($itemID, $propertyID, $clientID, 'integer', $itemTypeID);
-            if (is_numeric($currentValue) && intval($currentValue) > 0) {
+            $currentFilterDate = getItemPropertyValue($itemID, $filterPropertyID, $clientID, 'date', $itemTypeID);
+            if ((is_numeric($currentValue) && intval($currentValue) > 0) || ($currentFilterDate !== '' && $currentFilterDate !== null)) {
                 $failureCode = 409;
-                $failureDebugMessage = 'The requested item already has a positive value for this property';
+                $failureDebugMessage = 'The requested item already has a generated number or filter date';
             } else {
                 $assignedValue = RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope, $seriesScope, $customerScope);
                 if ($assignedValue === false) {
@@ -171,6 +194,9 @@ try {
                     if ($writeResult !== 0) {
                         $failureCode = 500;
                         $failureDebugMessage = 'Unable to write the next integer value (code ' . intval($writeResult) . ')';
+                    } elseif (setPropertyValueByID($filterPropertyID, $itemTypeID, $itemID, $clientID, $currentDate, 'date', $RSuserID) !== 0) {
+                        $failureCode = 500;
+                        $failureDebugMessage = 'Unable to write the current UTC filter date';
                     } elseif (!$mysqli->commit()) {
                         $failureCode = 500;
                         $failureDebugMessage = 'Unable to commit the next integer value';
@@ -211,7 +237,9 @@ if ($failureCode !== 0) {
 returnJsonResponse(json_encode(array(
     'itemID' => $itemID,
     'propertyID' => $propertyID,
-    'value' => intval($assignedValue)
+    'value' => intval($assignedValue),
+    'filterPropertyID' => $filterPropertyID,
+    'date' => $currentDate
 )));
 
 function verifyNextIntegerBodyContent($body)
@@ -219,6 +247,7 @@ function verifyNextIntegerBodyContent($body)
     checkIsJsonObject($body);
     checkBodyContains($body, 'itemID');
     checkBodyContains($body, 'propertyID');
+    checkBodyContains($body, 'filterPropertyID');
     checkStringIsInteger($body->itemID);
 
     global $RSallowDebug;
@@ -228,18 +257,8 @@ function verifyNextIntegerBodyContent($body)
     if (!is_scalar($body->propertyID) || is_bool($body->propertyID) || trim((string)$body->propertyID) === '') {
         $RSallowDebug ? returnJsonMessage(400, 'propertyID must not be empty') : returnJsonMessage(400, '');
     }
-
-    $hasYear = property_exists($body, 'year');
-    $hasYearProperty = property_exists($body, 'yearPropertyID');
-    if ($hasYear !== $hasYearProperty) {
-        $RSallowDebug ? returnJsonMessage(400, 'year and yearPropertyID must be supplied together') : returnJsonMessage(400, '');
-    }
-    if ($hasYear && (
-        !is_scalar($body->year) || is_bool($body->year)
-        || !is_scalar($body->yearPropertyID) || is_bool($body->yearPropertyID)
-        || trim((string)$body->yearPropertyID) === ''
-    )) {
-        $RSallowDebug ? returnJsonMessage(400, 'Invalid year scope') : returnJsonMessage(400, '');
+    if (!is_scalar($body->filterPropertyID) || is_bool($body->filterPropertyID) || trim((string)$body->filterPropertyID) === '') {
+        $RSallowDebug ? returnJsonMessage(400, 'filterPropertyID must not be empty') : returnJsonMessage(400, '');
     }
 
     $hasSeries = property_exists($body, 'series');

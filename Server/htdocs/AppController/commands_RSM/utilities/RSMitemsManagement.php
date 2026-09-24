@@ -2360,11 +2360,11 @@ function RSnextIntegerExecuteScalar($query, $parameterTypes = '', $parameterValu
     return $hasResult ? $scalar : false;
 }
 
-// Return the next positive integer for a property, optionally scoped by year,
-// series, and the customer restriction carried by the token. The sequence is
-// based on the last numbered item (highest RS_ITEM_ID), not on the largest
-// number currently stored. This preserves the sequence after a manual edit to
-// an older item's number.
+// Return one more than the largest positive integer in the selected scope.
+// A year scope normally selects that exact year. When
+// fallbackToPreviousPeriod is true, it selects the newest year at or before
+// the requested year that contains numbered items. Series and customer scopes
+// continue to restrict the same item set.
 function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
 {
     global $propertiesTables;
@@ -2375,7 +2375,7 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
     if ($clientID <= 0 || $itemTypeID <= 0 || $propertyID <= 0) return false;
     if (!isset($propertiesTables['integer'])) return false;
 
-    $query = 'SELECT COALESCE((SELECT targetValue.RS_DATA'
+    $query = 'SELECT COALESCE((SELECT MAX(targetValue.RS_DATA)'
         . ' FROM ' . $propertiesTables['integer'] . ' targetValue';
     $where = array(
         'targetValue.RS_CLIENT_ID = ' . $clientID,
@@ -2397,10 +2397,14 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
             . ' AND yearValue.RS_ITEMTYPE_ID = targetValue.RS_ITEMTYPE_ID'
             . ' AND yearValue.RS_ITEM_ID = targetValue.RS_ITEM_ID'
             . ' AND yearValue.RS_PROPERTY_ID = ' . $yearPropertyID;
-        $where[] = 'yearValue.RS_DATA >= ?';
+        $fallbackToPreviousPeriod = !empty($yearScope['fallbackToPreviousPeriod']);
+        if (!$fallbackToPreviousPeriod) {
+            $where[] = 'yearValue.RS_DATA >= ?';
+            $parameterTypes .= 's';
+            $parameterValues[] = sprintf('%04d-01-01', $year);
+        }
         $where[] = 'yearValue.RS_DATA < ?';
-        $parameterTypes .= 'ss';
-        $parameterValues[] = sprintf('%04d-01-01', $year);
+        $parameterTypes .= 's';
         $parameterValues[] = sprintf('%04d-01-01', $year + 1);
     }
 
@@ -2449,12 +2453,16 @@ function RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yea
         $parameterValues[] = (string)$customerItemID;
     }
 
-    $query .= ' WHERE ' . implode(' AND ', $where)
-        . ' ORDER BY targetValue.RS_ITEM_ID DESC LIMIT 1), 0) AS lastValue';
-    $lastValue = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
-    if ($lastValue === false || $lastValue === null || !is_numeric($lastValue)) return false;
+    $query .= ' WHERE ' . implode(' AND ', $where);
+    if (is_array($yearScope) && !empty($yearScope['fallbackToPreviousPeriod'])) {
+        $query .= ' GROUP BY YEAR(yearValue.RS_DATA)'
+            . ' ORDER BY YEAR(yearValue.RS_DATA) DESC LIMIT 1';
+    }
+    $query .= '), 0) AS lastValue';
+    $largestValue = RSnextIntegerExecuteScalar($query, $parameterTypes, $parameterValues);
+    if ($largestValue === false || $largestValue === null || !is_numeric($largestValue)) return false;
 
-    return max(0, intval($lastValue)) + 1;
+    return max(0, intval($largestValue)) + 1;
 }
 
 function RSgetNextIntegerLockName($clientID, $propertyID, $yearScope = null, $seriesScope = null, $customerScope = null)
@@ -2462,7 +2470,13 @@ function RSgetNextIntegerLockName($clientID, $propertyID, $yearScope = null, $se
     $lockParts = array('client=' . intval($clientID), 'property=' . intval($propertyID));
     if (is_array($yearScope)) {
         $lockParts[] = 'yearProperty=' . intval($yearScope['propertyID'] ?? 0);
-        $lockParts[] = 'year=' . intval($yearScope['year'] ?? 0);
+        if (!empty($yearScope['fallbackToPreviousPeriod'])) {
+            // The current period consumes the previous period's value when it
+            // is empty, so all years using this rolling sequence share a lock.
+            $lockParts[] = 'yearMode=latestPeriod';
+        } else {
+            $lockParts[] = 'year=' . intval($yearScope['year'] ?? 0);
+        }
     }
     if (is_array($seriesScope)) {
         $lockParts[] = 'seriesProperty=' . intval($seriesScope['propertyID'] ?? 0);
