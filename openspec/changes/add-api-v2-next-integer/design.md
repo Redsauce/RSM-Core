@@ -79,7 +79,7 @@ This is both more memory-efficient and preserves the intended sequence after man
 
 ### Concurrency and persistence
 
-Acquire a MariaDB/MySQL named advisory lock before re-reading the target value, calculating the next value from the last matching item, and calling `setPropertyValueByID()`. Derive the bounded lock name from a hash of client ID, target property ID, year scope, and series scope. Always release it in a `finally` path.
+Acquire a MariaDB/MySQL named advisory lock before starting a transaction, re-reading the target value, calculating the next value from the last matching item, and calling `setPropertyValueByID()`. Commit only after the property and its audit trail have both persisted. Roll back any failed calculation, property write, audit write, or commit before releasing the lock in a `finally` path. Derive the bounded lock name from a hash of client ID, target property ID, year scope, and series scope.
 
 The lock serializes calls for the same logical sequence while allowing unrelated properties or scopes to proceed independently. A database uniqueness constraint would provide stronger global enforcement, but is not possible without changing the current flexible property storage model and adding a migration.
 
@@ -96,7 +96,7 @@ Keep request parsing, authorization, orchestration, and HTTP responses in the ne
 - **Incorrect scope properties could create an unintended sequence** → Require scope properties to resolve and belong to the target item type, and validate their types.
 - **Series representations may differ between callers** → Compare the canonical value accepted/stored by RSM and cover list-backed or textual series behavior in integration tests.
 - **Year boundary handling can differ for datetime values** → Use an inclusive lower bound and exclusive next-year bound.
-- **A write can fail after a number has been calculated** → Return an error and do not claim the value; a subsequent request may safely reuse it because no value was persisted.
+- **A property write can succeed before its audit write fails** → Keep both writes in the endpoint transaction and roll back before releasing the sequence lock, so a `500` never leaves the number assigned.
 
 ## Migration Plan
 

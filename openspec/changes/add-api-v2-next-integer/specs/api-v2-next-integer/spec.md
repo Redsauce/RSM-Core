@@ -141,7 +141,11 @@ The endpoint SHALL return a JSON response describing a successful assignment and
 
 #### Scenario: Persistence failure
 - **WHEN** calculation succeeds but the property write fails
-- **THEN** the endpoint SHALL return an error and SHALL NOT report the number as assigned
+- **THEN** the endpoint SHALL return an error, roll back the transaction, and leave the target number unchanged
+
+#### Scenario: Audit persistence failure
+- **WHEN** the integer property write succeeds but its audit-trail write fails
+- **THEN** the endpoint SHALL return an error and roll back the integer property write before releasing the sequence lock
 
 #### Scenario: Debug disabled
 - **WHEN** a request fails while API debug output is disabled

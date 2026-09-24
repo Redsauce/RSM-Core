@@ -140,6 +140,7 @@ $lockAcquired = false;
 $failureCode = 0;
 $failureDebugMessage = '';
 $assignedValue = null;
+$transactionStarted = false;
 
 try {
     $lockAcquired = RSacquireNextIntegerLock($lockName, 5);
@@ -147,22 +148,35 @@ try {
         $failureCode = 503;
         $failureDebugMessage = 'The number sequence is busy; retry the request';
     } else {
-        // Recheck while holding the sequence lock so the same target cannot be
-        // assigned twice by concurrent requests.
-        $currentValue = getItemPropertyValue($itemID, $propertyID, $clientID, 'integer', $itemTypeID);
-        if (is_numeric($currentValue) && intval($currentValue) > 0) {
-            $failureCode = 409;
-            $failureDebugMessage = 'The requested item already has a positive value for this property';
+        if (!$mysqli->begin_transaction()) {
+            $failureCode = 500;
+            $failureDebugMessage = 'Unable to start the next integer transaction';
         } else {
-            $assignedValue = RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope, $seriesScope, $customerScope);
-            if ($assignedValue === false) {
-                $failureCode = 500;
-                $failureDebugMessage = 'Unable to calculate the next integer value';
+            $transactionStarted = true;
+
+            // Recheck while holding the sequence lock and transaction so the
+            // number, audit trail, and update bookkeeping succeed or roll back
+            // together.
+            $currentValue = getItemPropertyValue($itemID, $propertyID, $clientID, 'integer', $itemTypeID);
+            if (is_numeric($currentValue) && intval($currentValue) > 0) {
+                $failureCode = 409;
+                $failureDebugMessage = 'The requested item already has a positive value for this property';
             } else {
-                $writeResult = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $assignedValue, 'integer', $RSuserID);
-                if ($writeResult !== 0) {
+                $assignedValue = RSgetNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $yearScope, $seriesScope, $customerScope);
+                if ($assignedValue === false) {
                     $failureCode = 500;
-                    $failureDebugMessage = 'Unable to write the next integer value (code ' . intval($writeResult) . ')';
+                    $failureDebugMessage = 'Unable to calculate the next integer value';
+                } else {
+                    $writeResult = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $assignedValue, 'integer', $RSuserID);
+                    if ($writeResult !== 0) {
+                        $failureCode = 500;
+                        $failureDebugMessage = 'Unable to write the next integer value (code ' . intval($writeResult) . ')';
+                    } elseif (!$mysqli->commit()) {
+                        $failureCode = 500;
+                        $failureDebugMessage = 'Unable to commit the next integer value';
+                    } else {
+                        $transactionStarted = false;
+                    }
                 }
             }
         }
@@ -172,6 +186,15 @@ try {
     $failureCode = 500;
     $failureDebugMessage = 'Unable to assign the next integer value';
 } finally {
+    try {
+        if ($transactionStarted) {
+            $mysqli->rollback();
+            $transactionStarted = false;
+        }
+    } catch (Throwable $rollbackException) {
+        RSError('nextInteger: unable to roll back transaction: ' . $rollbackException->getMessage());
+    }
+
     if ($lockAcquired) {
         try {
             RSreleaseNextIntegerLock($lockName);

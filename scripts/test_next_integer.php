@@ -227,6 +227,10 @@ nextIntegerAssert(strpos($endpointSource, '$hasYear !== $hasYearProperty') !== f
 nextIntegerAssert(strpos($endpointSource, '$hasSeries !== $hasSeriesProperty') !== false, 'endpoint must reject incomplete series scope');
 nextIntegerAssert(strpos($endpointSource, 'intval($currentValue) > 0') !== false, 'endpoint must preserve an existing positive value');
 nextIntegerAssert(strpos($endpointSource, 'finally') !== false && strpos($endpointSource, 'RSreleaseNextIntegerLock') !== false, 'endpoint must release its sequence lock');
+nextIntegerAssert(strpos($endpointSource, '$mysqli->begin_transaction()') !== false, 'endpoint must start a transaction before assigning a number');
+nextIntegerAssert(strpos($endpointSource, '$mysqli->commit()') !== false, 'endpoint must commit a successful number and audit write');
+nextIntegerAssert(strpos($endpointSource, '$mysqli->rollback()') !== false, 'endpoint must roll back a failed number or audit write');
+nextIntegerAssert(strpos($endpointSource, 'if ($transactionStarted)') < strpos($endpointSource, 'RSreleaseNextIntegerLock($lockName)'), 'endpoint must roll back before releasing the sequence lock');
 
 echo "next integer endpoint tests passed\n";
 

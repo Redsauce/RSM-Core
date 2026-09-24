@@ -29,3 +29,8 @@
 Validation of the legacy migration: local next-integer regressions and the PHP 8.5 compatibility suite pass. The MariaDB integration test could not run because 127.0.0.1:3306 refused the connection; its new database scenarios remain unverified. HTTP smoke tests require a configured base URL and were not run.
 
 - [x] 4.4 Remove the number/date-specific helper: legacy callers own date handling and use the generic integer allocation callback.
+
+## 5. API transaction integrity
+
+- [x] 5.1 Wrap API number assignment and audit persistence in one transaction, rolling back failures before releasing the sequence lock.
+- [x] 5.2 Add regression assertions for begin, commit, rollback, and rollback-before-unlock behavior.
