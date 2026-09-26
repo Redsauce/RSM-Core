@@ -214,6 +214,7 @@ class CompatibilitySuite
             $this->root . '/scripts/test_dynamic_item_joins.php',
             $this->root . '/scripts/test_next_integer.php',
             $this->root . '/scripts/test_duplicate_item.php',
+            $this->root . '/scripts/test_legacy_itemtype_parameter.php',
         );
 
         $outputs = array();

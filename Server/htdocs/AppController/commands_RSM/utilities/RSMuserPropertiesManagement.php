@@ -1,6 +1,7 @@
 <?php
 
 function getUserProperties($userID,$clientID,$itemTypeID){
+	global $cstPropertyID, $cstPropertyName, $cstPropertyType;
 
 	// build a fast query to get user properties
 	$theQuery_getProperties = 'SELECT DISTINCT rs_categories.RS_NAME AS "categoryName", rs_categories.RS_ORDER, rs_item_properties.RS_PROPERTY_ID AS "propertyID", rs_item_properties.RS_NAME AS "propertyName", rs_item_properties.RS_TYPE AS "propertyType", rs_item_properties.RS_ORDER FROM rs_categories INNER JOIN rs_item_properties USING (RS_CLIENT_ID, RS_CATEGORY_ID) INNER JOIN rs_properties_groups USING (RS_CLIENT_ID, RS_PROPERTY_ID) INNER JOIN rs_users_groups USING (RS_CLIENT_ID, RS_GROUP_ID) WHERE (rs_categories.RS_ITEMTYPE_ID = '.$itemTypeID.' AND rs_categories.RS_CLIENT_ID = '.$clientID.') AND (rs_item_properties.RS_CLIENT_ID = '.$clientID.') AND (rs_properties_groups.RS_CLIENT_ID = '.$clientID.') AND (rs_users_groups.RS_USER_ID = '.$userID.' AND rs_users_groups.RS_CLIENT_ID = '.$clientID.') ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
@@ -11,17 +12,19 @@ function getUserProperties($userID,$clientID,$itemTypeID){
 	$results = array();
 	$properties = array();
 
-	while ($row = $theProperties->fetch_assoc()) {
-		// save the property ID
-		$properties[] = $row['propertyID'];
+	if ($theProperties) {
+		while ($row = $theProperties->fetch_assoc()) {
+			// save the property ID
+			$properties[] = $row[$cstPropertyID];
 
-		// store info
-		$results[] = array(
-			'propertyID' 	 => $row['propertyID'  ],
-			'propertyName' => $row['propertyName'],
-			'propertyType' => $row['propertyType'],
-			'category'		 => $row['categoryName']
-		);
+			// store info
+			$results[] = array(
+				$cstPropertyID   => $row[$cstPropertyID],
+				$cstPropertyName => $row[$cstPropertyName],
+				$cstPropertyType => $row[$cstPropertyType],
+				'category'		 => $row['categoryName']
+			);
+		}
 	}
 
 	$results[] = array('lists' => '');
@@ -34,8 +37,10 @@ function getUserProperties($userID,$clientID,$itemTypeID){
 		$theLists = RSQuery($theQuery_propertiesList);
 
 		// store info
-		while ($row = $theLists->fetch_assoc()) {
-			$results[] = $row;
+		if ($theLists) {
+			while ($row = $theLists->fetch_assoc()) {
+				$results[] = $row;
+			}
 		}
 	}
 
