@@ -144,7 +144,6 @@ if (is_array($propertyIDs)) {
         $inaccessibleProperties[] = formatPropertyAccessDebugDetail(
           $singlePropertyID,
           $parsedPropertyID,
-          getClientPropertyName($parsedPropertyID, $clientID),
           'missing token READ permission and property visibility'
         );
       }
@@ -397,16 +396,12 @@ function parseProperyListValue($value, $clientID)
 }
 
 // Build a JSON-safe description for a property rejected during debug requests.
-function formatPropertyAccessDebugDetail($requestedIdentifier, $parsedPropertyID, $propertyName, $reason)
+function formatPropertyAccessDebugDetail($requestedIdentifier, $parsedPropertyID, $reason)
 {
   $details = array('requested: ' . escapeJsonMessageFragment($requestedIdentifier));
 
   if (intval($parsedPropertyID) > 0) {
     $details[] = 'resolved ID: ' . intval($parsedPropertyID);
-  }
-
-  if ($propertyName !== '') {
-    $details[] = 'name: ' . escapeJsonMessageFragment($propertyName);
   }
 
   $details[] = $reason;
