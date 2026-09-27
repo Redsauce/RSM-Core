@@ -4,8 +4,8 @@ RSM currently generates sequential invoice numbers through a feature-specific PH
 
 ## What Changes
 
-- Add an authenticated API v2 endpoint that accepts a target item and an integer property, takes the number from the last numbered item in sequence order (`RS_ITEM_ID`) and adds one, writes the value to that item, and returns the assigned value.
-- Allow the sequence to be optionally scoped by year, series, or both; when neither is supplied, use all items belonging to the target property's item type.
+- Add an authenticated API v2 endpoint that accepts a target item, an integer property, and a date filter property; it writes both the next number and the current UTC date.
+- Calculate one more than the maximum number in the current UTC year. If that period is empty, continue from the newest earlier year containing data; optional series and customer scopes further restrict the set.
 - Accept client property IDs or application property names and validate that target and scope properties belong to the same item type.
 - Reject invalid property types, nonexistent items, unauthorized writes, customer-scope violations, incomplete scope definitions, and attempts to replace an already assigned positive number.
 - Serialize concurrent requests for the same sequence scope so two API calls cannot receive the same next number.
@@ -26,4 +26,4 @@ None.
 - Adds a new endpoint under `Server/htdocs/AppController/commands_RSM/api/v2/items/`.
 - Reuses existing request validation, token/client resolution, property metadata, item validation, customer scoping, and `setPropertyValueByID()` infrastructure.
 - Adds reusable sequence locking and last-numbered-item queries to `RSMitemsManagement.php`; the API endpoint only validates and orchestrates calls to the item manager.
-- Adds regression coverage for unscoped, year-scoped, series-scoped, combined-scope, authorization, validation, and concurrency behavior.
+- Adds regression coverage for maximum calculation, UTC-date assignment, previous-period fallback, series/customer scopes, authorization, validation, and concurrency behavior.

@@ -76,7 +76,8 @@ loadProductionFunctions($root . 'utilities/RSMtokensManagement.php', array(
     'RShasTokenPermission','RShasTokenPermissions'
 ));
 loadProductionFunctions($root . 'utilities/RSMitemsManagement.php', array(
-    'IQ_getFilteredItemsIDs','getFilteredItemsIDs','RSgetTokenCustomerDependencyProperty',
+    'RSMgetFilteredPropertyType','RSMgetFilteredPropertyDefaultValue','IQ_getFilteredItemIDsOnly',
+    'RShydrateFilteredItemsProperties','getFilteredItemsIDs','RSgetTokenCustomerDependencyProperty',
     'RSappendTokenCustomerScopeFilter','RSitemMatchesTokenCustomerScope','RSitemsMatchTokenCustomerScope',
     'RSapplyTokenCustomerScopeToCreatePayload','RSstaffItemMatchesTokenCustomerScope','verifyItemExists'
 ));

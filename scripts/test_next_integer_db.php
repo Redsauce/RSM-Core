@@ -1,6 +1,6 @@
 <?php
 
-// Optional MariaDB integration tests for last-item sequence calculation and
+// Optional MariaDB integration tests for maximum sequence calculation and
 // connection-level advisory locking. Uses a disposable local database.
 
 function nextIntegerDbAssert($condition, $message)
@@ -126,17 +126,19 @@ try {
     $customer99 = array('propertyID' => 103, 'type' => 'identifier', 'itemID' => 99);
 
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100) === 91, 'global sequence calculation failed');
-    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 201) === 2, 'sequence 1,2,3,4,1 must continue with 2 from the last numbered item');
+    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 201) === 5, 'sequence 1,2,3,4,1 must continue with the maximum plus one');
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope) === 91, 'year-only sequence calculation failed');
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, null, $seriesA) === 91, 'series-only sequence calculation failed');
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope, $seriesA) === 91, 'combined sequence calculation failed');
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope, $seriesA, $customer99) === 42, 'customer-scoped sequence calculation failed');
+    $rollingYearScope = array('propertyID' => 101, 'type' => 'date', 'year' => 2029, 'fallbackToPreviousPeriod' => true);
+    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $rollingYearScope) === 91, 'empty current period must continue from the newest previous period');
 
     // Large foreign values must not leak across tenant, item type, or property boundaries.
     $admin->query("INSERT INTO rs_property_integers VALUES (9,8,1,100,'999'),(7,9,1,100,'999'),(7,8,1,999,'999')");
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100) === 91, 'scope isolation failed');
     $relatedScope = array('propertyID' => 103, 'type' => 'identifier', 'values' => array(99));
-    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope, $relatedScope) === 71, 'related-item set must use the last matching item');
+    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope, $relatedScope) === 71, 'related-item set must use the largest matching value');
     $relatedScope['values'] = array(99, 100);
     nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 100, $yearScope, $relatedScope) === 91, 'related-item set union failed');
     $relatedScope['values'] = array();
@@ -167,7 +169,7 @@ try {
             $largeValues = array();
         }
     }
-    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 200) === 5001, 'large last-item sequence calculation failed');
+    nextIntegerDbAssert(RSgetNextIntegerPropertyValue(7, 8, 200) === 5001, 'large maximum sequence calculation failed');
 
     $secondConnection = new mysqli('127.0.0.1', 'root', '', $databaseName, 3306);
     $secondConnection->set_charset('utf8mb4');
