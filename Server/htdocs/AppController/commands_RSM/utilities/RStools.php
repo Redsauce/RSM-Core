@@ -520,6 +520,11 @@ function dieWithError($code, $message = null)
             header($httpMessage . $errorString, true, 404);
             break;
 
+        case 413:
+            $errorString = "413 Payload Too Large";
+            header($httpMessage . $errorString, true, 413);
+            break;
+
         case 500:
             $errorString = "500 Internal Server Error";
             header($httpMessage . $errorString, true, 500);
