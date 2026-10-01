@@ -26,6 +26,9 @@ $RSMmediaURL   = '{RSMMEDIAURL}';
 $RSimageCache = '{RSMImageCache}';
 $RSfileCache  = '{RSMFileCache}';
 
+// Maximum decoded bytes per file/image property (32 MiB).
+$RSmaxBinaryPropertyBytes = 32 * 1024 * 1024;
+
 // Determine if files/images cache will be used
 $enable_image_cache  = true;
 $enable_file_cache   = true;
