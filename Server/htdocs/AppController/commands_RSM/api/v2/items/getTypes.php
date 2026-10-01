@@ -16,6 +16,11 @@
 //      "IDs": ["tasks","worksessions"],
 //      "includeCategories": true
 //    }
+//
+//  EXAMPLE 4 (IDs optional; omit to return all readable types):
+//    {"IDs": ["41"], "includeDescriptions": true}
+//    Adds propertyDescriptions with the same keys as properties. Empty descriptions
+//    are returned as ""; descriptions of unreadable properties are never exposed.
 //***************************************************************************************
 require_once "../../../utilities/RStools.php";
 require_once "../../../utilities/RSMverifyBody.php";
@@ -38,9 +43,10 @@ $RStoken  = getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 $includeCategories = isset($requestBody->includeCategories) && $requestBody->includeCategories;
+$includeDescriptions = ($requestBody->includeDescriptions ?? false) === true;
 
 // Check if there is a request body sent
-if (!isset($requestBody) || empty($requestBody)) {
+if (!isset($requestBody) || !property_exists($requestBody, 'IDs')) {
     $itemTypeIDs = array_column(getClientItemTypes($clientID, '', false), "ID");
 } else {
     $itemTypeIDs = $requestBody->IDs;
@@ -63,6 +69,10 @@ foreach ($itemTypeIDs as $itemTypeID) {
     $propertiesTypesArray = array();
     $propertiesListsArray = array();
     $propertiesCategoriesArray = array();
+    $propertiesDescriptionsArray = array();
+    $propertyDescriptions = $includeDescriptions
+        ? getItemTypePropertyDescriptions($itemTypeID, $clientID)
+        : array();
     $propertyCategories = $includeCategories
         ? getItemTypePropertyCategories($itemTypeID, $clientID)
         : array();
@@ -91,6 +101,9 @@ foreach ($itemTypeIDs as $itemTypeID) {
 
             // Names can be stored HTML-encoded (e.g. &amp;, &#39;). Decode to real UTF-8 characters for the API response.
             $propertiesArray[$propertyKey] = html_entity_decode($property['name'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($includeDescriptions) {
+                $propertiesDescriptionsArray[$propertyKey] = $propertyDescriptions[$property['id']] ?? '';
+            }
             if ($includeCategories && isset($propertyCategories[(string)$property['id']])) {
                 $category = $propertyCategories[(string)$property['id']];
                 $propertiesCategoriesArray[$propertyKey] = $category['name'];
@@ -140,6 +153,9 @@ foreach ($itemTypeIDs as $itemTypeID) {
         $combinedArray['properties'] = $propertiesArray;
         $combinedArray['propertyTypes'] = $propertiesTypesArray;
         $combinedArray['propertyLists'] = $propertiesListsArray;
+        if ($includeDescriptions) {
+            $combinedArray['propertyDescriptions'] = $propertiesDescriptionsArray;
+        }
         if ($includeCategories) {
             $combinedArray['categories'] = $categoriesArray;
             $combinedArray['propertyCategories'] = $propertiesCategoriesArray;
@@ -161,7 +177,29 @@ if (!empty($responseArray)) {
 function verifyBodyContent($body)
 {
     checkIsJsonObject($body);
-    checkIsArray($body->IDs);
+    if (property_exists($body, 'IDs')) checkIsArray($body->IDs);
+}
+
+// Fetch descriptions only on request, scoped to the authenticated client and type.
+// Apply property visibility in the response-building loop above.
+function getItemTypePropertyDescriptions($itemTypeID, $clientID)
+{
+    $query = 'SELECT p.RS_PROPERTY_ID, p.RS_DESCRIPTION
+              FROM rs_item_properties p
+              INNER JOIN rs_categories c
+                ON c.RS_CLIENT_ID = p.RS_CLIENT_ID AND c.RS_CATEGORY_ID = p.RS_CATEGORY_ID
+              WHERE c.RS_CLIENT_ID = ' . intval($clientID) . '
+                AND c.RS_ITEMTYPE_ID = ' . intval($itemTypeID);
+    $result = RSQuery($query);
+    $descriptions = array();
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $descriptions[$row['RS_PROPERTY_ID']] = html_entity_decode(
+                $row['RS_DESCRIPTION'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'
+            );
+        }
+    }
+    return $descriptions;
 }
 
 // Return the category metadata indexed by property ID for the requested item type.
