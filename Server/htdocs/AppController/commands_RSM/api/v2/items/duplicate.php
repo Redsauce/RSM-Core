@@ -208,6 +208,9 @@ try {
         if ($recursiveID && !in_array($recursiveID, array_column($itemTypeProperties[$edge['itemTypeID']], 'id'))) {
             $failureCode = 400;
             $failureMessage = 'Recursive dependency must be eligible for duplication';
+            throw new RuntimeException($failureMessage);
+        }
+    }
 
     // Pass exactly the authorized metadata to duplicateItem, including an empty list.
     $properties = getClientItemTypeProperties($itemTypeID, $clientID, 1, true);
