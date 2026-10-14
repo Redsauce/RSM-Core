@@ -122,7 +122,11 @@ function RSimportItemsWithProperties($clientID, $itemTypeID, $itemIDs, $property
             if ($index !== false && !isset($row[$index])) throw new InvalidArgumentException('Missing imported property');
             $value = $index === false ? getClientPropertyDefaultValue($property['id'], $clientID) : base64_decode($row[$index], true);
             if ($value === false) throw new InvalidArgumentException('Invalid imported Base64');
-            $value = enforcePropertyType($value, $clientID, $property['id'], $property['type']);
+            if ($property['type'] === 'file' || $property['type'] === 'image') {
+                RSparseBinaryPropertyValue($value);
+            } else {
+                $value = enforcePropertyType($value, $clientID, $property['id'], $property['type']);
+            }
             $itemWrites[] = array('property' => $property, 'value' => $value);
         }
         $writes[] = $itemWrites;

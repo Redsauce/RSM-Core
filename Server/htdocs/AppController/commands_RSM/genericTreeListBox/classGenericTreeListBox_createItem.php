@@ -57,10 +57,16 @@ if ($clientID != 0 && $clientID != "") {
                 // add to the propertiesValues array
                 if ($parentPID != 0 && $parentPID != "") {
                     $propertiesValues[] = array('ID' => $parentPID, 'value' => $parentItemID);
-                    $itemID = createItem($clientID, $propertiesValues);
+                    $itemID = createItem($clientID, $propertiesValues, $itemTypeID);
                 } else {
                     // Create an item with the default values
                     $itemID = createItem($clientID, array(), $itemTypeID);
+                }
+
+                if ($itemID <= 0) {
+                    $results = array('result' => 'NOK', 'description' => 'Unable to create item');
+                    RSReturnArrayResults($results);
+                    exit();
                 }
 
                 if ($itemTypeID == getFilterItemType($clientID, $filterID)) {
