@@ -642,6 +642,7 @@ function setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $val
 // -2 - User not valid: can't update the property
 // -3 - Query error while updating the property
 // -4 - Invalid property type
+// -5 - Invalid or oversized file/image value
 function setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType = '', $userID = 0)
 {
     global $propertiesTables, $auditTrailPropertiesTables;
@@ -659,34 +660,15 @@ function setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, 
     // only files and images are updated this way
     if (($propertyType != 'image') && ($propertyType != 'file')) return -4;
 
-    if ((substr($value, 0, 2) != '0x') && ($value != ''))
-        $value = '0x' . $value;
-
-    // Compare stored value with new proposed value
-    $actualValue = "0x" . getItemDataPropertyValue($itemID, $propertyID, $clientID, $propertyType);
-    if ($actualValue == "0x" && $value == "") return 0;
-
-    // If the value is still empty, enclose it in quotes in order to form a valid query
-    if ($value == '') {
-        $value = "''";
-        $size = 0;
-    } else {
-        $size = (strlen($value) - 2) / 2;
+    try {
+        $parsed = RSparseBinaryPropertyValue($value, $name);
+        $data = RSdecodeBinaryPropertyValue($parsed);
+    } catch (InvalidArgumentException | LengthException $exception) {
+        return -5;
     }
 
-    // build query
-    $theQuery = 'REPLACE INTO ' . $propertiesTables[$propertyType] .
-        ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_NAME, RS_SIZE, RS_DATA) VALUES (' .
-        $clientID . ',' .
-        $itemTypeID . ',' .
-        $itemID . ',' .
-        $propertyID . ',"' .
-        $name . '",' .
-        $size . ',' .
-        $value . ')';
-
     // execute query
-    if (RSQuery($theQuery)) {
+    if (RSstoreBinaryPropertyValue('REPLACE', $clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $parsed, $data)) {
         // The data has been properly set
         // We add the new item ID to the array of created itemIDs
         global $RSMupdatedItemIDs;
@@ -1661,7 +1643,7 @@ function inSubTree($itemID, $subtree)
 }
 
 // Create a new item in blank
-function createEmptyItem($itemTypeID, $clientID)
+function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
 {
     // get id for new item
     $newID = getNextItemTypeIdentification($itemTypeID, $clientID);
@@ -1674,67 +1656,70 @@ function createEmptyItem($itemTypeID, $clientID)
     // get id for new item
     // As we know that the query will fail eventually until a valid ID is found, we won't track query execution errors
     while (!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
-        $newID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
+        $retryID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
+        if ($failOnError && ($retryID == $newID || $retryID <= 0)) throw new RuntimeException('Unable to insert item');
+        $newID = $retryID;
+        if ($failOnError) {
+            if (!RSQuery('INSERT INTO rs_items (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) VALUES (' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
+                throw new RuntimeException('Unable to insert item');
+            }
+            break;
+        }
     }
 
     // Update the item type with the latest ID created for the item
-    RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newID . ' WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID);
+    $counterUpdated = RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newID . ' WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID);
+    if ($failOnError && !$counterUpdated) throw new RuntimeException('Unable to update item counter');
 
     return $newID;
 }
 
 // Create a new item
-function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0")
+// When manageTransaction is false, the caller must commit or roll back the batch.
+function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $manageTransaction = true)
 {
-    global $propertiesTables;
-
-    //$mongodata = [];
-
-    foreach ($propertiesValues as $property) {
-        $propertiesID[] = $property['ID'];
-    }
-
+    global $mysqli, $RSMcreatedItemIDs;
+    $propertiesID = array_column($propertiesValues, 'ID');
     if ($itemTypeID == "0") $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
+    $clientID = intval($clientID);
+    $itemTypeID = intval($itemTypeID);
+    if ($clientID <= 0 || $itemTypeID <= 0) return 0;
+    $createdBefore = $RSMcreatedItemIDs ?? array();
+    $transactionStarted = false;
 
-    $newID = createEmptyItem($itemTypeID, $clientID);
-
-    // insert the properties
-    $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID);
-
-    foreach ($propertiesList as $property) {
-
-        for ($i = 0; $i < count($propertiesValues); $i++) {
-            // We search the property values to create in order to obtain the matching item propertyID
-            if ($property['id'] == $propertiesValues[$i]['ID']) break;
+    try {
+        if ($manageTransaction) {
+            if (!$mysqli->begin_transaction()) throw new RuntimeException('Unable to start item creation transaction');
+            $transactionStarted = true;
         }
+        $lock = RSQuery('SELECT RS_LAST_ITEM_ID FROM rs_item_types WHERE RS_ITEMTYPE_ID = '
+            . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' FOR UPDATE');
+        if (!$lock || $lock->num_rows !== 1) throw new RuntimeException('Unable to lock item type');
+        $newID = createEmptyItem($itemTypeID, $clientID, true);
+        $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID, 0, true);
 
-        if ($i < count($propertiesValues)) {
-            // set the passed value for the property
-            $value = $propertiesValues[$i]['value'];
-        } else {
-            // set the default value for the property
-            $value = getClientPropertyDefaultValue($property['id'], $clientID);
+        foreach ($propertiesList as $property) {
+            for ($i = 0; $i < count($propertiesValues); $i++) {
+                if ($property['id'] == $propertiesValues[$i]['ID']) break;
+            }
+            $value = $i < count($propertiesValues)
+                ? $propertiesValues[$i]['value']
+                : getClientPropertyDefaultValue($property['id'], $clientID);
+            if (!_dbInsertItemPropertyValue($itemTypeID, $newID, $property['id'], $property['type'], $value, $clientID)) {
+                throw new RuntimeException('Unable to insert item property');
+            }
         }
-
-        // finally insert the property
-        _dbInsertItemPropertyValue($itemTypeID, $newID, $property['id'], $property['type'], $value, $clientID);
-
-        //Add it to our mongo data array
-        //$mongodata[] = [$property['id'] => $value];
-
+        if ($manageTransaction && !$mysqli->commit()) throw new RuntimeException('Unable to commit item creation');
+        $RSMcreatedItemIDs[] = $itemTypeID . ',' . $newID;
+        return $newID;
+    } catch (Throwable $exception) {
+        if ($transactionStarted) {
+            try { $mysqli->rollback(); } catch (Throwable $rollbackError) { error_log('RSM: item creation rollback failed'); }
+        }
+        $RSMcreatedItemIDs = $createdBefore;
+        error_log('RSM: item creation failed');
+        return 0;
     }
-
-    // We add the new item ID to the array of created itemIDs
-    global $RSMcreatedItemIDs;
-    $RSMcreatedItemIDs[] = $itemTypeID . "," . $newID;
-
-    // We also create the item in MongoDB
-    //global $MongoDB;
-    //$MongoDB->SetDatabase($clientID);
-    //$MongoDB->SetCollection($itemTypeID);
-    //$MongoDB->Insert($mongodata);
-
-    return $newID;
 }
 
 // Caller must own a transaction. The row lock coordinates concurrent API copies.
@@ -2155,12 +2140,18 @@ function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array())
     }
 }
 
-function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $propertyType, $propertyValue, $clientID)
+function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $propertyType, $propertyValue, $clientID, $replaceExisting = false, $recordAudit = true)
 {
     global $propertiesTables, $auditTrailPropertiesTables, $RSuserID, $RStoken;
+    $operation = $replaceExisting ? 'REPLACE' : 'INSERT';
+    if (!isset($propertiesTables[$propertyType])) return false;
 
-    // Ensure property value match the defined property type and convert to default otherwise
-    $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
+    // Binary values are rejected instead of silently replaced with a default.
+    try {
+        $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
+    } catch (InvalidArgumentException | LengthException $exception) {
+        return false;
+    }
 
     if ($propertyType == 'identifiers') {
         //multi identifier property, generate order with same number of values
@@ -2168,53 +2159,22 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
         $propertyOrder = implode(',', array_fill(0, count(explode(',', $propertyValue)), '0'));
 
         // Launch the insert in the propertyTables using prepared statement
-        $stmt = $mysqli->prepare('INSERT INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) VALUES (?, ?, ?, ?, ?, ?)');
-        $stmt->bind_param('iisiis', $itemTypeID, $itemID, $propertyValue, $propertyID, $clientID, $propertyOrder);
-        $result = $stmt->execute();
-        $stmt->close();
+        $result = RSexecutePreparedUploadWrite($operation . ' INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID, RS_ORDER) VALUES (?, ?, ?, ?, ?, ?)',
+            'iisiis', array($itemTypeID, $itemID, $propertyValue, $propertyID, $clientID, $propertyOrder));
     } elseif (($propertyType != 'image') && ($propertyType != 'file')) {
         global $mysqli;
 
         // Launch the insert in the propertyTables using prepared statement
-        $stmt = $mysqli->prepare('INSERT INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) VALUES (?, ?, ?, ?, ?)');
-        $stmt->bind_param('iisii', $itemTypeID, $itemID, $propertyValue, $propertyID, $clientID);
-        $result = $stmt->execute();
-        $stmt->close();
+        $result = RSexecutePreparedUploadWrite($operation . ' INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) VALUES (?, ?, ?, ?, ?)',
+            'iisii', array($itemTypeID, $itemID, $propertyValue, $propertyID, $clientID));
     } else {
-        // We are storing an image or a file
-        // The name of the file comes separated from the data by character ":"
-        $pieces = explode(":", $propertyValue);
-
-        if (count($pieces) == 1) {
-            // No name provided, so store an empty name
-            $propertyName = "";
-        } else {
-            $propertyName = $pieces[0];
-            $propertyValue = $pieces[1];
-        }
-
-        // If the 0x character is not present we add it. It must be used for the query
-        if ((substr($propertyValue, 0, 2) != '0x') && ($propertyValue != ''))
-            $propertyValue = '0x' . $propertyValue;
-
-        // If the value is still empty, enclose it in quotes in order to form a valid query
-        if ($propertyValue == '') {
-            $propertyValue = "''";
-            $propertySize = 0;
-        } else {
-            // As the value is codified in hex characters, it takes double the space to represent the file
-            // Therefore we must divide the length by 2 in order to get the right length.
-            // We subtract 2 because the 0x character included
-            $propertySize = (strlen($propertyValue) - 2) / 2;
-        }
-
-        // Launch the insert in the propertyTables
-        $result = RSQuery('INSERT INTO ' . $propertiesTables[$propertyType] . ' ' .
-            '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_NAME, RS_SIZE, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) ' .
-            'VALUES ' . '(' . $itemTypeID . ',' . $itemID . ',\'' . $propertyName . '\',' . $propertySize . ',' . $propertyValue . ',' . $propertyID . ',' . $clientID . ')');
+        $parsed = RSparseBinaryPropertyValue($propertyValue);
+        $data = RSdecodeBinaryPropertyValue($parsed);
+        $result = RSstoreBinaryPropertyValue($operation, $clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $parsed, $data);
     }
 
     if ($result == 1) {
+        if (!$recordAudit) return $result;
         // If the insertion in the property tables is correct, launch the insertion in the audit trail if necessary
         // check if property is Audit Trail
         $response = checkForAuditTrail($propertyID, $clientID);
@@ -2223,13 +2183,22 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
             //avoid empty user id
             if (!isset($RSuserID) || $RSuserID == "") $RSuserID = 0;
 
-            //Insert in the audit trail tables depending the itemTypeID
-            $theQuery = 'INSERT INTO ' . $auditTrailPropertiesTables[$propertyType] .
-                ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_CLIENT_ID, RS_USER_ID, RS_TOKEN,    RS_CHANGED_DATE, RS_FINAL_VALUE) VALUES (' .
-                $itemTypeID . ',' . $itemID . ',' . $propertyID . ',' . $clientID . ',' . $RSuserID . ',"' . $RStoken . '","' . date("Y-m-d H:i:s") . '",' . $propertyValue . ')';
+            if ($propertyType === 'file' || $propertyType === 'image') {
+                return RSinsertBinaryPropertyAudit($clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $RSuserID, $RStoken, $parsed, $data);
+            }
 
-            $queryResult = RSQuery($theQuery);
-            return $queryResult;
+            global $mysqli;
+            $currentDate = date('Y-m-d H:i:s');
+            $auditToken = (string)$RStoken;
+            $stmt = $mysqli->prepare('INSERT INTO ' . $auditTrailPropertiesTables[$propertyType]
+                . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_CLIENT_ID, RS_USER_ID, RS_TOKEN, RS_CHANGED_DATE, RS_FINAL_VALUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+            if (!$stmt) return false;
+            try {
+                if (!$stmt->bind_param('iiiiisss', $itemTypeID, $itemID, $propertyID, $clientID, $RSuserID, $auditToken, $currentDate, $propertyValue)) return false;
+                return $stmt->execute();
+            } finally {
+                $stmt->close();
+            }
         } else {
             //Nothing to do. Return true
             return $result;
