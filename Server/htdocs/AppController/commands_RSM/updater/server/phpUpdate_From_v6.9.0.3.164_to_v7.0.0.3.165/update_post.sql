@@ -224,3 +224,20 @@ ALTER TABLE rs_tokens ADD INDEX IF NOT EXISTS RS_PARENT_MASTER_TOKEN (RS_CLIENT_
 # Create the application property for files attached to financial documents
 REPLACE INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_TYPE)
 VALUES ('financial.documents.file', 37, 'File attached to the financial document', 'identifier2property');
+
+# Create missing application properties for staff authentication and language
+INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE)
+SELECT 'staff.login', 3, 'eMail for user login', NULL, 'text'
+WHERE NOT EXISTS (SELECT 1 FROM rs_property_app_definitions WHERE RS_NAME = 'staff.login');
+
+INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE)
+SELECT 'staff.password', 3, 'Hashed password for user login', NULL, 'password'
+WHERE NOT EXISTS (SELECT 1 FROM rs_property_app_definitions WHERE RS_NAME = 'staff.password');
+
+INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE)
+SELECT 'staff.locale', 3, 'User language ISO code', NULL, 'text'
+WHERE NOT EXISTS (SELECT 1 FROM rs_property_app_definitions WHERE RS_NAME = 'staff.locale');
+
+INSERT INTO rs_property_app_definitions (RS_NAME, RS_ITEM_TYPE_ID, RS_DESCRIPTION, RS_DEFAULTVALUE, RS_TYPE)
+SELECT 'staff.RsmAI.token', 3, 'Token used to interact with RSM AI', NULL, 'text'
+WHERE NOT EXISTS (SELECT 1 FROM rs_property_app_definitions WHERE RS_NAME = 'staff.RsmAI.token');
