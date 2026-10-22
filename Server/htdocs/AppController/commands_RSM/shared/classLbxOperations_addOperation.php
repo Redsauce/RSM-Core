@@ -25,6 +25,10 @@ $values = array();
 $values[] = array('ID' => $subAccountPropertyID, 'value' => $subAccountID);
 
 $operationID = createItem($clientID, $values);
+if ($operationID <= 0) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+    exit();
+}
 
 // build results array
 $results['ID'] = $operationID;

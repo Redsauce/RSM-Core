@@ -37,6 +37,12 @@ if ($properties != '') {
 }
 
 $results['itemID'] = $itemID;
+if ($itemID === 0) {
+    $results['result'] = 'NOK';
+    $results['description'] = 'Unable to create item';
+    RSReturnArrayResults($results);
+    exit();
+}
 
 if ($itemID != '') {
     // Get visible properties

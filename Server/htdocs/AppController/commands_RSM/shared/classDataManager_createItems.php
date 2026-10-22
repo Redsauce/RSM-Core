@@ -23,7 +23,12 @@ foreach ($items as $item) {
     }
 
     // Create the item
-    $itemIDs[] = createItem($clientID, $propertiesValues);
+    $newID = createItem($clientID, $propertiesValues);
+    if ($newID <= 0) {
+        RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item', 'itemIDs' => implode(',', $itemIDs)));
+        exit();
+    }
+    $itemIDs[] = $newID;
 }
 
 $results['itemIDs'] = implode(",", $itemIDs);

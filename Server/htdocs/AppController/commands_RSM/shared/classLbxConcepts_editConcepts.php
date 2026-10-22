@@ -86,7 +86,11 @@ for ($i = 0; isset($GLOBALS[$cstRS_POST]['concept'.$i]); $i++) {
 	}
 	
 	// create new concept
-	createItem($clientID, $propertiesValues);
+	$newConceptID = createItem($clientID, $propertiesValues);
+	if ($newConceptID <= 0) {
+		RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+		exit();
+	}
 }
 
 // sort concept names

@@ -38,6 +38,10 @@ $propertiesValues = array( array('ID' => $subAccountPropertyID, 'value' => $subA
 
 // create a new operation
 $operationID = createItem($clientID, $propertiesValues);
+if ($operationID <= 0) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+    exit();
+}
 
 // the operation pertains to the subaccount passed, so update the property value
 //setPropertyValueByID($subAccountPropertyID, $itemTypeID, $operationID, $clientID, $subAccountID, '', $RSuserID);

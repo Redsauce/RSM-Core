@@ -1,4 +1,5 @@
 <?php
+require_once 'RSMbinaryProperties.php';
 $propertiesTables = array(
 	'text'       				  => 'rs_property_text',
 	'longtext'			   	      => 'rs_property_longtext',
@@ -46,11 +47,11 @@ $propertiesValidationExpressions = array(
     'identifier2itemtype'         => '/\d+/',
     'identifier2property'         => '/\d+/',
     'identifiers'                 => '/\d+(,\d+)*/',
-    'image'                       => '/.*/s',
+    'image'                       => '/\A(?:[^:\x00\r\n]{0,255}:)?(?:0[xX])?(?:[0-9a-fA-F]{2})*\z/u',
     'password'                    => '/.*/',
     'variant'                     => '/.*/s',
     'color'                       => '/.*/',
-    'file'                        => '/.*/s'
+    'file'                        => '/\A(?:[^:\x00\r\n]{0,255}:)?(?:0[xX])?(?:[0-9a-fA-F]{2})*\z/u'
 );
 
 $auditTrailPropertiesTables = array(
@@ -74,6 +75,11 @@ $auditTrailPropertiesTables = array(
 
 function enforcePropertyType($value, $clientID, $propertyID, $propertyType) {
     global $propertiesTables, $propertiesDefaultValues, $propertiesValidationExpressions, $RSuserID, $RStoken;
+
+    if ($propertyType === 'file' || $propertyType === 'image') {
+        RSparseBinaryPropertyValue($value);
+        return $value;
+    }
 
     if ($propertyType == "identifiers") {
 
