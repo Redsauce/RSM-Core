@@ -2256,20 +2256,28 @@ function getItemsPropertyValues($propertyID, $clientID, $itemIDs = '', $property
     $result = RSQuery($theQuery);
 
     if ($result) {
-        // query OK
-        $properties = array();
-
-        while ($row = $result->fetch_assoc()) {
-            $properties[] = $row;
-        }
-
-        if ($translateIds && isIdentifier($propertyID, $clientID, $propertyType)) $properties = _translateIds($properties, array(array('ID' => $propertyID, 'type' => $propertyType, 'name' => 'DATA')), $clientID);
-
+        // Build the lookup directly unless identifier translation needs rows.
+        // Keeping every associative row as well doubles the working dataset.
         $results = array();
-        foreach ($properties as $property) {
-            $results[$property['ID']] = $property['DATA'];
-            if (isset($property['DATA_ord'])) {
-                $orderArray[$property['ID']] = $property['DATA_ord'];
+        $translatePropertyIds = $translateIds && isIdentifier($propertyID, $clientID, $propertyType);
+        if ($translatePropertyIds) {
+            $properties = array();
+            while ($row = $result->fetch_assoc()) {
+                $properties[] = $row;
+            }
+            $properties = _translateIds($properties, array(array('ID' => $propertyID, 'type' => $propertyType, 'name' => 'DATA')), $clientID);
+            foreach ($properties as $property) {
+                $results[$property['ID']] = $property['DATA'];
+                if (isset($property['DATA_ord'])) {
+                    $orderArray[$property['ID']] = $property['DATA_ord'];
+                }
+            }
+        } else {
+            while ($property = $result->fetch_assoc()) {
+                $results[$property['ID']] = $property['DATA'];
+                if (isset($property['DATA_ord'])) {
+                    $orderArray[$property['ID']] = $property['DATA_ord'];
+                }
             }
         }
 
@@ -2278,6 +2286,52 @@ function getItemsPropertyValues($propertyID, $clientID, $itemIDs = '', $property
         // query NOK
         return false;
     }
+}
+
+// Read bounded pages so SQL results and identifier translation never hold the
+// entire property in PHP memory. The property tables have one row per item.
+function getItemsPropertyValueBatches($propertyID, $clientID, $propertyType, $itemTypeID, $batchSize = 5000)
+{
+    global $propertiesTables;
+
+    $batchSize = max(1, (int) $batchSize);
+    if ($propertyType == '') $propertyType = getPropertyType($propertyID, $clientID);
+    $translateIds = isIdentifier($propertyID, $clientID, $propertyType);
+    if ($propertyType == 'image' || $propertyType == 'file') {
+        $dataExpression = 'CONCAT(RS_NAME,":",CAST(RS_SIZE AS CHAR))';
+    } else {
+        $dataExpression = convertData('RS_DATA', $propertyType);
+    }
+    $baseQuery = 'SELECT RS_ITEM_ID AS "ID", ' . $dataExpression . ' AS "DATA" FROM ' . $propertiesTables[$propertyType]
+        . ' WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_PROPERTY_ID = ' . $propertyID;
+    $lastItemID = null;
+
+    do {
+        // Seek by primary-key item ID rather than scanning an increasing OFFSET.
+        $query = $baseQuery;
+        if ($lastItemID !== null) $query .= ' AND RS_ITEM_ID > ' . $lastItemID;
+        $query .= ' ORDER BY RS_ITEM_ID LIMIT ' . $batchSize;
+        $result = RSQuery($query);
+        if (!$result) return;
+
+        $rows = array();
+        while ($row = $result->fetch_assoc()) $rows[] = $row;
+        $result->free();
+        unset($result, $row);
+        $rowCount = count($rows);
+        if ($rowCount === 0) break;
+        $lastItemID = $rows[$rowCount - 1]['ID'];
+
+        if ($translateIds) {
+            $rows = _translateIds($rows, array(array('ID' => $propertyID, 'type' => $propertyType, 'name' => 'DATA')), $clientID);
+        }
+        $values = array();
+        foreach ($rows as $row) $values[$row['ID']] = $row['DATA'];
+        unset($rows, $row);
+        yield $values;
+        unset($values);
+    } while ($rowCount === $batchSize);
+
 }
 
 // Return the value of the property passed
@@ -2943,17 +2997,17 @@ function _translateIds($results, $propertiesToTranslate, $clientID)
             $referredItemTypeID = getClientPropertyReferredItemType($property['ID'], $clientID);
 
             // get the mainvalues for the translation
-            $items = IQ_getItems($referredItemTypeID, $clientID, false, trim($idsList, ','));
+            $items = $idsList !== '' ? IQ_getItems($referredItemTypeID, $clientID, false, trim($idsList, ',')) : false;
 
             if ($items && $items->num_rows > 0)
                 while ($item = $items->fetch_assoc())
                     $ids[$item['ID']] = $item['mainValue'];
         } elseif ($property['type'] == 'identifier2itemtype') {
-            $items = getClientItemTypes($clientID, trim($idsList, ','));
+            $items = $idsList !== '' ? getClientItemTypes($clientID, trim($idsList, ',')) : array();
             foreach ($items as $item)
                 $ids[$item['ID']] = $item['name'];
         } elseif ($property['type'] == 'identifier2property') {
-            $items = getProperties_byIDs(trim($idsList, ','), $clientID, 'RS_NAME AS "name"');
+            $items = $idsList !== '' ? getProperties_byIDs(trim($idsList, ','), $clientID, 'RS_NAME AS "name"') : false;
             if ($items) {
                 foreach ($items as $item)
                     $ids[$item['RS_PROPERTY_ID']] = $item['name'];

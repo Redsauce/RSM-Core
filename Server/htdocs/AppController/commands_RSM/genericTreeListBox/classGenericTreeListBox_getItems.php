@@ -6,6 +6,7 @@ require_once "../utilities/RSMfiltersManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 require_once "../utilities/RStools.php";
 
+
 // Parameters validation
 isset($GLOBALS[$cstRS_POST]['clientID'          ]) ? $clientID          =               $GLOBALS[$cstRS_POST]['clientID'          ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['parentID'          ]) ? $parentID          =               $GLOBALS[$cstRS_POST]['parentID'          ]  : dieWithError(400);
@@ -242,10 +243,11 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         $treePath = array();
         getTreePath($clientID, $treePath, array( array('itemTypeID' => $parentItemTypeID,'mainPropertyID'=>$parentItemTypeMainPropertyID,'mainPropertyType'=>$parentItemTypeMainPropertyType)), $destinationItemTypeID, $allowedItemTypes, 10);
 
+
         //get all properties needed
         foreach ($treePath as $path){
           foreach ($path as $step){
-            if(!array_key_exists($step['mainPropertyID'],$pathProperties)){
+            if(!array_key_exists($step['itemTypeID'],$mainProperties)){
                 $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
             }
             if(array_key_exists('propertyID',$step)&&!array_key_exists($step['propertyID'],$pathProperties)){
@@ -265,8 +267,10 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
           }
         }
 
+
         //apply filter to itemtype
         $filteredItems = filterItems($clientID, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder);
+
 
         //get path for item
         foreach ($filteredItems as $filteredItem) {

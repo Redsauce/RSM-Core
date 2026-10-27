@@ -428,43 +428,35 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
         // get all available properties for fast filtering
         $visibleProperties = getVisibleProperties_extended($itemTypeID, $clientID, $RSuserID, false, true, false, false, true);
 
-        $fastFilterArr = preg_split("/\s+/",$fastFilter);
+        $fastFilterArr = preg_split("/\s+/", $fastFilter);
+        $idsForFilter = array();
+        $normalizedWords = array();
         foreach ($fastFilterArr as $fastFilterVal) {
-            $idsForFilter[$fastFilterVal] = array(-1);
+            // Keep a sentinel even for empty words, preserving the legacy AND behavior.
+            $idsForFilter[$fastFilterVal] = array(-1 => -1);
+            $normalizedWords[$fastFilterVal] = normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'));
         }
 
         foreach ($visibleProperties as $property) {
-            // get property
-            $propertyRows = getItemsPropertyValues($property['ID'], $clientID, '', $property['type'], $itemTypeID, true);
-
-            foreach ($propertyRows as $propertyItemID => $propertyRowValue) {
-                foreach ($fastFilterArr as $fastFilterVal) {
-                    //check filter not empty. This can be caused by encoding mismatch in html_entity_decode
-                    //TO DO: check encoding is always UTF-8 for $fastFilter
-                    if (normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8')) != '') {
-                        if (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal])=== false){
-                            $idsForFilter[$fastFilterVal][]=$propertyItemID;
+            foreach (getItemsPropertyValueBatches($property['ID'], $clientID, $property['type'], $itemTypeID) as $propertyRows) {
+                foreach ($propertyRows as $propertyItemID => $propertyRowValue) {
+                    $normalizedValue = normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8'));
+                    foreach ($normalizedWords as $word => $normalizedWord) {
+                        if ($normalizedWord !== '' && mb_stripos($normalizedValue, $normalizedWord) !== false) {
+                            // Keyed sets avoid repeated linear searches for duplicate matches.
+                            $idsForFilter[$word][$propertyItemID] = $propertyItemID;
                         }
                     }
                 }
+                // Do not retain the previous page while the generator builds the next one.
+                unset($propertyRows);
             }
         }
 
-        // Intersect results (find all words from fastFilter)
-        if (count($idsForFilter) > 1) {
-            // Convert associative arrays to numeric
-            $numericIdsForFilter = array_map('array_values', $idsForFilter);
-
-            // Extract the first array as first element to begin the intersections
-            $ids = array_shift($numericIdsForFilter);
-
-            // Perform intersection with the remaining arrays
-            foreach ($numericIdsForFilter as $filterArray) {
-                $ids = array_intersect($ids, $filterArray);
-            }
-        } else {
-            $ids = reset($idsForFilter);
-        }
+        // All words must match, potentially in different properties of the item.
+        $ids = array_shift($idsForFilter);
+        foreach ($idsForFilter as $matchingIDs) $ids = array_intersect_key($ids, $matchingIDs);
+        unset($matchingIDs, $idsForFilter);
 
     }
     // get items
