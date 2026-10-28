@@ -1706,7 +1706,10 @@ function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $
                 ? $propertiesValues[$i]['value']
                 : getClientPropertyDefaultValue($property['id'], $clientID);
             if (!_dbInsertItemPropertyValue($itemTypeID, $newID, $property['id'], $property['type'], $value, $clientID)) {
-                throw new RuntimeException('Unable to insert item property');
+                throw new RuntimeException(
+                    'Unable to insert item property: ID=' . $property['id']
+                    . ', type=' . $property['type']
+                );
             }
         }
         if ($manageTransaction && !$mysqli->commit()) throw new RuntimeException('Unable to commit item creation');
@@ -1717,7 +1720,13 @@ function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $
             try { $mysqli->rollback(); } catch (Throwable $rollbackError) { error_log('RSM: item creation rollback failed'); }
         }
         $RSMcreatedItemIDs = $createdBefore;
-        error_log('RSM: item creation failed');
+        error_log(sprintf(
+            'RSM: item creation failed [%s]: %s at %s:%d',
+            get_class($exception),
+            $exception->getMessage(),
+            basename($exception->getFile()),
+            $exception->getLine()
+        ));
         return 0;
     }
 }
@@ -2187,14 +2196,16 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
                 return RSinsertBinaryPropertyAudit($clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $RSuserID, $RStoken, $parsed, $data);
             }
 
-            global $mysqli;
+            global $mysqli, $propertiesDefaultValues;
             $currentDate = date('Y-m-d H:i:s');
             $auditToken = (string)$RStoken;
+            // A new property has no previous value; use the type's empty value.
+            $initialValue = $propertiesDefaultValues[$propertyType];
             $stmt = $mysqli->prepare('INSERT INTO ' . $auditTrailPropertiesTables[$propertyType]
-                . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_CLIENT_ID, RS_USER_ID, RS_TOKEN, RS_CHANGED_DATE, RS_FINAL_VALUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+                . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_CLIENT_ID, RS_USER_ID, RS_TOKEN, RS_CHANGED_DATE, RS_INITIAL_VALUE, RS_FINAL_VALUE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
             if (!$stmt) return false;
             try {
-                if (!$stmt->bind_param('iiiiisss', $itemTypeID, $itemID, $propertyID, $clientID, $RSuserID, $auditToken, $currentDate, $propertyValue)) return false;
+                if (!$stmt->bind_param('iiiiissss', $itemTypeID, $itemID, $propertyID, $clientID, $RSuserID, $auditToken, $currentDate, $initialValue, $propertyValue)) return false;
                 return $stmt->execute();
             } finally {
                 $stmt->close();

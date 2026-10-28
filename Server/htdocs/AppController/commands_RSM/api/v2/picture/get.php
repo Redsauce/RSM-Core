@@ -496,8 +496,8 @@ function validateRequestParams($parameters)
 {
     checkParamsContains($parameters, "ID");
     checkParamsContains($parameters, "propertyID");
-    checkStringIsInteger($parameters["w"]);
-    checkStringIsInteger($parameters["h"]);
+    checkStringIsInteger($parameters["w"] ?? null);
+    checkStringIsInteger($parameters["h"] ?? null);
     checkADJParamIsValid($parameters);
 }
 
