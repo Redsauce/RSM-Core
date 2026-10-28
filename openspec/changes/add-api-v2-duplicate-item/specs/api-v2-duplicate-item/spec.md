@@ -134,6 +134,11 @@ The optional `descendants` field SHALL be an array of objects containing only `i
 - **WHEN** a selected dependency is excluded by duplication configuration
 - **THEN** the request SHALL fail with 400 without overriding configuration
 
+#### Scenario: Excluded configured recursive dependency
+- **WHEN** a selected dependent type has a configured recursive property that is absent from its eligible duplication properties
+- **THEN** the endpoint SHALL stop processing and return HTTP 400 with `Recursive dependency must be eligible for duplication`
+- **AND** it SHALL NOT create copies or persist allocation changes
+
 #### Scenario: Child access or persistence failure
 - **WHEN** any selected type lacks required READ/CREATE access, any source or destination fails customer scope, or any discovery/copy/remapping operation fails
 - **THEN** the entire operation SHALL fail with no persisted copies or allocation changes
