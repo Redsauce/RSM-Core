@@ -57,16 +57,17 @@ if (isset($GLOBALS[$cstRS_POST][$cstClientID])
 		RSReturnError("ACCESS DENIED", -5);
 	}
 
-	// and a token is given too...
-	$RSuserID = RSCheckUserAccess();
-
 	if (isset($GLOBALS[$cstRS_POST][$cstRStoken])) {
+		// Token-only API requests do not carry user credentials. Preserve the
+		// user context when a login is also supplied, without requiring it.
+		if (isset($GLOBALS[$cstRS_POST]['RSLogin'])) $RSuserID = RSCheckUserAccess();
 		if (!RSisTokenEnabled($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -3);
 		// validates if their associated clients match.
 		if ($GLOBALS[$cstRS_POST][$cstClientID] != RSClientFromToken($GLOBALS[$cstRS_POST][$cstRStoken])) RSReturnError("ACCESS DENIED", -3);
 
 	} else {
 		// We don't have a token so validate user permissions
+		$RSuserID = RSCheckUserAccess();
 		if (RSCheckCompatibleDB(0) == 0) RSReturnError("INCOMPATIBLE VERSION", -4);
 		if ($RSuserID <= 0) RSReturnError("ACCESS DENIED", -5);
 	}

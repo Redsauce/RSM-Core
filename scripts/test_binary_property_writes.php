@@ -257,7 +257,12 @@ function binaryV1Transport($endpoint, $values) {
 function binaryAdminEndpoint($path, $parameters) {
     global $binaryAdminEndpoints, $mysqli, $RSMcreatedItemIDs, $RSMupdatedItemIDs, $RSMsplitTriggers, $RSallowDebug, $RSuserID,
         $cstRS_POST, $cstClientID, $cstName, $cstItemtypeID, $cstItemtypeIcon;
-    $cstRS_POST = 'binary_post'; $cstClientID = 'clientID'; $cstName = 'name'; $cstItemtypeID = 'itemtypeID'; $cstItemtypeIcon = 'itemtypeIcon';
+    $cstRS_POST = 'binary_post'; $cstClientID = 'clientID'; $cstName = 'name';
+    // Read the production definitions so missing protocol keys cannot be masked.
+    list($cstItemtypeID, $cstItemtypeIcon) = (function () {
+        require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
+        return array($cstItemtypeID, $cstItemtypeIcon);
+    })();
     $GLOBALS[$cstRS_POST] = array_merge(array('clientID' => '7'), $parameters);
     try { eval($binaryAdminEndpoints[$path]); } catch (BinaryResponse $response) { return $response; }
     throw new RuntimeException('Admin endpoint returned without a response');
