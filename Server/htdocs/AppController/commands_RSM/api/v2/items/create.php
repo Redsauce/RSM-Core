@@ -23,6 +23,7 @@ setAuthorizationTokenOnGlobals();
 checkCorrectRequestMethod('POST');
 
 require_once '../../../utilities/RSdatabase.php';
+require_once __DIR__ . '/../../../utilities/RSMbinaryProperties.php';
 require_once '../../../utilities/RSMitemsManagement.php';
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
@@ -48,7 +49,20 @@ foreach ($requestBody as $item) {
 
     // Only prepare properties where user has CREATE permission
     if ((RShasTokenPermission($RStoken, $propertyID, 'CREATE')) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-      $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
+      $propertyType = getPropertyType($propertyID, $clientID);
+      if ($propertyType === 'file' || $propertyType === 'image') {
+        try {
+          RSparseBinaryPropertyValue($propertyValue);
+        } catch (LengthException $exception) {
+          returnJsonMessage(413, 'File/image exceeds the configured size limit');
+        } catch (InvalidArgumentException $exception) {
+          returnJsonMessage(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
+        }
+        // Preserve the filename encoding used by existing clients and reads.
+        $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
+      } else {
+        $correctProperties[] = array('ID' => $propertyID, 'value' => replaceUtf8Characters($propertyValue));
+      }
     } else {
       $RSallowDebug ? returnJsonMessage(400, 'Not created (At least 1 property has no WRITE permissions or its not visible)') : returnJsonMessage(400, '');
     }
@@ -61,12 +75,23 @@ foreach ($requestBody as $item) {
   $propertiesToCreate[] = $correctProperties;
 }
 
-foreach ($propertiesToCreate as $properties) {
-  $values = array();
-  // create the item
-  $newID = createItem($clientID, $properties);
-  $values['ID'] = $newID;
-  $responseArray[] = $values;
+$transactionStarted = false;
+$createdBefore = $RSMcreatedItemIDs;
+try {
+  if (!$mysqli->begin_transaction()) throw new RuntimeException('Unable to start creation transaction');
+  $transactionStarted = true;
+  foreach ($propertiesToCreate as $properties) {
+    $newID = RScreateItemInTransaction($clientID, $properties);
+    if ($newID <= 0) throw new RuntimeException('Unable to create item');
+    $responseArray[] = array('ID' => $newID);
+  }
+  if (!$mysqli->commit()) throw new RuntimeException('Unable to commit creation transaction');
+} catch (Throwable $exception) {
+  if ($transactionStarted) {
+    try { $mysqli->rollback(); } catch (Throwable $rollbackError) { error_log('RSM: API item creation rollback failed'); }
+  }
+  $RSMcreatedItemIDs = $createdBefore;
+  returnJsonMessage(500, $RSallowDebug ? 'Unable to create items; no changes were committed' : '');
 }
 
 if (!empty($responseArray)) {

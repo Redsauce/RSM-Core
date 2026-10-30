@@ -330,6 +330,18 @@ function verifyBodyContent($body)
   if (isset($body->propertyIDs)) checkIsArray($body->propertyIDs);
   if (isset($body->IDs)) checkIsArray($body->IDs);
   if (isset($body->filterRules)) checkIsArray($body->filterRules);
+  if (isset($body->filterRules) && is_array($body->filterRules)) {
+    foreach ($body->filterRules as $index => $rule) {
+      // Never omit an invalid rule: doing so could broaden the requested query.
+      if (!is_object($rule) || !isset($rule->propertyID)
+          || (!is_string($rule->propertyID) && !is_int($rule->propertyID))
+          || trim((string)$rule->propertyID) === '' || (string)$rule->propertyID === '0'
+          || !property_exists($rule, 'value') || !isset($rule->operation)
+          || !is_string($rule->operation) || trim($rule->operation) === '') {
+        returnJsonMessage(400, 'Invalid filterRules entry at index ' . $index . ': expected propertyID, value and operation');
+      }
+    }
+  }
   if (isset($body->extFilterRules)) checkIsArray($body->extFilterRules);
 }
 

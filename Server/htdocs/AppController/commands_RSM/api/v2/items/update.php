@@ -58,6 +58,20 @@ foreach ($requestBody as $item) {
     // Reject before writing any property value if the target item belongs to another customer.
     $RSallowDebug ? returnJsonMessage(403, 'Not Updated (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
   }
+  // Validate all uploads before applying any update in this request.
+  foreach ($item as $rawPropertyID => $propertyValue) {
+    if ($rawPropertyID === 'ID') continue;
+    $propertyType = getPropertyType(ParsePID($rawPropertyID, $clientID), $clientID);
+    if ($propertyType === 'file' || $propertyType === 'image') {
+      try {
+        RSparseBinaryPropertyValue($propertyValue);
+      } catch (LengthException $exception) {
+        returnJsonMessage(413, 'File/image exceeds the configured size limit');
+      } catch (InvalidArgumentException $exception) {
+        returnJsonMessage(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
+      }
+    }
+  }
 }
 
 foreach ($requestBody as $item) {
@@ -74,19 +88,13 @@ foreach ($requestBody as $item) {
       $propertyID = ParsePID($unparsedPropertyID, $clientID);
       $propertyType = getPropertyType($propertyID, $clientID);
       if (($propertyType == 'file') || ($propertyType == 'image')) {
-        $pieces = explode(':', $propertyValue);
-        if (count($pieces) == 1) {
-          $name = '';
-          $value = $pieces[0];
-        } elseif (count($pieces) == 2) {
-          $name = $pieces[0];
-          $value = $pieces[1];
-        } else {
-          $RSallowDebug ? returnJsonMessage(400, 'Error processing file/image') : returnJsonMessage(400, '');
-        }
+        $parsed = RSparseBinaryPropertyValue($propertyValue);
+        $name = $parsed['name'];
+        $value = $parsed['hex'];
 
         if ($value == '') {
           deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $propertyType);
+          $result = 0;
         } else {
           $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
         }
