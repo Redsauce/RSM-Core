@@ -128,11 +128,13 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     } else {
         // Get width and height of the stored image
-        $originalImage = imagecreatefromstring($imageOriginal);
+        // Invalid stored/cached data is handled below; GD also emits a warning.
+        $originalImage = @imagecreatefromstring($imageOriginal);
         
 		if ($originalImage === false) {
 			// The original image is not valid
-			RSError("api_getPicture: not a valid image: ". $imageOriginal);
+			RSError('api_getPicture: invalid image data; client=' . intval($clientID)
+                . '; item=' . intval($itemID) . '; property=' . intval($propertyID));
 			dieWithError(400);
 			
 		} else {

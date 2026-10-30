@@ -13,6 +13,7 @@ header('Access-Control-Allow-Origin: *');
 
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
+require_once __DIR__ . '/../utilities/RSMbinaryProperties.php';
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
 $RSallowUncompressed = true;
@@ -50,6 +51,17 @@ foreach ($RSdataSplit as $RSdataRow) {
         if ((RShasTokenPermission($RStoken, $propertyID, "CREATE")) || (isPropertyVisible($RSuserID, $propertyID, $clientID))) {
             $propertiesID[] = $propertyID;
             $decodedValue = base64_decode($value);
+
+            $propertyType = getPropertyType($propertyID, $clientID);
+            if ($propertyType === 'file' || $propertyType === 'image') {
+                try {
+                    RSparseBinaryPropertyValue($decodedValue);
+                } catch (LengthException $exception) {
+                    dieWithError(413, 'File/image exceeds the configured size limit');
+                } catch (InvalidArgumentException $exception) {
+                    dieWithError(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
+                }
+            }
 
             if (!mb_check_encoding($decodedValue, "UTF-8")) {
                 dieWithError(400, "Decoded parameter is not UTF-8 valid");

@@ -44,6 +44,22 @@ if ($itemTypeID != 0 && !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $i
 
 // Correct itemTypeID
 if ($itemTypeID != 0) {
+    // Validate every binary value before applying any property update.
+    foreach ($RSdata as $propertyValue) {
+        $chainValues = explode(':', $propertyValue, 2);
+        $id = ParsePID($chainValues[0], $clientID);
+        if (!(RShasTokenPermission($RStoken, $id, 'WRITE') || isPropertyVisible($RSuserID, $id, $clientID))) continue;
+        $propertyType = getPropertyType($id, $clientID);
+        if ($propertyType === 'file' || $propertyType === 'image') {
+            try {
+                RSparseBinaryPropertyValue(base64_decode($chainValues[1] ?? '', true));
+            } catch (LengthException $exception) {
+                dieWithError(413, 'File/image exceeds the configured size limit');
+            } catch (InvalidArgumentException $exception) {
+                dieWithError(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
+            }
+        }
+    }
     // For every property must be done one update
     foreach ($RSdata as $propertyValue) {
         $chainValues = explode(":", $propertyValue);
@@ -53,18 +69,13 @@ if ($itemTypeID != 0) {
             $propertyType = getPropertyType($id, $clientID);
 
             if (($propertyType == 'file') || ($propertyType == 'image')) {
-                $pieces = explode(":", base64_decode($chainValues[1]));
-
-                if (count($pieces) == 1) {
-                    $name = "";
-                    $value = $pieces[0];
-                } else {
-                    $name = $pieces[0];
-                    $value = $pieces[1];
-                }
+                $parsed = RSparseBinaryPropertyValue(base64_decode($chainValues[1], true));
+                $name = $parsed['name'];
+                $value = $parsed['hex'];
 
                 if ($value == "") {
                     deleteItemPropertyValue($itemTypeID, $RSitemID, $id, $clientID, $propertyType);
+                    $result = 0;
                 } else {
                     $result = setDataPropertyValueByID($id, $itemTypeID, $RSitemID, $clientID, $name, $value, $propertyType, $RSuserID);
                 }
