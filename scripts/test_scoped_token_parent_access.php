@@ -70,6 +70,7 @@ foreach (array(1,10) as $owner) foreach (array(100,101,102,200,300) as $property
     $db->exec("INSERT INTO rs_token_permissions VALUES ($owner,$property,'$permission')");
 }
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
+require_once $root . 'utilities/RSMbinaryProperties.php';
 loadProductionFunctions($root . 'utilities/RSMtokensManagement.php', array(
     'RSgetTokenMetadata','RSisTokenEnabled','RSgetEffectivePermissionTokenID','RSgetTokenCustomerScope',
     'RSisCustomerScopedToken','RSisTokenCustomerScopeValid','RSgetTokenCustomerItemTypeID','RSgetTokenCustomerItemID',
@@ -110,6 +111,18 @@ $GLOBALS[$cstRS_POST] = array();
 $checks = 0;
 function expect($condition, $message) { global $checks; $checks++; if (!$condition) throw new RuntimeException($message); }
 
+foreach (array(
+    (object)array('value'=>'other','operation'=>'='),
+    (object)array('propertyID'=>100,'operation'=>'='),
+    (object)array('propertyID'=>100,'value'=>'other'),
+    (object)array('propertyID'=>array(100),'value'=>'other','operation'=>'='),
+    null
+) as $invalidRule) {
+    $queriesBefore = count($queries);
+    $response = runEndpoint('v2/items/get.php',array(),(object)array('itemTypeID'=>50,'filterRules'=>array($invalidRule)));
+    expect($response->getCode() === 400, 'v2 rejects incomplete filter instead of dropping it');
+    expect(count($queries) === $queriesBefore, 'v2 rejects incomplete filter before querying data');
+}
 foreach (array('scoped','child') as $token) {
     expect(RSitemMatchesTokenCustomerScope($token,7,'parents',60), "$token own parent without self-reference");
     expect(!RSitemMatchesTokenCustomerScope($token,7,50,61), "$token other parent denied");
@@ -230,9 +243,9 @@ foreach (array('scoped','child','no-permission') as $token) {
         runEndpoint('v2/items/update.php',array(),array((object)array('ID'=>(string)$id,'100'=>'changed')),$token);
         expect((count($effects) === 1) === $allowed, "v2 update $token/$id");
         foreach (array(101,102) as $media) {
-            runEndpoint('v2/items/update.php',array(),array((object)array('ID'=>(string)$id,(string)$media=>'name:content')),$token);
+            runEndpoint('v2/items/update.php',array(),array((object)array('ID'=>(string)$id,(string)$media=>'name:' . bin2hex('content'))),$token);
             expect((count($effects) === 1) === $allowed, "v2 media $token/$id/$media");
-            runEndpoint('api_updateItem.php',array('RSitemID'=>$id,'RSdata'=>$media . ':' . base64_encode('name:content')),null,$token);
+            runEndpoint('api_updateItem.php',array('RSitemID'=>$id,'RSdata'=>$media . ':' . base64_encode('name:' . bin2hex('content'))),null,$token);
             expect((count($effects) === 1) === $allowed, "v1 media $token/$id/$media");
         }
         $response=runEndpoint('api_getItem.php',array('itemID'=>$id,'itemTypeID'=>50),null,$token);

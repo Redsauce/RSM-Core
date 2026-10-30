@@ -110,7 +110,7 @@ $itemSource = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/comma
 check(preg_match('/^function getFilteredItemsIDs\(.*?^\}/ms', $itemSource, $itemMatch) === 1,
     'Cannot extract item query helper');
 eval('namespace ' . __NAMESPACE__ . ';' . $itemMatch[0]);
-function IQ_getFilteredItemIDsOnly(...$arguments) { return new Result(1001); }
+function IQ_getFilteredItemIDsOnly(...$arguments) { return new Result($GLOBALS['itemRowCount']); }
 function RShydrateFilteredItemsProperties($rows, ...$arguments) { return $rows; }
 function applyExternalFilters($itemTypeID, $clientID, $rows, $rules) { return $rows; }
 function RSstreamFilteredItemsPropertiesToXML(...$arguments) {
@@ -122,16 +122,21 @@ function RSfilteredItemsArrayToXML(...$arguments) {
     return 'array-file';
 }
 foreach (array('', 'external-filter') as $externalRules) {
-    $RSresponseFileFieldThreshold = 0;
+    foreach (array(array(0, 2001, false), array(500, 499, false), array(500, 500, false),
+        array(500, 501, true), array(2000, 1001, false), array(2000, 2000, false),
+        array(2000, 2001, true), array(null, 2001, true), array(-1, 1001, false)) as $itemCase) {
+    list($threshold, $itemRowCount, $expectedFile) = $itemCase;
+    if ($threshold === null) unset($RSresponseFileFieldThreshold);
+    else $RSresponseFileFieldThreshold = $threshold;
     $itemFileCalls = 0;
     $rows = getFilteredItemsIDs(1, 1, array(), array(), '', false, '', '', 'AND', 0, true, $externalRules);
-    check(is_array($rows) && count($rows) === 1001, 'Zero must keep large item queries in RAM');
-    check($itemFileCalls === 0, 'Zero must bypass both item file paths');
+    if ($expectedFile) {
+        check($rows === ($externalRules === '' ? 'stream-file' : 'array-file'), 'Configured item threshold selects file');
+    } else {
+        check(is_array($rows) && count($rows) === $itemRowCount, 'Configured item threshold selects RAM');
+    }
+    check($itemFileCalls === ($expectedFile ? 1 : 0), 'Item file calls respect configured threshold');
     $count++;
-    $RSresponseFileFieldThreshold = 2000;
-    $rows = getFilteredItemsIDs(1, 1, array(), array(), '', false, '', '', 'AND', 0, true, $externalRules);
-    check($rows === ($externalRules === '' ? 'stream-file' : 'array-file'), 'Positive setting preserves item file paths');
-    check($itemFileCalls === 1, 'Positive setting calls item file helper');
-    $count++;
+    }
 }
 echo "PASS: $count response cases (thresholds, XML, compression, fallback, cleanup, RAM-only item queries)\n";

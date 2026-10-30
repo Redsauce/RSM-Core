@@ -8,7 +8,40 @@ function verify($condition, $message) {
     if (!$condition) throw new RuntimeException($message);
 }
 
+function RShydrateFilteredItemsProperties($rows, ...$arguments) { return $rows; }
+class FatalItemValue {
+    public function __toString() {
+        trigger_error('Injected failure while writing item XML', E_USER_ERROR);
+        return '';
+    }
+}
+class CleanupItemResult {
+    private $sent = false;
+    public function fetch_assoc() {
+        if ($this->sent) return null;
+        $this->sent = true;
+        return array('value' => new FatalItemValue());
+    }
+}
+
 if (isset($argv[1]) && $argv[1] === '--child') {
+    if (strpos($argv[3], 'item-') === 0) {
+        $RStempPath = $argv[2];
+        $cstCDATAseparator = ']]]]><![CDATA[>';
+        $cstUTF8 = 'UTF-8';
+        $itemSource = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php');
+        foreach (array('RSstreamFilteredItemsPropertiesToXML', 'RSfilteredItemsArrayToXML') as $name) {
+            verify(preg_match('/^function ' . $name . '\(.*?^\}/ms', $itemSource, $itemMatch) === 1,
+                'Cannot extract ' . $name);
+            eval($itemMatch[0]);
+        }
+        if ($argv[3] === 'item-stream-fatal') {
+            RSstreamFilteredItemsPropertiesToXML(new CleanupItemResult(), 1, 1, array());
+        } else {
+            RSfilteredItemsArrayToXML(array(array('value' => new FatalItemValue())), 1, 1);
+        }
+        exit(2); // Must fail during serialization, not silently return.
+    }
     $file = RSCreateResponseTempFile($argv[2]);
     $handle = fopen($file, 'wb');
     RSRegisterResponseTempFile($file, $handle);
@@ -36,7 +69,8 @@ $directory = sys_get_temp_dir() . '/rsm-cleanup-' . bin2hex(random_bytes(8));
 mkdir($directory);
 $count = 0;
 try {
-    foreach (array('exit-during-send', 'fatal', 'exception', 'memory', 'timeout', 'changed-directory') as $mode) {
+    foreach (array('exit-during-send', 'fatal', 'exception', 'memory', 'timeout', 'changed-directory',
+        'item-stream-fatal', 'item-array-fatal') as $mode) {
         $process = proc_open(array(PHP_BINARY, '-d', 'display_errors=0', '-d', 'log_errors=0',
             __FILE__, '--child', $directory, $mode), array(0 => array('pipe', 'r'),
             1 => array('pipe', 'w'), 2 => array('pipe', 'w')), $pipes);
@@ -47,6 +81,7 @@ try {
         $status = proc_close($process);
         verify(in_array($mode, array('exit-during-send', 'changed-directory')) ? $status === 0 : $status !== 0,
             "$mode did not trigger the expected termination");
+        if (strpos($mode, 'item-') === 0) verify($status !== 2, "$mode did not reach injected fatal");
         verify(count(glob($directory . '/RSR*')) === 0, "$mode left a temporary file");
         $count++;
     }

@@ -6,6 +6,7 @@
 // Prueba rapida sin BD: valida rutas, orden, traduccion y XML.
 
 $root = dirname(__DIR__);
+require_once $root . '/Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $sourcePath = $root . '/Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php';
 $source = file_get_contents($sourcePath);
 if ($source === false) {
@@ -39,6 +40,8 @@ function extractFunctionSource($source, $functionName) {
     dynamicJoinAssert(false, $functionName . ' body must close');
 }
 
+$databaseSource = file_get_contents($root . '/Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
+eval(extractFunctionSource($databaseSource, 'RSGetResponseFileFieldThreshold'));
 $getFilteredSource = extractFunctionSource($source, 'getFilteredItemsIDs');
 $cachedPropertyTypeSource = extractFunctionSource($source, 'RSMgetFilteredPropertyType');
 $cachedPropertyDefaultSource = extractFunctionSource($source, 'RSMgetFilteredPropertyDefaultValue');
@@ -208,6 +211,7 @@ dynamicJoinAssert($dynamicJoinTranslated === true, 'translateIds path must recei
 dynamicJoinAssert($translated[0]['translated'] === 'yes', 'translateIds path must run _translateIds after hydration');
 
 // Runtime path: large allowFileResults responses still return an XML temp file.
+$RSresponseFileFieldThreshold = 1000;
 $dynamicJoinHydrationBatchSizes = array();
 $dynamicJoinRows = array();
 for ($i = 1; $i <= 1001; $i++) {

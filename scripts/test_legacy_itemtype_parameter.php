@@ -61,6 +61,10 @@ function RSQuery($query)
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
 $endpointSource = file_get_contents($root . 'itemsManager/classLbxItemPropertiesFilter_getProperties.php');
 $managementSource = file_get_contents($root . 'utilities/RSMuserPropertiesManagement.php');
+// getUserProperties() uses the field names normally loaded by the application.
+$cstPropertyID = 'propertyID';
+$cstPropertyName = 'propertyName';
+$cstPropertyType = 'propertyType';
 
 eval(legacyItemTypeExtractFunction($endpointSource, 'resolveItemPropertiesFilterItemTypeID'));
 eval(legacyItemTypeExtractFunction($managementSource, 'getUserProperties'));

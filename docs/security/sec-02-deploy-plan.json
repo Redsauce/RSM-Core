@@ -1,0 +1,66 @@
+{
+  "name": "SEC-02 gradual deployment",
+  "destination": "AppController/commands_RSM",
+  "tested_baseline": "c284da4",
+  "stages": [
+    {
+      "id": "00-foundation",
+      "requires": [],
+      "instructions": "Copy in listed order. These files add helpers; existing routes are not switched to them by this stage.",
+      "files": [
+        "utilities/RSMbinaryProperties.php",
+        "utilities/RSMbinaryUploads.php"
+      ]
+    },
+    {
+      "id": "01-callers",
+      "requires": ["00-foundation"],
+      "instructions": "Copy these callers before the shared manager. They handle creation failure and retain the successful response fields.",
+      "files": [
+        "genericTreeListBox/classGenericTreeListBox_createItem.php",
+        "shared/classDataManager_createItem.php",
+        "shared/classDataManager_createItems.php",
+        "shared/classLbxOperations_addOperation.php",
+        "shared/classLbxOperations_addRelatedOperation.php",
+        "shared/classLbxOperations_addBankService.php",
+        "shared/classLbxConcepts_editConcepts.php",
+        "trackerManager/classCnvCalendar_addWorkSessions.php",
+        "trackerManager/wndTimeTracker_joinTasks.php",
+        "itemsManager/classLbxPntItemTypes_newItem.php",
+        "api/api_createItem.php"
+      ]
+    },
+    {
+      "id": "02-shared-manager",
+      "requires": ["00-foundation", "01-callers"],
+      "atomic": true,
+      "instructions": "Deploy these three files together in one release switch, or pause requests while replacing them. createItem retains three arguments and owns its transaction. The two outer-transaction callers use the internal writer. Do not mix this stage's files with the previous transaction-flag implementation. Verify root, child, subaccount, v2 batch and CSV overwrite before proceeding.",
+      "files": [
+        "utilities/RSMitemsManagement.php",
+        "shared/classLbxSubaccounts_addSubAccount.php",
+        "api/v2/items/create.php"
+      ]
+    },
+    {
+      "id": "03-routes",
+      "requires": ["02-shared-manager"],
+      "instructions": "These routes can be copied individually after stage 02. Each adds request validation/error handling or uses the shared prepared writers. Validate the route you copy before moving to the next.",
+      "files": [
+        "itemsManager/classWndImportCSV_import.php",
+        "shared/classDataManager_editItems.php",
+        "itemsManager/classLbxItemtypesList_createItemtype.php",
+        "itemsManager/classLbxItemtypesList_updateItemtype.php",
+        "Globals/classLbxGlobals_update.php",
+        "api/api_updateItem.php",
+        "api/api_updateItems.php",
+        "api/v2/items/update.php"
+      ]
+    },
+    {
+      "id": "04-properties",
+      "requires": ["03-routes"],
+      "instructions": "Copy the property validator after the callers and routes. Stage 02 already validates binary writes independently; this step aligns the shared property validator.",
+      "files": ["utilities/RSMpropertiesManagement.php"]
+    }
+  ]
+}

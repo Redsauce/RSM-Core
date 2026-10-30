@@ -11,7 +11,11 @@ $pointerPropertyIDs = explode(',', $GLOBALS[$cstRS_POST][$cstPointerPropertyIDs]
 $pointerItemID      = $GLOBALS[$cstRS_POST][$cstPointerItemID];
 
 // create the item
-$itemID = createItem($itemTypeID, $clientID);
+$itemID = createItem($clientID, array(), $itemTypeID);
+if ($itemID <= 0) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+    exit();
+}
 
 // update identifiers properties
 foreach ($pointerPropertyIDs as $pointerPropertyID)

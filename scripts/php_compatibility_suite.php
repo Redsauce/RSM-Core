@@ -1,6 +1,6 @@
 <?php
 
-// PHP 8.5.1 compatibility gate for RSM-Core.
+// PHP 8.5.1 compatibility gate for RSM-Core, with an optional PHP 8.2.35 target.
 // Runs local static checks by default and optional HTTP smoke checks via env vars.
 
 class CompatibilitySuite
@@ -8,6 +8,7 @@ class CompatibilitySuite
     private string $root;
     private array $failures = array();
     private array $skips = array();
+    private string $target = '8.5';
 
     public function __construct(string $root)
     {
@@ -20,11 +21,19 @@ class CompatibilitySuite
             $this->printHelp();
             return 0;
         }
+        foreach (array_slice($argv, 1) as $argument) {
+            if (!in_array($argument, array('--target=8.2', '--target=8.5'), true)) {
+                $this->line('Unknown argument: ' . $argument . '. Use --help.');
+                return 1;
+            }
+            $this->target = substr($argument, strlen('--target='));
+        }
 
         $this->heading('RSM-Core PHP compatibility suite');
         $this->line('Repository: ' . $this->root);
         $this->line('PHP binary: ' . PHP_BINARY);
         $this->line('PHP version: ' . PHP_VERSION);
+        $this->line('PHP target: ' . $this->target);
         $this->line('');
 
         $this->checkPhpVersion();
@@ -55,13 +64,13 @@ class CompatibilitySuite
 
     private function printHelp(): void
     {
-        echo "RSM-Core PHP 8.5.1 compatibility suite\n\n";
+        echo "RSM-Core PHP compatibility suite (8.2.35 / 8.5.1)\n\n";
         echo "Usage:\n";
-        echo "  php scripts/php_compatibility_suite.php\n\n";
+        echo "  php scripts/php_compatibility_suite.php [--target=8.2|--target=8.5]\n\n";
         echo "Required local checks:\n";
-        echo "  - PHP version gate: requires PHP 8.5.x, minimum 8.5.1\n";
+        echo "  - PHP version gate: default PHP 8.5.x >= 8.5.1; --target=8.2 requires PHP 8.2.x >= 8.2.35\n";
         echo "  - Recursive php -l linting for Server/ and scripts/\n";
-        echo "  - Token-based PHP 8.5 compatibility scan\n";
+        echo "  - Token-based PHP 8.5 compatibility scan (also applied as a stricter check on PHP 8.2)\n";
         echo "  - Existing regression scripts: scripts/test_master_token_templates.php, scripts/test_dynamic_item_joins.php, scripts/test_next_integer.php\n\n";
         echo "Optional MariaDB differential checks:\n";
         echo "  RSM_COMPAT_DB_DIFF=1\n";
@@ -85,8 +94,11 @@ class CompatibilitySuite
     private function checkPhpVersion(): void
     {
         $this->start('PHP version gate');
-        if (PHP_VERSION_ID < 80501 || PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== 5) {
-            $this->fail('PHP version gate', 'Expected PHP 8.5.x with minimum 8.5.1, got ' . PHP_VERSION);
+        $minimum = $this->target === '8.2' ? 80235 : 80501;
+        $minor = $this->target === '8.2' ? 2 : 5;
+        $minimumLabel = $this->target === '8.2' ? '8.2.35' : '8.5.1';
+        if (PHP_VERSION_ID < $minimum || PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== $minor) {
+            $this->fail('PHP version gate', 'Expected PHP ' . $this->target . '.x with minimum ' . $minimumLabel . ', got ' . PHP_VERSION);
             return;
         }
         $this->pass('PHP version gate');
