@@ -137,6 +137,10 @@ if ($parentType == 'project') {
 
 // create the task
 $newTaskID = createItem($clientID, $values);
+if ($newTaskID <= 0) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+    exit();
+}
 
 // change worksessions parent task (now they pertain to the new task)
 foreach ($worksArray as $ws) {

@@ -117,6 +117,10 @@ $propertiesValues = array( array('ID' => $wsStartDatePropertyID, 'value' => $sta
 
 // create new worksession
 $workSessionID = createItem($clientID, $propertiesValues);
+if ($workSessionID <= 0) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to create item'));
+    exit();
+}
 
 // Doble check that no duplicated session was created
 // build filter properties
