@@ -39,6 +39,21 @@ if ($itemTypeID == '') {
 $visibleProperties = getUserVisiblePropertiesIDs($itemTypeID, $clientID, $RSuserID);
 $unsavedProperties = array();
 
+// Reject malformed uploads before writing the first entry.
+foreach ($entries as $entry) {
+    $fields = explode(';', $entry);
+    $propertyID = parsePID($fields[1], $clientID);
+    if (!in_array($propertyID, $visibleProperties)) continue;
+    $propertyType = getPropertyType($propertyID, $clientID);
+    if ($propertyType === 'image' || $propertyType === 'file') {
+        try {
+            RSparseBinaryPropertyValue(base64_decode($fields[2] ?? '', true), base64_decode($fields[3] ?? '', true));
+        } catch (InvalidArgumentException | LengthException $exception) {
+            RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Invalid or oversized file/image value', 'itemTypeID' => $itemTypeID));
+        }
+    }
+}
+
 foreach ($entries as $entry) {
     // get entry data
     $entryArr = explode(';', $entry);
@@ -56,16 +71,21 @@ foreach ($entries as $entry) {
         // save the property value
         $propertyType = getPropertyType($propertyID, $clientID);
         if ($propertyType == 'image' || $propertyType == 'file') {
-            setDataPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[3]), base64_decode($entryArr[2]), $propertyType, $RSuserID);
+            $result = setDataPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[3], true), base64_decode($entryArr[2], true), $propertyType, $RSuserID);
         } else {                
-            setPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[2]), $propertyType, $RSuserID);
+            $result = setPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[2]), $propertyType, $RSuserID);
+        }
+        if ($result !== 0) {
+            RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Unable to update item properties', 'itemTypeID' => $itemTypeID));
         }
     } else {
         $unsavedProperties[] = $propertyID;
     }
 }
 
-// TODO: avisar al usuario que no se han podido guardar algunos valores (los que corresponden a las propiedades a las que no tiene acceso)
+if ($unsavedProperties) {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Some requested properties are not visible', 'itemTypeID' => $itemTypeID));
+}
 
 $results['result'     ] = 'OK';
 $results['description'] = "Successfully updated item " . $entryArr[0] . " of type " . $itemTypeID . ".";

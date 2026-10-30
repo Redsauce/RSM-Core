@@ -27,8 +27,8 @@ $nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $personalID
             array('ID' => $accountPropertyID, 'value' => $accountID),
             array('ID' => $personalIDPropertyID, 'value' => $next)
         );
-        $newSubAccountID = createItem($clientID, $values, $itemTypeID);
-        // createItem does not report individual property-write failures.
+        // The allocator owns the transaction for both the number and the item.
+        $newSubAccountID = RScreateItemInTransaction($clientID, $values, $itemTypeID);
         return $newSubAccountID > 0
             && getItemPropertyValue($newSubAccountID, $personalIDPropertyID, $clientID) == $next
             && getItemPropertyValue($newSubAccountID, $accountPropertyID, $clientID) == $accountID;
