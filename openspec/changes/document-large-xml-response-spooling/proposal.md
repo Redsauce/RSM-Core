@@ -25,3 +25,5 @@ None. No main specification exists for this capability yet.
 - Configuration: `Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php` and its generation/deployment flow.
 - PHP configuration, response helpers, and the new `RSresponseTempFiles.php` lifecycle helper change; no database or dependency changes. Tests live in `scripts/test_response_file_threshold.php`.
 - Track response temporaries for shutdown cleanup, delete failed gzip output, and check/log failed deletions without retries.
+
+- Item query file paths also use the shared configured value instead of 1000, preserving their existing row-count sizing.

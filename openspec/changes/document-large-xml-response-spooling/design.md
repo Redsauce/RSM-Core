@@ -15,7 +15,7 @@ This change documents the existing file-backed XML response mechanism and moves 
 **Non-Goals:**
 
 - Fix a separate unspecified serialization bug, change JSON output, or eliminate source result memory use.
-- Change the separate 1000-row optimizer in `RSMitemsManagement.php`.
+- Change the existing sizing units: item queries count rows; XML response helpers count fields.
 - Repair existing CDATA, `SplFixedArray`, legacy compression, or partial-write differences.
 
 ## Decisions
@@ -39,7 +39,7 @@ Deploy the updated configuration and response helper files. Configure the intege
 
 ## Verification
 
-- `php scripts/test_response_file_threshold.php`: 124 passing cases across both responders, covering default/custom/missing/invalid/zero thresholds, boundary comparisons, XML completeness, content length, compression, file-creation fallback, and cleanup.
+- `php scripts/test_response_file_threshold.php`: 138 passing cases across both responders, covering default/custom/missing/invalid/zero thresholds, boundary comparisons, XML completeness, content length, compression, file-creation fallback, and cleanup.
 - PHP syntax checks and strict OpenSpec validation pass.
 
 ## Open Questions
@@ -52,6 +52,12 @@ A separate bug symptom/reproducer has not been supplied. It is deferred to a fol
 
 Deletion attempts once, logs failure, and unregisters the file even on failure so shutdown does not retry it. Files not yet processed still receive shutdown cleanup. Permanent permission errors cannot be overcome by PHP. Gzip compression uses finally to close handles and remove unsuccessful destinations, and checks reads, partial/failed writes, and gzip close results.
 
-Eleven additional isolated regression cases cover early exit before normal cleanup (modeling an output abort), fatal error, uncaught exception, memory exhaustion, a real PHP timeout, changed working directory, failed source opening, injected read/write failures, successful single-attempt deletion, and logged deletion failure without shutdown retry. These supplement the 124 response regression cases. An actual remote disconnect has not been validated against the production web server; the local development server did not reproduce an output abort, so no end-to-end disconnect guarantee is claimed from that test.
+Eleven additional isolated regression cases cover early exit before normal cleanup (modeling an output abort), fatal error, uncaught exception, memory exhaustion, a real PHP timeout, changed working directory, failed source opening, injected read/write failures, successful single-attempt deletion, and logged deletion failure without shutdown retry. These supplement the 138 response regression cases. An actual remote disconnect has not been validated against the production web server; the local development server did not reproduce an output abort, so no end-to-end disconnect guarantee is claimed from that test.
 
 Forced process termination and permanently denied deletion remain operating limits. A server-level periodic cleanup is required for forced-kill recovery, and has not been installed by this local repository change.
+## Item writer registration correction
+
+Inspection after the server residue report found two additional file creation sites in develop: `RSstreamFilteredItemsPropertiesToXML()` and `RSfilteredItemsArrayToXML()`. Their direct tempnam calls previously bypassed the registry until delivery. Both now register files and XMLWriter release callbacks before writing, and use checked deletion if opening fails. Two subprocess tests exercise fatal errors inside the actual writers before filename return. The cleanup suite now has 13 cases; the 138 response cases and dynamic item join suite also pass. A threshold of 2000 still enables temporary-file creation by design; only zero disables file-backed query responses. Server residue causation and deployed configuration require production verification.
+## Shared limit for item queries
+
+Both item query file paths now use RSGetResponseFileFieldThreshold() instead of their former fixed 1000-row limit. The same configured number is applied with strict greater-than comparison; zero disables disk. Item queries retain row-count sizing, while RSdatabase responders retain field-count sizing. Tests cover custom limits, equality, default, missing/invalid settings, and zero on both item query paths.

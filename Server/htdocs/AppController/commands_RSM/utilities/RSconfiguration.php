@@ -17,6 +17,7 @@ $RSallowDebug = false;
 $RStempPath = '{PHPtempPath}';
 
 // Use a temporary file when the response field count exceeds this non-negative integer.
+// Item query writers apply the same value to their row count before serialization.
 // Zero disables file-backed query responses (RAM only); the default is 2000.
 $RSresponseFileFieldThreshold = 2000;
 

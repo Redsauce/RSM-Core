@@ -1,4 +1,7 @@
 <?php
+// Load the writer directly: properties management may still be an older version
+// during a staged deployment and must not control this dependency.
+require_once __DIR__ . '/RSMbinaryProperties.php';
 require_once 'RSMpropertiesManagement.php';
 require_once 'RSMidentificationFunctions.php';
 require_once 'RSMdefinitions.php';
@@ -1674,9 +1677,34 @@ function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
     return $newID;
 }
 
-// Create a new item
-// When manageTransaction is false, the caller must commit or roll back the batch.
-function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $manageTransaction = true)
+// Public creation interface: this function owns one complete transaction.
+function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0")
+{
+    global $mysqli, $RSMcreatedItemIDs;
+    $createdBefore = $RSMcreatedItemIDs ?? array();
+    $transactionStarted = false;
+    try {
+        if (!$mysqli->begin_transaction()) throw new RuntimeException('Unable to start item creation transaction');
+        $transactionStarted = true;
+        $newID = RScreateItemInTransaction($clientID, $propertiesValues, $itemTypeID);
+        if ($newID <= 0) throw new RuntimeException('Unable to create item');
+        if (!$mysqli->commit()) throw new RuntimeException('Unable to commit item creation');
+        return $newID;
+    } catch (Throwable $exception) {
+        if ($transactionStarted) {
+            try { $mysqli->rollback(); } catch (Throwable $rollbackError) { error_log('RSM: item creation rollback failed'); }
+        }
+        $RSMcreatedItemIDs = $createdBefore;
+        error_log('RSM: item creation transaction failed; exception=' . get_class($exception)
+            . '; code=' . intval($exception->getCode()));
+        return 0;
+    }
+}
+
+// Internal writer for callers that already own a transaction (v2 batch creation
+// and the subaccount sequence allocator). A zero result requires full rollback
+// by that caller. This function never begins, commits or rolls back a transaction.
+function RScreateItemInTransaction($clientID, $propertiesValues = array(), $itemTypeID = "0")
 {
     global $mysqli, $RSMcreatedItemIDs;
     $propertiesID = array_column($propertiesValues, 'ID');
@@ -1685,26 +1713,29 @@ function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $
     $itemTypeID = intval($itemTypeID);
     if ($clientID <= 0 || $itemTypeID <= 0) return 0;
     $createdBefore = $RSMcreatedItemIDs ?? array();
-    $transactionStarted = false;
+    $creationStage = 'lock_item_type';
+    $creationPropertyID = 0;
 
     try {
-        if ($manageTransaction) {
-            if (!$mysqli->begin_transaction()) throw new RuntimeException('Unable to start item creation transaction');
-            $transactionStarted = true;
-        }
+        $creationStage = 'lock_item_type';
         $lock = RSQuery('SELECT RS_LAST_ITEM_ID FROM rs_item_types WHERE RS_ITEMTYPE_ID = '
             . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' FOR UPDATE');
         if (!$lock || $lock->num_rows !== 1) throw new RuntimeException('Unable to lock item type');
+        $creationStage = 'create_empty_item';
         $newID = createEmptyItem($itemTypeID, $clientID, true);
+        $creationStage = 'load_properties';
         $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID, 0, true);
 
         foreach ($propertiesList as $property) {
+            $creationPropertyID = intval($property['id']);
+            $creationStage = 'property_default';
             for ($i = 0; $i < count($propertiesValues); $i++) {
                 if ($property['id'] == $propertiesValues[$i]['ID']) break;
             }
             $value = $i < count($propertiesValues)
                 ? $propertiesValues[$i]['value']
                 : getClientPropertyDefaultValue($property['id'], $clientID);
+            $creationStage = 'property_write_or_audit';
             if (!_dbInsertItemPropertyValue($itemTypeID, $newID, $property['id'], $property['type'], $value, $clientID)) {
                 throw new RuntimeException(
                     'Unable to insert item property: ID=' . $property['id']
@@ -1712,21 +1743,16 @@ function createItem($clientID, $propertiesValues = array(), $itemTypeID = "0", $
                 );
             }
         }
-        if ($manageTransaction && !$mysqli->commit()) throw new RuntimeException('Unable to commit item creation');
+        $creationPropertyID = 0;
         $RSMcreatedItemIDs[] = $itemTypeID . ',' . $newID;
         return $newID;
     } catch (Throwable $exception) {
-        if ($transactionStarted) {
-            try { $mysqli->rollback(); } catch (Throwable $rollbackError) { error_log('RSM: item creation rollback failed'); }
-        }
         $RSMcreatedItemIDs = $createdBefore;
-        error_log(sprintf(
-            'RSM: item creation failed [%s]: %s at %s:%d',
-            get_class($exception),
-            $exception->getMessage(),
-            basename($exception->getFile()),
-            $exception->getLine()
-        ));
+        // Keep values, credentials and SQL out of the diagnostic log.
+        error_log('RSM: item creation failed; client=' . $clientID . '; itemType=' . $itemTypeID
+            . '; stage=' . $creationStage . '; property=' . $creationPropertyID
+            . '; exception=' . get_class($exception) . '; code=' . intval($exception->getCode())
+            . '; preparedWriterAvailable=' . (function_exists('RSexecutePreparedUploadWrite') ? 'yes' : 'no'));
         return 0;
     }
 }
@@ -2157,7 +2183,14 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
 
     // Binary values are rejected instead of silently replaced with a default.
     try {
-        $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
+        if ($propertyType === 'file' || $propertyType === 'image') {
+            // Validate the original transport even with an older enforcePropertyType,
+            // which could silently substitute a default for invalid binary input.
+            $parsed = RSparseBinaryPropertyValue($propertyValue);
+            $data = RSdecodeBinaryPropertyValue($parsed);
+        } else {
+            $propertyValue = enforcePropertyType($propertyValue, $clientID, $propertyID, $propertyType);
+        }
     } catch (InvalidArgumentException | LengthException $exception) {
         return false;
     }
@@ -2177,8 +2210,6 @@ function _dbInsertItemPropertyValue($itemTypeID, $itemID, $propertyID, $property
         $result = RSexecutePreparedUploadWrite($operation . ' INTO ' . $propertiesTables[$propertyType] . ' (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_DATA, RS_PROPERTY_ID, RS_CLIENT_ID) VALUES (?, ?, ?, ?, ?)',
             'iisii', array($itemTypeID, $itemID, $propertyValue, $propertyID, $clientID));
     } else {
-        $parsed = RSparseBinaryPropertyValue($propertyValue);
-        $data = RSdecodeBinaryPropertyValue($parsed);
         $result = RSstoreBinaryPropertyValue($operation, $clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $parsed, $data);
     }
 
@@ -2492,11 +2523,12 @@ function RSreleaseNextIntegerLock($lockName)
 // persist the number and its scope properties and return true only on success.
 function RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID, $persist, $yearScope = null, $seriesScope = null)
 {
-    global $mysqli;
+    global $mysqli, $RSMcreatedItemIDs;
 
     if (getPropertyType($propertyID, $clientID) !== 'integer') return false;
     $lockName = RSgetNextIntegerLockName($clientID, $propertyID, $yearScope, $seriesScope);
     if (!RSacquireNextIntegerLock($lockName)) return false;
+    $createdBefore = $RSMcreatedItemIDs ?? array();
     $transactionStarted = false;
     try {
         if (!$mysqli->begin_transaction()) return false;
@@ -2511,7 +2543,10 @@ function RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $propertyID,
         return false;
     } finally {
         try {
-            if ($transactionStarted) $mysqli->rollback();
+            if ($transactionStarted) {
+                $RSMcreatedItemIDs = $createdBefore;
+                $mysqli->rollback();
+            }
         } finally {
             RSreleaseNextIntegerLock($lockName);
         }
@@ -3662,12 +3697,13 @@ function RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $
 {
     global $RStempPath, $cstCDATAseparator, $cstUTF8;
 
-    $filename = @tempnam($RStempPath, 'RSR');
+    $filename = RSCreateResponseTempFile($RStempPath);
     if (!$filename) return false;
 
     $writer = new XMLWriter();
+    RSRegisterResponseTempFile($filename, function () use (&$writer) { $writer = null; });
     if (!$writer->openUri($filename)) {
-        @unlink($filename);
+        RSDeleteResponseTempFile($filename);
         return false;
     }
 
@@ -3736,11 +3772,15 @@ function RSfilteredItemsArrayToXML($items, $clientID, $itemTypeID, $propertiesTo
 
     if (!is_array($items)) return false;
 
-    $filename = @tempnam($RStempPath, "RSR");
+    $filename = RSCreateResponseTempFile($RStempPath);
     if (!$filename) return false;
 
     $writer = new XMLWriter();
-    $writer->openUri($filename);
+    RSRegisterResponseTempFile($filename, function () use (&$writer) { $writer = null; });
+    if (!$writer->openUri($filename)) {
+        RSDeleteResponseTempFile($filename);
+        return false;
+    }
     $writer->setIndentString('  ');
     $writer->setIndent(true);
     $writer->startDocument('1.0', 'UTF-8');
@@ -4051,11 +4091,12 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
 // the parameter $returnProperties must be an array like (property 'name', property 'ID', property 'trName') that will be use to obtain the values to return; the index 'trName' will contains the mainvalues translations for the identifiers properties; if not defined, the mainvalues will overwrite the ids
 function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy = '', $translateIds = false, $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, $allowFileResults = false, $extFilterRules = "", $decodeEntities = false)
 {
+    $optimizerValue = RSGetResponseFileFieldThreshold();
+    $allowFileResults = $allowFileResults && $optimizerValue > 0;
     $propertiesToTranslate = array();
     // Activar cache solo cuando filtros u ordenacion pueden reutilizar metadatos entre fases.
     // En listados simples no se activa para no anadir coste cuando no hay nada que reutilizar.
     $metadataCache = ((is_array($filterProperties) && count($filterProperties) > 0) || $orderBy != '') ? array() : null;
-    $optimizerValue = 1000;
 
     //prepare debug memory usage monitoring array
     //$lastValues=array('i'=>0,'startUsage'=>0,'startPeakUsage'=>0,'startAllocated'=>0,'startPeakallocated'=>0);

@@ -28,3 +28,13 @@ No archive or spec sync is included in this implementation step.
 
 - [x] 5.1 Define zero as disabling file-backed query responses in both responders and the item query paths, preserving the existing unrelated conflict.
 - [x] 5.2 Update configuration documentation and regression coverage for large zero-threshold results and both item query paths.
+
+## 6. Item XML generation residue
+
+- [x] 6.1 Replace direct tempnam calls in both item XML writers with registered temporary-file creation and track XMLWriter release before serialization.
+- [x] 6.2 Route XMLWriter open failures through checked cleanup.
+- [x] 6.3 Inject fatal errors into both actual item writers in child processes and verify no files remain; update the isolated dynamic-join test bootstrap for the shared helpers.
+## 7. Configurable item query limit
+
+- [x] 7.1 Replace the fixed item-query limit with the shared configured value for both file paths, preserving row sizing and zero-as-RAM semantics.
+- [x] 7.2 Test custom/default limits, exact boundaries, zero, and absent/invalid settings on both item query paths; update the dynamic-join fixture to set its threshold explicitly.

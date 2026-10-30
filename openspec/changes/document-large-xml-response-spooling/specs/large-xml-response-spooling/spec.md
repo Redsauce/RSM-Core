@@ -125,3 +125,27 @@ Immediate deletion guarantees SHALL be conditional on PHP executing cleanup and 
 #### Scenario: Process cannot execute shutdown
 - **WHEN** the process is forcibly killed without running PHP shutdown callbacks
 - **THEN** immediate deletion is not guaranteed and the remaining file requires an independent stale-file cleanup
+### Requirement: Register item XML files before generation
+Both `RSstreamFilteredItemsPropertiesToXML()` and `RSfilteredItemsArrayToXML()` SHALL create their files through the shared request-owned temporary-file helper and register their XMLWriter release callback before opening or writing the file. If opening fails they SHALL attempt immediate deletion through the checked deletion helper. Cleanup SHALL not depend on reaching `RSReturnFileResults()`.
+
+#### Scenario: Streaming generation fails before returning a filename
+- **WHEN** the streaming item writer encounters a fatal error while generating XML
+- **THEN** shutdown cleanup releases its writer and deletes its registered temporary file when deletion is permitted
+
+#### Scenario: Array generation fails before returning a filename
+- **WHEN** the hydrated-array item writer encounters a fatal error while generating XML
+- **THEN** shutdown cleanup releases its writer and deletes its registered temporary file when deletion is permitted
+### Requirement: Apply the configured limit to item query file paths
+`getFilteredItemsIDs()` SHALL use the value resolved by `RSGetResponseFileFieldThreshold()` for both its streaming and hydrated-array file decisions, replacing the fixed 1000-row limit. It SHALL preserve row-count measurement for these decisions, while RSdatabase response helpers continue measuring fields. File output SHALL require permission through allowFileResults, a positive threshold, and a row count strictly greater than that threshold.
+
+#### Scenario: Custom limit on either item query path
+- **WHEN** the configured value is 500, file results are allowed, and the item query contains 501 rows
+- **THEN** the applicable streaming or hydrated-array path selects file output
+
+#### Scenario: Boundary stays in memory
+- **WHEN** the configured value is 500 and the item query contains exactly 500 rows
+- **THEN** the item query returns results in memory
+
+#### Scenario: Former fixed limit no longer applies
+- **WHEN** the configured value is 2000 and an item query contains 1001 rows
+- **THEN** neither item query file path selects file output
