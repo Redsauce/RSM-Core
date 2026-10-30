@@ -10,6 +10,7 @@
 //***************************************************
 
 require_once "RSconfiguration.php";
+require_once "RSresponseTempFiles.php";
 require_once "RSMeventsManagement.php";
 
 // Save the start time for debugging
@@ -130,27 +131,35 @@ if (!isset($RSUpdatingProcess)) {
 function gzCompressFile($source, $level = 9){
     $dest = $source . '.gz';
     $mode = 'wb' . $level;
-    $error = false;
-    if ($fp_out = gzopen($dest, $mode)) {
-        if ($fp_in = fopen($source,'rb')) {
-            while (!feof($fp_in)) {
-                gzwrite($fp_out, fread($fp_in, 1024 * 512));
+    $fp_out = false;
+    $fp_in = false;
+    $success = false;
+    RSRegisterResponseTempFile($dest);
+    try {
+        $fp_out = @gzopen($dest, $mode);
+        if (!$fp_out) return false;
+        RSRegisterResponseTempFile($dest, $fp_out);
+        $fp_in = @fopen($source, 'rb');
+        if (!$fp_in) return false;
+        while (!feof($fp_in)) {
+            $chunk = fread($fp_in, 1024 * 512);
+            if ($chunk === false || ($chunk === '' && !feof($fp_in))) return false;
+            $offset = 0;
+            $length = strlen($chunk);
+            while ($offset < $length) {
+                $written = gzwrite($fp_out, substr($chunk, $offset));
+                if ($written === false || $written === 0) return false;
+                $offset += $written;
             }
-
-            fclose($fp_in);
-        } else {
-            $error = true;
         }
-        gzclose($fp_out);
-
-    } else {
-        $error = true;
-    }
-
-    if ($error) {
-        return false;
-    } else {
+        if (!gzclose($fp_out)) return false;
+        $fp_out = false;
+        $success = true;
         return $dest;
+    } finally {
+        if (is_resource($fp_in)) fclose($fp_in);
+        if (is_resource($fp_out)) gzclose($fp_out);
+        if (!$success) RSDeleteResponseTempFile($dest);
     }
 }
 
@@ -214,10 +223,11 @@ function mysqlToXML($resource,$clientID,$itemTypeID,$propertiesToTranslate=array
 	global $cstUTF8;
 
     // create a temporary file with a unique filename
-    $filename = @tempnam($RStempPath, "RSR");
+    $filename = RSCreateResponseTempFile($RStempPath);
     if ($filename) {
         $writer = new XMLWriter();
         $writer->openUri($filename);
+        RSRegisterResponseTempFile($filename, function () use (&$writer) { $writer = null; });
 
         $writer->setIndentString('  ');
         $writer->setIndent(true);
@@ -415,6 +425,14 @@ function RSReturnError($message, $code) {
     exit ;
 }
 
+// Resolve the shared server setting, including installations with older configuration files.
+function RSGetResponseFileFieldThreshold() {
+    global $RSresponseFileFieldThreshold;
+
+    return (is_int($RSresponseFileFieldThreshold) && $RSresponseFileFieldThreshold >= 0)
+        ? $RSresponseFileFieldThreshold : 2000;
+}
+
 // Converts the passed array of results to XML
 function RSReturnArrayQueryResults($result, $compressed = true) {
     global $RSallowUncompressed;
@@ -424,23 +442,21 @@ function RSReturnArrayQueryResults($result, $compressed = true) {
 	global $cstClientID;
 	global $cstRS_POST;
 
-    // Depending of the number of items returned, it's faster working with a file than with PHP variables
-    // If the number of returned fields is greater than the optimizer value, a file will be used
-    // set optimizer value (if the number of the result fields is greater than this number, file method will be apply)
-    $optimizerValue = 2000;
-    // FIX ME: ---> this value can be changed... test it to get optimum results
+    // Use a file when the estimated number of fields exceeds the configured threshold.
+    $optimizerValue = RSGetResponseFileFieldThreshold();
 
     $theFile = '';
     $filename = '';
 
-    if (_predictNumberOfFields($result) > $optimizerValue) {
+    if ($optimizerValue > 0 && _predictNumberOfFields($result) > $optimizerValue) {
 
         // create a temporary file with a unique filename
-        $filename = @tempnam($RStempPath, "RSR");
+        $filename = RSCreateResponseTempFile($RStempPath);
 
         if ($filename) {
             // open the temporary file
             $file = @fopen($filename, "w");
+            RSRegisterResponseTempFile($filename, $file);
 
             if ($file) {
                 // write XML response into the file
@@ -544,18 +560,18 @@ function RSReturnQueryResults($result, $compressed = true) {
     $theFile = "";
     $filename = '';
 
-    // set optimizer value (if the number of the result fields is greater than this number, file method will be apply)
-    $optimizerValue = 2000;
-    // FIX ME: ---> this value can be changed... test it to get optimum results
+    // Use a file when the number of fields exceeds the configured threshold.
+    $optimizerValue = RSGetResponseFileFieldThreshold();
 
-    if (($result->num_rows * $result->field_count) > $optimizerValue) {
+    if ($optimizerValue > 0 && ($result->num_rows * $result->field_count) > $optimizerValue) {
 
         // create a temporary file with a unique filename
-        $filename = @tempnam($RStempPath, "RSR");
+        $filename = RSCreateResponseTempFile($RStempPath);
 
         if ($filename) {
             // open the temporary file
             $file = @fopen($filename, "w");
+            RSRegisterResponseTempFile($filename, $file);
 
             if ($file) {
                 // write XML response
@@ -724,6 +740,7 @@ function RSReturnArrayResults($array, $compressed = true) {
 
 // Returns the passed xml file
 function RSReturnFileResults($filename, $compressed = true) {
+    if ($filename) RSRegisterResponseTempFile($filename);
     global $RSallowUncompressed;
     global $RStempPath;
 	global $cstRSsendUncompressed;
@@ -900,14 +917,17 @@ function removeTmpFile($fileName, $prefix = "RSR") {
         $dir = dirname($fileName);
 
         //Remove passed file
-        unlink($fileName);
+        $removed = RSDeleteResponseTempFile($fileName);
 
         // Cycle through all files in the directory
         foreach (glob($dir."/".$prefix."*") as $file) {
+            if (RSNormalizeResponseTempFile($file) === RSNormalizeResponseTempFile($fileName)) continue;
             // If file is 24 hours (86400 seconds) old then delete it
             if(time() - filectime($file) > 86400) {
-                unlink($file);
+                RSDeleteResponseTempFile($file);
             }
         }
+        return $removed;
     }
+    return true;
 }

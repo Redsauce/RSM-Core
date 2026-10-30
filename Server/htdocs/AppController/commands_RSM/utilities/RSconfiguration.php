@@ -16,6 +16,10 @@ $RSallowDebug = false;
 
 $RStempPath = '{PHPtempPath}';
 
+// Use a temporary file when the response field count exceeds this non-negative integer.
+// Zero disables file-backed query responses (RAM only); the default is 2000.
+$RSresponseFileFieldThreshold = 2000;
+
 // URL of the api directory
 $RSMapiURL   = '{RSMAPIURL}';
 
