@@ -12,6 +12,18 @@ header('Access-Control-Allow-Origin: *');
 //   extFilterRules: string with the ID of the external property, the value in base64, and the condition: ID;base64(value);condition
 //    filterJoining: could be AND or OR. By default = AND.
 //            limit: integer representing the number of items to receive
+//           offset: optional zero-based number of filtered entries to skip; requires limit.
+// Pagination examples (form POST, with the usual authentication/token fields):
+// clientID=17&propertyIDs=151,152&filterRules=&offset=0&limit=100
+// clientID=17&propertyIDs=151,152&filterRules=&offset=100&limit=100
+// clientID=17&propertyIDs=151,152&filterRules=&offset=1&limit=499
+// These select positions 1-100, 101-200 and 2-500. Limit is a maximum count,
+// not an ending position. Offset is not an item ID; use IDs for known IDs.
+// Omitted/empty offset keeps legacy behavior. Pages default to ID ascending;
+// orderBy ties use ID ascending. Concurrent edits can shift page positions.
+// Short/end pages return fewer/no entries; limit=0 returns an empty page.
+// Ordinary pages load only page properties; extFilterRules requires all candidates
+// to be loaded and filtered before paging. The XML response format is unchanged.
 //     translateIDs: if this property is set to false then the IDs won't be tranlated
 //                   by the main property value of the item the ID is pointing to
 //          orderBy: If specified, the returned items will be oordered using this property value.
@@ -44,8 +56,14 @@ if (strpos($pIDs, ",,") !== false) {
     dieWithError(400);
 }
 
-// limit must be empty, or a number
-if ($limit != "") {
+try {
+    $pagination = RSMparseItemPagination($GLOBALS[$cstRS_POST]);
+} catch (InvalidArgumentException $error) {
+    dieWithError(400);
+}
+
+// Keep historical limit-only validation when offset is absent/empty.
+if ($pagination === null && $limit != "") {
     if (!ctype_digit($limit)) {
         dieWithError(400);
     }
@@ -159,7 +177,7 @@ if ($filterProperties === false) {
     $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM TYPE';
     RSReturnArrayResults($results, false);
 }
-$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true);
+$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $translateIDs, $limit, $IDs, $filterJoining, $returnOrder, true, $extFilterRules, true, $pagination);
 
 // And write XML Response
 if (is_string($results)) {

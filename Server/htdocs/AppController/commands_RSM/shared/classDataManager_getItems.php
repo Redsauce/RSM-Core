@@ -11,6 +11,18 @@
 //               IDS        -> returns the specified properties (identified by internal ID) that follow
 //
 // filters    => each entry is formed by the property ID, the value (encoded in base64) and the filter mode, separated by semicolon; entries are separated by coma
+// limit      => maximum number of returned entries (not an ending position).
+// offset     => optional zero-based number of filtered entries to skip; requires limit.
+// Pagination examples (form POST, with the usual authentication fields):
+// clientID=17&properties=151,152&filters=&IDs=&orderBy=&join=&orderPropertyID=&offset=0&limit=100
+// clientID=17&properties=151,152&filters=&IDs=&orderBy=&join=&orderPropertyID=&offset=100&limit=100
+// clientID=17&properties=151,152&filters=&IDs=&orderBy=&join=&orderPropertyID=&offset=1&limit=499
+// These select positions 1-100, 101-200 and 2-500, not item IDs; use IDs for known IDs.
+// Omitted/empty offset keeps legacy behavior. Pages default to ID ascending;
+// orderBy ties use ID ascending. Concurrent edits can shift page positions.
+// Short/end pages return fewer/no entries; limit=0 returns an empty page.
+// Ordinary pages load only page properties; extFilterRules requires all candidates
+// to be loaded and filtered before paging. XML/compression formats are unchanged.
 //***************************************************
 
 // Database connection startup
@@ -26,6 +38,12 @@ $orderBy        = $GLOBALS[$cstRS_POST]['orderBy'         ];
 $limit          = $GLOBALS[$cstRS_POST]['limit'           ];
 $join           = $GLOBALS[$cstRS_POST]['join'            ];
 $IDs            = $GLOBALS[$cstRS_POST]['IDs'             ];
+
+try {
+    $pagination = RSMparseItemPagination($GLOBALS[$cstRS_POST]);
+} catch (InvalidArgumentException $error) {
+    RSReturnError($error->getMessage(), 'NOK');
+}
 
 $extFilterRules = isset($GLOBALS[$cstRS_POST]['extFilterRules'])? $GLOBALS[$cstRS_POST]['extFilterRules'] : '';
 $itemTypeID     = isset($GLOBALS[$cstRS_POST]['itemTypeID'    ])? $GLOBALS[$cstRS_POST]['itemTypeID'    ] : '';
@@ -98,7 +116,7 @@ if ($filters != '') {
 
 // Get the list of filtered items
 $results = array();
-$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, true, $limit, $IDs, $join, $returnOrder, true, $extFilterRules);
+$results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, true, $limit, $IDs, $join, $returnOrder, true, $extFilterRules, false, $pagination);
 
 // Return results
 if (is_string($results)) {

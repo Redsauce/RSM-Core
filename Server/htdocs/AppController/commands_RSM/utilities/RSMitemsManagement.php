@@ -3486,7 +3486,7 @@ function RSMgetFilteredMainPropertyID($itemTypeID, $clientID, &$metadataCache)
 
 // Primera fase: obtener solo los IDs que cumplen los filtros.
 // Las propiedades de retorno se cargan despues para evitar joins grandes.
-function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties = array(), $orderBy = '', $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, &$metadataCache = array())
+function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties = array(), $orderBy = '', $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, &$metadataCache = array(), $pagination = null)
 {
     global $propertiesTables;
 
@@ -3628,6 +3628,11 @@ function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $r
     ($orderBy == '') ? $queryPartORDERBY = '' : $queryPartORDERBY = 'ORDER BY ' . $orderBy;
     ($limit != '') ? $queryPartLIMIT = 'LIMIT ' . $limit : $queryPartLIMIT = '';
 
+    // Only opted-in pages change ordering/limits; legacy callers retain their SQL.
+    if ($pagination !== null) {
+        $queryPartORDERBY = ($orderBy === '' ? 'ORDER BY ' : $queryPartORDERBY . ', ') . 'rs_items.RS_ITEM_ID ASC';
+        $queryPartLIMIT = $pagination['limit'] === null ? '' : 'LIMIT ' . $pagination['limit'] . ' OFFSET ' . $pagination['offset'];
+    }
     return RSQuery($queryPartSELECT . " " . $queryPartFROM . " " . $queryPartWHERE . " " . $queryPartORDERBY . " " . $queryPartLIMIT);
 }
 
@@ -4086,13 +4091,45 @@ function IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $retu
     return RSQuery($queryPartSELECT . " " . $queryPartFROM . " " . $queryPartWHERE . " " . $queryPartORDERBY . " " . $queryPartLIMIT);
 }
 
+/**
+ * Opt-in offset/count validation shared by form endpoints and v2 JSON bodies.
+ * Empty/omitted form offset preserves legacy limit handling. JSON limit alone
+ * starts at zero. Returns null (legacy) or validated integer offset/limit.
+ */
+function RSMparseItemPagination($request, $json = false)
+{
+    if ($json ? !array_key_exists('offset', $request) && !array_key_exists('limit', $request)
+              : !array_key_exists('offset', $request) || $request['offset'] === '') return null;
+
+    $pagination = array('offset' => array_key_exists('offset', $request) ? $request['offset'] : 0,
+                        'limit' => array_key_exists('limit', $request) ? $request['limit'] : null);
+    foreach ($pagination as $key => $value) {
+        if ((!is_int($value) && !is_string($value)) || !preg_match('/^[0-9]+$/D', (string)$value)) {
+            throw new InvalidArgumentException('Invalid pagination: ' . $key . ' must be a non-negative integer; offset requires limit');
+        }
+        $digits = ltrim((string)$value, '0');
+        $maximum = (string)PHP_INT_MAX;
+        if (strlen($digits) > strlen($maximum) || (strlen($digits) === strlen($maximum) && strcmp($digits, $maximum) > 0)) {
+            throw new InvalidArgumentException('Invalid pagination: ' . $key . ' exceeds the integer range');
+        }
+        $pagination[$key] = (int)$value;
+    }
+    return $pagination;
+}
+
 // Return an array of filtered items;
 // the parameter $filterProperties must be an array like (property 'ID', property 'value', [property 'mode']) representing the filter;
 // the parameter $returnProperties must be an array like (property 'name', property 'ID', property 'trName') that will be use to obtain the values to return; the index 'trName' will contains the mainvalues translations for the identifiers properties; if not defined, the mainvalues will overwrite the ids
-function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy = '', $translateIds = false, $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, $allowFileResults = false, $extFilterRules = "", $decodeEntities = false)
+// Optional trailing $pagination is the validated RSMparseItemPagination result.
+// SQL selects page IDs before hydration; external filters require all candidates
+// and are applied before slicing. Null preserves existing callers and ordering.
+function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy = '', $translateIds = false, $limit = '', $ids = '', $filtersJoining = 'AND', $returnOrder = 0, $allowFileResults = false, $extFilterRules = "", $decodeEntities = false, $pagination = null)
 {
+    if ($pagination !== null && $pagination['limit'] === 0) return array();
+    $pageAfterFiltering = $pagination !== null && $extFilterRules !== '';
+    $queryPagination = $pagination;
+    if ($pageAfterFiltering) $queryPagination['limit'] = null; // Stable order, no premature SQL page.
     $optimizerValue = RSGetResponseFileFieldThreshold();
-    $allowFileResults = $allowFileResults && $optimizerValue > 0;
     $propertiesToTranslate = array();
     // Activar cache solo cuando filtros u ordenacion pueden reutilizar metadatos entre fases.
     // En listados simples no se activa para no anadir coste cuando no hay nada que reutilizar.
@@ -4103,7 +4140,7 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
     //mem_increase_check($lastValues);
 
     // Camino optimizado: primero IDs, despues propiedades.
-    $result = IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $limit, $ids, $filtersJoining, $returnOrder, $metadataCache);
+    $result = IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, $limit, $ids, $filtersJoining, $returnOrder, $metadataCache, $queryPagination);
 
     //debug memory usage
     //mem_increase_check($lastValues);
@@ -4114,19 +4151,19 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
         // threshold is not a safe memory bound for them: buffered property
         // queries can exhaust PHP before XML serialization even starts.
         $variantChunkSize = 0;
-        if ($allowFileResults && $extFilterRules === '' && $result->num_rows > 8) {
+        if ($allowFileResults) {
             foreach ($returnProperties as $property) {
                 if ($property['ID'] == 0) continue;
                 $propertyType = RSMgetFilteredPropertyType(intval($property['ID']), $clientID, $metadataCache);
                 if ($propertyType === 'variant') {
-                    $variantChunkSize = 8;
+                    $variantChunkSize = 1;
                     break;
                 }
             }
         }
         // External filters currently require a complete result set. Without
         // them, stream large reads in bounded chunks before hydrating all rows.
-        if ($allowFileResults && $extFilterRules === '' && ($variantChunkSize > 0 || $result->num_rows > $optimizerValue)) {
+        if ($allowFileResults && $extFilterRules === '' && ($variantChunkSize > 0 || ($optimizerValue > 0 && $result->num_rows > $optimizerValue))) {
             $fileResults = RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $returnProperties, $translateIds, $returnOrder, $decodeEntities, $metadataCache, $variantChunkSize > 0 ? $variantChunkSize : 500);
             if ($fileResults) return $fileResults;
             if ($variantChunkSize > 0) {
@@ -4146,7 +4183,7 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
             }
 
             $results = RShydrateFilteredItemsProperties($results, $itemTypeID, $clientID, $returnProperties, $propertiesToTranslate, $returnOrder, $metadataCache);
-            if ($allowFileResults && count($results) > $optimizerValue) {
+            if (!$pageAfterFiltering && $allowFileResults && ($variantChunkSize > 0 || ($optimizerValue > 0 && count($results) > $optimizerValue))) {
                 // Para respuestas grandes se conserva la salida por archivo temporal.
                 $fileResults = RSfilteredItemsArrayToXML($results, $clientID, $itemTypeID, $translateIds ? $propertiesToTranslate : array(), $extFilterRules, $decodeEntities);
                 if ($fileResults) return $fileResults;
@@ -4171,6 +4208,15 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
 
         // Check for external rules & apply them if exist
         if ($extFilterRules != '') $results = applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules);
+
+        if ($pageAfterFiltering) {
+            $results = array_slice($results, $pagination['offset'], $pagination['limit']);
+            if ($allowFileResults && ($variantChunkSize > 0 || ($optimizerValue > 0 && count($results) > $optimizerValue))) {
+                // Already decoded, translated and filtered: serialize once.
+                $fileResults = RSfilteredItemsArrayToXML($results, $clientID, $itemTypeID);
+                if ($fileResults) return $fileResults;
+            }
+        }
 
         //debug memory usage
         //mem_increase_check($lastValues);

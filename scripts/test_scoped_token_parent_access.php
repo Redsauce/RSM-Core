@@ -71,13 +71,14 @@ foreach (array(1,10) as $owner) foreach (array(100,101,102,200,300) as $property
 }
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
 require_once $root . 'utilities/RSMbinaryProperties.php';
+loadProductionFunctions($root . 'utilities/RSdatabase.php', array('RSGetResponseFileFieldThreshold'));
 loadProductionFunctions($root . 'utilities/RSMtokensManagement.php', array(
     'RSgetTokenMetadata','RSisTokenEnabled','RSgetEffectivePermissionTokenID','RSgetTokenCustomerScope',
     'RSisCustomerScopedToken','RSisTokenCustomerScopeValid','RSgetTokenCustomerItemTypeID','RSgetTokenCustomerItemID',
     'RShasTokenPermission','RShasTokenPermissions'
 ));
 loadProductionFunctions($root . 'utilities/RSMitemsManagement.php', array(
-    'RSMgetFilteredPropertyType','RSMgetFilteredPropertyDefaultValue','IQ_getFilteredItemIDsOnly',
+    'RSMparseItemPagination','RSMgetFilteredPropertyType','RSMgetFilteredPropertyDefaultValue','IQ_getFilteredItemIDsOnly',
     'RShydrateFilteredItemsProperties','getFilteredItemsIDs','RSgetTokenCustomerDependencyProperty',
     'RSappendTokenCustomerScopeFilter','RSitemMatchesTokenCustomerScope','RSitemsMatchTokenCustomerScope',
     'RSapplyTokenCustomerScopeToCreatePayload','RSstaffItemMatchesTokenCustomerScope','verifyItemExists'
@@ -306,7 +307,10 @@ loadProductionFunctions($root . 'utilities/RSMfiltersManagement.php',array('comb
 function getMainPropertyID($type,$client) { return 100; }
 function _translateIds($rows,$properties,$client) { return $rows; }
 function getTreePath($client,&$paths,$parents,$destination,$allowed,$depth) { $paths=array(array(array('itemTypeID'=>50,'mainPropertyID'=>100,'mainPropertyType'=>'text'))); }
-function getItemsPropertyValues($property,$client,$ids='',$type='',$itemType='') { return array(60=>'own',61=>'other'); }
+function getItemsPropertyValues($property,$client,$ids='',$type='',$itemType='') {
+    $GLOBALS['scopePropertyReads'][] = array($property, $ids);
+    return array(60=>'own',61=>'other');
+}
 function buildTreeNodeKey($type,$id) { return $type . ':' . $id; }
 function getPathsForItem($client,$type,$id,$paths,$parentID,$extra,$properties,$main,$returnOrder,$orders) {
     return array(

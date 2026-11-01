@@ -3,6 +3,18 @@
 // Description:
 //    Get one or multiple item/s of the specified itemType with the associated values
 // REQUEST BODY (JSON OBJECT):
+// Optional pagination: offset skips that many filtered entries (zero-based);
+// limit is the maximum count, not an ending position. Offset requires limit;
+// limit alone starts at zero. Both accept non-negative integers/decimal strings.
+// Pagination examples (existing GET/POST JSON-body contract, usual token header):
+// {"itemTypeID":"23","offset":0,"limit":100}
+// {"itemTypeID":"23","offset":100,"limit":100}
+// {"itemTypeID":"23","offset":1,"limit":499}
+// These select positions 1-100, 101-200 and 2-500, not item IDs; use IDs for known IDs.
+// Omit both to keep legacy behavior. Pages use ID ascending; concurrent edits
+// can shift positions. Short/end pages return fewer/no entries; limit=0 is empty.
+// Ordinary pages load only page properties; extFilterRules requires all candidates
+// to be loaded and filtered before paging. JSON layouts/options are unchanged.
 //  EXAMPLE 1:
 // {
 //     "IDs": ["571"],
@@ -45,6 +57,11 @@ require_once '../../../utilities/RSMlistsManagement.php';
 // Definitions
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
+try {
+  $pagination = RSMparseItemPagination(get_object_vars($requestBody), true);
+} catch (InvalidArgumentException $error) {
+  returnJsonMessage(400, $error->getMessage());
+}
 
 $RStoken  = getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);
@@ -178,7 +195,7 @@ if ($filterProperties === false) {
   $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
 }
 
-$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, $limit = '', $IDs, 'AND', 0, !$includeCategories, $formattedExtFilterRules, true);
+$itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, '', $IDs, 'AND', 0, !$includeCategories, $formattedExtFilterRules, true, $pagination);
 $responseArray = array();
 
 // To construct the response, we have to verify if the includecategories filter is true

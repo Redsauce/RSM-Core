@@ -8,16 +8,17 @@ foreach (array('getFilteredItemsIDs', 'RSstreamFilteredItemsPropertiesToXML') as
     if (!preg_match('/^function ' . $name . '\(.*?^\}/ms', $source, $match)) {
         throw new \RuntimeException('Cannot extract ' . $name);
     }
-    eval('namespace ' . __NAMESPACE__ . ';' . $match[0]);
+    eval('namespace ' . __NAMESPACE__ . '; use XMLWriter; use RuntimeException;' . $match[0]);
 }
 
 function check($condition, $message) {
     if (!$condition) throw new \RuntimeException($message);
 }
-function RSGetResponseFileFieldThreshold() { return 2000; }
+function RSGetResponseFileFieldThreshold() { return $GLOBALS['variantThreshold']; }
 function RSMgetFilteredPropertyType(...$arguments) { return 'variant'; }
 class Result {
-    public $num_rows = 1201;
+    public $num_rows;
+    function __construct() { $this->num_rows = $GLOBALS['variantRows']; }
     private $next = 1;
     function fetch_assoc() {
         return $this->next <= $this->num_rows ? array('ID' => $this->next++) : null;
@@ -25,7 +26,7 @@ class Result {
 }
 function IQ_getFilteredItemIDsOnly(...$arguments) { return new Result(); }
 function RShydrateFilteredItemsProperties($items, ...$arguments) {
-    check(count($items) <= 8, 'Variant archives must be hydrated in batches of at most eight');
+    check(count($items) <= 1, 'Variant archives must be hydrated one item at a time');
     $GLOBALS['largestVariantBatch'] = max($GLOBALS['largestVariantBatch'], count($items));
     foreach ($items as &$item) {
         $item['151'] = 'request-' . $item['ID'] . ':' . str_repeat('q', 32768);
@@ -43,6 +44,8 @@ $cstCDATAseparator = ']]]]><![CDATA[>';
 $cstUTF8 = 'UTF-8';
 $GLOBALS['largestVariantBatch'] = 0;
 $GLOBALS['failTemp'] = false;
+$GLOBALS['variantRows'] = 1201;
+$GLOBALS['variantThreshold'] = 2000;
 $properties = array(array('ID' => 151, 'name' => '151'), array('ID' => 152, 'name' => '152'));
 $file = null;
 try {
@@ -59,8 +62,19 @@ try {
     }
     $reader->close();
     check($rows === 1201 && $columns === 3603, 'All history rows and fields must survive streaming');
-    check($GLOBALS['largestVariantBatch'] === 8, 'Expected bounded batch size');
+    check($GLOBALS['largestVariantBatch'] === 1, 'Expected bounded batch size');
     check(memory_get_peak_usage(true) < 32 * 1024 * 1024, 'Response must remain below 32 MiB peak');
+    foreach (array(2000, 0) as $threshold) {
+        $GLOBALS['variantThreshold'] = $threshold;
+        foreach (array(0, 1, 8) as $rowCount) {
+            $GLOBALS['variantRows'] = $rowCount;
+            $smallFile = getFilteredItemsIDs(23, 17, array(), $properties, '', false, '', '', 'AND', 0, true);
+            check(is_string($smallFile) && is_file($smallFile), 'Variants must use a file regardless of row count or threshold');
+            $xml = file_get_contents($smallFile);
+            check(substr_count($xml, '<row>') === $rowCount, 'Small variant response must preserve every row');
+            \RSDeleteResponseTempFile($smallFile);
+        }
+    }
     $GLOBALS['failTemp'] = true;
     $failed = false;
     try {
@@ -71,7 +85,7 @@ try {
     check($failed, 'A file failure must not fall back to an unbounded archive read');
     echo 'PASS: 1201 rows, ' . filesize($file) . ' XML bytes, peak ' . memory_get_peak_usage(true) . " bytes; disk failure fails closed\n";
 } finally {
-    \RSReleaseResponseTempResources();
+    \RSCleanupResponseTempFiles();
     if ($file && is_file($file)) \RSDeleteResponseTempFile($file);
     foreach (glob($RStempPath . '/*') as $remaining) unlink($remaining);
     rmdir($RStempPath);
