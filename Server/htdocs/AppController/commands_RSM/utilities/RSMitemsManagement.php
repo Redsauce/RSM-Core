@@ -4110,11 +4110,30 @@ function getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnP
 
     // build the results array
     if ($result) {
+        // Variant archives can be megabytes per cell. The ordinary row-count
+        // threshold is not a safe memory bound for them: buffered property
+        // queries can exhaust PHP before XML serialization even starts.
+        $variantChunkSize = 0;
+        if ($allowFileResults && $extFilterRules === '' && $result->num_rows > 8) {
+            foreach ($returnProperties as $property) {
+                if ($property['ID'] == 0) continue;
+                $propertyType = RSMgetFilteredPropertyType(intval($property['ID']), $clientID, $metadataCache);
+                if ($propertyType === 'variant') {
+                    $variantChunkSize = 8;
+                    break;
+                }
+            }
+        }
         // External filters currently require a complete result set. Without
         // them, stream large reads in bounded chunks before hydrating all rows.
-        if ($allowFileResults && $extFilterRules === '' && $result->num_rows > $optimizerValue) {
-            $fileResults = RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $returnProperties, $translateIds, $returnOrder, $decodeEntities, $metadataCache);
+        if ($allowFileResults && $extFilterRules === '' && ($variantChunkSize > 0 || $result->num_rows > $optimizerValue)) {
+            $fileResults = RSstreamFilteredItemsPropertiesToXML($result, $itemTypeID, $clientID, $returnProperties, $translateIds, $returnOrder, $decodeEntities, $metadataCache, $variantChunkSize > 0 ? $variantChunkSize : 500);
             if ($fileResults) return $fileResults;
+            if ($variantChunkSize > 0) {
+                // Do not retry an unbounded in-memory read if disk streaming
+                // failed; that would restore the original memory exhaustion.
+                throw new RuntimeException('Unable to stream variant response');
+            }
         }
 
         $results = array();
