@@ -332,8 +332,13 @@ if ($includeCategories) {
   }
 }
 
+// Release source rows and the last foreach values before allocating the JSON.
+unset($itemsArray, $item, $combinedArray, $decodedItem, $value);
+
 if (!empty($responseArray)) {
-  returnJsonResponse(json_encode($responseArray));
+  $response = json_encode($responseArray);
+  unset($responseArray);
+  returnJsonResponse($response);
 } else {
   returnJsonResponse('{}');
 }
