@@ -204,11 +204,19 @@ function mem_usage_check($maxMem=50){
     if($RSallowDebug) {
         $maxBytes=$maxMem*1024*1024;
         if(memory_get_peak_usage() > $maxBytes || memory_get_peak_usage(true) > $maxBytes) {
-            error_log ("\n\nMemory limit of " . $maxMem . " MiB exceded");
+            error_log ("\n\nMemory diagnostic threshold of " . $maxMem . " MiB exceeded (not a PHP memory_limit error)");
             error_log ("Request path: //{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
             error_log ("Max used memory(MiB): " . memory_get_peak_usage()/1024/1024);
             error_log ("Max allocated memory(MiB): " . memory_get_peak_usage(true)/1024/1024);
-            error_log ("POST data: " . print_r($GLOBALS[$cstRS_POST],true) . "\n\n");
+            error_log ("PHP memory_limit: " . ini_get('memory_limit'));
+            // Log only scalar diagnostic metadata; never dump credentials or payloads.
+            $requestContext = array();
+            foreach (array('clientID', 'itemTypeID', 'properties', 'offset', 'limit', 'RSappName', 'RSbuild') as $key) {
+                if (isset($GLOBALS[$cstRS_POST][$key]) && is_scalar($GLOBALS[$cstRS_POST][$key])) {
+                    $requestContext[$key] = $GLOBALS[$cstRS_POST][$key];
+                }
+            }
+            error_log ("Request context: " . json_encode($requestContext) . "\n\n");
         }
     }
 }
