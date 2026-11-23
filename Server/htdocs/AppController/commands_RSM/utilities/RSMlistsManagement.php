@@ -35,7 +35,7 @@ function getValue($valueID, $clientID) {
     if ($result) {
         $value = $result->fetch_assoc();
 
-        return $value['RS_VALUE'];
+        return $value['RS_VALUE'] ?? '';
     } else {
         return '';
     }
