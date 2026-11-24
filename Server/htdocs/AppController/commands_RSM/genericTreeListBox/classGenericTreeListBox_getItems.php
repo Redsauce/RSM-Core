@@ -35,6 +35,24 @@ $results              = array();
 $destinationItemTypes = array();
 $recursiveParentValueCache = array();
 
+// Keep only counts and memory measurements. Emit the phases only for requests
+// that exceed the existing diagnostic threshold, including XML/compression.
+$treeMemoryPhases = array();
+$recordTreeMemory = function ($phase, $rowCount = 0) use (&$treeMemoryPhases) {
+    if (empty($GLOBALS['RSallowDebug'])) return;
+    $treeMemoryPhases[] = array('phase' => $phase, 'rows' => $rowCount,
+        'usedMiB' => round(memory_get_usage() / 1048576, 2),
+        'allocatedMiB' => round(memory_get_usage(true) / 1048576, 2),
+        'peakMiB' => round(memory_get_peak_usage() / 1048576, 2));
+};
+register_shutdown_function(function () use (&$treeMemoryPhases, $recordTreeMemory) {
+    if (empty($GLOBALS['RSallowDebug'])
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+    $recordTreeMemory('response_finished');
+    error_log('RSM tree memory phases: ' . json_encode($treeMemoryPhases));
+});
+$recordTreeMemory('start');
+
 if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
     // show only next level
     if (($avoidChildsInRoot) && ($parentID == "0")) {
@@ -202,7 +220,12 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             }
         }
         }
+        // The buffered SQL result is no longer needed for the next descendant.
+        if ($result) $result->free();
+        unset($item, $resolveRecursiveParents);
     }
+    $recordTreeMemory('level_loaded', count($results));
+    unset($recursiveParentValueCache);
 } else {
     if ($filterID != "0") {
 
@@ -245,7 +268,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         //get all properties needed
         foreach ($treePath as $path){
           foreach ($path as $step){
-            if(!array_key_exists($step['mainPropertyID'],$pathProperties)){
+            if(!array_key_exists($step['itemTypeID'],$mainProperties)){
                 $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
             }
             if(array_key_exists('propertyID',$step)&&!array_key_exists($step['propertyID'],$pathProperties)){
@@ -265,8 +288,12 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
           }
         }
 
+        $recordTreeMemory('path_properties_loaded', count($mainProperties) + count($pathProperties));
+        unset($orderArray);
+
         //apply filter to itemtype
         $filteredItems = filterItems($clientID, $destinationItemTypeID, $filterID, $fastFilter, $returnOrder);
+        $recordTreeMemory('items_filtered', count($filteredItems));
 
         //get path for item
         foreach ($filteredItems as $filteredItem) {
@@ -278,7 +305,10 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             $additionalProps = rtrim($additionalProps, ";");
             $tempPaths = getPathsForItem($clientID, $destinationItemTypeID, $filteredItem['ID'], $treePath, $parentID, $additionalProps, $pathProperties, $mainProperties, $returnOrder, $pathOrders);
             $results = combineItemPaths($results, $tempPaths);
+            unset($tempPaths);
         }
+        $recordTreeMemory('paths_combined', count($results));
+        unset($filteredItems, $filteredItem, $additionalProps, $treePath);
 
     // ensure nodeMainPropertyID is included for every resulting node (especially when using filters/tree paths)
     if (!empty($results)) {
@@ -290,8 +320,13 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
     }
     }
 
+    unset($row, $pathProperties, $mainProperties, $pathOrders);
+    $recordTreeMemory('path_data_released', count($results));
     // Combining paths from several matches can recreate an edge removed in each individual path.
-    $results = removeDuplicateTreeResultNodes(removeCyclicTreeResultEdges($results));
+    $results = removeCyclicTreeResultEdges($results);
+    $recordTreeMemory('cycles_removed', count($results));
+    $results = removeDuplicateTreeResultNodes($results);
+    $recordTreeMemory('nodes_deduplicated', count($results));
 }
 
 function shouldSuppressDirectTreeCycleEdge($childItemID, $parentItemID, $resolveParents)
@@ -476,4 +511,5 @@ function removeDuplicateTreeResultNodes($items)
 array_unshift($results, array("result" => "OK", "filteredID" => implode(",", $destinationItemTypes)));
 
 // And write XML Response back to the application
+$recordTreeMemory('before_response', count($results));
 RSReturnArrayQueryResults($results);
