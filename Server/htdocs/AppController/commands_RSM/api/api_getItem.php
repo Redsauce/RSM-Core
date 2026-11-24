@@ -10,10 +10,30 @@ header('Access-Control-Allow-Origin: *');
 //     RStoken: Authorization token for the API
 //*****************************************************************************
 
+// Measure before bootstrap; record no tokens, property values or file contents.
+$getItemMemoryPhases = array();
+$getItemMemoryContext = array();
+$recordGetItemMemory = function ($phase, $rowCount = 0) use (&$getItemMemoryPhases) {
+    $getItemMemoryPhases[] = array('phase' => $phase, 'rows' => intval($rowCount),
+        'usedMiB' => round(memory_get_usage() / 1048576, 2),
+        'allocatedMiB' => round(memory_get_usage(true) / 1048576, 2),
+        'peakUsedMiB' => round(memory_get_peak_usage() / 1048576, 2),
+        'peakAllocatedMiB' => round(memory_get_peak_usage(true) / 1048576, 2));
+};
+$recordGetItemMemory('entry');
+register_shutdown_function(function () use (&$getItemMemoryPhases, &$getItemMemoryContext, $recordGetItemMemory) {
+    if (empty($GLOBALS['RSallowDebug'])
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+    $recordGetItemMemory('response_finished');
+    error_log('RSM get item memory phases: ' . json_encode(array(
+        'context' => $getItemMemoryContext, 'phases' => $getItemMemoryPhases)));
+});
+
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RStools.php";
+$recordGetItemMemory('bootstrap_finished');
 $RSallowUncompressed = true;
 
 // definitions
@@ -28,20 +48,24 @@ $translateIDs = false;
 }
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
+$getItemMemoryContext = array('clientID' => intval($clientID), 'itemTypeID' => intval($itemTypeID));
 
 if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
     $results['result'] = 'NOK';
     $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
     RSReturnArrayResults($results, false);
 }
+$recordGetItemMemory('scope_checked');
 
 $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
+$recordGetItemMemory('property_ids_loaded', count($propertiesList));
 
 $properties = array();
 $attributes = array();
 $results = array();
 
 $properties = getClientItemTypeProperties($itemTypeID, $clientID);
+$recordGetItemMemory('property_metadata_loaded', count($properties));
 
 foreach ($properties as $property) {
     // Check if user has read permission of the property
@@ -101,5 +125,8 @@ foreach ($properties as $property) {
 
 
 
+$recordGetItemMemory('property_values_loaded', count($results));
+
 // And write XML Response back to the application without compression
+$recordGetItemMemory('before_response', count($results));
 RSReturnArrayQueryResults($results, false);
