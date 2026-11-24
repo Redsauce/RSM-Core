@@ -289,11 +289,11 @@ function queueAction($RSdata, $actionID, $clientID, $priority = 0, $avoidDuplica
 
     // TODO: Send an email if there were a problem
     if (!$result) {
-        error_log('Error scheduling job: The events for trigger IDs ' . implode(",", $triggerIDs) . ' could not be queued.' . PHP_EOL);
+        error_log('Error scheduling job: The event for action ID ' . $actionID . ' could not be queued.' . PHP_EOL);
         error_log('clientID: ' . $clientID . PHP_EOL);
-        error_log('ActionID: ' . $action["ID"] . PHP_EOL);
+        error_log('ActionID: ' . $actionID . PHP_EOL);
         error_log('RSdata: ' . implode(";", $RSdata) . PHP_EOL);
-        error_log('Priority: ' . $action["priority"] . PHP_EOL);
+        error_log('Priority: ' . $priority . PHP_EOL);
         error_log('Avoid duplication: ' . $avoidDuplication . PHP_EOL);
     }
 }
