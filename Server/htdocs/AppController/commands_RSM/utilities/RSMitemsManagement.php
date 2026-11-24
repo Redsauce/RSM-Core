@@ -3563,6 +3563,12 @@ function IQ_getFilteredItemIDsOnly($itemTypeID, $clientID, $filterProperties, $r
 
             if (!array_key_exists($property['ID'], $filterPropertyIds) && !in_array($property['ID'], $rejectedFilterPropertyIds)) {
                 $filterPropertyType = RSMgetFilteredPropertyType($property['ID'], $clientID, $metadataCache);
+                if (!is_string($filterPropertyType) || !isset($propertiesTables[$filterPropertyType])) {
+                    // Never drop an unresolved filter and broaden the result set.
+                    error_log('RSM: unresolved filter property type; client=' . intval($clientID)
+                        . '; itemType=' . intval($itemTypeID) . '; property=' . intval($property['ID']));
+                    return false;
+                }
                 $filterPropertyDefault = RSMgetFilteredPropertyDefaultValue($property['ID'], $clientID, $metadataCache);
 
                 if ($filterPropertyType != "file" && $filterPropertyType != "image") {
