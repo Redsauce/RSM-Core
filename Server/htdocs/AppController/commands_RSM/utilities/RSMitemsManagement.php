@@ -1669,7 +1669,22 @@ function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
     // As we know that the query will fail eventually until a valid ID is found, we won't track query execution errors
     while (!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
         $insertFailure = $failOnError ? $creationFailure('insert_rs_items') : null;
-        $retryID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
+        if ($failOnError) {
+            // A plain MAX() can reuse the transaction's older snapshot even
+            // though INSERT sees a newer committed row and reports a duplicate.
+            // The caller already holds the item-type row lock. Read the latest
+            // item using a current locking read before the bounded retry.
+            $insertErrorCode = intval($mysqli->errno ?? 0);
+            if ($insertErrorCode !== 0 && $insertErrorCode !== 1062) throw $insertFailure;
+            $latestItem = RSQuery('SELECT RS_ITEM_ID FROM rs_items WHERE RS_CLIENT_ID = '
+                . intval($clientID) . ' AND RS_ITEMTYPE_ID = ' . intval($itemTypeID)
+                . ' ORDER BY RS_ITEM_ID DESC LIMIT 1 FOR UPDATE', false);
+            if (!$latestItem) throw $creationFailure('read_latest_item_id');
+            $latestRow = $latestItem->fetch_assoc();
+            $retryID = $latestRow ? intval($latestRow['RS_ITEM_ID']) + 1 : 1;
+        } else {
+            $retryID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
+        }
         if ($failOnError && ($retryID == $newID || $retryID <= 0)) throw $insertFailure;
         $newID = $retryID;
         if ($failOnError) {
