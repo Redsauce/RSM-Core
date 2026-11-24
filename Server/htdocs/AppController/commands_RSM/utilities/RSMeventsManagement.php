@@ -371,7 +371,9 @@ function queueEvent($clientID, $actionID, $data, $priority = 0, $avoidDuplicatio
         $itemID = createItem($clientID, $pValues);
 
         if ($itemID == 0) {
-            error_log('RSMeventsManagement.php: queueEvent: Event item for clientID ' . $clientID . ' and these properties: ' . implode(",", $pValues) . ' could not be created.' . PHP_EOL);
+            error_log('RSMeventsManagement.php: queueEvent: Event item for clientID ' . intval($clientID)
+                . '; actionID=' . intval($actionID) . '; propertyIDs=' . implode(',', array_column($pValues, 'ID'))
+                . ' could not be created.' . PHP_EOL);
             return false;
         }
     }
