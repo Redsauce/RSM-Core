@@ -9,6 +9,27 @@
 //  connection and error reporting routines.
 //***************************************************
 
+// Reject oversized POST requests before database access or authentication.
+// PHP checks post_max_size before running scripts and may leave POST data empty.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $postMaxSize = trim(ini_get('post_max_size'));
+    $postMaxBytes = (float) $postMaxSize;
+    switch (strtolower(substr($postMaxSize, -1))) {
+        case 'g':
+            $postMaxBytes *= 1024;
+        case 'm':
+            $postMaxBytes *= 1024;
+        case 'k':
+            $postMaxBytes *= 1024;
+    }
+
+    if ($postMaxBytes > 0 && (float) ($_SERVER['CONTENT_LENGTH'] ?? 0) > $postMaxBytes) {
+        http_response_code(413);
+        header('Content-Type: text/plain; charset=UTF-8');
+        exit('413 Payload Too Large');
+    }
+}
+
 require_once "RSconfiguration.php";
 require_once "RSresponseTempFiles.php";
 require_once "RSMeventsManagement.php";
