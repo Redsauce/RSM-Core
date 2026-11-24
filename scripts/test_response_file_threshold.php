@@ -2,8 +2,8 @@
 // Isolate response helpers from the database/security bootstrap. Run with PHP CLI.
 namespace ResponseThresholdTest;
 
-require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
-require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
 foreach (array('RSGetResponseFileFieldThreshold', '_predictNumberOfFields',
     'RSReturnArrayQueryResults', 'RSReturnQueryResults', 'gzCompressFile',

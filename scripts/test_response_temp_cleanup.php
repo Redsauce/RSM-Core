@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
 preg_match('/^function gzCompressFile\(.*?^\}/ms', $source, $match);
 eval($match[0]);

@@ -25,17 +25,17 @@ function loadProductionFunctions($path, $names) {
 class ScopeResult {
     public $num_rows;
     private $rows;
-    function __construct($result) {
+    public function __construct($result) {
         $this->rows = array();
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $this->rows[] = $row;
         $this->num_rows = count($this->rows);
     }
-    function fetch_assoc() { return array_shift($this->rows); }
+    public function fetch_assoc() { return array_shift($this->rows); }
 }
-class ScopeEscaper { function real_escape_string($s) { return SQLite3::escapeString($s); } }
+class ScopeEscaper { public function real_escape_string($s) { return SQLite3::escapeString($s); } }
 class ScopeResponse extends Exception {
     public $body;
-    function __construct($body, $status = 200) { parent::__construct('', $status); $this->body = $body; }
+    public function __construct($body, $status = 200) { parent::__construct('', $status); $this->body = $body; }
 }
 $db = new SQLite3(':memory:');
 $db->enableExceptions(true);

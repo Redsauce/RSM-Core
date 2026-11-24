@@ -31,30 +31,30 @@ function binaryBaselineSource($revision, $path) {
 }
 class BinaryResponse extends RuntimeException {
     public $body;
-    function __construct($status, $body) { parent::__construct('', $status); $this->body = $body; }
+    public function __construct($status, $body) { parent::__construct('', $status); $this->body = $body; }
 }
 class BinaryRows {
     public $num_rows;
     private $rows = array();
-    function __construct($result) {
+    public function __construct($result) {
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) $this->rows[] = $row;
         $this->num_rows = count($this->rows);
     }
-    function fetch_assoc() { return array_shift($this->rows); }
+    public function fetch_assoc() { return array_shift($this->rows); }
 }
 class BinaryStatement {
     private $sql, $types, $parameters = array(), $blobs = array();
     private $resultRows = array(), $resultBindings = array();
     public $closed = false;
-    function __construct($sql) { $this->sql = $sql; }
-    function bind_param($types, &...$parameters) {
+    public function __construct($sql) { $this->sql = $sql; }
+    public function bind_param($types, &...$parameters) {
         binaryAssert(strlen($types) === count($parameters), 'Binding count mismatch');
         binaryAssert(substr_count($this->sql, '?') === count($parameters), 'Placeholder count mismatch');
         $this->types = $types;
         foreach ($parameters as $index => &$parameter) $this->parameters[$index] = &$parameter;
         return true;
     }
-    function send_long_data($index, $chunk) {
+    public function send_long_data($index, $chunk) {
         if ($GLOBALS['binaryFail'] === 'send') return false;
         binaryAssert($this->types[$index] === 'b', 'Chunk sent to a non-binary parameter');
         binaryAssert(strlen($chunk) <= 65536, 'Chunk exceeds streaming bound');
@@ -62,7 +62,7 @@ class BinaryStatement {
         $GLOBALS['binaryChunkCount']++;
         return true;
     }
-    function execute() {
+    public function execute() {
         $GLOBALS['binaryExecuted']++;
         if ($GLOBALS['binaryFailAfter'] > 0 && $GLOBALS['binaryExecuted'] === $GLOBALS['binaryFailAfter']) return false;
         if ($GLOBALS['binaryFail'] !== '' && strpos($this->sql, $GLOBALS['binaryFail']) !== false) return false;
@@ -83,12 +83,12 @@ class BinaryStatement {
         $statement->close();
         return $result !== false;
     }
-    function close() { $this->closed = true; }
-    function bind_result(&...$values) {
+    public function close() { $this->closed = true; }
+    public function bind_result(&...$values) {
         foreach ($values as $index => &$value) $this->resultBindings[$index] = &$value;
         return true;
     }
-    function fetch() {
+    public function fetch() {
         $row = array_shift($this->resultRows);
         if ($row === null) return null;
         foreach ($row as $index => $value) $this->resultBindings[$index] = $value;
@@ -97,21 +97,21 @@ class BinaryStatement {
 }
 class BinaryConnection {
     public $statements = array(), $commits = 0, $rollbacks = 0;
-    function prepare($sql) {
+    public function prepare($sql) {
         $statement = new BinaryStatement($sql);
         $this->statements[] = $statement;
         return $statement;
     }
-    function begin_transaction() {
+    public function begin_transaction() {
         if ($GLOBALS['binaryFail'] === 'begin') return false;
         return $GLOBALS['binaryDb']->exec('BEGIN');
     }
-    function commit() {
+    public function commit() {
         if ($GLOBALS['binaryFail'] === 'commit') return false;
         $this->commits++;
         return $GLOBALS['binaryDb']->exec('COMMIT');
     }
-    function rollback() { $this->rollbacks++; return $GLOBALS['binaryDb']->exec('ROLLBACK'); }
+    public function rollback() { $this->rollbacks++; return $GLOBALS['binaryDb']->exec('ROLLBACK'); }
 }
 function RSQuery($sql, $registerError = true) {
     if ($GLOBALS['binaryFail'] !== '' && strpos($sql, $GLOBALS['binaryFail']) !== false) return false;
@@ -163,14 +163,14 @@ function dieWithError($status, $message = null) { throw new BinaryResponse($stat
 
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
 set_include_path($root . 'utilities' . PATH_SEPARATOR . get_include_path());
-require $root . 'utilities/RSMbinaryProperties.php';
+require_once $root . 'utilities/RSMbinaryProperties.php';
 if (in_array('--legacy-properties', $argv, true)) {
     eval(substr(binaryBaselineSource('c284da4', 'Server/htdocs/AppController/commands_RSM/utilities/RSMpropertiesManagement.php'), 5));
 } else {
-    require $root . 'utilities/RSMpropertiesManagement.php';
+    require_once $root . 'utilities/RSMpropertiesManagement.php';
 }
-require $root . 'utilities/RSMbinaryUploads.php';
-require $root . 'utilities/RSMverifyBody.php';
+require_once $root . 'utilities/RSMbinaryUploads.php';
+require_once $root . 'utilities/RSMverifyBody.php';
 $tools = file_get_contents($root . 'utilities/RStools.php');
 eval(binaryExtractFunction($tools, 'replaceUtf8Characters'));
 eval(binaryExtractFunction($tools, 'isBase64'));
@@ -259,10 +259,14 @@ function binaryAdminEndpoint($path, $parameters) {
         $cstRS_POST, $cstClientID, $cstName, $cstItemtypeID, $cstItemtypeIcon;
     $cstRS_POST = 'binary_post'; $cstClientID = 'clientID'; $cstName = 'name';
     // Read the production definitions so missing protocol keys cannot be masked.
-    list($cstItemtypeID, $cstItemtypeIcon) = (function () {
-        require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
-        return array($cstItemtypeID, $cstItemtypeIcon);
-    })();
+    static $protocolKeys = null;
+    if ($protocolKeys === null) {
+        $protocolKeys = (function () {
+            require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
+            return array($cstItemtypeID, $cstItemtypeIcon);
+        })();
+    }
+    list($cstItemtypeID, $cstItemtypeIcon) = $protocolKeys;
     $GLOBALS[$cstRS_POST] = array_merge(array('clientID' => '7'), $parameters);
     try { eval($binaryAdminEndpoints[$path]); } catch (BinaryResponse $response) { return $response; }
     throw new RuntimeException('Admin endpoint returned without a response');

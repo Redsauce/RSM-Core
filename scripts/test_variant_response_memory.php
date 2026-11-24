@@ -2,7 +2,7 @@
 // Run with: php -d memory_limit=32M scripts/test_variant_response_memory.php
 namespace VariantResponseMemoryTest;
 
-require __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php');
 foreach (array('getFilteredItemsIDs', 'RSstreamFilteredItemsPropertiesToXML') as $name) {
     if (!preg_match('/^function ' . $name . '\(.*?^\}/ms', $source, $match)) {
@@ -18,9 +18,9 @@ function RSGetResponseFileFieldThreshold() { return $GLOBALS['variantThreshold']
 function RSMgetFilteredPropertyType(...$arguments) { return 'variant'; }
 class Result {
     public $num_rows;
-    function __construct() { $this->num_rows = $GLOBALS['variantRows']; }
+    public function __construct() { $this->num_rows = $GLOBALS['variantRows']; }
     private $next = 1;
-    function fetch_assoc() {
+    public function fetch_assoc() {
         return $this->next <= $this->num_rows ? array('ID' => $this->next++) : null;
     }
 }

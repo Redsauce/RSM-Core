@@ -2,7 +2,7 @@
 // Run with PHP sqlite3 and mbstring enabled. Reuse the isolated SQLite endpoint
 // fixture: no server, production credentials or database changes are required.
 ob_start(); // Keep fixture output buffered while endpoints set HTTP headers.
-require __DIR__ . '/test_scoped_token_parent_access.php';
+require_once __DIR__ . '/test_scoped_token_parent_access.php';
 require_once $root . 'utilities/RSresponseTempFiles.php';
 loadProductionFunctions($root . 'utilities/RSMitemsManagement.php', array(
     'RSstreamFilteredItemsPropertiesToXML', 'RSfilteredItemsArrayToXML'
