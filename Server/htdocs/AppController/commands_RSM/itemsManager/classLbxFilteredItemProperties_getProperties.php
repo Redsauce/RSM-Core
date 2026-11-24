@@ -68,7 +68,11 @@ for ($i = 0; $i < count($propertyIDs); $i++) {
 }
 
 // get items and properties
-$totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
+$totalData = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true, '', '', 'AND', 0, true);
 
 // And write XML Response back to the application
-RSReturnArrayQueryResults($totalData);
+if (is_array($totalData)) {
+    RSReturnArrayQueryResults($totalData);
+} else {
+    RSReturnFileResults($totalData);
+}
