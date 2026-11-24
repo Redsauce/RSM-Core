@@ -1648,6 +1648,15 @@ function inSubTree($itemID, $subtree)
 // Create a new item in blank
 function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
 {
+    global $mysqli;
+    // Capture immediately: the ID lookup/retry and rollback can clear the error.
+    // These diagnostics are only used for fixed SQL containing numeric item IDs.
+    $creationFailure = function ($operation) use ($mysqli) {
+        return new RuntimeException('operation=' . $operation
+            . '; mysql_errno=' . intval($mysqli->errno ?? 0)
+            . '; sqlstate=' . ($mysqli->sqlstate ?? 'unknown')
+            . '; mysql_error=' . substr(str_replace(array("\r", "\n"), ' ', (string)($mysqli->error ?? 'unavailable')), 0, 500));
+    };
     // get id for new item
     $newID = getNextItemTypeIdentification($itemTypeID, $clientID);
 
@@ -1659,20 +1668,21 @@ function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
     // get id for new item
     // As we know that the query will fail eventually until a valid ID is found, we won't track query execution errors
     while (!RSQuery('INSERT INTO rs_items ' . '(RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) ' . 'VALUES ' . '(' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
+        $insertFailure = $failOnError ? $creationFailure('insert_rs_items') : null;
         $retryID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
-        if ($failOnError && ($retryID == $newID || $retryID <= 0)) throw new RuntimeException('Unable to insert item');
+        if ($failOnError && ($retryID == $newID || $retryID <= 0)) throw $insertFailure;
         $newID = $retryID;
         if ($failOnError) {
             if (!RSQuery('INSERT INTO rs_items (RS_ITEMTYPE_ID, RS_ITEM_ID, RS_CLIENT_ID) VALUES (' . $itemTypeID . ',' . $newID . ',' . $clientID . ')', false)) {
-                throw new RuntimeException('Unable to insert item');
+                throw $creationFailure('retry_insert_rs_items');
             }
             break;
         }
     }
 
     // Update the item type with the latest ID created for the item
-    $counterUpdated = RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newID . ' WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID);
-    if ($failOnError && !$counterUpdated) throw new RuntimeException('Unable to update item counter');
+    $counterUpdated = RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newID . ' WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID, !$failOnError);
+    if ($failOnError && !$counterUpdated) throw $creationFailure('update_item_counter');
 
     return $newID;
 }
@@ -1748,11 +1758,16 @@ function RScreateItemInTransaction($clientID, $propertiesValues = array(), $item
         return $newID;
     } catch (Throwable $exception) {
         $RSMcreatedItemIDs = $createdBefore;
-        // Keep values, credentials and SQL out of the diagnostic log.
+        // Only our fixed numeric item/counter queries provide a database reason.
+        $creationReason = ($creationStage === 'create_empty_item' && $exception instanceof RuntimeException
+            && strpos($exception->getMessage(), 'operation=') === 0)
+            ? '; ' . $exception->getMessage() : '';
+        // Keep property values, credentials and full SQL out of the diagnostic log.
         error_log('RSM: item creation failed; client=' . $clientID . '; itemType=' . $itemTypeID
             . '; stage=' . $creationStage . '; property=' . $creationPropertyID
             . '; exception=' . get_class($exception) . '; code=' . intval($exception->getCode())
-            . '; preparedWriterAvailable=' . (function_exists('RSexecutePreparedUploadWrite') ? 'yes' : 'no'));
+            . '; preparedWriterAvailable=' . (function_exists('RSexecutePreparedUploadWrite') ? 'yes' : 'no')
+            . $creationReason);
         return 0;
     }
 }

@@ -6,7 +6,16 @@ require_once '../utilities/RSMlistsManagement.php';
 
 $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
 $userID     = $GLOBALS[$cstRS_POST]['userID'    ];
-$itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
+$requestData = $GLOBALS[$cstRS_POST];
+// Compatibility with legacy clients that still send "itemtypeID".
+// TODO: Remove the "itemtypeID" fallback after RSM 7.
+$itemTypeID = array_key_exists($cstItemTypeID, $requestData)
+    ? $requestData[$cstItemTypeID]
+    : ($requestData['itemtypeID'] ?? 0);
+if (!is_scalar($itemTypeID) || !ctype_digit((string)$itemTypeID) || intval($itemTypeID) <= 0) {
+    RSReturnArrayQueryResults(array(array('result' => 'NOK')));
+}
+$itemTypeID = intval($itemTypeID);
 $showIDs    = $GLOBALS[$cstRS_POST]['showIDs'   ];
 
 $passedProperties = explode(',', $GLOBALS[$cstRS_POST]['propertyIDs']);
