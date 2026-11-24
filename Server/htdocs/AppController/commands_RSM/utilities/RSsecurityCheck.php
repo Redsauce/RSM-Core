@@ -35,13 +35,30 @@ if (isset($GLOBALS[$cstRS_GET]['r'])) {
 	// The idea is to encrypt the request so the user can't alter it to get more data or other files
 	// So instead of (for example) imageID=5 in the URL, we send a single encrypter r parameter
 	// That can be decrypted here, replacing the Global GET variables
-	$encryptedData = pack("H*", $GLOBALS[$cstRS_GET]['r']);
+	$request = $GLOBALS[$cstRS_GET]['r'];
+	if (!is_string($request) || $request === '' || strlen($request) % 2 !== 0 || !ctype_xdigit($request)) {
+		RSReturnError("ACCESS DENIED", -7);
+		exit;
+	}
+	$encryptedData = pack("H*", $request);
 	$decryptedData = openssl_decrypt($encryptedData, 'bf-ecb', $RSblowfishKey, OPENSSL_RAW_DATA);
+	if ($decryptedData === false || $decryptedData === '') {
+		RSReturnError("ACCESS DENIED", -7);
+		exit;
+	}
 	$parameters    = explode("&", rtrim($decryptedData, "\x05"));
 
+	$decodedParameters = array();
 	foreach ($parameters as $parameter) {
-		$parameter = explode("=", $parameter);
-		$GLOBALS[$cstRS_GET][$parameter[0]] = $parameter[1];
+		$parameter = explode("=", $parameter, 2);
+		if (count($parameter) !== 2 || $parameter[0] === '') {
+			RSReturnError("ACCESS DENIED", -7);
+			exit;
+		}
+		$decodedParameters[$parameter[0]] = $parameter[1];
+	}
+	foreach ($decodedParameters as $name => $value) {
+		$GLOBALS[$cstRS_GET][$name] = $value;
 	}
 
 	unset($GLOBALS[$cstRS_GET]['r']);
