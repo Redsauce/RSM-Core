@@ -9,15 +9,40 @@ header('Access-Control-Allow-Origin: *');
 //   nodeID      : ID of the node serverApp the actions will be assigned to
 // ****************************************************************************************
 
+// Capture entry memory before the database/security bootstrap. Keep only scalar
+// counts and memory figures; emit only under the existing debug/50 MiB policy.
+$pendingActionsMemoryPhases = array();
+$pendingActionsMemoryContext = array();
+$recordPendingActionsMemory = function ($phase, $rowCount = 0) use (&$pendingActionsMemoryPhases) {
+    $pendingActionsMemoryPhases[] = array('phase' => $phase, 'rows' => intval($rowCount),
+        'usedMiB' => round(memory_get_usage() / 1048576, 2),
+        'allocatedMiB' => round(memory_get_usage(true) / 1048576, 2),
+        'peakUsedMiB' => round(memory_get_peak_usage() / 1048576, 2),
+        'peakAllocatedMiB' => round(memory_get_peak_usage(true) / 1048576, 2));
+};
+$recordPendingActionsMemory('entry');
+register_shutdown_function(function () use (&$pendingActionsMemoryPhases, &$pendingActionsMemoryContext, $recordPendingActionsMemory) {
+    if (empty($GLOBALS['RSallowDebug'])
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+    $recordPendingActionsMemory('response_finished');
+    error_log('RSM pending actions memory phases: ' . json_encode(array(
+        'context' => $pendingActionsMemoryContext, 'phases' => $pendingActionsMemoryPhases)));
+});
+
 // Database connection startup
 require_once "../utilities/RSdatabase.php";
 require_once "../utilities/RSMitemsManagement.php";
+$recordPendingActionsMemory('bootstrap_finished');
 // Definitions
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken         = $GLOBALS[$cstRS_POST][$cstRStoken] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["nodeID"         ]) ? $nodeID          = $GLOBALS[$cstRS_POST]['nodeID'         ] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]["numActions"     ]) ? $numActions      = $GLOBALS[$cstRS_POST]['numActions'     ] : $numActions = "5";
 
 $clientID = RSclientFromToken($RStoken);
+$pendingActionsMemoryContext['clientID'] = intval($clientID);
+if (is_scalar($numActions) && ctype_digit((string)$numActions)) {
+    $pendingActionsMemoryContext['requestedActions'] = intval($numActions);
+}
 $itemTypeID = parseITID("scheduledEvents", $clientID);
 
 $eventItemTypeID = parseITID("event", $clientID);
@@ -55,6 +80,7 @@ if ($eventFilterProperties === false) {
     RSReturnArrayResults($results, false);
 }
 $eventResults = getFilteredItemsIDs($eventItemTypeID, $clientID, $eventFilterProperties, $eventReturnProperties, '', true, '', '', 'OR');
+$recordPendingActionsMemory('allowed_events_loaded', count($eventResults));
 
 // Join list of resulting event IDs
 $allowedEventIds = array();
@@ -62,6 +88,7 @@ $allowedEventIds = array();
 foreach ($eventResults as $row) {
     $allowedEventIds[] = $row['ID'];
 }
+$recordPendingActionsMemory('allowed_event_ids_built', count($allowedEventIds));
 
 // Now we get the required number of pending scheduled events based on previous conditions
 // Construct filterProperties array
@@ -88,11 +115,14 @@ if ($filterProperties === false) {
     RSReturnArrayResults($results, false);
 }
 $results = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, $orderBy, true, $numActions, '', 'AND', 0, false, "", true);
+$recordPendingActionsMemory('pending_actions_loaded', count($results));
 
 //Update retrieved actions node
 foreach ($results as $row) {
     setPropertyValueByID("scheduledEvents.node", $itemTypeID, $row['ID'], $clientID, $nodeID);
 }
+$recordPendingActionsMemory('node_assignment_finished', count($results));
 
 // And write XML Response back to the application without compression// Return results
+$recordPendingActionsMemory('before_response', count($results));
 RSReturnArrayQueryResults($results, false);
