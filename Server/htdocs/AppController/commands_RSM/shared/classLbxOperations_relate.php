@@ -37,22 +37,23 @@ $op1Total = getItemPropertyValue($operation_1, $totalPropertyID, $clientID, $tot
 $op1RelatedOperations = explode(',', getItemPropertyValue($operation_1, $relOperationsPropertyID, $clientID));
 
 $total = 0;
-foreach ($op1RelatedOperations as $operation)
-	$total += getItemPropertyValue($operation, $totalPropertyID, $clientID, $totalPropertyType);
+foreach ($op1RelatedOperations as $operation) {
+    $total += getItemPropertyValue($operation, $totalPropertyID, $clientID, $totalPropertyType);
+}
 
 if ($total == $op1Total) {
-	// get the closed status
-	$closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
+    // get the closed status
+    $closedStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('operationStatusClosed'), $clientID), $clientID);
 
-	// close operation_1
-	setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $operation_1, $clientID, $closedStatus, $RSuserID);
-	
-	// return close: yes
-	$results['close1'] = 'yes';
+    // close operation_1
+    setItemPropertyValue($definitions['operationStatus'], $itemTypeID, $operation_1, $clientID, $closedStatus, $RSuserID);
+
+    // return close: yes
+    $results['close1'] = 'yes';
 } else {
-	
-	// return close: no
-	$results['close1'] = 'no';
+
+    // return close: no
+    $results['close1'] = 'no';
 }
 
 
@@ -62,17 +63,17 @@ if ($total == $op1Total) {
 $results['setPayDate'] = $setPayDate;
 
 if ($setPayDate == '1') {
-	// get invoice date property ID
-	$invoiceDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID);
-	
-	// get operation_1 invoice date
-	$invoiceDate = getItemPropertyValue($operation_1, $invoiceDatePropertyID, $clientID);
-	
-	// set operation_2 pay date to the operation_1 invoice date
-	setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $operation_2, $clientID, $invoiceDate, $RSuserID);
-	
-	// return result to the client
-	$results['payDate'] = $invoiceDate;
+    // get invoice date property ID
+    $invoiceDatePropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationInvoiceDate'], $clientID);
+
+    // get operation_1 invoice date
+    $invoiceDate = getItemPropertyValue($operation_1, $invoiceDatePropertyID, $clientID);
+
+    // set operation_2 pay date to the operation_1 invoice date
+    setItemPropertyValue($definitions['operationPayDate'], $itemTypeID, $operation_2, $clientID, $invoiceDate, $RSuserID);
+
+    // return result to the client
+    $results['payDate'] = $invoiceDate;
 }
 
 

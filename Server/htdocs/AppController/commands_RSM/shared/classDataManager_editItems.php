@@ -23,7 +23,7 @@ $propertiesID  = array();
 // Construct the array to use the function getItemTypeFromProperties
 foreach ($entries as $entry) {
     $exploded = explode(';', $entry);
-    $propertiesID[] = $exploded[1];  
+    $propertiesID[] = $exploded[1];
 }
 
 $itemTypeID = getItemTypeIDFromProperties($propertiesID, $clientID);
@@ -43,7 +43,9 @@ $unsavedProperties = array();
 foreach ($entries as $entry) {
     $fields = explode(';', $entry);
     $propertyID = parsePID($fields[1], $clientID);
-    if (!in_array($propertyID, $visibleProperties)) continue;
+    if (!in_array($propertyID, $visibleProperties)) {
+        continue;
+    }
     $propertyType = getPropertyType($propertyID, $clientID);
     if ($propertyType === 'image' || $propertyType === 'file') {
         try {
@@ -66,13 +68,13 @@ foreach ($entries as $entry) {
     // entryArr[4] = (for images/files only) base64-encoded property size
 
     $propertyID = parsePID($entryArr[1], $clientID);
-    	
+
     if (in_array($propertyID, $visibleProperties)) {
         // save the property value
         $propertyType = getPropertyType($propertyID, $clientID);
         if ($propertyType == 'image' || $propertyType == 'file') {
             $result = setDataPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[3], true), base64_decode($entryArr[2], true), $propertyType, $RSuserID);
-        } else {                
+        } else {
             $result = setPropertyValueByID($propertyID, $itemTypeID, $entryArr[0], $clientID, base64_decode($entryArr[2]), $propertyType, $RSuserID);
         }
         if ($result !== 0) {

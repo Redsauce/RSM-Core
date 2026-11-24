@@ -72,11 +72,13 @@ if ($properties == '') {
         if (in_array($property_parsed, $visibleProperties)) {
             // add the property to return
             $returnProperties[] = array('ID' => $property_parsed, 'name' => $properties[$i], 'trName' => $properties[$i] . 'trs');
-		}
+        }
     }
 }
 
-if ($itemTypeID == '') RSReturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
+if ($itemTypeID == '') {
+    RSReturnError("COULD NOT DETERMINE ITEM TYPE ID TO RETURN", "NOK");
+}
 
 //creck if need to get the order from a property and add to returned properties in that case
 $returnOrder = 0;
@@ -84,9 +86,11 @@ if ($orderPropertyID != "") {
     $returnOrder = 1;
     if ($orderPropertyID != "0") {
         $propertyType = getPropertyType($orderPropertyID, $clientID);
-        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)){
+        if (isSingleIdentifier($propertyType) || isMultiIdentifier($propertyType)) {
             $orderPropertyID_parsed = parsePID($orderPropertyID, $clientID);
-            if (in_array($orderPropertyID_parsed, $visibleProperties) && array_search_ID($orderPropertyID_parsed, $returnProperties) === false) $returnProperties[] = array('ID' => $orderPropertyID_parsed, 'name' => $orderPropertyID, 'trName' => $orderPropertyID . 'trs');
+            if (in_array($orderPropertyID_parsed, $visibleProperties) && array_search_ID($orderPropertyID_parsed, $returnProperties) === false) {
+                $returnProperties[] = array('ID' => $orderPropertyID_parsed, 'name' => $orderPropertyID, 'trName' => $orderPropertyID . 'trs');
+            }
         } else {
             $response['result'] = "NOK";
             $response['description'] = "ORDER PROPERTY MUST BE 0 (DEFAULT ORDER) OR A VALID IDENTIFIER(S) TYPE PROPERTY";
@@ -104,12 +108,14 @@ if ($filters != '') {
     foreach ($filters as $filter) {
         // get property data
         $filterArr = explode(';', $filter);
-        if(count($filterArr) >= 2){
+        if (count($filterArr) >= 2) {
             $propertyID = parsePID($filterArr[0], $clientID);
 
             // add the filter
             $filterProperties[] = array('ID' => $propertyID, 'value' => base64_decode($filterArr[1]));
-            if(count($filterArr) == 3) $filterProperties[count($filterProperties)-1]['mode'] = $filterArr[2];
+            if (count($filterArr) == 3) {
+                $filterProperties[count($filterProperties)-1]['mode'] = $filterArr[2];
+            }
         }
     }
 }

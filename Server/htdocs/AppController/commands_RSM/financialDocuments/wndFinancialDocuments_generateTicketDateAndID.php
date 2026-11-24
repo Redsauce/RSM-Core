@@ -12,14 +12,14 @@ $RSuserID   = RSCheckUserAccess();
 $itemTypeID = getClientItemTypeID_RelatedWith_byName("ticket", $clientID);
 
 // get invoice.client ticketID and invoiceDate properties
-$ticketIDPropertyID   = getClientPropertyID_RelatedWith_byName("ticket.ID"  , $clientID);
+$ticketIDPropertyID   = getClientPropertyID_RelatedWith_byName("ticket.ID", $clientID);
 $ticketDatePropertyID = getClientPropertyID_RelatedWith_byName("ticket.date", $clientID);
 
 // get invoice.client clientID property
 // $invoiceClientIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientClientID'], $clientID);
 
 // check if the ticket has been already generated
-$currentTicketID   = getItemPropertyValue($ticketID, $ticketIDPropertyID  , $clientID);
+$currentTicketID   = getItemPropertyValue($ticketID, $ticketIDPropertyID, $clientID);
 $currentTicketDate = getItemPropertyValue($ticketID, $ticketDatePropertyID, $clientID);
 
 if ($currentTicketID > 0 || $currentTicketDate != '') {
@@ -32,14 +32,22 @@ if ($currentTicketID > 0 || $currentTicketDate != '') {
 }
 
 $date = date('Y-m-d');
-$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $ticketIDPropertyID,
+$nextID = RSallocateNextIntegerPropertyValue(
+    $clientID,
+    $itemTypeID,
+    $ticketIDPropertyID,
     function ($next) use ($clientID, $itemTypeID, $ticketID, $ticketIDPropertyID, $ticketDatePropertyID, $date, $RSuserID) {
         // Keep this command's existing number/date rules inside the allocation lock.
         if (getItemPropertyValue($ticketID, $ticketIDPropertyID, $clientID) > 0
-            || getItemPropertyValue($ticketID, $ticketDatePropertyID, $clientID) != '') return false;
-        if (setPropertyValueByID($ticketIDPropertyID, $itemTypeID, $ticketID, $clientID, $next, '', $RSuserID) !== 0) return false;
+            || getItemPropertyValue($ticketID, $ticketDatePropertyID, $clientID) != '') {
+            return false;
+        }
+        if (setPropertyValueByID($ticketIDPropertyID, $itemTypeID, $ticketID, $clientID, $next, '', $RSuserID) !== 0) {
+            return false;
+        }
         return setPropertyValueByID($ticketDatePropertyID, $itemTypeID, $ticketID, $clientID, $date, '', $RSuserID) === 0;
-    });
+    }
+);
 if ($nextID === false) {
     $results['result'] = 'NOK';
     $results['description'] = 'ERROR ASSIGNING NUMBER AND DATE';

@@ -2,7 +2,7 @@
 //****************************************************************************************
 //Description:
 //    Creates a permission of the specified type for the given token and property
-//  
+//
 //  PARAMETERS:
 //  propertyID: ID of the property related to the permission
 //       token: token to associate the permission to
@@ -20,9 +20,11 @@ $tokenID = RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
 // because the database structure avoids duplicaded permissions
 
 // And add the permission to the database
-$results = RScreateTokenPermission($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],$GLOBALS[$cstRS_POST][$cstPropertyID],$GLOBALS[$cstRS_POST]['permission']);
-                                                    
+$results = RScreateTokenPermission($tokenID, $GLOBALS[$cstRS_POST][$cstClientID], $GLOBALS[$cstRS_POST][$cstPropertyID], $GLOBALS[$cstRS_POST]['permission']);
+
 $response['result'] = $results ? "OK" : "NOK";
-if (!$results) $response['description'] = "CHILD TOKENS CANNOT OWN PERMISSIONS";
+if (!$results) {
+    $response['description'] = "CHILD TOKENS CANNOT OWN PERMISSIONS";
+}
 
 RSReturnArrayResults($response);

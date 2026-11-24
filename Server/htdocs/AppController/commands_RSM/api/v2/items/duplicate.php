@@ -159,7 +159,9 @@ foreach ($body->descendants ?? array() as $descendant) {
     $edges[$childTypeID . ':' . $propertyID] = array('itemTypeID' => $childTypeID, 'dependencyPropertyID' => $propertyID);
     $typeIDs[$childTypeID] = true;
 }
-if ($itemTypeID <= 0) returnJsonMessage(400, $RSallowDebug ? 'Invalid itemTypeID' : '');
+if ($itemTypeID <= 0) {
+    returnJsonMessage(400, $RSallowDebug ? 'Invalid itemTypeID' : '');
+}
 if (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
     returnJsonMessage(404, $RSallowDebug ? 'Source item does not exist' : '');
 }
@@ -171,7 +173,9 @@ $transactionStarted = false;
 $failureLog = null;
 try {
     $failureStage = 'starting transaction';
-    if (!$mysqli->begin_transaction()) throw new RuntimeException('Unable to start duplication transaction');
+    if (!$mysqli->begin_transaction()) {
+        throw new RuntimeException('Unable to start duplication transaction');
+    }
     $transactionStarted = true;
     // 2. Bloquear los contadores de IDs en orden estable y cargar los metadatos
     //    que se usaran tanto para comprobar permisos como para copiar propiedades.
@@ -179,7 +183,9 @@ try {
     $itemTypeProperties = array();
     foreach ($typeIDs as $typeID => $_) {
         $failureStage = 'locking item type ' . $typeID;
-        if (!RSlockItemTypeForDuplication($typeID, $clientID)) throw new RuntimeException('Unable to lock item type');
+        if (!RSlockItemTypeForDuplication($typeID, $clientID)) {
+            throw new RuntimeException('Unable to lock item type');
+        }
         $failureStage = 'reading properties of item type ' . $typeID;
         $itemTypeProperties[$typeID] = getClientItemTypeProperties($typeID, $clientID, 1, true);
     }
@@ -215,7 +221,9 @@ try {
     // Pass exactly the authorized metadata to duplicateItem, including an empty list.
     $properties = getClientItemTypeProperties($itemTypeID, $clientID, 1, true);
     $permissionIDs = array_column($properties, 'id');
-    if (count($permissionIDs) === 0) $permissionIDs = array(getMainPropertyID($itemTypeID, $clientID));
+    if (count($permissionIDs) === 0) {
+        $permissionIDs = array(getMainPropertyID($itemTypeID, $clientID));
+    }
     foreach ($permissionIDs as $propertyID) {
         $deniedChecks = array();
         if (intval($propertyID) <= 0) {
@@ -241,7 +249,9 @@ try {
     do {
         $previousCount = count($reachable);
         foreach ($edges as $edge) {
-            if (isset($reachable[$edge['parentTypeID']])) $reachable[$edge['itemTypeID']] = true;
+            if (isset($reachable[$edge['parentTypeID']])) {
+                $reachable[$edge['itemTypeID']] = true;
+            }
         }
     } while (count($reachable) !== $previousCount);
     foreach ($edges as $edge) {
@@ -256,7 +266,9 @@ try {
     foreach ($itemTypeProperties as $typeID => $properties) {
         $failureStage = 'authorizing item type ' . $typeID;
         $permissionIDs = array_column($properties, 'id');
-        if (count($permissionIDs) === 0) $permissionIDs = array(getMainPropertyID($typeID, $clientID));
+        if (count($permissionIDs) === 0) {
+            $permissionIDs = array(getMainPropertyID($typeID, $clientID));
+        }
         foreach ($permissionIDs as $propertyID) {
             if (intval($propertyID) <= 0
                 || !(RShasTokenPermission($RStoken, $propertyID, 'READ') || isPropertyVisible($RSuserID, $propertyID, $clientID))
@@ -301,7 +313,9 @@ try {
         }
     };
     $newItemID = duplicateItem($itemTypeID, $itemID, $clientID, 1, $descendants, $copiedItems, $itemTypeProperties, $validateSharedItem);
-    if (!is_int($newItemID) || $newItemID <= 0) throw new RuntimeException('Copy failed');
+    if (!is_int($newItemID) || $newItemID <= 0) {
+        throw new RuntimeException('Copy failed');
+    }
     // 5. Verificar el ambito de todos los origenes y destinos antes de confirmar.
     //    Un rechazo aqui tambien revierte las escrituras realizadas por el copiador.
     $copies = array();
@@ -326,20 +340,32 @@ try {
     }
     $newItemID = $copiedItems[$itemTypeID][$itemID][0];
     $failureStage = 'committing copies';
-    if (!$mysqli->commit()) throw new RuntimeException('Unable to commit copy');
+    if (!$mysqli->commit()) {
+        throw new RuntimeException('Unable to commit copy');
+    }
     $transactionStarted = false;
 } catch (Throwable $exception) {
     $failureLog = 'duplicate item: ' . $failureStage . ': ' . get_class($exception) . ': ' . $exception->getMessage();
-    if ($failureCode === 500) $failureMessage .= ' (' . $failureStage . ')';
+    if ($failureCode === 500) {
+        $failureMessage .= ' (' . $failureStage . ')';
+    }
     $newItemID = null;
 } finally {
-    if ($transactionStarted) $mysqli->rollback();
+    if ($transactionStarted) {
+        $mysqli->rollback();
+    }
 }
 
 // RSError writes through the same DB connection; log only after rollback so the
 // diagnostic is not discarded along with the failed copies.
-if ($failureLog !== null) RSError($failureLog);
-if ($newItemID === null) returnJsonMessage($failureCode, $RSallowDebug ? $failureMessage : '');
+if ($failureLog !== null) {
+    RSError($failureLog);
+}
+if ($newItemID === null) {
+    returnJsonMessage($failureCode, $RSallowDebug ? $failureMessage : '');
+}
 $response = array('itemTypeID' => $itemTypeID, 'sourceItemID' => $itemID, 'newItemID' => $newItemID);
-if (property_exists($body, 'descendants')) $response['copiedItems'] = $copies;
+if (property_exists($body, 'descendants')) {
+    $response['copiedItems'] = $copies;
+}
 returnJsonResponse(json_encode($response));

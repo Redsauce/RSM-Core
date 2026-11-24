@@ -36,90 +36,92 @@ $clientID = RSclientFromToken(RStoken: $RStoken);
 $RSuserID = getRSuserID();
 
 foreach ($requestBody as $item) {
-  $propertyIDs = array();
-  //Iterate through every propertyID of the items to check if they pertain to the same item type
-  foreach ($item as $propertyID => $propertyValue) {
-    if ($propertyID != 'ID') {
-      $propertyIDs[] = ParsePID($propertyID, $clientID);
+    $propertyIDs = array();
+    //Iterate through every propertyID of the items to check if they pertain to the same item type
+    foreach ($item as $propertyID => $propertyValue) {
+        if ($propertyID != 'ID') {
+            $propertyIDs[] = ParsePID($propertyID, $clientID);
+        }
     }
-  }
-  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
-  foreach ($propertyIDs as $propertyID) {
-    if (!(RShasTokenPermission($RStoken, $propertyID, 'WRITE') || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-      $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Property ' . $propertyID . ' has no WRITE permissions or is not visible)')  : returnJsonMessage(400, '');
+    $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+    foreach ($propertyIDs as $propertyID) {
+        if (!(RShasTokenPermission($RStoken, $propertyID, 'WRITE') || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
+            $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Property ' . $propertyID . ' has no WRITE permissions or is not visible)')  : returnJsonMessage(400, '');
+        }
     }
-  }
-  $itemID = $item->ID;
-  if ($itemTypeID == 0) {
-    $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Properties must pertain to the same item type)') : returnJsonMessage(400, '');
-  } elseif (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
-    $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
-  } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
-    // Reject before writing any property value if the target item belongs to another customer.
-    $RSallowDebug ? returnJsonMessage(403, 'Not Updated (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
-  }
-  // Validate all uploads before applying any update in this request.
-  foreach ($item as $rawPropertyID => $propertyValue) {
-    if ($rawPropertyID === 'ID') continue;
-    $propertyType = getPropertyType(ParsePID($rawPropertyID, $clientID), $clientID);
-    if ($propertyType === 'file' || $propertyType === 'image') {
-      try {
-        RSparseBinaryPropertyValue($propertyValue);
-      } catch (LengthException $exception) {
-        returnJsonMessage(413, 'File/image exceeds the configured size limit');
-      } catch (InvalidArgumentException $exception) {
-        returnJsonMessage(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
-      }
+    $itemID = $item->ID;
+    if ($itemTypeID == 0) {
+        $RSallowDebug ? returnJsonMessage(400, 'Not Updated (Properties must pertain to the same item type)') : returnJsonMessage(400, '');
+    } elseif (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
+        $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
+    } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+        // Reject before writing any property value if the target item belongs to another customer.
+        $RSallowDebug ? returnJsonMessage(403, 'Not Updated (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
     }
-  }
+    // Validate all uploads before applying any update in this request.
+    foreach ($item as $rawPropertyID => $propertyValue) {
+        if ($rawPropertyID === 'ID') {
+            continue;
+        }
+        $propertyType = getPropertyType(ParsePID($rawPropertyID, $clientID), $clientID);
+        if ($propertyType === 'file' || $propertyType === 'image') {
+            try {
+                RSparseBinaryPropertyValue($propertyValue);
+            } catch (LengthException $exception) {
+                returnJsonMessage(413, 'File/image exceeds the configured size limit');
+            } catch (InvalidArgumentException $exception) {
+                returnJsonMessage(400, 'Invalid file/image value: expected [filename:]hexadecimal with an even length');
+            }
+        }
+    }
 }
 
 foreach ($requestBody as $item) {
-  $propertyIDs = array();
-  foreach ($item as $propertyID => $propertyValue) {
-    if ($propertyID != 'ID') {
-      $propertyIDs[] = ParsePID($propertyID, $clientID);
+    $propertyIDs = array();
+    foreach ($item as $propertyID => $propertyValue) {
+        if ($propertyID != 'ID') {
+            $propertyIDs[] = ParsePID($propertyID, $clientID);
+        }
     }
-  }
-  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
-  $itemID = $item->ID;
-  foreach ($item as $unparsedPropertyID => $propertyValue) {
-    if ($unparsedPropertyID != 'ID') {
-      $propertyID = ParsePID($unparsedPropertyID, $clientID);
-      $propertyType = getPropertyType($propertyID, $clientID);
-      if (($propertyType == 'file') || ($propertyType == 'image')) {
-        $parsed = RSparseBinaryPropertyValue($propertyValue);
-        $name = $parsed['name'];
-        $value = $parsed['hex'];
+    $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+    $itemID = $item->ID;
+    foreach ($item as $unparsedPropertyID => $propertyValue) {
+        if ($unparsedPropertyID != 'ID') {
+            $propertyID = ParsePID($unparsedPropertyID, $clientID);
+            $propertyType = getPropertyType($propertyID, $clientID);
+            if (($propertyType == 'file') || ($propertyType == 'image')) {
+                $parsed = RSparseBinaryPropertyValue($propertyValue);
+                $name = $parsed['name'];
+                $value = $parsed['hex'];
 
-        if ($value == '') {
-          deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $propertyType);
-          $result = 0;
-        } else {
-          $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
+                if ($value == '') {
+                    deleteItemPropertyValue($itemTypeID, $itemID, $propertyID, $clientID, $propertyType);
+                    $result = 0;
+                } else {
+                    $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $name, $value, $propertyType, $RSuserID);
+                }
+            } else {
+                if (!mb_check_encoding($propertyValue, 'UTF-8')) {
+                    $RSallowDebug ? returnJsonMessage(400, 'Decoded parameter:' . $propertyValue . ' is not encoded in UTF-8') : returnJsonMessage(400, '');
+                }
+                $result = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
+            }
+            // Result = 0 is a successful response
+            if ($result != 0) {
+                $RSallowDebug ? returnJsonMessage(400, 'Item ' . $itemID . ' not updated') : returnJsonMessage(400, '');
+            }
         }
-      } else {
-        if (!mb_check_encoding($propertyValue, 'UTF-8')) {
-          $RSallowDebug ? returnJsonMessage(400, 'Decoded parameter:' . $propertyValue . ' is not encoded in UTF-8') : returnJsonMessage(400, '');
-        }
-        $result = setPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, replaceUtf8Characters($propertyValue), $propertyType);
-      }
-      // Result = 0 is a successful response
-      if ($result != 0) {
-        $RSallowDebug ? returnJsonMessage(400, 'Item ' . $itemID . ' not updated') : returnJsonMessage(400, '');
-      }
     }
-  }
 }
 $RSallowDebug ? returnJsonMessage(200, 'Updated') : returnJsonMessage(200, '');
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-  checkIsArray($body);
-  foreach ($body as $item) {
-    checkIsJsonObject($item);
-    checkBodyContains($item, 'ID');
-    checkStringIsInteger($item->ID);
-  }
+    checkIsArray($body);
+    foreach ($body as $item) {
+        checkIsJsonObject($item);
+        checkBodyContains($item, 'ID');
+        checkStringIsInteger($item->ID);
+    }
 }

@@ -2,7 +2,7 @@
 //****************************************************************************************
 //Description:
 //    Remove a permission for the specified type and the given token and property
-//  
+//
 //  PARAMETERS:
 //  propertyID: ID of the property related to the permission
 //       token: token associated to the permission to delete
@@ -17,9 +17,11 @@ require_once "../utilities/RSdatabase.php";
 $tokenID =  RSgetTokenID($GLOBALS[$cstRS_POST]['token']);
 
 // And remove the permission to the database
-$results = RSremovePermissionFromTokenProperty($tokenID,$GLOBALS[$cstRS_POST][$cstClientID],$GLOBALS[$cstRS_POST][$cstPropertyID],$GLOBALS[$cstRS_POST]['permission']);
+$results = RSremovePermissionFromTokenProperty($tokenID, $GLOBALS[$cstRS_POST][$cstClientID], $GLOBALS[$cstRS_POST][$cstPropertyID], $GLOBALS[$cstRS_POST]['permission']);
 
 $response['result'] = $results ? "OK" : "NOK";
-if (!$results) $response['description'] = "CHILD TOKENS CANNOT OWN PERMISSIONS";
+if (!$results) {
+    $response['description'] = "CHILD TOKENS CANNOT OWN PERMISSIONS";
+}
 
 RSReturnArrayResults($response);

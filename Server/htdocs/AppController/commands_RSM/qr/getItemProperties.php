@@ -12,11 +12,11 @@ isset($GLOBALS[$cstRS_POST]['RSuserMD5Password']) ? $RSuserMD5Password = $GLOBAL
 
 // Check for encryption
 if (substr($RSdata, 0, 3) != ":::") {
-  // The RSdata is encrypted
-  // TODO: Decrypt the RSdata
+    // The RSdata is encrypted
+    // TODO: Decrypt the RSdata
 } else {
-  // Remove the header characters
-  $items = substr($RSdata, 3);
+    // Remove the header characters
+    $items = substr($RSdata, 3);
 }
 
 $items = explode(",", $items);

@@ -1,6 +1,7 @@
 <?php
 //
-function addFilter($clientID, $itemTypeID, $filterName, $operatorValue) {
+function addFilter($clientID, $itemTypeID, $filterName, $operatorValue)
+{
     // get id for new item
     $newID = getNextIdentification("rs_item_type_filters", "RS_FILTER_ID", $clientID);
 
@@ -12,18 +13,22 @@ function addFilter($clientID, $itemTypeID, $filterName, $operatorValue) {
 }
 
 //
-function updateFilterName($clientID, $filterID, $filterName) {
+function updateFilterName($clientID, $filterID, $filterName)
+{
     // build query to save filter
     $theQuery = 'UPDATE `rs_item_type_filters` SET `RS_NAME`="' . $filterName . '" WHERE `RS_CLIENT_ID`=' . $clientID . ' AND `RS_FILTER_ID`=' . $filterID;
 
     // execute query
-    if (RSquery($theQuery)) return 1;
+    if (RSquery($theQuery)) {
+        return 1;
+    }
 
     return 0;
 }
 
 //
-function updateFilterOperator($clientID, $filterID, $operatorValue) {
+function updateFilterOperator($clientID, $filterID, $operatorValue)
+{
     // build query to save filter
     $theQuery = 'UPDATE `rs_item_type_filters` SET `RS_OPERATOR`="' . $operatorValue . '" WHERE `RS_CLIENT_ID`=' . $clientID . ' AND `RS_FILTER_ID`=' . $filterID;
 
@@ -32,7 +37,8 @@ function updateFilterOperator($clientID, $filterID, $operatorValue) {
 }
 
 //
-function deleteFilter($clientID, $filterID) {
+function deleteFilter($clientID, $filterID)
+{
     global $mysqli;
 
     //begin transaction
@@ -68,7 +74,8 @@ function deleteFilter($clientID, $filterID) {
 }
 
 //
-function addClause($clientID, $filterID, $propertyID, $operatorValue, $propertyValue) {
+function addClause($clientID, $filterID, $propertyID, $operatorValue, $propertyValue)
+{
 
     //first check property
     // build query to get property itemtype
@@ -99,7 +106,8 @@ function addClause($clientID, $filterID, $propertyID, $operatorValue, $propertyV
 }
 
 //
-function addFilterProperty($clientID, $filterID, $propertyID) {
+function addFilterProperty($clientID, $filterID, $propertyID)
+{
 
     //first check property
     // build query to get property itemtype
@@ -116,8 +124,9 @@ function addFilterProperty($clientID, $filterID, $propertyID) {
         // execute query
         return RSquery($theQuery) ? 1 : 0;
 
-    } else
+    } else {
         return 0;
+    }
 }
 
 /*/
@@ -152,7 +161,8 @@ function addFilterProperty($clientID, $filterID, $propertyID) {
  }*/
 
 //
-function deleteClauses($clientID, $filterID) {
+function deleteClauses($clientID, $filterID)
+{
 
     // build query to delete clauses
     $theQuery = 'DELETE FROM `rs_item_type_filter_clauses` WHERE `RS_FILTER_ID`=' . $filterID . ' AND `RS_CLIENT_ID`=' . $clientID;
@@ -166,7 +176,8 @@ function deleteClauses($clientID, $filterID) {
 }
 
 //
-function deleteFilterProperties($clientID, $filterID) {
+function deleteFilterProperties($clientID, $filterID)
+{
 
     // build query to delete properties
     $theQuery = 'DELETE FROM `rs_item_type_filter_properties` WHERE `RS_FILTER_ID`=' . $filterID . ' AND `RS_CLIENT_ID`=' . $clientID;
@@ -180,7 +191,8 @@ function deleteFilterProperties($clientID, $filterID) {
 }
 
 //
-function getFilters($clientID, $itemTypeID) {
+function getFilters($clientID, $itemTypeID)
+{
     // build query to get filters
     return RSquery("SELECT `RS_FILTER_ID` AS filterID,
                             RS_NAME AS filterName, RS_OPERATOR AS filterOperator
@@ -190,7 +202,8 @@ function getFilters($clientID, $itemTypeID) {
 }
 
 //
-function getFilterItemType($clientID, $filterID) {
+function getFilterItemType($clientID, $filterID)
+{
     //security validation
     if ($filterID == "") {
         $filterID = "0";
@@ -215,9 +228,11 @@ function getFilterItemType($clientID, $filterID) {
 }
 
 //
-function getFilterClauses($clientID, $filterID) {
-    if ($filterID <= 0)
+function getFilterClauses($clientID, $filterID)
+{
+    if ($filterID <= 0) {
         return array();
+    }
 
     // build query to get clauses
     $theQuery = 'SELECT `RS_PROPERTY_ID` AS "conditionPropertyID", `RS_OPERATOR` AS "conditionOperator", `RS_VALUE` AS "conditionValue" FROM `rs_item_type_filter_clauses` WHERE `RS_FILTER_ID`="' . $filterID . '" AND `RS_CLIENT_ID`="' . $clientID . '"';
@@ -227,17 +242,20 @@ function getFilterClauses($clientID, $filterID) {
 
     $results = array();
 
-    while ($row = $result->fetch_assoc())
+    while ($row = $result->fetch_assoc()) {
         $results[] = $row;
+    }
 
     return $results;
 }
 
 //
-function getFilterProperties($clientID, $filterID) {
+function getFilterProperties($clientID, $filterID)
+{
     //security validation
-    if ($filterID <= 0)
+    if ($filterID <= 0) {
         return array();
+    }
 
     // build query to get clauses
     $theQuery = 'SELECT `RS_PROPERTY_ID` AS "conditionPropertyID" FROM `rs_item_type_filter_properties` WHERE `RS_FILTER_ID`="' . $filterID . '" AND `RS_CLIENT_ID`="' . $clientID . '"';
@@ -247,22 +265,27 @@ function getFilterProperties($clientID, $filterID) {
 
     $results = array();
 
-    while ($row = $result->fetch_assoc())
+    while ($row = $result->fetch_assoc()) {
         $results[] = $row;
+    }
 
     return $results;
 }
 
 //array search for ID field in 2 dimension array
-function array_search_ID($needle, $haystack, $field = "ID") {
-    foreach ($haystack as $key => $element)
-        if ($element[$field] == $needle)
-            return ($key);
-    return (false);
+function array_search_ID($needle, $haystack, $field = "ID")
+{
+    foreach ($haystack as $key => $element) {
+        if ($element[$field] == $needle) {
+            return $key;
+        }
+    }
+    return false;
 }
 
 //get group level
-function getLevel($a) {
+function getLevel($a)
+{
     global $groupResults;
     $i = 0;
     while ($a != 0) {
@@ -273,7 +296,8 @@ function getLevel($a) {
 }
 
 //compare 2 groups level
-function compareLevel($groupA, $groupB) {
+function compareLevel($groupA, $groupB)
+{
     $a = getLevel($groupA);
     $b = getLevel($groupB);
     if ($a == $b) {
@@ -283,7 +307,8 @@ function compareLevel($groupA, $groupB) {
 }
 
 //search tree path recursive
-function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemTypeID, $allowedItemTypes, $maxDepth = 10) {
+function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemTypeID, $allowedItemTypes, $maxDepth = 10)
+{
 
     $lastIndex = count($currentBranch) - 1;
 
@@ -322,7 +347,9 @@ function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemType
                         if ($i !== false) {
                             $descendant['recursive'] = 1;
                             $descendant['recursivePropertyID'] = $descendants[$i]['propertyID'];
-                        } else $descendant['recursive'] = 0;
+                        } else {
+                            $descendant['recursive'] = 0;
+                        }
 
                         $tempBranch[] = $descendant;
                     }
@@ -342,7 +369,8 @@ function getTreePath($clientID, &$treePath, $currentBranch, $destinationItemType
 }
 
 // get a level of descendants
-function getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes) {
+function getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes)
+{
     $results = array();
 
     // get depending itemtypes
@@ -351,9 +379,9 @@ function getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes) {
     // execute query
     $result = RSquery($theQuery);
 
-    if($result) {
-        while ($row = $result->fetch_assoc()){
-            if (count($allowedItemTypes) == 0 || in_array($row['itemTypeID'], $allowedItemTypes)){
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            if (count($allowedItemTypes) == 0 || in_array($row['itemTypeID'], $allowedItemTypes)) {
                 $row['mainPropertyID']=getMainPropertyID($row['itemTypeID'], $clientID);
                 $row['mainPropertyType']=getPropertyType($row['mainPropertyID'], $clientID);
                 $results[] = $row;
@@ -364,14 +392,14 @@ function getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes) {
     //get app related itemtypes
     $appItemTypeID = getAppItemTypeID_RelatedWith($parentItemTypeID, $clientID);
 
-    if($appItemTypeID > 0) {
+    if ($appItemTypeID > 0) {
         // Look for app related descendad item types
         $theQuery = 'SELECT `rs_item_properties`.`RS_NAME` AS "propertyName", `rs_item_type_app_relations`.`RS_ITEMTYPE_ID` AS "itemTypeID", `rs_property_app_definitions`.`RS_TYPE` AS "propertyType", `rs_property_app_relations`.`RS_PROPERTY_ID` AS "propertyID" FROM `rs_item_properties` INNER JOIN (`rs_item_type_app_relations` INNER JOIN (`rs_property_app_relations` INNER JOIN `rs_property_app_definitions` ON `rs_property_app_relations`.`RS_PROPERTY_APP_ID`=`rs_property_app_definitions`.`RS_ID`) ON `rs_property_app_definitions`.`RS_ITEM_TYPE_ID`=`rs_item_type_app_relations`.`RS_ITEMTYPE_APP_ID` AND `rs_property_app_relations`.`RS_CLIENT_ID`=`rs_item_type_app_relations`.`RS_CLIENT_ID` ) ON `rs_item_properties`.`RS_PROPERTY_ID` = `rs_property_app_relations`.`RS_PROPERTY_ID` AND `rs_property_app_relations`.`RS_CLIENT_ID`=`rs_item_properties`.`RS_CLIENT_ID` WHERE `rs_property_app_relations`.`RS_CLIENT_ID`=' . $clientID . ' AND `rs_property_app_definitions`.`RS_REFERRED_ITEMTYPE` = ' . $appItemTypeID;
 
         // execute query
         $result = RSquery($theQuery);
-        while ($row = $result->fetch_assoc()){
-            if (count($allowedItemTypes) == 0 || in_array($row['itemTypeID'], $allowedItemTypes)){
+        while ($row = $result->fetch_assoc()) {
+            if (count($allowedItemTypes) == 0 || in_array($row['itemTypeID'], $allowedItemTypes)) {
                 $row['mainPropertyID']=getMainPropertyID($row['itemTypeID'], $clientID);
                 $row['mainPropertyType']=getPropertyType($row['mainPropertyID'], $clientID);
                 $results[] = $row;
@@ -383,7 +411,8 @@ function getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes) {
 }
 
 //
-function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = "MAINPROP") {
+function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $returnOrder = 0, $mainPropName = "MAINPROP")
+{
     global $RSuserID;
 
     $returnArray = array();
@@ -410,16 +439,19 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
         if ($result->num_rows == 1) {
             $res = $result->fetch_assoc();
             $operator = $res["RS_OPERATOR"];
-        } else
+        } else {
             $operator = "AND";
+        }
 
         // additional return properties from filter
-        foreach ($properties as $property)
+        foreach ($properties as $property) {
             $returnProperties[] = array('ID' => $property["conditionPropertyID"], 'name' => getClientPropertyName($property["conditionPropertyID"], $clientID));
+        }
 
         // build filter array
-        foreach ($clauses as $clause)
+        foreach ($clauses as $clause) {
             $filterProperties[] = array('ID' => $clause["conditionPropertyID"], 'value' => $clause["conditionValue"], 'mode' => $clause["conditionOperator"]);
+        }
     }
 
     //check fast filter and generate ids list
@@ -428,7 +460,7 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
         // get all available properties for fast filtering
         $visibleProperties = getVisibleProperties_extended($itemTypeID, $clientID, $RSuserID, false, true, false, false, true);
 
-        $fastFilterArr = preg_split("/\s+/",$fastFilter);
+        $fastFilterArr = preg_split("/\s+/", $fastFilter);
         foreach ($fastFilterArr as $fastFilterVal) {
             $idsForFilter[$fastFilterVal] = array(-1);
         }
@@ -442,7 +474,7 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
                     //check filter not empty. This can be caused by encoding mismatch in html_entity_decode
                     //TO DO: check encoding is always UTF-8 for $fastFilter
                     if (normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8')) != '') {
-                        if (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal])=== false){
+                        if (mb_stripos(normaliza(html_entity_decode($propertyRowValue, ENT_COMPAT, 'UTF-8')), normaliza(html_entity_decode($fastFilterVal, ENT_COMPAT, 'UTF-8'))) !== false && array_search($propertyItemID, $idsForFilter[$fastFilterVal])=== false) {
                             $idsForFilter[$fastFilterVal][]=$propertyItemID;
                         }
                     }
@@ -474,17 +506,18 @@ function filterItems($clientID, $itemTypeID, $filterID, $fastFilter = '', $retur
 }
 
 //
-function loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $targetParentID, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array()) {
+function loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $targetParentID, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array())
+{
 
     $temporaryBranches = array();
 
-    $recursiveParentsList = (isset($pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"],$pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]]))?$pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]][$temporaryItemsInPath[0]["nodeID"]]:getItemPropertyValue($temporaryItemsInPath[0]["nodeID"], $treePath[count($treePath) - 1]["recursivePropertyID"], $clientID);
+    $recursiveParentsList = (isset($pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"], $pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]]))?$pathProperties[$treePath[count($treePath) - 1]["recursivePropertyID"]][$temporaryItemsInPath[0]["nodeID"]]:getItemPropertyValue($temporaryItemsInPath[0]["nodeID"], $treePath[count($treePath) - 1]["recursivePropertyID"], $clientID);
 
     //check for multiidentifier
     $recursiveParentIDs = explode(",", $recursiveParentsList);
 
     if ($returnOrder) {
-        $recursiveOrdersList = (isset($pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"],$pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]]))?$pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]][$temporaryItemsInPath[0]["nodeID"]]:"0";
+        $recursiveOrdersList = (isset($pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"], $pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]]))?$pathOrders[$treePath[count($treePath) - 1]["recursivePropertyID"]][$temporaryItemsInPath[0]["nodeID"]]:"0";
 
         $recursiveOrders = explode(",", $recursiveOrdersList);
     }
@@ -534,7 +567,7 @@ function loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $tar
                 $auxItemsInPath[0]["order"] = (isset($recursiveOrders[$i])&&$recursiveOrders[$i]!='')?$recursiveOrders[$i]:"0";
             }
             //
-            $itemName = (isset($mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]]) && array_key_exists($recursiveParentID,$mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]]))?$mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]][$recursiveParentID]:getMainPropertyValue($treePath[count($treePath) - 1]["itemTypeID"], $recursiveParentID, $clientID);
+            $itemName = (isset($mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]]) && array_key_exists($recursiveParentID, $mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]]))?$mainProperties[$treePath[count($treePath) - 1]["itemTypeID"]][$recursiveParentID]:getMainPropertyValue($treePath[count($treePath) - 1]["itemTypeID"], $recursiveParentID, $clientID);
             array_unshift($auxItemsInPath, array("nodeID" => $recursiveParentID, "nodeItemType" => $treePath[count($treePath) - 1]["itemTypeID"], "name" => $itemName, "parentID" => '', "parentItemType" => '', "parentPropertyID" => '', "childs" => $auxItemsInPath[0]["nodeID"] . ',' . $auxItemsInPath[0]["nodeItemType"]));
             if ($returnOrder) {
                 $auxItemsInPath[0]["order"] = "0";
@@ -566,7 +599,8 @@ function loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $tar
 }
 
 //
-function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetParentID, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array()) {
+function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetParentID, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array())
+{
 
     $temporaryBranches = array();
 
@@ -576,13 +610,13 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
             $temporaryBranches = loopRecursiveItemType($clientID, $treePath, $temporaryItemsInPath, $targetParentID, $pathProperties, $mainProperties, $returnOrder, $pathOrders);
         } else {
             if (count($treePath) > 1) {
-                $parentsList = (isset($pathProperties[$treePath[count($treePath) - 1]["propertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"],$pathProperties[$treePath[count($treePath) - 1]["propertyID"]]))?$pathProperties[$treePath[count($treePath) - 1]["propertyID"]][$temporaryItemsInPath[0]["nodeID"]]:getItemPropertyValue($temporaryItemsInPath[0]["nodeID"], $treePath[count($treePath) - 1]["propertyID"], $clientID, $treePath[count($treePath) - 1]["propertyType"], $treePath[count($treePath) - 1]["itemTypeID"]);
+                $parentsList = (isset($pathProperties[$treePath[count($treePath) - 1]["propertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"], $pathProperties[$treePath[count($treePath) - 1]["propertyID"]]))?$pathProperties[$treePath[count($treePath) - 1]["propertyID"]][$temporaryItemsInPath[0]["nodeID"]]:getItemPropertyValue($temporaryItemsInPath[0]["nodeID"], $treePath[count($treePath) - 1]["propertyID"], $clientID, $treePath[count($treePath) - 1]["propertyType"], $treePath[count($treePath) - 1]["itemTypeID"]);
 
                 //check for multiidentifier
                 $parentIDs = explode(",", $parentsList);
 
                 if ($returnOrder) {
-                    $ordersList = (isset($pathOrders[$treePath[count($treePath) - 1]["propertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"],$pathOrders[$treePath[count($treePath) - 1]["propertyID"]]))?$pathOrders[$treePath[count($treePath) - 1]["propertyID"]][$temporaryItemsInPath[0]["nodeID"]]:"0";
+                    $ordersList = (isset($pathOrders[$treePath[count($treePath) - 1]["propertyID"]]) && array_key_exists($temporaryItemsInPath[0]["nodeID"], $pathOrders[$treePath[count($treePath) - 1]["propertyID"]]))?$pathOrders[$treePath[count($treePath) - 1]["propertyID"]][$temporaryItemsInPath[0]["nodeID"]]:"0";
 
                     $orders = explode(",", $ordersList);
                 }
@@ -600,7 +634,7 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
                         }
                         if (count($treePath) > 2 || $parentID != $targetParentID) {
                             //$itemName = getMainPropertyValue($treePath[count($treePath) - 2]["itemTypeID"], $parentID, $clientID);
-                            $itemName = (isset($mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]) && array_key_exists($parentID,$mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]))?$mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]][$parentID]:getItemPropertyValue($parentID, $treePath[count($treePath) - 2]["mainPropertyID"], $clientID, $treePath[count($treePath) - 2]["mainPropertyType"], $treePath[count($treePath) - 2]["itemTypeID"]);
+                            $itemName = (isset($mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]) && array_key_exists($parentID, $mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]]))?$mainProperties[$treePath[count($treePath) - 2]["itemTypeID"]][$parentID]:getItemPropertyValue($parentID, $treePath[count($treePath) - 2]["mainPropertyID"], $clientID, $treePath[count($treePath) - 2]["mainPropertyType"], $treePath[count($treePath) - 2]["itemTypeID"]);
                             // ensure the parent entry also carries its main property ID
                             $parentItemType = $treePath[count($treePath) - 2]["itemTypeID"];
                             $parentMainPropertyID = getMainPropertyID($parentItemType, $clientID);
@@ -655,7 +689,8 @@ function processBranches($clientID, $treePath, $temporaryItemsInPath, $targetPar
 }
 
 //
-function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetParentID, $additionalProps, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array()) {
+function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetParentID, $additionalProps, $pathProperties = array(), $mainProperties = array(), $returnOrder = 0, $pathOrders = array())
+{
 
     $itemsInPath = array();
 
@@ -666,7 +701,7 @@ function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetPar
         $temporaryItemsInPath = array();
         $temporaryBranches = array();
 
-        $itemName = (isset($mainProperties[$itemTypeID]) && array_key_exists($itemID,$mainProperties[$itemTypeID]))?$mainProperties[$itemTypeID][$itemID]:getMainPropertyValue($itemTypeID, $itemID, $clientID);
+        $itemName = (isset($mainProperties[$itemTypeID]) && array_key_exists($itemID, $mainProperties[$itemTypeID]))?$mainProperties[$itemTypeID][$itemID]:getMainPropertyValue($itemTypeID, $itemID, $clientID);
 
         $temporaryItemsInPath[] = array(
             "nodeID" => $itemID,
@@ -712,7 +747,8 @@ function getPathsForItem($clientID, $itemTypeID, $itemID, $treePaths, $targetPar
 }
 
 //
-function combineItemPaths($pathsArray, $itemsToAdd) {
+function combineItemPaths($pathsArray, $itemsToAdd)
+{
 
     foreach ($itemsToAdd as $itemToAdd) {
         $found = false;
@@ -734,8 +770,9 @@ function combineItemPaths($pathsArray, $itemsToAdd) {
     return $pathsArray;
 }
 
-// 
-function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules) {
+//
+function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
+{
     $extFilterArr = explode(',', $extFilterRules);
 
     $pathProperties = array();
@@ -747,35 +784,37 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
 
         // get all ascendants matching the filter
         $ascendantItemTypeID = getItemTypeIDFromProperties(array($filterArr[0]), $clientID);
-        $filterProperties = array( array('ID' => parsePID($filterArr[0],$clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, "UTF-8")), 'mode' => $filterArr[2]));
+        $filterProperties = array( array('ID' => parsePID($filterArr[0], $clientID), 'value' => str_replace("&amp;", "&", htmlentities(base64_decode($filterArr[1]), ENT_COMPAT, "UTF-8")), 'mode' => $filterArr[2]));
 
         $validAscendants = getFilteredItemsIDs($ascendantItemTypeID, $clientID, $filterProperties, array());
 
         //get ascendant ItemType MainProperty ID and Type for treePath root level
         $ascendantItemTypeMainPropertyID   = getMainPropertyID($ascendantItemTypeID, $clientID);
-        $ascendantItemTypeMainPropertyType = getPropertyType  ($ascendantItemTypeMainPropertyID, $clientID);
+        $ascendantItemTypeMainPropertyType = getPropertyType($ascendantItemTypeMainPropertyID, $clientID);
 
         // get all paths between filtered and destination itemtype
         $allowedItemTypes = array();
-        if (isset($filterArr[3]) && $filterArr[3] != "") $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
+        if (isset($filterArr[3]) && $filterArr[3] != "") {
+            $allowedItemTypes = explode(",", base64_decode($filterArr[3]));
+        }
 
         $treePath = array();
 
         getTreePath($clientID, $treePath, array( array('itemTypeID' => $ascendantItemTypeID,'mainPropertyID'=>$ascendantItemTypeMainPropertyID,'mainPropertyType'=>$ascendantItemTypeMainPropertyType)), $itemTypeID, $allowedItemTypes, 4);
 
         //get all properties needed
-        foreach ($treePath as $path){
-          foreach ($path as $step){
-            if(!array_key_exists($step['itemTypeID'],$mainProperties)){
-              $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID,'', $step['mainPropertyType'], $step['itemTypeID']);
+        foreach ($treePath as $path) {
+            foreach ($path as $step) {
+                if (!array_key_exists($step['itemTypeID'], $mainProperties)) {
+                    $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
+                }
+                if (array_key_exists('propertyID', $step)&&!array_key_exists($step['propertyID'], $pathProperties)) {
+                    $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID, '', $step['propertyType'], $step['itemTypeID']);
+                }
+                if (array_key_exists('recursivePropertyID', $step)&&!array_key_exists($step['recursivePropertyID'], $pathProperties)) {
+                    $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID, '', '', $step['itemTypeID']);
+                }
             }
-            if(array_key_exists('propertyID',$step)&&!array_key_exists($step['propertyID'],$pathProperties)){
-              $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID,'', $step['propertyType'], $step['itemTypeID']);
-            }
-            if(array_key_exists('recursivePropertyID',$step)&&!array_key_exists($step['recursivePropertyID'],$pathProperties)){
-              $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID,'', '', $step['itemTypeID']);
-            }
-          }
         }
 
         // get ascendants path for each item in results
@@ -787,12 +826,14 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
 
             // search for any valid (filter matching) ascendant in generated paths
             $found = false;
-            foreach ($validAscendants as $validAscendant)
-                foreach ($tempPaths as $element)
+            foreach ($validAscendants as $validAscendant) {
+                foreach ($tempPaths as $element) {
                     if ($element["nodeID"] == $validAscendant["ID"] && $element["nodeItemType"] == $ascendantItemTypeID) {
                         $found = true;
                         break 2;
                     }
+                }
+            }
 
             // Remove item from results list if it doesn't have any matching ascendant
             if (!$found) {
@@ -801,8 +842,8 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
             }
         }
 
-		// We reindex the array because the associative indexes are wrong after the removal of the items due to the external filtering
-        if (is_a($results,'SplFixedArray')) {
+        // We reindex the array because the associative indexes are wrong after the removal of the items due to the external filtering
+        if (is_a($results, 'SplFixedArray')) {
             $res = new SplFixedArray($total-$removed);
             $i = 0;
             foreach ($results as $key => $result) {
@@ -819,28 +860,30 @@ function applyExternalFilters($itemTypeID, $clientID, $results, $extFilterRules)
     return $res;
 }
 
-function getRecursivePropertyID($itemTypeID, $clientID) {
-	// prepare query
-	$theQuery = 'SELECT RS_PROPERTY_ID AS "ID" FROM rs_item_properties WHERE RS_PROPERTY_ID IN (' . implode(',', getProperties($itemTypeID, $clientID)) . ') AND RS_REFERRED_ITEMTYPE = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID;
+function getRecursivePropertyID($itemTypeID, $clientID)
+{
+    // prepare query
+    $theQuery = 'SELECT RS_PROPERTY_ID AS "ID" FROM rs_item_properties WHERE RS_PROPERTY_ID IN (' . implode(',', getProperties($itemTypeID, $clientID)) . ') AND RS_REFERRED_ITEMTYPE = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID;
 
     $appItemTypeID = getAppItemTypeID_RelatedWith($itemTypeID, $clientID);
-    if($appItemTypeID != '0') {
+    if ($appItemTypeID != '0') {
         $theQuery .= ' UNION SELECT rs_property_app_relations.RS_PROPERTY_ID AS "ID" FROM rs_property_app_relations INNER JOIN rs_property_app_definitions ON rs_property_app_definitions.RS_ID = rs_property_app_relations.RS_PROPERTY_APP_ID WHERE rs_property_app_relations.RS_PROPERTY_ID IN (' . implode(',', getProperties($itemTypeID, $clientID)) . ') AND rs_property_app_definitions.RS_REFERRED_ITEMTYPE = ' . $appItemTypeID . ' AND rs_property_app_relations.RS_CLIENT_ID = ' . $clientID;
     }
 
-	// execute query
-	$result = RSQuery($theQuery);
+    // execute query
+    $result = RSQuery($theQuery);
 
-	if (!$result || $result->num_rows == 0) {
-		return '0';
-	} // Recursive property not found
+    if (!$result || $result->num_rows == 0) {
+        return '0';
+    } // Recursive property not found
 
-	$row = $result->fetch_assoc();
-	return $row['ID'];
+    $row = $result->fetch_assoc();
+    return $row['ID'];
 }
 
 // Normalize string for case-insensitive and accent-insensitive comparisons
-function normaliza($cadena) {
+function normaliza($cadena)
+{
     // use iconv with ASCII transliteration; source contains no
     // non-ASCII characters so it can be pasted in any terminal.
     $resultado = iconv('UTF-8', 'ASCII//TRANSLIT', $cadena);

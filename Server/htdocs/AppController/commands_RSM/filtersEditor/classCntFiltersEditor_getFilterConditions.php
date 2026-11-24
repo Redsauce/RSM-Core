@@ -8,47 +8,49 @@ require_once "../utilities/RSMfiltersManagement.php";
 isset($GLOBALS[$cstRS_POST][$cstClientID   ]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['filterID'   ]) ? $filterID = $GLOBALS[$cstRS_POST]['filterID'] : dieWithError(400);
 
-if ($filterID == "") $filterID = "0";
+if ($filterID == "") {
+    $filterID = "0";
+}
 
-$filterClauses = getFilterClauses($clientID,$filterID);
+$filterClauses = getFilterClauses($clientID, $filterID);
 
 $results['conditionPropertyIDs'] = "";
 $results['operators'           ] = "";
 $results['conditionValues'     ] = "";
 
-foreach($filterClauses as $filterClause){                                               
+foreach ($filterClauses as $filterClause) {
     $results['conditionPropertyIDs'] .=               $filterClause['conditionPropertyID'].";";
     $results['operators'           ] .=               $filterClause['conditionOperator'  ].";";
     $results['conditionValues'     ] .= base64_encode($filterClause['conditionValue'     ]).";";
 }
 
-$results['conditionPropertyIDs'] = rtrim($results['conditionPropertyIDs'],";");
-$results['operators'           ] = rtrim($results['operators'           ],";");
-$results['conditionValues'     ] = rtrim($results['conditionValues'     ],";");
+$results['conditionPropertyIDs'] = rtrim($results['conditionPropertyIDs'], ";");
+$results['operators'           ] = rtrim($results['operators'           ], ";");
+$results['conditionValues'     ] = rtrim($results['conditionValues'     ], ";");
 $results['filterProperties'    ] = "";
 
-$filterProperties = getFilterProperties($clientID,$filterID);
+$filterProperties = getFilterProperties($clientID, $filterID);
 
-foreach($filterProperties as $filterProperty){
+foreach ($filterProperties as $filterProperty) {
     $results['filterProperties'] .= $filterProperty['conditionPropertyID'].";";
 }
 
-$results['filterProperties'] = rtrim($results['filterProperties'],";");
+$results['filterProperties'] = rtrim($results['filterProperties'], ";");
 
 // Build query to get filter operator
 $theQuery = 'SELECT `RS_OPERATOR` FROM `rs_item_type_filters` WHERE `RS_CLIENT_ID`='.$clientID.' AND `RS_FILTER_ID`='.$filterID.'';
-    
+
 // Execute the query
 $result = RSquery($theQuery);
-    
-if ($result && $result->num_rows == 1) {        
-    $res = $result->fetch_assoc();        
+
+if ($result && $result->num_rows == 1) {
+    $res = $result->fetch_assoc();
     $results['filterType'] = $res["RS_OPERATOR"];
-    
+
 } else {
     $results['filterType'] = "";
-    
+
 }
-        
+
 // And return XML response back to application
 RSReturnArrayResults($results);

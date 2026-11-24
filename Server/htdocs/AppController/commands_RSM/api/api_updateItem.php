@@ -48,7 +48,9 @@ if ($itemTypeID != 0) {
     foreach ($RSdata as $propertyValue) {
         $chainValues = explode(':', $propertyValue, 2);
         $id = ParsePID($chainValues[0], $clientID);
-        if (!(RShasTokenPermission($RStoken, $id, 'WRITE') || isPropertyVisible($RSuserID, $id, $clientID))) continue;
+        if (!(RShasTokenPermission($RStoken, $id, 'WRITE') || isPropertyVisible($RSuserID, $id, $clientID))) {
+            continue;
+        }
         $propertyType = getPropertyType($id, $clientID);
         if ($propertyType === 'file' || $propertyType === 'image') {
             try {
@@ -112,4 +114,3 @@ if ($itemTypeID != 0) {
 
 // And write XML Response back to the application without compression
 RSReturnArrayResults($results, false);
-

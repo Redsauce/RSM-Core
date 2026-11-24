@@ -18,7 +18,9 @@ require_once "../utilities/RSMitemsManagement.php";
 
 $managedToken = RSgetTokenMetadata($GLOBALS[$cstRS_POST]['token'], $GLOBALS[$cstRS_POST][$cstClientID]);
 $tokenID = RSgetEffectivePermissionTokenID($GLOBALS[$cstRS_POST]['token'], true);
-if (is_null($managedToken) || $tokenID <= 0) dieWithError(400);
+if (is_null($managedToken) || $tokenID <= 0) {
+    dieWithError(400);
+}
 $inherited = $managedToken['isChild'] ? 1 : 0;
 $parentMasterTokenID = $managedToken['isChild'] ? $managedToken['parentMasterTokenID'] : 0;
 
@@ -31,7 +33,9 @@ $theQuery = "SELECT RS_PERMISSION AS  'permission', RS_PROPERTY_ID as 'propertyI
 // Now we have to get the propertyIDs pertaining to the passed item type ID
 $propertyIDs = getUserVisiblePropertiesIDs($GLOBALS[$cstRS_POST][$cstItemTypeID], $GLOBALS[$cstRS_POST][$cstClientID], $RSuserID);
 
-foreach ($propertyIDs as $propertyID) $theQuery = $theQuery . " OR RS_PROPERTY_ID = " . $propertyID;
+foreach ($propertyIDs as $propertyID) {
+    $theQuery = $theQuery . " OR RS_PROPERTY_ID = " . $propertyID;
+}
 
 $theQuery = $theQuery . ") AND  RS_TOKEN_ID = " . $tokenID;
 

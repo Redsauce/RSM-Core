@@ -10,7 +10,7 @@ require_once "../utilities/RStools.php";
 isset($GLOBALS[$cstRS_POST]['clientID'          ]) ? $clientID          =               $GLOBALS[$cstRS_POST]['clientID'          ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['parentID'          ]) ? $parentID          =               $GLOBALS[$cstRS_POST]['parentID'          ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['parentItemTypeID'  ]) && $GLOBALS[$cstRS_POST]['parentItemTypeID'] != "" ? $parentItemTypeID = $GLOBALS[$cstRS_POST]['parentItemTypeID'] : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",",  $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) : dieWithError(400);
+isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) ? $allowedItemTypes  = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']) : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['fastFilter'        ]) ? $fastFilter        = base64_decode($GLOBALS[$cstRS_POST]['fastFilter'        ]) : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['filterID'          ]) ? $filterID          =               $GLOBALS[$cstRS_POST]['filterID'          ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['extraFilter'       ]) ? $extraFilter       =               $GLOBALS[$cstRS_POST]['extraFilter'       ]  : dieWithError(400);
@@ -39,7 +39,9 @@ $recursiveParentValueCache = array();
 // that exceed the existing diagnostic threshold, including XML/compression.
 $treeMemoryPhases = array();
 $recordTreeMemory = function ($phase, $rowCount = 0) use (&$treeMemoryPhases) {
-    if (empty($GLOBALS['RSallowDebug'])) return;
+    if (empty($GLOBALS['RSallowDebug'])) {
+        return;
+    }
     $treeMemoryPhases[] = array('phase' => $phase, 'rows' => $rowCount,
         'usedMiB' => round(memory_get_usage() / 1048576, 2),
         'allocatedMiB' => round(memory_get_usage(true) / 1048576, 2),
@@ -47,7 +49,9 @@ $recordTreeMemory = function ($phase, $rowCount = 0) use (&$treeMemoryPhases) {
 };
 register_shutdown_function(function () use (&$treeMemoryPhases, $recordTreeMemory) {
     if (empty($GLOBALS['RSallowDebug'])
-        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) {
+        return;
+    }
     $recordTreeMemory('response_finished');
     error_log('RSM tree memory phases: ' . json_encode($treeMemoryPhases));
 });
@@ -56,10 +60,10 @@ $recordTreeMemory('start');
 if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
     // show only next level
     if (($avoidChildsInRoot) && ($parentID == "0")) {
-    	// We are refreshing the root level, so only the parent is allowed
-		$allowedItemTypes = array($parentItemTypeID);
-	}
-	$descendants = getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes);
+        // We are refreshing the root level, so only the parent is allowed
+        $allowedItemTypes = array($parentItemTypeID);
+    }
+    $descendants = getDescendantsLevel($clientID, $parentItemTypeID, $allowedItemTypes);
 
     if ($parentID == 0 && array_search_ID($parentItemTypeID, $descendants, "itemTypeID") === false) {
         // getting root level from a not recursive itemtype, add to descendants
@@ -80,8 +84,9 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
             if ($parentID == "0" || $parentID == "") {
                 $filterProperties[] = array('ID' => $descendant['propertyID'], 'value' => "0", 'mode' => 'IN');
-            } else
+            } else {
                 $filterProperties[] = array('ID' => $descendant['propertyID'], 'value' => $parentID, 'mode' => 'IN');
+            }
         }
 
         // Add the extra filters if some of them apply to this item type
@@ -126,102 +131,106 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
 
         // get items pertaining to the parent passed
         $auxArr = array();
-        $result = IQ_getFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties,'','','',"AND",$auxArr,$returnOrder);
+        $result = IQ_getFilteredItemsIDs($descendant['itemTypeID'], $clientID, $filterProperties, $returnProperties, '', '', '', "AND", $auxArr, $returnOrder);
 
         if ($result) {
             while ($item = $result->fetch_assoc()) {
 
-            // The relation used by the SQL filter is authoritative. A separate recursive relation
-            // does not replace this direct parent relation, so the item must remain visible here.
-            $includeItem = true;
+                // The relation used by the SQL filter is authoritative. A separate recursive relation
+                // does not replace this direct parent relation, so the item must remain visible here.
+                $includeItem = true;
 
-            if ((string) $parentID === '0' && $recursivePropertyPos !== false) {
-                $recursiveProperty = $subDescendants[$recursivePropertyPos];
-                $resolveRecursiveParents = function ($itemID) use (&$recursiveParentValueCache, $clientID, $descendant, $recursiveProperty) {
-                    $cacheKey = $descendant['itemTypeID'] . ':' . $recursiveProperty['propertyID'] . ':' . $itemID;
-                    if (!array_key_exists($cacheKey, $recursiveParentValueCache)) {
-                        $recursiveParentValueCache[$cacheKey] = getItemPropertyValue(
-                            $itemID,
-                            $recursiveProperty['propertyID'],
-                            $clientID,
-                            $recursiveProperty['propertyType'],
-                            $descendant['itemTypeID']
-                        );
-                    }
+                if ((string) $parentID === '0' && $recursivePropertyPos !== false) {
+                    $recursiveProperty = $subDescendants[$recursivePropertyPos];
+                    $resolveRecursiveParents = function ($itemID) use (&$recursiveParentValueCache, $clientID, $descendant, $recursiveProperty) {
+                        $cacheKey = $descendant['itemTypeID'] . ':' . $recursiveProperty['propertyID'] . ':' . $itemID;
+                        if (!array_key_exists($cacheKey, $recursiveParentValueCache)) {
+                            $recursiveParentValueCache[$cacheKey] = getItemPropertyValue(
+                                $itemID,
+                                $recursiveProperty['propertyID'],
+                                $clientID,
+                                $recursiveProperty['propertyType'],
+                                $descendant['itemTypeID']
+                            );
+                        }
 
-                    return explode(',', (string) $recursiveParentValueCache[$cacheKey]);
-                };
+                        return explode(',', (string) $recursiveParentValueCache[$cacheKey]);
+                    };
 
-                $includeItem = shouldIncludeVirtualRootTreeItem(
-                    $item['ID'],
-                    isset($item['recursiveProperty']) ? $item['recursiveProperty'] : '',
-                    $resolveRecursiveParents
-                );
-            }
-
-            if ($includeItem && $descendant['itemTypeID'] == $parentItemTypeID) {
-                $resolveRecursiveParents = function ($itemID) use (&$recursiveParentValueCache, $clientID, $descendant) {
-                    $cacheKey = $descendant['itemTypeID'] . ':' . $descendant['propertyID'] . ':' . $itemID;
-                    if (!array_key_exists($cacheKey, $recursiveParentValueCache)) {
-                        $recursiveParentValueCache[$cacheKey] = getItemPropertyValue(
-                            $itemID,
-                            $descendant['propertyID'],
-                            $clientID,
-                            $descendant['propertyType'],
-                            $descendant['itemTypeID']
-                        );
-                    }
-
-                    return explode(',', (string) $recursiveParentValueCache[$cacheKey]);
-                };
-
-                // Lazy child requests do not contain their ancestor path. Omit every edge that
-                // belongs to a cycle so expanding either side cannot recreate the same nodes.
-                if (shouldSuppressDirectTreeCycleEdge($item['ID'], $parentID, $resolveRecursiveParents)) {
-                    $includeItem = false;
+                    $includeItem = shouldIncludeVirtualRootTreeItem(
+                        $item['ID'],
+                        isset($item['recursiveProperty']) ? $item['recursiveProperty'] : '',
+                        $resolveRecursiveParents
+                    );
                 }
-            }
 
-            if ($includeItem) {
-                $results[] = array(
-                    "nodeID" => $item['ID'],
-                    "nodeItemType" => $descendant['itemTypeID'],
-                    "nodeMainPropertyID" => $mainPropertyID,
-                    "name" => isset($item['name']) ? $item['name'] : '',
-                    "parentID" => $parentID,
-                    "parentItemType" => $parentItemTypeID,
-                    "parentPropertyID" => $descendant['propertyID'],
-                    "childs" => ''
-                );
-                if ($returnOrder) {
-                    if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
-                        if(isset($item['parentID_ord']) && $item['parentID_ord'] != ''){
-                            if (strpos($item['parentID'], ',') !== false) {
-                                $orders = explode(',', $item['parentID_ord']);
-                                $results[count($results)-1]["order"] = $orders[array_search($parentID, explode(',', $item['parentID']))];
-                                if (!is_numeric($results[count($results)-1]["order"])) $results[count($results)-1]["order"] = "0";
+                if ($includeItem && $descendant['itemTypeID'] == $parentItemTypeID) {
+                    $resolveRecursiveParents = function ($itemID) use (&$recursiveParentValueCache, $clientID, $descendant) {
+                        $cacheKey = $descendant['itemTypeID'] . ':' . $descendant['propertyID'] . ':' . $itemID;
+                        if (!array_key_exists($cacheKey, $recursiveParentValueCache)) {
+                            $recursiveParentValueCache[$cacheKey] = getItemPropertyValue(
+                                $itemID,
+                                $descendant['propertyID'],
+                                $clientID,
+                                $descendant['propertyType'],
+                                $descendant['itemTypeID']
+                            );
+                        }
+
+                        return explode(',', (string) $recursiveParentValueCache[$cacheKey]);
+                    };
+
+                    // Lazy child requests do not contain their ancestor path. Omit every edge that
+                    // belongs to a cycle so expanding either side cannot recreate the same nodes.
+                    if (shouldSuppressDirectTreeCycleEdge($item['ID'], $parentID, $resolveRecursiveParents)) {
+                        $includeItem = false;
+                    }
+                }
+
+                if ($includeItem) {
+                    $results[] = array(
+                        "nodeID" => $item['ID'],
+                        "nodeItemType" => $descendant['itemTypeID'],
+                        "nodeMainPropertyID" => $mainPropertyID,
+                        "name" => isset($item['name']) ? $item['name'] : '',
+                        "parentID" => $parentID,
+                        "parentItemType" => $parentItemTypeID,
+                        "parentPropertyID" => $descendant['propertyID'],
+                        "childs" => ''
+                    );
+                    if ($returnOrder) {
+                        if ($descendant['propertyID'] != "0" && $descendant['propertyID'] != "") {
+                            if (isset($item['parentID_ord']) && $item['parentID_ord'] != '') {
+                                if (strpos($item['parentID'], ',') !== false) {
+                                    $orders = explode(',', $item['parentID_ord']);
+                                    $results[count($results)-1]["order"] = $orders[array_search($parentID, explode(',', $item['parentID']))];
+                                    if (!is_numeric($results[count($results)-1]["order"])) {
+                                        $results[count($results)-1]["order"] = "0";
+                                    }
+                                } else {
+                                    $results[count($results)-1]["order"] = $item['parentID_ord'];
+                                }
+
                             } else {
-                                $results[count($results)-1]["order"] = $item['parentID_ord'];
+                                $results[count($results)-1]["order"] = "0";
                             }
 
                         } else {
-                            $results[count($results)-1]["order"] = "0";
-                        }
+                            if (isset($item['ITEM_ORDER']) && $item['ITEM_ORDER'] != '') {
+                                $results[count($results)-1]["order"] = $item['ITEM_ORDER'];
+                            } else {
+                                $results[count($results)-1]["order"] = "0";
+                            }
 
-                    } else {
-                        if(isset($item['ITEM_ORDER']) && $item['ITEM_ORDER'] != ''){
-                            $results[count($results)-1]["order"] = $item['ITEM_ORDER'];
-                        } else {
-                            $results[count($results)-1]["order"] = "0";
                         }
-
                     }
                 }
             }
         }
-        }
         // The buffered SQL result is no longer needed for the next descendant.
-        if ($result) $result->free();
+        if ($result) {
+            $result->free();
+        }
         unset($item, $resolveRecursiveParents);
     }
     $recordTreeMemory('level_loaded', count($results));
@@ -238,7 +247,7 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             exit ;
         }
     } else {
-		if (count($allowedItemTypes) > 0) {
+        if (count($allowedItemTypes) > 0) {
             $destinationItemTypes = $allowedItemTypes;
         } else {
             //not allowed itemtypes, get all
@@ -248,7 +257,9 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
             $res = RSquery($theQuery);
 
             if ($res) {
-                while ($row = $res->fetch_assoc()) $destinationItemTypes[] = $row['ID'];
+                while ($row = $res->fetch_assoc()) {
+                    $destinationItemTypes[] = $row['ID'];
+                }
             }
         }
     }
@@ -266,26 +277,26 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         getTreePath($clientID, $treePath, array( array('itemTypeID' => $parentItemTypeID,'mainPropertyID'=>$parentItemTypeMainPropertyID,'mainPropertyType'=>$parentItemTypeMainPropertyType)), $destinationItemTypeID, $allowedItemTypes, 10);
 
         //get all properties needed
-        foreach ($treePath as $path){
-          foreach ($path as $step){
-            if(!array_key_exists($step['itemTypeID'],$mainProperties)){
-                $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
-            }
-            if(array_key_exists('propertyID',$step)&&!array_key_exists($step['propertyID'],$pathProperties)){
-                $orderArray = array();
-                $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID, '', $step['propertyType'], $step['itemTypeID'], false, $returnOrder, $orderArray);
-                if ($returnOrder) {
-                    $pathOrders[$step['propertyID']] = $orderArray;
+        foreach ($treePath as $path) {
+            foreach ($path as $step) {
+                if (!array_key_exists($step['itemTypeID'], $mainProperties)) {
+                    $mainProperties[$step['itemTypeID']] = getItemsPropertyValues($step['mainPropertyID'], $clientID, '', $step['mainPropertyType'], $step['itemTypeID']);
+                }
+                if (array_key_exists('propertyID', $step)&&!array_key_exists($step['propertyID'], $pathProperties)) {
+                    $orderArray = array();
+                    $pathProperties[$step['propertyID']] = getItemsPropertyValues($step['propertyID'], $clientID, '', $step['propertyType'], $step['itemTypeID'], false, $returnOrder, $orderArray);
+                    if ($returnOrder) {
+                        $pathOrders[$step['propertyID']] = $orderArray;
+                    }
+                }
+                if (array_key_exists('recursivePropertyID', $step)&&!array_key_exists($step['recursivePropertyID'], $pathProperties)) {
+                    $orderArray = array();
+                    $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID, '', '', $step['itemTypeID'], false, $returnOrder, $orderArray);
+                    if ($returnOrder) {
+                        $pathOrders[$step['recursivePropertyID']] = $orderArray;
+                    }
                 }
             }
-            if(array_key_exists('recursivePropertyID',$step)&&!array_key_exists($step['recursivePropertyID'], $pathProperties)){
-                $orderArray = array();
-                $pathProperties[$step['recursivePropertyID']] = getItemsPropertyValues($step['recursivePropertyID'], $clientID, '', '', $step['itemTypeID'], false, $returnOrder, $orderArray);
-                if ($returnOrder) {
-                    $pathOrders[$step['recursivePropertyID']] = $orderArray;
-                }
-            }
-          }
         }
 
         $recordTreeMemory('path_properties_loaded', count($mainProperties) + count($pathProperties));
@@ -298,9 +309,11 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         //get path for item
         foreach ($filteredItems as $filteredItem) {
             $additionalProps = '';
-            foreach ($filteredItem as $property => $value)
-                if ($property != "ID" && $property != "MAINPROP" && $property != "ITEM_ORDER")
+            foreach ($filteredItem as $property => $value) {
+                if ($property != "ID" && $property != "MAINPROP" && $property != "ITEM_ORDER") {
                     $additionalProps .= base64_encode($property) . "," . base64_encode($value) . ";";
+                }
+            }
 
             $additionalProps = rtrim($additionalProps, ";");
             $tempPaths = getPathsForItem($clientID, $destinationItemTypeID, $filteredItem['ID'], $treePath, $parentID, $additionalProps, $pathProperties, $mainProperties, $returnOrder, $pathOrders);
@@ -310,14 +323,14 @@ if (($filterID == "0" && $fastFilter == '') || $parentID != "0") {
         $recordTreeMemory('paths_combined', count($results));
         unset($filteredItems, $filteredItem, $additionalProps, $treePath);
 
-    // ensure nodeMainPropertyID is included for every resulting node (especially when using filters/tree paths)
-    if (!empty($results)) {
-        foreach ($results as $idx => $row) {
-            if (!isset($row['nodeMainPropertyID'])) {
-                $results[$idx]['nodeMainPropertyID'] = getMainPropertyID($row['nodeItemType'], $clientID);
+        // ensure nodeMainPropertyID is included for every resulting node (especially when using filters/tree paths)
+        if (!empty($results)) {
+            foreach ($results as $idx => $row) {
+                if (!isset($row['nodeMainPropertyID'])) {
+                    $results[$idx]['nodeMainPropertyID'] = getMainPropertyID($row['nodeItemType'], $clientID);
+                }
             }
         }
-    }
     }
 
     unset($row, $pathProperties, $mainProperties, $pathOrders);

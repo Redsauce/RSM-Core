@@ -58,9 +58,9 @@ require_once '../../../utilities/RSMlistsManagement.php';
 $requestBody = getRequestBody();
 verifyBodyContent($requestBody);
 try {
-  $pagination = RSMparseItemPagination(get_object_vars($requestBody), true);
+    $pagination = RSMparseItemPagination(get_object_vars($requestBody), true);
 } catch (InvalidArgumentException $error) {
-  returnJsonMessage(400, $error->getMessage());
+    returnJsonMessage(400, $error->getMessage());
 }
 
 $RStoken  = getRStoken();
@@ -77,55 +77,55 @@ $itemTypeID           = isset($requestBody->itemTypeID) ? $requestBody->itemType
 // includeCategories filter
 $includeCategories = false;
 if (isset($requestBody->includeCategories) && $requestBody->includeCategories) {
-  $includeCategories = true;
+    $includeCategories = true;
 }
 
 // translateIDs
 $translateIDs = false;
 if (isset($requestBody->translateIDs) && $requestBody->translateIDs) {
-  $translateIDs = true;
-  // v1 reads translateIDs from the sanitized POST globals inside RShasTokenPermission().
-  // v2 receives JSON, so mirror the flag there to reuse the same permission rule.
-  $GLOBALS[$cstRS_POST]['translateIDs'] = 'true';
+    $translateIDs = true;
+    // v1 reads translateIDs from the sanitized POST globals inside RShasTokenPermission().
+    // v2 receives JSON, so mirror the flag there to reuse the same permission rule.
+    $GLOBALS[$cstRS_POST]['translateIDs'] = 'true';
 }
 
 // systemNames
 $systemNames = false;
 if (isset($requestBody->systemNames) && $requestBody->systemNames) {
-  $systemNames = true;
+    $systemNames = true;
 }
 
 // itemTypeID. Ignore systemNames if we don't use de itemTypeID
 if ($itemTypeID == '') {
-  $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
-  $systemNames = false;
+    $itemTypeID = getItemTypeIDFromProperties($propertyIDs, $clientID);
+    $systemNames = false;
 } else {
-  $itemTypeID = ParseITID($itemTypeID, $clientID);
+    $itemTypeID = ParseITID($itemTypeID, $clientID);
 }
 
 if ($itemTypeID <= 0) {
-  $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID) : returnJsonMessage(400, '');
+    $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $itemTypeID) : returnJsonMessage(400, '');
 }
 
 //propertyIDs
 $allPropertiesRequested = ($propertyIDs == '');
 if ($allPropertiesRequested) {
-  $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
+    $propertyIDs = getClientItemTypePropertiesId($itemTypeID, $clientID);
 }
 
 // IDs
 if (is_array($originalIDs)) {
-  $IDs = implode(',', $originalIDs);
+    $IDs = implode(',', $originalIDs);
 } else {
-  $IDs = $originalIDs;
+    $IDs = $originalIDs;
 }
 
 // Build an array with the filterRules
 $filterProperties = array();
 if (is_array($filterRules) && !empty($filterRules)) {
-  foreach ($filterRules as $rule) {
-    $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => parseFilterRuleValue($rule->value, $rule->operation, $clientID), 'mode' => $rule->operation);
-  }
+    foreach ($filterRules as $rule) {
+        $filterProperties[] = array('ID' => parsePID($rule->propertyID, $clientID), 'value' => parseFilterRuleValue($rule->value, $rule->operation, $clientID), 'mode' => $rule->operation);
+    }
 }
 
 // Build array with the visible propertyIds (if they is visible for us, then we have permissions)
@@ -134,65 +134,65 @@ $inaccessibleProperties = array();
 $unresolvedPropertyNames = array();
 
 if (is_array($propertyIDs)) {
-  foreach ($propertyIDs as $singlePropertyID) {
-    if ($singlePropertyID === null || trim((string)$singlePropertyID) === '' || trim((string)$singlePropertyID) === '0') {
-      continue;
-    }
-
-    $parsedPropertyID = ParsePID($singlePropertyID, $clientID);
-
-    if (!is_numeric($parsedPropertyID) || intval($parsedPropertyID) <= 0) {
-      $unresolvedPropertyNames[] = (string)$singlePropertyID;
-      continue;
-    }
-
-    $hasTokenReadPermission = RShasTokenPermission($RStoken, $parsedPropertyID, 'READ');
-    $hasVisibleProperty = isPropertyVisible($RSuserID, $parsedPropertyID, $clientID);
-    if (!$hasTokenReadPermission && !$hasVisibleProperty) {
-      // v1 validates parsed property IDs. Keep doing that here so system names
-      // and numeric IDs follow the same translated-identifier permission path.
-      if (!$allPropertiesRequested) {
-        if (!$RSallowDebug) {
-          returnJsonMessage(403, 'No permissions to read all the items requested');
+    foreach ($propertyIDs as $singlePropertyID) {
+        if ($singlePropertyID === null || trim((string)$singlePropertyID) === '' || trim((string)$singlePropertyID) === '0') {
+            continue;
         }
 
-        // In debug mode, inspect every requested property so the response can
-        // identify all properties that failed both access checks.
-        $inaccessibleProperties[] = formatPropertyAccessDebugDetail(
-          $singlePropertyID,
-          $parsedPropertyID,
-          'missing token READ permission and property visibility'
-        );
-      }
-      continue;
-    }
+        $parsedPropertyID = ParsePID($singlePropertyID, $clientID);
 
-    $visiblePropertyIDs[] = array('ID' => $parsedPropertyID, 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
-  }
+        if (!is_numeric($parsedPropertyID) || intval($parsedPropertyID) <= 0) {
+            $unresolvedPropertyNames[] = (string)$singlePropertyID;
+            continue;
+        }
+
+        $hasTokenReadPermission = RShasTokenPermission($RStoken, $parsedPropertyID, 'READ');
+        $hasVisibleProperty = isPropertyVisible($RSuserID, $parsedPropertyID, $clientID);
+        if (!$hasTokenReadPermission && !$hasVisibleProperty) {
+            // v1 validates parsed property IDs. Keep doing that here so system names
+            // and numeric IDs follow the same translated-identifier permission path.
+            if (!$allPropertiesRequested) {
+                if (!$RSallowDebug) {
+                    returnJsonMessage(403, 'No permissions to read all the items requested');
+                }
+
+                // In debug mode, inspect every requested property so the response can
+                // identify all properties that failed both access checks.
+                $inaccessibleProperties[] = formatPropertyAccessDebugDetail(
+                    $singlePropertyID,
+                    $parsedPropertyID,
+                    'missing token READ permission and property visibility'
+                );
+            }
+            continue;
+        }
+
+        $visiblePropertyIDs[] = array('ID' => $parsedPropertyID, 'name' => $singlePropertyID, 'trName' => $singlePropertyID . 'trs');
+    }
 }
 
 if (!empty($inaccessibleProperties)) {
-  returnJsonMessage(
-    403,
-    'Unable to read requested properties: ' . implode(', ', $inaccessibleProperties) . '.'
-  );
+    returnJsonMessage(
+        403,
+        'Unable to read requested properties: ' . implode(', ', $inaccessibleProperties) . '.'
+    );
 }
 
 // Build a string with the extFilterRules
 $formattedExtFilterRules = '';
 if (is_array($extFilterRules) && !empty(($extFilterRules))) {
-  foreach ($extFilterRules as $singleRule) {
-    // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
-    $formattedExtFilterRules .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ';' . base64_encode($singleRule->path) . ",";
-  }
-  $formattedExtFilterRules = trim($formattedExtFilterRules, ',');
+    foreach ($extFilterRules as $singleRule) {
+        // To use getFilteredItemsIDs function without changing the original php's, we need to transform the following data into an specific format (base64)
+        $formattedExtFilterRules .=  $singleRule->propertyID . ';' . base64_encode($singleRule->value) . ';' . $singleRule->operation . ';' . base64_encode($singleRule->path) . ",";
+    }
+    $formattedExtFilterRules = trim($formattedExtFilterRules, ',');
 }
 
 // GET THE ITEMS
 // Customer-scoped tokens are restricted by adding their customer identifier as a normal filter.
 $filterProperties = RSappendTokenCustomerScopeFilter($RStoken, $clientID, $itemTypeID, $filterProperties);
 if ($filterProperties === false) {
-  $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
+    $RSallowDebug ? returnJsonMessage(403, 'Token customer scope does not allow access to this item type') : returnJsonMessage(403, '');
 }
 
 $itemsArray = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $visiblePropertyIDs, '', $translateIDs, '', $IDs, 'AND', 0, !$includeCategories, $formattedExtFilterRules, true, $pagination);
@@ -201,189 +201,197 @@ $responseArray = array();
 // To construct the response, we have to verify if the includecategories filter is true
 if ($includeCategories) {
 
-  // The properties in $visiblePropertyIDs have already passed the endpoint's
-  // permission/visibility checks. Categories do not have their own permissions.
-  $categorizedProperties = getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visiblePropertyIDs);
-  // parse all the different items of the original response
-  foreach ($itemsArray as $item) {
-    $combinedArray = array();
-    $combinedArray['ID'] = $item['ID'];
-    $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
+    // The properties in $visiblePropertyIDs have already passed the endpoint's
+    // permission/visibility checks. Categories do not have their own permissions.
+    $categorizedProperties = getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visiblePropertyIDs);
+    // parse all the different items of the original response
+    foreach ($itemsArray as $item) {
+        $combinedArray = array();
+        $combinedArray['ID'] = $item['ID'];
+        $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
 
-    // Categories are only added when they contain at least one property visible
-    // to the caller.
-    foreach ($categorizedProperties as $property) {
-      $category = $property['Category'];
-      $propertyID = $property['propertyID'];
-      $itemPropertyKey = $property['propertyKey'];
-      $outputPropertyKey = $itemPropertyKey;
+        // Categories are only added when they contain at least one property visible
+        // to the caller.
+        foreach ($categorizedProperties as $property) {
+            $category = $property['Category'];
+            $propertyID = $property['propertyID'];
+            $itemPropertyKey = $property['propertyKey'];
+            $outputPropertyKey = $itemPropertyKey;
 
-      if ($systemNames) {
-        $systemName = getAppPropertyName_RelatedWith($propertyID, $clientID);
-        if ($systemName !== '') {
-          $outputPropertyKey = $systemName;
+            if ($systemNames) {
+                $systemName = getAppPropertyName_RelatedWith($propertyID, $clientID);
+                if ($systemName !== '') {
+                    $outputPropertyKey = $systemName;
+                }
+            }
+
+            // save the values in the new array, with its corresponding categories
+            if (isset($item[$itemPropertyKey])) {
+                $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$itemPropertyKey]);
+            } elseif (isset($item[$propertyID])) {
+                $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$propertyID]);
+            } else {
+                $combinedArray[$category][$outputPropertyKey] = '';
+            }
         }
-      }
-
-      // save the values in the new array, with its corresponding categories
-      if (isset($item[$itemPropertyKey])) {
-        $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$itemPropertyKey]);
-      } elseif (isset($item[$propertyID])) {
-        $combinedArray[$category][$outputPropertyKey] = html_entity_decode($item[$propertyID]);
-      } else {
-        $combinedArray[$category][$outputPropertyKey] = '';
-      }
+        // construct the response array by pushing each one of the items
+        array_push($responseArray, $combinedArray);
     }
-    // construct the response array by pushing each one of the items
-    array_push($responseArray, $combinedArray);
-  }
 } else {
 
-  $responseArray = [];
+    $responseArray = [];
 
-  // The $itemsArray response may come either as a path to a temporary file or as an array
+    // The $itemsArray response may come either as a path to a temporary file or as an array
 
-  // CASE A: Path to an existing file
-  if (is_string($itemsArray) && file_exists($itemsArray)) {   
-    $xml = simplexml_load_file($itemsArray, "SimpleXMLElement", LIBXML_NOCDATA);
+    // CASE A: Path to an existing file
+    if (is_string($itemsArray) && file_exists($itemsArray)) {
+        $xml = simplexml_load_file($itemsArray, "SimpleXMLElement", LIBXML_NOCDATA);
 
-    if ($xml !== false) {
+        if ($xml !== false) {
 
-      foreach ($xml->rows->row as $row) {
-        $combinedArray = [];
-        foreach ($row->column as $column) {
-          $columnName = (string) $column['name'];
-          $propertyValue = (string) $column;
-          $combinedArray[$columnName] = html_entity_decode($propertyValue);
-        }
-        $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
-        // We append the processed row array to our final response.
-        $responseArray[] = $combinedArray;
-      }
-    } else {
-      error_log("Error parsing the XML file from path: " . $itemsArray);
-    }
-  }
-
-  // CASE B: Array with already structured data
-  else {
-
-    // Maps the properties provided by the client to the corresponding property ID
-    // We want to preserve the property names exactly as sent by the client
-    $propertyIDsDictionary = array();
-    if (is_array($propertyIDs)) {
-      foreach ($propertyIDs as $rawPropertyID) {
-        $rawPropertyID = trim($rawPropertyID);
-
-        if ($rawPropertyID === '') {
-          continue;
-        }
-
-        if (is_numeric($rawPropertyID)) {
-          $propertyIDsDictionary[(string) $rawPropertyID] = (string) $rawPropertyID;
+            foreach ($xml->rows->row as $row) {
+                $combinedArray = [];
+                foreach ($row->column as $column) {
+                    $columnName = (string) $column['name'];
+                    $propertyValue = (string) $column;
+                    $combinedArray[$columnName] = html_entity_decode($propertyValue);
+                }
+                $combinedArray = addUnresolvedPropertyPlaceholders($combinedArray, $unresolvedPropertyNames);
+                // We append the processed row array to our final response.
+                $responseArray[] = $combinedArray;
+            }
         } else {
-          $tempSystemProperty = getPropertyIDs_usingSysName(array($rawPropertyID), $clientID);
-          if (is_array($tempSystemProperty) && isset($tempSystemProperty[0]["ID"]) && isset($tempSystemProperty[0]["appName"])) {
-            $propertyIDsDictionary[$tempSystemProperty[0]["ID"]] = $tempSystemProperty[0]["appName"];
-          }
+            error_log("Error parsing the XML file from path: " . $itemsArray);
         }
-      }
     }
 
-    // We only iterate to apply html_entity_decode
-    foreach ($itemsArray as $item) {
-      $decodedItem = [];
-      foreach ($item as $key => $value) {
-        // Resolve output key using the previous mapping, if available
-        $resolvedKey = isset($propertyIDsDictionary[(string)$key]) ? $propertyIDsDictionary[(string)$key] : $key;
+    // CASE B: Array with already structured data
+    else {
 
-        // If systemNames is true, get the system name directly and use it if not empty
-        if ($systemNames) {
+        // Maps the properties provided by the client to the corresponding property ID
+        // We want to preserve the property names exactly as sent by the client
+        $propertyIDsDictionary = array();
+        if (is_array($propertyIDs)) {
+            foreach ($propertyIDs as $rawPropertyID) {
+                $rawPropertyID = trim($rawPropertyID);
 
-          $keyString = (string)$key;
-          $keyWithoutTrs = $keyString;
-          $hasTrs = false;
-          
-          // Check if key ends with "trs"
-          if (substr($keyString, -3) === 'trs') {
-            $keyWithoutTrs = substr($keyString, 0, -3);
-            $hasTrs = true;
-          }
-          
-          $systemName = getAppPropertyName_RelatedWith($keyWithoutTrs, $clientID);
-          
-          // If key had "trs", add it back to the system name
-          if ($hasTrs && $systemName !== '') {
-            $systemName = $systemName . 'trs';
-          }        
-          
-          if ($systemName !== '') {
-            $resolvedKey = $systemName;
-          }
+                if ($rawPropertyID === '') {
+                    continue;
+                }
 
+                if (is_numeric($rawPropertyID)) {
+                    $propertyIDsDictionary[(string) $rawPropertyID] = (string) $rawPropertyID;
+                } else {
+                    $tempSystemProperty = getPropertyIDs_usingSysName(array($rawPropertyID), $clientID);
+                    if (is_array($tempSystemProperty) && isset($tempSystemProperty[0]["ID"]) && isset($tempSystemProperty[0]["appName"])) {
+                        $propertyIDsDictionary[$tempSystemProperty[0]["ID"]] = $tempSystemProperty[0]["appName"];
+                    }
+                }
+            }
         }
 
-        $decodedItem[$resolvedKey] = is_string($value) ? html_entity_decode($value) : $value;
-      }
-      $decodedItem = addUnresolvedPropertyPlaceholders($decodedItem, $unresolvedPropertyNames);
-      // We append the decoded row array to our final response.
-      $responseArray[] = $decodedItem;
+        // We only iterate to apply html_entity_decode
+        foreach ($itemsArray as $item) {
+            $decodedItem = [];
+            foreach ($item as $key => $value) {
+                // Resolve output key using the previous mapping, if available
+                $resolvedKey = isset($propertyIDsDictionary[(string)$key]) ? $propertyIDsDictionary[(string)$key] : $key;
+
+                // If systemNames is true, get the system name directly and use it if not empty
+                if ($systemNames) {
+
+                    $keyString = (string)$key;
+                    $keyWithoutTrs = $keyString;
+                    $hasTrs = false;
+
+                    // Check if key ends with "trs"
+                    if (substr($keyString, -3) === 'trs') {
+                        $keyWithoutTrs = substr($keyString, 0, -3);
+                        $hasTrs = true;
+                    }
+
+                    $systemName = getAppPropertyName_RelatedWith($keyWithoutTrs, $clientID);
+
+                    // If key had "trs", add it back to the system name
+                    if ($hasTrs && $systemName !== '') {
+                        $systemName = $systemName . 'trs';
+                    }
+
+                    if ($systemName !== '') {
+                        $resolvedKey = $systemName;
+                    }
+
+                }
+
+                $decodedItem[$resolvedKey] = is_string($value) ? html_entity_decode($value) : $value;
+            }
+            $decodedItem = addUnresolvedPropertyPlaceholders($decodedItem, $unresolvedPropertyNames);
+            // We append the decoded row array to our final response.
+            $responseArray[] = $decodedItem;
+        }
     }
-  }
 }
 
 // Release source rows and the last foreach values before allocating the JSON.
 unset($itemsArray, $item, $combinedArray, $decodedItem, $value);
 
 if (!empty($responseArray)) {
-  $response = json_encode($responseArray);
-  unset($responseArray);
-  returnJsonResponse($response);
+    $response = json_encode($responseArray);
+    unset($responseArray);
+    returnJsonResponse($response);
 } else {
-  returnJsonResponse('{}');
+    returnJsonResponse('{}');
 }
 
 
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-  checkIsJsonObject($body);
-  checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
-  if (isset($body->propertyIDs)) checkIsArray($body->propertyIDs);
-  if (isset($body->IDs)) checkIsArray($body->IDs);
-  if (isset($body->filterRules)) checkIsArray($body->filterRules);
-  if (isset($body->filterRules) && is_array($body->filterRules)) {
-    foreach ($body->filterRules as $index => $rule) {
-      // Never omit an invalid rule: doing so could broaden the requested query.
-      if (!is_object($rule) || !isset($rule->propertyID)
-          || (!is_string($rule->propertyID) && !is_int($rule->propertyID))
-          || trim((string)$rule->propertyID) === '' || (string)$rule->propertyID === '0'
-          || !property_exists($rule, 'value') || !isset($rule->operation)
-          || !is_string($rule->operation) || trim($rule->operation) === '') {
-        returnJsonMessage(400, 'Invalid filterRules entry at index ' . $index . ': expected propertyID, value and operation');
-      }
+    checkIsJsonObject($body);
+    checkBodyContainsAtLeastOne($body, 'itemTypeID', 'propertyIDs');
+    if (isset($body->propertyIDs)) {
+        checkIsArray($body->propertyIDs);
     }
-  }
-  if (isset($body->extFilterRules)) checkIsArray($body->extFilterRules);
+    if (isset($body->IDs)) {
+        checkIsArray($body->IDs);
+    }
+    if (isset($body->filterRules)) {
+        checkIsArray($body->filterRules);
+    }
+    if (isset($body->filterRules) && is_array($body->filterRules)) {
+        foreach ($body->filterRules as $index => $rule) {
+            // Never omit an invalid rule: doing so could broaden the requested query.
+            if (!is_object($rule) || !isset($rule->propertyID)
+                || (!is_string($rule->propertyID) && !is_int($rule->propertyID))
+                || trim((string)$rule->propertyID) === '' || (string)$rule->propertyID === '0'
+                || !property_exists($rule, 'value') || !isset($rule->operation)
+                || !is_string($rule->operation) || trim($rule->operation) === '') {
+                returnJsonMessage(400, 'Invalid filterRules entry at index ' . $index . ': expected propertyID, value and operation');
+            }
+        }
+    }
+    if (isset($body->extFilterRules)) {
+        checkIsArray($body->extFilterRules);
+    }
 }
 
 // Return category metadata for properties already authorized by this endpoint.
 function getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visiblePropertyIDs)
 {
-  $propertyKeys = array();
+    $propertyKeys = array();
 
-  foreach ($visiblePropertyIDs as $property) {
-    $propertyID = intval($property['ID'] ?? 0);
-    if ($propertyID > 0) {
-      $propertyKeys[(string)$propertyID] = (string)($property['name'] ?? $propertyID);
+    foreach ($visiblePropertyIDs as $property) {
+        $propertyID = intval($property['ID'] ?? 0);
+        if ($propertyID > 0) {
+            $propertyKeys[(string)$propertyID] = (string)($property['name'] ?? $propertyID);
+        }
     }
-  }
 
-  if (empty($propertyKeys)) {
-    return array();
-  }
+    if (empty($propertyKeys)) {
+        return array();
+    }
 
-  $query = 'SELECT rs_categories.RS_NAME AS "Category",
+    $query = 'SELECT rs_categories.RS_NAME AS "Category",
                    rs_item_properties.RS_PROPERTY_ID AS "propertyID"
             FROM rs_categories
             INNER JOIN rs_item_properties
@@ -394,39 +402,39 @@ function getVisiblePropertiesWithCategories($itemTypeID, $clientID, $visibleProp
               AND rs_item_properties.RS_PROPERTY_ID IN (' . implode(',', array_keys($propertyKeys)) . ')
             ORDER BY rs_categories.RS_ORDER, rs_item_properties.RS_ORDER';
 
-  $queryResult = RSQuery($query);
-  $results = array();
+    $queryResult = RSQuery($query);
+    $results = array();
 
-  if ($queryResult) {
-    while ($row = $queryResult->fetch_assoc()) {
-      $propertyID = (string)$row['propertyID'];
-      $results[] = array(
-        'Category' => html_entity_decode($row['Category'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-        'propertyID' => $propertyID,
-        'propertyKey' => $propertyKeys[$propertyID]
-      );
+    if ($queryResult) {
+        while ($row = $queryResult->fetch_assoc()) {
+            $propertyID = (string)$row['propertyID'];
+            $results[] = array(
+              'Category' => html_entity_decode($row['Category'], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+              'propertyID' => $propertyID,
+              'propertyKey' => $propertyKeys[$propertyID]
+            );
+        }
     }
-  }
 
-  return $results;
+    return $results;
 }
 
 function parseProperyListValue($value, $clientID)
 {
-  if (!is_string($value)) {
-    return $value;
-  }
-
-  $appListValueID = getAppListValueID($value);
-  if ($appListValueID != '' && $appListValueID != '0') {
-    $clientListValueID = getClientListValueID_RelatedWith($appListValueID, $clientID);
-
-    if ($clientListValueID != '' && $clientListValueID != '0') {
-      return getValue($clientListValueID, $clientID);
+    if (!is_string($value)) {
+        return $value;
     }
-  }
 
-  return replaceUtf8Characters($value);
+    $appListValueID = getAppListValueID($value);
+    if ($appListValueID != '' && $appListValueID != '0') {
+        $clientListValueID = getClientListValueID_RelatedWith($appListValueID, $clientID);
+
+        if ($clientListValueID != '' && $clientListValueID != '0') {
+            return getValue($clientListValueID, $clientID);
+        }
+    }
+
+    return replaceUtf8Characters($value);
 }
 
 // <-IN receives a JSON array and is converted to a safely quoted SQL value list.
@@ -434,66 +442,66 @@ function parseProperyListValue($value, $clientID)
 // clause. Other operators keep their previous scalar-value behaviour.
 function parseFilterRuleValue($value, $operation, $clientID)
 {
-  if ($operation !== '<-IN') {
-    return parseProperyListValue($value, $clientID);
-  }
-
-  if (!is_array($value) || empty($value)) {
-    returnJsonMessage(400, 'The <-IN operator requires a non-empty array value');
-  }
-
-  global $mysqli;
-  $parsedValues = array();
-
-  foreach ($value as $singleValue) {
-    if (!is_string($singleValue) && !is_int($singleValue) && !is_float($singleValue)) {
-      returnJsonMessage(400, 'The <-IN operator only accepts string or numeric values');
+    if ($operation !== '<-IN') {
+        return parseProperyListValue($value, $clientID);
     }
 
-    $escapedValue = $mysqli->real_escape_string(replaceUtf8Characters((string)$singleValue));
-    $parsedValues[] = "'" . $escapedValue . "'";
-  }
+    if (!is_array($value) || empty($value)) {
+        returnJsonMessage(400, 'The <-IN operator requires a non-empty array value');
+    }
 
-  return implode(',', $parsedValues);
+    global $mysqli;
+    $parsedValues = array();
+
+    foreach ($value as $singleValue) {
+        if (!is_string($singleValue) && !is_int($singleValue) && !is_float($singleValue)) {
+            returnJsonMessage(400, 'The <-IN operator only accepts string or numeric values');
+        }
+
+        $escapedValue = $mysqli->real_escape_string(replaceUtf8Characters((string)$singleValue));
+        $parsedValues[] = "'" . $escapedValue . "'";
+    }
+
+    return implode(',', $parsedValues);
 }
 
 // Build a JSON-safe description for a property rejected during debug requests.
 function formatPropertyAccessDebugDetail($requestedIdentifier, $parsedPropertyID, $reason)
 {
-  $details = array('requested: ' . escapeJsonMessageFragment($requestedIdentifier));
+    $details = array('requested: ' . escapeJsonMessageFragment($requestedIdentifier));
 
-  if (intval($parsedPropertyID) > 0) {
-    $details[] = 'resolved ID: ' . intval($parsedPropertyID);
-  }
+    if (intval($parsedPropertyID) > 0) {
+        $details[] = 'resolved ID: ' . intval($parsedPropertyID);
+    }
 
-  $details[] = $reason;
-  return '[' . implode('; ', $details) . ']';
+    $details[] = $reason;
+    return '[' . implode('; ', $details) . ']';
 }
 
 // returnJsonMessage() wraps messages in JSON, so dynamic fragments must be escaped first.
 function escapeJsonMessageFragment($value)
 {
-  $encodedValue = json_encode((string)$value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-  if ($encodedValue === false) {
-    return '';
-  }
+    $encodedValue = json_encode((string)$value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($encodedValue === false) {
+        return '';
+    }
 
-  return substr($encodedValue, 1, -1);
+    return substr($encodedValue, 1, -1);
 }
 
 // Preserve requested system properties that have no relationship for this client.
 function addUnresolvedPropertyPlaceholders($item, $propertyNames)
 {
-  foreach ($propertyNames as $propertyName) {
-    if (!array_key_exists($propertyName, $item)) {
-      $item[$propertyName] = '0';
+    foreach ($propertyNames as $propertyName) {
+        if (!array_key_exists($propertyName, $item)) {
+            $item[$propertyName] = '0';
+        }
+
+        $translatedPropertyName = $propertyName . 'trs';
+        if (!array_key_exists($translatedPropertyName, $item)) {
+            $item[$translatedPropertyName] = '';
+        }
     }
 
-    $translatedPropertyName = $propertyName . 'trs';
-    if (!array_key_exists($translatedPropertyName, $item)) {
-      $item[$translatedPropertyName] = '';
-    }
-  }
-
-  return $item;
+    return $item;
 }

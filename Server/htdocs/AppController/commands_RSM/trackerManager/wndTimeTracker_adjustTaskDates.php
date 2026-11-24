@@ -47,21 +47,21 @@ if (strtotime($finalDates['startDate']) == false) {
     RSError("La fecha final no es una fecha");
 }
 
-while($parentID > 0){
+while ($parentID > 0) {
     // get parent start date and end date
     $parentStartDate = getItemPropertyValue($parentID, $tasksGroupStartDatePropertyID, $clientID);
     $parentEndDate   = getItemPropertyValue($parentID, $tasksGroupEndDatePropertyID, $clientID);
-        
+
     if (isBefore($finalDates['startDate'], $parentStartDate)) {
         // change the value into the database
         setPropertyValueByID($tasksGroupStartDatePropertyID, $tasksGroupItemTypeID, $parentID, $clientID, $finalDates['startDate'], '', $RSuserID);
     }
-    
+
     if (isAfter($finalDates['endDate'], $parentEndDate)) {
         // change the value into the database
         setPropertyValueByID($tasksGroupEndDatePropertyID, $tasksGroupItemTypeID, $parentID, $clientID, $finalDates['endDate'], '', $RSuserID);
     }
-    
+
     $parentID = getItemPropertyValue($parentID, $tasksGroupParentPropertyID, $clientID);
 }
 
@@ -71,69 +71,74 @@ $results['result'] = 'OK';
 RSReturnArrayResults($results);
 
 // A function to adjust the tasksGroup dates of a tasksGroup tree
-function adjustTasksDates($tree, $taskID, $startDate, $endDate) {
+function adjustTasksDates($tree, $taskID, $startDate, $endDate)
+{
     global $RSuserID, $tasksItemTypeID, $tasksStartDatePropertyID, $tasksEndDatePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupStartDatePropertyID, $tasksGroupEndDatePropertyID, $clientID;
-	
+
     $initStartDate = $startDate;
     $initEndDate = $endDate;
-	if (isset($tree[$taskID])) {
-		// the taskGroup has childs
-		foreach ($tree[$taskID] as $child) {
-			// explore the childs
-			$dateInterval = adjustTasksDates($tree, $child['ID'], $child['startDate'], $child['endDate']);
-            
+    if (isset($tree[$taskID])) {
+        // the taskGroup has childs
+        foreach ($tree[$taskID] as $child) {
+            // explore the childs
+            $dateInterval = adjustTasksDates($tree, $child['ID'], $child['startDate'], $child['endDate']);
+
             // if the $startDate or $endDate are not datetime, assign the first value
-            if (strtotime($startDate) == false) $startDate = $dateInterval['startDate'];
-            if (strtotime($endDate  ) == false) $endDate   = $dateInterval['endDate'];
-            
-			if (isBefore($dateInterval['startDate'], $startDate)) {
-				// update start date
-				$startDate = $dateInterval['startDate'];
-			}
-				
-			if (isAfter($dateInterval['endDate'], $endDate)) {
-				// update end date
-				$endDate = $dateInterval['endDate'];
-			}	
-		}
+            if (strtotime($startDate) == false) {
+                $startDate = $dateInterval['startDate'];
+            }
+            if (strtotime($endDate) == false) {
+                $endDate   = $dateInterval['endDate'];
+            }
+
+            if (isBefore($dateInterval['startDate'], $startDate)) {
+                // update start date
+                $startDate = $dateInterval['startDate'];
+            }
+
+            if (isAfter($dateInterval['endDate'], $endDate)) {
+                // update end date
+                $endDate = $dateInterval['endDate'];
+            }
+        }
     }
-    
+
     //get child tasks
     // build filter properties array
     $filterProperties = array();
     $filterProperties[] = array('ID' => $tasksParentPropertyID, 'value' => $taskID);
-    
+
     // build return properties array
     $returnProperties = array();
     $returnProperties[] = array('ID' => $tasksStartDatePropertyID, 'name' => 'startDate');
     $returnProperties[] = array('ID' => $tasksEndDatePropertyID, 'name' => 'endDate');
-    
+
     // get tasks
     $subTasks = getFilteredItemsIDs($tasksItemTypeID, $clientID, $filterProperties, $returnProperties);
-    
+
     //check all child tasks
     foreach ($subTasks as $subTask) {
         if (isBefore($subTask['startDate'], $startDate) || !isValidSqlDate($startDate)) {
             // update start date
             $startDate = $subTask['startDate'];
         }
-            
+
         if (isAfter($subTask['endDate'], $endDate) || !isValidSqlDate($endDate)) {
             // update end date
             $endDate = $subTask['endDate'];
-        }   
+        }
     }
-    
+
     //update dates if necessary
-	if ($startDate != $initStartDate) {
-		// change the value into the database
-		setPropertyValueByID($tasksGroupStartDatePropertyID, $tasksGroupItemTypeID, $taskID, $clientID, $startDate, '', $RSuserID);
-	}
-	
-	if ($endDate != $initEndDate) {
-		// change the value into the database
-		setPropertyValueByID($tasksGroupEndDatePropertyID, $tasksGroupItemTypeID, $taskID, $clientID, $endDate, '', $RSuserID);
-	}
-	
-	return array('startDate' => $startDate, 'endDate' => $endDate);
+    if ($startDate != $initStartDate) {
+        // change the value into the database
+        setPropertyValueByID($tasksGroupStartDatePropertyID, $tasksGroupItemTypeID, $taskID, $clientID, $startDate, '', $RSuserID);
+    }
+
+    if ($endDate != $initEndDate) {
+        // change the value into the database
+        setPropertyValueByID($tasksGroupEndDatePropertyID, $tasksGroupItemTypeID, $taskID, $clientID, $endDate, '', $RSuserID);
+    }
+
+    return array('startDate' => $startDate, 'endDate' => $endDate);
 }

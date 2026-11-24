@@ -36,37 +36,41 @@ $RSuserID = getRSuserID();
 $responseArray = array();
 
 foreach ($requestBody as $itemType) {
-  $rawItemTypeID = $itemType->itemTypeID;
-  $itemTypeID = parseITID($rawItemTypeID, $clientID);
+    $rawItemTypeID = $itemType->itemTypeID;
+    $itemTypeID = parseITID($rawItemTypeID, $clientID);
 
-  if ($itemTypeID <= 0) {
-    $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $rawItemTypeID) : returnJsonMessage(400, '');
-  }
-
-  $itemType->parsedItemTypeID = $itemTypeID;
-
-  // Si la lista de IDs está vacía, no hay nada que borrar.
-  if (empty($itemType->IDs)) continue;
-
-  // To delete an item, first we have to check that it has delete permissions for each of its properties
-  $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
-
-  if (!((RShasTokenPermissions($RStoken, $propertiesList, 'DELETE')) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID)))) {
-    $RSallowDebug ? returnJsonMessage(400, 'Not Deleted (At least 1 property has no DELETE permissions or is not visible)') : returnJsonMessage(400, '');
-  }
-  if (count($itemType->IDs) != 0) {
-    foreach ($itemType->IDs as $itemID) {
-      if (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
-        $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
-      } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
-        $RSallowDebug ? returnJsonMessage(403, 'Not Deleted (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
-      }
+    if ($itemTypeID <= 0) {
+        $RSallowDebug ? returnJsonMessage(400, 'Invalid itemTypeID: ' . $rawItemTypeID) : returnJsonMessage(400, '');
     }
-  }
+
+    $itemType->parsedItemTypeID = $itemTypeID;
+
+    // Si la lista de IDs está vacía, no hay nada que borrar.
+    if (empty($itemType->IDs)) {
+        continue;
+    }
+
+    // To delete an item, first we have to check that it has delete permissions for each of its properties
+    $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
+
+    if (!((RShasTokenPermissions($RStoken, $propertiesList, 'DELETE')) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID)))) {
+        $RSallowDebug ? returnJsonMessage(400, 'Not Deleted (At least 1 property has no DELETE permissions or is not visible)') : returnJsonMessage(400, '');
+    }
+    if (count($itemType->IDs) != 0) {
+        foreach ($itemType->IDs as $itemID) {
+            if (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
+                $RSallowDebug ? returnJsonMessage(400, 'Item doesn\'t exist') : returnJsonMessage(400, '');
+            } elseif (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+                $RSallowDebug ? returnJsonMessage(403, 'Not Deleted (Token customer scope does not allow access to this item)') : returnJsonMessage(403, '');
+            }
+        }
+    }
 }
 foreach ($requestBody as $itemType) {
-  if (empty($itemType->IDs)) continue;
-  deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
+    if (empty($itemType->IDs)) {
+        continue;
+    }
+    deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
 }
 
 $RSallowDebug ? returnJsonMessage(200, 'Deleted') : returnJsonMessage(200, '');
@@ -74,14 +78,14 @@ $RSallowDebug ? returnJsonMessage(200, 'Deleted') : returnJsonMessage(200, '');
 // Verify if body contents are the ones expected
 function verifyBodyContent($body)
 {
-  checkIsArray($body);
-  foreach ($body as $item) {
-    checkIsJsonObject($item);
-    checkBodyContains($item, 'itemTypeID');
-    checkBodyContains($item, 'IDs');
-    checkIsArray($item->IDs);
-    foreach ($item->IDs as $itemID) {
-      checkStringIsInteger($itemID);
+    checkIsArray($body);
+    foreach ($body as $item) {
+        checkIsJsonObject($item);
+        checkBodyContains($item, 'itemTypeID');
+        checkBodyContains($item, 'IDs');
+        checkIsArray($item->IDs);
+        foreach ($item->IDs as $itemID) {
+            checkStringIsInteger($itemID);
+        }
     }
-  }
 }

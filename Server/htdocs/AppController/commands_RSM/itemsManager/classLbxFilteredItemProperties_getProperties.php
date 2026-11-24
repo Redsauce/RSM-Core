@@ -42,8 +42,9 @@ $returnProperties = array();
 
 if ($theProperties) {
     // save results into an associative array
-    while ($row = $theProperties->fetch_assoc())
+    while ($row = $theProperties->fetch_assoc()) {
         $allowedPropertiesList[$row['propertyID']] = $row['propertyName'];
+    }
 }
 
 // build the filter and the return properties arrays
@@ -59,18 +60,22 @@ for ($i = 0; $i < count($propertyIDs); $i++) {
             } elseif (isMultiIdentifier($propertyType)) {
 
                 $ids = explode(',', $propertyFilters[$i]);
-                foreach ($ids as $id) $filterProperties[] = array('ID' => $propertyIDs[$i], 'value' => $id, 'mode' => 'IN');
+                foreach ($ids as $id) {
+                    $filterProperties[] = array('ID' => $propertyIDs[$i], 'value' => $id, 'mode' => 'IN');
+                }
 
-            } elseif (getPropertyList($propertyIDs[$i], $clientID) != false AND $propertyType != "text"){ //If $propertyIDs[$i] is a list with multiValue
+            } elseif (getPropertyList($propertyIDs[$i], $clientID) != false and $propertyType != "text") { //If $propertyIDs[$i] is a list with multiValue
 
                 $auxiliar = ",";
                 $ids = explode(';', $propertyFilters[$i]);
-                foreach ($ids as $id) $auxiliar = $auxiliar."'".ltrim($id)."',";
+                foreach ($ids as $id) {
+                    $auxiliar = $auxiliar."'".ltrim($id)."',";
+                }
                 $auxiliar = trim($auxiliar, ',');
                 $filterProperties[] = array('ID' => $propertyIDs[$i], 'value' => $auxiliar, 'mode' => '<-IN');
-            }
-            else
+            } else {
                 $filterProperties[] = array('ID' => $propertyIDs[$i], 'value' => '%' . $propertyFilters[$i] . '%', 'mode' => 'LIKE');
+            }
         }
         $returnProperties[] = array('ID' => $propertyIDs[$i], 'name' => base64_encode($allowedPropertiesList[$propertyIDs[$i]]), 'trName' => base64_encode($allowedPropertiesList[$propertyIDs[$i]] . "_tr"));
     }

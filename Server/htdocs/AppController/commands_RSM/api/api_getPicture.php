@@ -42,14 +42,18 @@ isset($GLOBALS["RS_GET"][$cstRStoken ]) ? $RStoken    = $GLOBALS["RS_GET"][$cstR
 isset($GLOBALS["RS_GET"]["adj"       ]) ? $adj        = $GLOBALS["RS_GET"]["adj"       ] : $adj = 's';
 
 // Check token permissions
-if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
+if (!RShasREADTokenPermission($RStoken, $propertyID)) {
+    dieWithError(403);
+}
 
 isset($GLOBALS["RS_GET"]["w"]) ? $w = $GLOBALS["RS_GET"]["w"] : $w = "";
 isset($GLOBALS["RS_GET"]["h"]) ? $h = $GLOBALS["RS_GET"]["h"] : $h = "";
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
-if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) dieWithError(403);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+    dieWithError(403);
+}
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
 $image_name = "img_" . $itemID . "_" . $w . "_" . $h . "_" . $adj;
@@ -80,7 +84,9 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
     //Check if cached images are resized versions of original file with format like img_84_250_320_h_Rm90byBQZXJmaWwuanBn.jpg
     for ($i=count($nombres_archivo)-1;$i>=0;$i--) {
-        if (preg_match("/img_\d+_\d*_\d*_/i",$nombres_archivo[$i])) unset($nombres_archivo[$i]);
+        if (preg_match("/img_\d+_\d*_\d*_/i", $nombres_archivo[$i])) {
+            unset($nombres_archivo[$i]);
+        }
     }
     $nombres_archivo = array_values($nombres_archivo);
 
@@ -103,12 +109,14 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
 
         // If image data is empty but the size field is > 0 then the image is in media server
         if ($image["RS_SIZE"] > 0 && $imageOriginal == '') {
-            $fileData = getMediaFile($clientID,$itemID,$propertyID);
+            $fileData = getMediaFile($clientID, $itemID, $propertyID);
             $imageOriginal = $fileData['RS_DATA'];
         }
 
         // Save in cache base image
-        if ($enable_image_cache && $imageOriginal != '') saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
+        if ($enable_image_cache && $imageOriginal != '') {
+            saveFileCache($imageOriginal, $directory . "img_" . $itemID, $image_name, $extension);
+        }
     }
 
     if ($imageOriginal == '') {
@@ -130,151 +138,163 @@ if ($enable_image_cache && count($nombres_archivo) > 0) {
         // Get width and height of the stored image
         // Invalid stored/cached data is handled below; GD also emits a warning.
         $originalImage = @imagecreatefromstring($imageOriginal);
-        
-		if ($originalImage === false) {
-			// The original image is not valid
-			RSError('api_getPicture: invalid image data; client=' . intval($clientID)
-                . '; item=' . intval($itemID) . '; property=' . intval($propertyID));
-			dieWithError(400);
-			
-		} else {
-			// Valid image, continue processing it
-	        $ow = imagesx($originalImage);
-	        $oh = imagesy($originalImage);
-	
-	        //calculate new dimensions
-	        if ($w != ''){
-	            //passed dimension = force new dimension
-	            $nw = $w;
-	        }elseif ($h == ''){
-	            //no passed dimensions = original size
-	            $nw = $ow;
-	        }else{
-	            //passed only the other dimension = calculate this dimension
-	            if (($adj == 's') || ($adj == 'h')){
-	                $nw = (int)($ow * ($h / $oh));
-	            }else{
-	                $nw = $ow;
-	            }
-	        }
-	        if ($h != ''){
-	            //passed dimension = force new dimension
-	            $nh = $h;
-	        }elseif ($w == ''){
-	            //no passed dimensions = original size
-	            $nh = $oh;
-	        }else{
-	            //passed only the other dimension = calculate this dimension
-	            if (($adj == 's') || ($adj == 'w')){
-	                $nh = (int)($oh * ($w / $ow));
-	            }else{
-	                $nh = $oh;
-	            }
-	        }
-	
-	        //avoid processing if no needed
-	        if (($nw != $ow) || ($nh != $oh)) {
-	
-	            //calculate scaled size and displacement (before cropping the excess)
-	            $xscale = $nw / $ow;
-	            $yscale = $nh / $oh;
 
-	            if ((($xscale < $yscale) && ($adj == 's')) || (($xscale > $yscale) && ($adj == 'f')) || ($adj == 'w')) {
-	                $dw = $nw;
-	                $dh = (int)($oh * $xscale);
-	                $destX = 0;
-	                $destY = (int)(($nh - $dh) / 2);
-	            } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) && ($adj == 'f')) || ($adj == 'h')) {
-	                $dw = (int)($ow * $yscale);
-	                $dh = $nh;
-	                $destX = (int)(($nw - $dw) / 2);
-	                $destY = 0;
-	            } elseif ($adj == 'c') {
-	                $dw = $ow;
-	                $dh = $oh;
-	                $destX = (int)(($nw - $dw) / 2);
-	                $destY = (int)(($nh - $dh) / 2);
-	            } else {
-	                //adj = 'd' || ($xscale == $yscale)
-	                $dw = $nw;
-	                $dh = $nh;
-	                $destX = 0;
-	                $destY = 0;
-	            }
-	
-	            //security check (avoid less than 1px images)
-	            $nw = ($nw < 1) ? 1 : $nw;
-	            $nh = ($nh < 1) ? 1 : $nh;
-	            $dw = ($dw < 1) ? 1 : $dw;
-	            $dh = ($dh < 1) ? 1 : $dh;
-	
-	            $image_thumb = imagecreatetruecolor($nw, $nh);
-	
-	            if ($extension == 'gif') {
-	                $color_index = imagecolortransparent($imageOriginal);
-	
-	                if ($color_index >= 0) {
-	
-	                    $image_thumb = imagecreate($nw, $nh);
-	                    imagealphablending($image_thumb, true);
-	
-	                    $rgb = imagecolorsforindex($imageOriginal, $color_index);
-	                    $background = imagecolorallocate($image_thumb, $rgb["red"], $rgb["green"], $rgb["blue"]);
-	
-	                    imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
-	                    imagecolortransparent($image_thumb, $background);
-	                }
-	            } elseif ($extension == 'png') {
-	                imagealphablending($image_thumb, false);
-	                imagesavealpha($image_thumb, true);
-	            } elseif ($extension == 'jpeg' || $extension == 'jpg') {
-	                $background = imagecolorallocate($image_thumb, 255, 255, 255);
-	                imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
-	            }
-	
-	            //create final image
-	            imagecopyresampled($image_thumb, $originalImage, $destX, $destY, 0, 0, $dw, $dh, $ow, $oh);
-	
-	            //and return the image
-	            switch($extension) {
-	                case "jpeg" :
-	                    Header("Content-type: image/jpeg");
-	                    echo imagejpeg($image_thumb, NULL, 90);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
-	                    break;
-	
-	                case "jpg" :
-	                    Header("Content-type: image/jpeg");
-	                    echo imagejpeg($image_thumb, NULL, 90);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "jpg");
-	                    break;
-	
-	                case "gif" :
-	                    Header("Content-type: image/gif");
-	                    echo imagegif($image_thumb);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "gif");
-	                    break;
-	
-	                case "png" :
-	                    Header("Content-type: image/png");
-	                    echo imagepng($image_thumb);
-	                    if ($enable_image_cache) saveImgCache($image_thumb, $image_string, $image_name, "png");
-	                    break;
-	            }
-	
-	        } else {
-	            // Return the original image
-	            Header("Content-type: image/" . $extension);
-	            echo $imageOriginal;
-	        }
-	    }
+        if ($originalImage === false) {
+            // The original image is not valid
+            RSError('api_getPicture: invalid image data; client=' . intval($clientID)
+                . '; item=' . intval($itemID) . '; property=' . intval($propertyID));
+            dieWithError(400);
+
+        } else {
+            // Valid image, continue processing it
+            $ow = imagesx($originalImage);
+            $oh = imagesy($originalImage);
+
+            //calculate new dimensions
+            if ($w != '') {
+                //passed dimension = force new dimension
+                $nw = $w;
+            } elseif ($h == '') {
+                //no passed dimensions = original size
+                $nw = $ow;
+            } else {
+                //passed only the other dimension = calculate this dimension
+                if (($adj == 's') || ($adj == 'h')) {
+                    $nw = (int)($ow * ($h / $oh));
+                } else {
+                    $nw = $ow;
+                }
+            }
+            if ($h != '') {
+                //passed dimension = force new dimension
+                $nh = $h;
+            } elseif ($w == '') {
+                //no passed dimensions = original size
+                $nh = $oh;
+            } else {
+                //passed only the other dimension = calculate this dimension
+                if (($adj == 's') || ($adj == 'w')) {
+                    $nh = (int)($oh * ($w / $ow));
+                } else {
+                    $nh = $oh;
+                }
+            }
+
+            //avoid processing if no needed
+            if (($nw != $ow) || ($nh != $oh)) {
+
+                //calculate scaled size and displacement (before cropping the excess)
+                $xscale = $nw / $ow;
+                $yscale = $nh / $oh;
+
+                if ((($xscale < $yscale) && ($adj == 's')) || (($xscale > $yscale) && ($adj == 'f')) || ($adj == 'w')) {
+                    $dw = $nw;
+                    $dh = (int)($oh * $xscale);
+                    $destX = 0;
+                    $destY = (int)(($nh - $dh) / 2);
+                } elseif ((($xscale > $yscale) && ($adj == 's')) || (($xscale < $yscale) && ($adj == 'f')) || ($adj == 'h')) {
+                    $dw = (int)($ow * $yscale);
+                    $dh = $nh;
+                    $destX = (int)(($nw - $dw) / 2);
+                    $destY = 0;
+                } elseif ($adj == 'c') {
+                    $dw = $ow;
+                    $dh = $oh;
+                    $destX = (int)(($nw - $dw) / 2);
+                    $destY = (int)(($nh - $dh) / 2);
+                } else {
+                    //adj = 'd' || ($xscale == $yscale)
+                    $dw = $nw;
+                    $dh = $nh;
+                    $destX = 0;
+                    $destY = 0;
+                }
+
+                //security check (avoid less than 1px images)
+                $nw = ($nw < 1) ? 1 : $nw;
+                $nh = ($nh < 1) ? 1 : $nh;
+                $dw = ($dw < 1) ? 1 : $dw;
+                $dh = ($dh < 1) ? 1 : $dh;
+
+                $image_thumb = imagecreatetruecolor($nw, $nh);
+
+                if ($extension == 'gif') {
+                    $color_index = imagecolortransparent($imageOriginal);
+
+                    if ($color_index >= 0) {
+
+                        $image_thumb = imagecreate($nw, $nh);
+                        imagealphablending($image_thumb, true);
+
+                        $rgb = imagecolorsforindex($imageOriginal, $color_index);
+                        $background = imagecolorallocate($image_thumb, $rgb["red"], $rgb["green"], $rgb["blue"]);
+
+                        imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
+                        imagecolortransparent($image_thumb, $background);
+                    }
+                } elseif ($extension == 'png') {
+                    imagealphablending($image_thumb, false);
+                    imagesavealpha($image_thumb, true);
+                } elseif ($extension == 'jpeg' || $extension == 'jpg') {
+                    $background = imagecolorallocate($image_thumb, 255, 255, 255);
+                    imagefilledrectangle($image_thumb, 0, 0, $nw, $nh, $background);
+                }
+
+                //create final image
+                imagecopyresampled($image_thumb, $originalImage, $destX, $destY, 0, 0, $dw, $dh, $ow, $oh);
+
+                //and return the image
+                switch ($extension) {
+                    case "jpeg":
+                        Header("Content-type: image/jpeg");
+                        echo imagejpeg($image_thumb, null, 90);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "jpeg");
+                        }
+                        break;
+
+                    case "jpg":
+                        Header("Content-type: image/jpeg");
+                        echo imagejpeg($image_thumb, null, 90);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "jpg");
+                        }
+                        break;
+
+                    case "gif":
+                        Header("Content-type: image/gif");
+                        echo imagegif($image_thumb);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "gif");
+                        }
+                        break;
+
+                    case "png":
+                        Header("Content-type: image/png");
+                        echo imagepng($image_thumb);
+                        if ($enable_image_cache) {
+                            saveImgCache($image_thumb, $image_string, $image_name, "png");
+                        }
+                        break;
+                    default:
+                        // Other values require no action.
+                        break;
+                }
+
+            } else {
+                // Return the original image
+                Header("Content-type: image/" . $extension);
+                echo $imageOriginal;
+            }
+        }
     }
 }
 
 /**
  * Resize Svg image
  */
-function resizeSvg($svg_data, $w, $h, $adj) {
+function resizeSvg($svg_data, $w, $h, $adj)
+{
     // No hay resize, se devuelve tal cual
     if ($w == "" && $h == "") {
         return $svg_data;
@@ -290,14 +310,18 @@ function resizeSvg($svg_data, $w, $h, $adj) {
         $viewBoxActual = $item -> getAttribute('viewBox');
         $aspectRatioActual = $item -> getAttribute('preserveAspectRatio');
         //set default aspect ratio if not defined
-        if($aspectRatioActual == "") $aspectRatioActual = "xMidYMid meet";
+        if ($aspectRatioActual == "") {
+            $aspectRatioActual = "xMidYMid meet";
+        }
         //get original ratio positioning, if it is none, set default value
         $aspectRatioParts = explode(' ', $aspectRatioActual);
-        if(count($aspectRatioParts) < 2) $aspectRatioParts = array("xMidYMid","meet");
+        if (count($aspectRatioParts) < 2) {
+            $aspectRatioParts = array("xMidYMid","meet");
+        }
 
-        if($viewBoxActual == ""){
+        if ($viewBoxActual == "") {
             // The svg has no viewBox so can't be scaled unless we create one
-            if($widthActual != "" && $heightActual != ""){
+            if ($widthActual != "" && $heightActual != "") {
                 // Create the viewBox
                 $item -> setAttribute('viewBox', "0 0 ".$widthActual." ".$heightActual);
             } else {
@@ -306,13 +330,15 @@ function resizeSvg($svg_data, $w, $h, $adj) {
             }
         } else {
             $viewBoxParts = explode(' ', $viewBoxActual);
-            if($widthActual == "")
+            if ($widthActual == "") {
                 $widthActual = $viewBoxParts[2];
-            if($heightActual == "")
+            }
+            if ($heightActual == "") {
                 $heightActual = $viewBoxParts[3];
+            }
         }
 
-        if($adj == "s"){
+        if ($adj == "s") {
             //show all the image inside passed dimensions
             if ($w != "" && $h != "") {
                 // w y h definidos
@@ -327,7 +353,7 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 $newWidth = ($h * $widthActual) / $heightActual;
                 $newHeight = $h;
             }
-        } elseif($adj == "f"){
+        } elseif ($adj == "f") {
             //fill (at least) the passed dimensions with the image
             if ($w != "" && $h != "") {
                 // w y h definidos
@@ -349,7 +375,7 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 $newWidth = ($h * $widthActual) / $heightActual;
                 $newHeight = $h;
             }
-        } elseif($adj == "w") {
+        } elseif ($adj == "w") {
             //scale the image to passed width (can ignore passed height)
             if ($w != "") {
                 // Calculamos el height por regla de 3
@@ -359,7 +385,7 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // Si no hay width no podemos escalar asi que devolvemos el original
                 return $svg_data;
             }
-        } elseif($adj == "h"){
+        } elseif ($adj == "h") {
             //scale the image to passed height (can ignore passed width)
             if ($h != "") {
                 // Calculamos el width por regla de 3
@@ -369,7 +395,7 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 // Si no hay height no podemos escalar asi que devolvemos el original
                 return $svg_data;
             }
-        } elseif($adj == "d"){
+        } elseif ($adj == "d") {
             //deform the image
             $item -> setAttribute('preserveAspectRatio', "none");
             if ($w != "" && $h != "") {
@@ -385,7 +411,7 @@ function resizeSvg($svg_data, $w, $h, $adj) {
                 $newWidth = $widthActual;
                 $newHeight = $h;
             }
-        } elseif($adj == "c"){
+        } elseif ($adj == "c") {
             //crop means we remove the excess of the image
             $item -> setAttribute('preserveAspectRatio', $aspectRatioParts[0]." slice");
             if ($w != "" && $h != "") {
@@ -414,35 +440,33 @@ function resizeSvg($svg_data, $w, $h, $adj) {
 /**
  * Save Image in cache directory
  */
-function saveImgCache($imageOriginal, $imagePath, $image_name, $extension) {
+function saveImgCache($imageOriginal, $imagePath, $image_name, $extension)
+{
     global $directory;
 
     // Check if directory exists
     if (!file_exists($directory)) {
-        if(!mkdir($directory, 0775, true)){
+        if (!mkdir($directory, 0775, true)) {
             RSError("api_getPicture: Could not create directory");
         }
     }
 
-    switch($extension) {
-        case "jpg" :
+    switch ($extension) {
+        case "jpg":
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
-        case "gif" :
+        case "gif":
             return imagegif($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
-        case "png" :
+        case "png":
             imagealphablending($imageOriginal, false);
             imagesavealpha($imageOriginal, true);
             return imagepng($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
-        case "svg" :
+        case "svg":
             $file = $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension;
             $fh = fopen($file, "w");
             fwrite($fh, $imageOriginal);
             fclose($fh);
             return 0;
-        default :
+        default:
             return imagejpeg($imageOriginal, $imagePath . "_" . rawurlencode(base64_encode($image_name)) . "." . $extension);
     }
 }
-
-
-

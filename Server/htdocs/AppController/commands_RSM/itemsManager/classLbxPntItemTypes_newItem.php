@@ -18,10 +18,11 @@ if ($itemID <= 0) {
 }
 
 // update identifiers properties
-foreach ($pointerPropertyIDs as $pointerPropertyID)
+foreach ($pointerPropertyIDs as $pointerPropertyID) {
     setPropertyValueByID($pointerPropertyID, $itemTypeID, $itemID, $clientID, $pointerItemID, '', $RSuserID);
+}
 
 $results['ID'] = $itemID;
 
-// Return data			
+// Return data
 RSReturnArrayResults($results);

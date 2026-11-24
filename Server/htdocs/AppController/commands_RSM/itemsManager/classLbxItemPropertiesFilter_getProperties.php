@@ -20,9 +20,9 @@ $itemTypeID = intval($itemTypeID);
 $clientID = intval($clientID);
 $userID = intval($userID);
 
-$results = getUserProperties($userID,$clientID,$itemTypeID);
+$results = getUserProperties($userID, $clientID, $itemTypeID);
 
-// And return XML response back to application			
+// And return XML response back to application
 RSReturnArrayQueryResults($results);
 
 function resolveItemPropertiesFilterItemTypeID($requestData, $canonicalKey)

@@ -8,15 +8,18 @@ require_once '../utilities/RSMfiltersManagement.php';
 $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $clientID   = $GLOBALS[$cstRS_POST]['clientID'  ];
 
-if ($itemTypeID == '') RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
+if ($itemTypeID == '') {
+    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'NO ITEM TYPE ID WAS SPECIFIED'));
+}
 
 $returnArray = array();
 $results = getFilters($clientID, $itemTypeID);
 
 if ($results) {
-    while($result = $results->fetch_assoc())
+    while ($result = $results->fetch_assoc()) {
         $returnArray[] = array('filterID' => $result['filterID'],'filterName' => $result['filterName'],'filterOperator' => $result['filterOperator']);
+    }
 }
 
-// And return XML response back to application			
+// And return XML response back to application
 RSReturnArrayQueryResults($returnArray);

@@ -21,7 +21,10 @@ $personalIDPropertyID = getClientPropertyID_RelatedWith_byName($definitions['sub
 // Allocate within the parent account and keep creation inside the sequence lock.
 $seriesScope = array('propertyID' => $accountPropertyID, 'type' => getPropertyType($accountPropertyID, $clientID), 'value' => $accountID);
 $newSubAccountID = null;
-$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $personalIDPropertyID,
+$nextID = RSallocateNextIntegerPropertyValue(
+    $clientID,
+    $itemTypeID,
+    $personalIDPropertyID,
     function ($next) use ($clientID, $itemTypeID, $accountPropertyID, $accountID, $personalIDPropertyID, &$newSubAccountID) {
         $values = array(
             array('ID' => $accountPropertyID, 'value' => $accountID),
@@ -32,7 +35,10 @@ $nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $personalID
         return $newSubAccountID > 0
             && getItemPropertyValue($newSubAccountID, $personalIDPropertyID, $clientID) == $next
             && getItemPropertyValue($newSubAccountID, $accountPropertyID, $clientID) == $accountID;
-    }, null, $seriesScope);
+    },
+    null,
+    $seriesScope
+);
 if ($nextID === false) {
     $results['result'] = 'NOK';
     $results['description'] = 'ERROR CREATING ITEM';

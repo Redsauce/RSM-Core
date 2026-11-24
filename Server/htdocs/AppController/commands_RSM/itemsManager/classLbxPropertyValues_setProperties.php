@@ -41,7 +41,9 @@ for ($i = 0; isset($GLOBALS[$cstRS_POST]['propertyID' . $i]); $i++) {
         $result = setDataPropertyValueByID($propertyID, $itemTypeID, $itemID, $clientID, $propertyName, $propertyData, $propertyType, $RSuserID);
     }
 
-    if ($result != 0) $results['errorProperty' . $err++] = $propertyID . ',' . $result; // error while updating property
+    if ($result != 0) {
+        $results['errorProperty' . $err++] = $propertyID . ',' . $result;
+    } // error while updating property
 }
 
 // retrieve main property ID and value

@@ -18,12 +18,12 @@ $theQuery = "SELECT rs_actions.RS_ID FROM rs_actions INNER JOIN (rs_actions_clie
 // Query the database
 $results = RSquery($theQuery);
 
-if($results->num_rows>0){
-	$isAdmin=1;
-	$propertiesAllowed=array();
-}else{
-	$isAdmin=0;
-	$propertiesAllowed = getVisibleProperties($itemTypeID, $clientID, $RSuserID);
+if ($results->num_rows>0) {
+    $isAdmin=1;
+    $propertiesAllowed=array();
+} else {
+    $isAdmin=0;
+    $propertiesAllowed = getVisibleProperties($itemTypeID, $clientID, $RSuserID);
 }
 
 // Now we build the query
@@ -33,29 +33,29 @@ $theQuery = "SELECT `rs_item_properties`.`RS_PROPERTY_ID` as 'ID', `rs_item_prop
 $results = RSquery($theQuery);
 
 $array_res=array();
-while($result=$results->fetch_assoc()){
-	if (($result['referredItemType'] != '') && ($result['referredItemType'] != '0')) {
-		$result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
-	} elseif ($result['type'] == 'identifier'){
-		//check if its an app property
-		$relatedAppPropertyID=getAppPropertyID_RelatedWith($result['ID'], $clientID);
-		if($relatedAppPropertyID!='0'){
-			$result['referredItemType'    ] = getClientItemTypeID_RelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID), $clientID);
-			$result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
-		}
-	} else {
-		$result['referredItemTypeName'] = '';
-	}
-	if($isAdmin||in_array($result['ID'], $propertiesAllowed)){
-		$array_res[]=array('ID'=>$result['ID'], 'NAME'=>$result['NAME'], 'propertyDescription'=>$result['propertyDescription'], 'propertyType'=>$result['type'], 'propertyDefaultValue'=>$result['defValue'], 'propertyReferredItemType'=>$result['referredItemType'], 'propertyReferredItemTypeName'=>$result['referredItemTypeName'], 'auditTrail'=>$result['auditTrail'], 'auditTrailDescriptionRequired'=>$result['auditTrailDescriptionRequired'], 'avoidDuplication'=>$result['avoidDuplication'], 'searchable'=>$result['searchable']);
-		if($result['listID']!='NULL'){
-			$array_res[count($array_res)-1]['listID']=$result['listID'];
-			$array_res[count($array_res)-1]['multiVal']=$result['multiVal'];
-		}
-		if($result['ID']==$propertyID){
-			$array_res[count($array_res)-1]['mainProperty']=1;
-		}
-	}
+while ($result=$results->fetch_assoc()) {
+    if (($result['referredItemType'] != '') && ($result['referredItemType'] != '0')) {
+        $result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
+    } elseif ($result['type'] == 'identifier') {
+        //check if its an app property
+        $relatedAppPropertyID=getAppPropertyID_RelatedWith($result['ID'], $clientID);
+        if ($relatedAppPropertyID!='0') {
+            $result['referredItemType'    ] = getClientItemTypeID_RelatedWith(getAppPropertyReferredItemType($relatedAppPropertyID), $clientID);
+            $result['referredItemTypeName'] = getClientItemTypeName($result['referredItemType'], $clientID);
+        }
+    } else {
+        $result['referredItemTypeName'] = '';
+    }
+    if ($isAdmin||in_array($result['ID'], $propertiesAllowed)) {
+        $array_res[]=array('ID'=>$result['ID'], 'NAME'=>$result['NAME'], 'propertyDescription'=>$result['propertyDescription'], 'propertyType'=>$result['type'], 'propertyDefaultValue'=>$result['defValue'], 'propertyReferredItemType'=>$result['referredItemType'], 'propertyReferredItemTypeName'=>$result['referredItemTypeName'], 'auditTrail'=>$result['auditTrail'], 'auditTrailDescriptionRequired'=>$result['auditTrailDescriptionRequired'], 'avoidDuplication'=>$result['avoidDuplication'], 'searchable'=>$result['searchable']);
+        if ($result['listID']!='NULL') {
+            $array_res[count($array_res)-1]['listID']=$result['listID'];
+            $array_res[count($array_res)-1]['multiVal']=$result['multiVal'];
+        }
+        if ($result['ID']==$propertyID) {
+            $array_res[count($array_res)-1]['mainProperty']=1;
+        }
+    }
 }
 
 // And write XML Response back to the application

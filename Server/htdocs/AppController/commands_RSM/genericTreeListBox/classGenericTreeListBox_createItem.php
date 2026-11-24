@@ -18,10 +18,10 @@ $filterID = (($GLOBALS[$cstRS_POST]['filterID'] == "") ? ("0") : ($GLOBALS[$cstR
 
 $allowedItemTypes = array();
 if (isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) {
-    if ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != 0) { 
+    if ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != 0) {
         $allowedItemTypes = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']);
     }
-} 
+}
 
 if ($clientID != 0 && $clientID != "") {
     if ($itemTypeID != 0 && $itemTypeID != "") {
@@ -90,8 +90,9 @@ if ($clientID != 0 && $clientID != "") {
                         }
                     } else {
                         foreach ($myItem as $property => $value) {
-                            if ($property != "ID" && $property != "MAINPROP")
+                            if ($property != "ID" && $property != "MAINPROP") {
                                 $additionalProps .= base64_encode($property) . "," . base64_encode($value) . ";";
+                            }
                         }
                     }
                     $additionalProps = rtrim($additionalProps, ";");

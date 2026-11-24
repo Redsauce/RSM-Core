@@ -27,12 +27,12 @@ $definitions = array(
     'staffStatus'              => 'staff.status',
     'staffPayrollSubAccountID' => 'staff.payrollSubAccountID',
     'staffName'                => 'staff.name',
-	'staffTaxCode'             => 'staff.taxCode',
-	'staffBankAccount'         => 'staff.bankAccount',
-	'staffBIC'                 => 'staff.bic',
-	'staffAddress'             => 'staff.address',
-	'staffPostCode'            => 'staff.postCode',
-	'staffCity'                => 'staff.city',
+    'staffTaxCode'             => 'staff.taxCode',
+    'staffBankAccount'         => 'staff.bankAccount',
+    'staffBIC'                 => 'staff.bic',
+    'staffAddress'             => 'staff.address',
+    'staffPostCode'            => 'staff.postCode',
+    'staffCity'                => 'staff.city',
 
     'subAccounts'             => 'subAccounts',
     'subAccountName'          => 'subAccounts.name',
@@ -180,9 +180,9 @@ $definitions = array(
     'resultStepAssociatedID'     => 'result.StepID',
     'resultValue'                => 'result.value',
 
-	  'ticket'                     => 'ticket',
-	  'ticketID'                   => 'ticket.ID',
-	  'ticketDate'                 => 'ticket.date',
+      'ticket'                     => 'ticket',
+      'ticketID'                   => 'ticket.ID',
+      'ticketDate'                 => 'ticket.date',
 
     'cashRegisters'                          => 'cashRegisters',
     'cashRegisterID'                         => 'cashRegister.ID',
@@ -430,4 +430,3 @@ $definitions = array(
     'tasksGroup.totalTime'       => 'tasksGroup.totalTime',
     'tasksGroup.status'          => 'tasksGroup.status'
 );
-

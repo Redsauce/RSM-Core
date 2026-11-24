@@ -1,11 +1,13 @@
 <?php
 // A little function that returns true if the day passed is cutted off the interval...
-function isDayCuttedOff($dayName) {
+function isDayCuttedOff($dayName)
+{
     global $daysToCutOff;
 
     foreach ($daysToCutOff as $dayCuttedOff) {
-        if ($dayName == $dayCuttedOff)
+        if ($dayName == $dayCuttedOff) {
             return true;
+        }
     }
     return false;
 }
@@ -58,20 +60,27 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                 // build an array containing the days to cut off
                 $daysToCutOff = array();
-                if ($days[0] == '0')
+                if ($days[0] == '0') {
                     $daysToCutOff[] = 'Monday';
-                if ($days[1] == '0')
+                }
+                if ($days[1] == '0') {
                     $daysToCutOff[] = 'Tuesday';
-                if ($days[2] == '0')
+                }
+                if ($days[2] == '0') {
                     $daysToCutOff[] = 'Wednesday';
-                if ($days[3] == '0')
+                }
+                if ($days[3] == '0') {
                     $daysToCutOff[] = 'Thursday';
-                if ($days[4] == '0')
+                }
+                if ($days[4] == '0') {
                     $daysToCutOff[] = 'Friday';
-                if ($days[5] == '0')
+                }
+                if ($days[5] == '0') {
                     $daysToCutOff[] = 'Saturday';
-                if ($days[6] == '0')
+                }
+                if ($days[6] == '0') {
                     $daysToCutOff[] = 'Sunday';
+                }
 
                 // get properties values
                 $wsUser = getItemPropertyValue($wsID, $wsUserPropertyID, $clientID);
@@ -121,8 +130,9 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
 
                     $uwsStartDateAndTime = splitDatetime($uws['startDate']);
 
-                    if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date'])))
+                    if (isDayCuttedOff(getDayName($uwsStartDateAndTime['date']))) {
                         continue;
+                    }
                     // skip the rest and jump to the next worksession
 
                     // retrieve worksession start date timestamp
@@ -217,7 +227,7 @@ if (preg_match("/^[01]{7}$/", $days) == 1) {
                 }
 
                 //update parent task dates if required
-                if($updateTaskDates == 1){
+                if ($updateTaskDates == 1) {
                     // get parent task start date and end date
                     $parentStartDate = getItemPropertyValue($wsTask, $tasksStartDatePropertyID, $clientID);
                     $parentEndDate = getItemPropertyValue($wsTask, $tasksEndDatePropertyID, $clientID);

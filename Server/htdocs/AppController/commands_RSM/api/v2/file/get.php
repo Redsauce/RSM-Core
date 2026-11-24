@@ -32,16 +32,16 @@ $ID = $parameters["itemID"];
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
-    $RSallowDebug ? returnJsonMessage(403, "Token has no permissions to get this file" ) : returnJsonMessage(403, "");
+    $RSallowDebug ? returnJsonMessage(403, "Token has no permissions to get this file") : returnJsonMessage(403, "");
 }
 // Check if asked property is file
 if (getPropertyType($propertyID, $clientID) != 'file') {
-    $RSallowDebug ? returnJsonMessage(404, "Property is not a file" ) : returnJsonMessage(404, "");
+    $RSallowDebug ? returnJsonMessage(404, "Property is not a file") : returnJsonMessage(404, "");
 }
 
 $itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
 if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
-    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this file" ) : returnJsonMessage(403, "");
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this file") : returnJsonMessage(403, "");
 }
 
 // create file path

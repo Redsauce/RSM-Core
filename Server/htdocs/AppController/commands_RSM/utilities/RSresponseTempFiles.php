@@ -1,6 +1,7 @@
 <?php
 // Track only files owned by this request. Never delete another active response.
-function &RSResponseTempFileState() {
+function &RSResponseTempFileState()
+{
     static $state = null;
     if ($state === null) {
         $state = array('files' => array(), 'reserve' => str_repeat(' ', 65536));
@@ -9,21 +10,26 @@ function &RSResponseTempFileState() {
     return $state;
 }
 
-function RSNormalizeResponseTempFile($filename) {
+function RSNormalizeResponseTempFile($filename)
+{
     if (strpos($filename, '://') === false) {
         $directory = realpath(dirname($filename));
-        if ($directory !== false) $filename = $directory . DIRECTORY_SEPARATOR . basename($filename);
+        if ($directory !== false) {
+            $filename = $directory . DIRECTORY_SEPARATOR . basename($filename);
+        }
     }
     return $filename;
 }
 
-function RSRegisterResponseTempFile($filename, $handle = null) {
+function RSRegisterResponseTempFile($filename, $handle = null)
+{
     $filename = RSNormalizeResponseTempFile($filename);
     $state =& RSResponseTempFileState();
     $state['files'][$filename] = $handle;
 }
 
-function RSCreateResponseTempFile($directory) {
+function RSCreateResponseTempFile($directory)
+{
     // Register cleanup before creating the first file.
     RSResponseTempFileState();
     $filename = @tempnam($directory, 'RSR');
@@ -33,7 +39,8 @@ function RSCreateResponseTempFile($directory) {
     return $filename;
 }
 
-function RSDeleteResponseTempFile($filename) {
+function RSDeleteResponseTempFile($filename)
+{
     $filename = RSNormalizeResponseTempFile($filename);
     $state =& RSResponseTempFileState();
     if (isset($state['files'][$filename]) && is_resource($state['files'][$filename])) {
@@ -53,7 +60,8 @@ function RSDeleteResponseTempFile($filename) {
     return false;
 }
 
-function RSCleanupResponseTempFiles() {
+function RSCleanupResponseTempFiles()
+{
     $state =& RSResponseTempFileState();
     // Make a little memory available even after a memory-limit fatal error.
     $state['reserve'] = null;

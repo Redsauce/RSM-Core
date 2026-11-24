@@ -23,7 +23,7 @@ isset($GLOBALS[$cstRS_POST]['itemTypeID' ]) ? $itemTypeID   =               $GLO
 isset($GLOBALS[$cstRS_POST]['itemID'     ]) ? $itemID       =               $GLOBALS[$cstRS_POST]['itemID'     ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['numCopies'  ]) ? $numCopies    =               $GLOBALS[$cstRS_POST]['numCopies'  ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['properties' ]) ? $properties   =               $GLOBALS[$cstRS_POST]['properties' ]  : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(',',  $GLOBALS[$cstRS_POST]['descendants']) : $descendants = array();
+isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(',', $GLOBALS[$cstRS_POST]['descendants']) : $descendants = array();
 
 // organize descendants by parent itemtype
 $descendantsForItemtype = array();
@@ -43,7 +43,9 @@ $newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $numCopies, $descen
 
 
 
-if (!is_array($newItemIDs)) $newItemIDs = array($newItemIDs);
+if (!is_array($newItemIDs)) {
+    $newItemIDs = array($newItemIDs);
+}
 
 if ($properties != '') {
     $properties = explode(',', $properties);
@@ -62,8 +64,8 @@ if ($properties != '') {
 // Return the IDs of the new elements created
 $elements = array();
 if (count($newItemIDs)==1) {
-        array_push($elements, $newItemIDs[0]);
-}else{
+    array_push($elements, $newItemIDs[0]);
+} else {
 
     foreach ($newItemIDs as $elementID) {
         if (is_array($elementID)) {

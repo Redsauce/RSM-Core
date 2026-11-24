@@ -22,10 +22,10 @@ $getSetOfValues = $GLOBALS[$cstRS_POST]['getSetOfValues'];
 // Get item type ID
 $itemTypeID   = parseITID($itemType, $clientID);
 
-$itemTypeName        = getClientItemTypeName         ($itemTypeID    , $clientID);
-$itemTypeIcon        = getClientItemTypeIcon         ($itemTypeID    , $clientID);
-$mainPropertyID      = getMainPropertyID             ($itemTypeID    , $clientID);
-$mainPropertyName    = getClientPropertyName         ($mainPropertyID, $clientID);
+$itemTypeName        = getClientItemTypeName($itemTypeID, $clientID);
+$itemTypeIcon        = getClientItemTypeIcon($itemTypeID, $clientID);
+$mainPropertyID      = getMainPropertyID($itemTypeID, $clientID);
+$mainPropertyName    = getClientPropertyName($mainPropertyID, $clientID);
 $mainPropertyAppName = getAppPropertyName_RelatedWith($mainPropertyID, $clientID);
 
 // prepare results array
@@ -80,10 +80,12 @@ foreach ($visibleProperties as $property) {
                 $filterProperties   = array();
                 $returnProperties   = array();
                 $referredItemTypeID = getClientPropertyReferredItemType($property['propertyID'], $clientID);
-                $returnProperties[] = array('ID' => getMainPropertyID  ($referredItemTypeID    , $clientID), 'name' => 'mainValue');
-                $referredItems      = IQ_getFilteredItemsIDs           ($referredItemTypeID    , $clientID , $filterProperties, $returnProperties, 'mainValue');
+                $returnProperties[] = array('ID' => getMainPropertyID($referredItemTypeID, $clientID), 'name' => 'mainValue');
+                $referredItems      = IQ_getFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
-                while ($row = $referredItems->fetch_assoc()) $results[] = $row;
+                while ($row = $referredItems->fetch_assoc()) {
+                    $results[] = $row;
+                }
 
             } elseif (isIdentifier2itemtype($property['propertyType'])) {
 
@@ -105,7 +107,9 @@ foreach ($visibleProperties as $property) {
                 // get properties list
                 $allVisibleProperties = getAllVisibleProperties($clientID, $RSuserID, true);
 
-                foreach ($allVisibleProperties as $visibleProperty) $results[] = array('ID' => $visibleProperty['ID'], 'mainValue' => $visibleProperty['name']);
+                foreach ($allVisibleProperties as $visibleProperty) {
+                    $results[] = array('ID' => $visibleProperty['ID'], 'mainValue' => $visibleProperty['name']);
+                }
             }
         }
     }

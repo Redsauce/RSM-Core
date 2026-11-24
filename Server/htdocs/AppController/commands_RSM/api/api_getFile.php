@@ -33,10 +33,14 @@ isset($GLOBALS["RS_GET" ]["propertyID"]) ? $propertyID = $GLOBALS["RS_GET" ]["pr
 isset($GLOBALS["RS_GET" ][$cstRStoken   ]) ? $RStoken    = $GLOBALS["RS_GET" ][$cstRStoken   ] : $RStoken = "";
 
 // Check token permissions
-if (!RShasREADTokenPermission($RStoken, $propertyID)) dieWithError(403);
+if (!RShasREADTokenPermission($RStoken, $propertyID)) {
+    dieWithError(403);
+}
 
 $itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
-if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) dieWithError(403);
+if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
+    dieWithError(403);
+}
 
 $directory = $RSfileCache . "/" . $clientID . "/" . $propertyID . "/";
 $file_name = "file_" . $itemID;
@@ -101,7 +105,9 @@ if ($enable_file_cache && count($nombres_archivo) > 0) {
 
         echo $file_original;
 
-        if ($enable_file_cache) saveFileCache($file_original, $file_path, $file_name, $extension);
+        if ($enable_file_cache) {
+            saveFileCache($file_original, $file_path, $file_name, $extension);
+        }
     } else {
         dieWithError(500);
     }

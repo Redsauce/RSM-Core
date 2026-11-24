@@ -34,11 +34,11 @@ $theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $lo
 $result = RSquery($theQuery);
 
 if ($result->num_rows == 0) {
-  if ($RSallowDebug) {
-    returnJsonMessage(200, 'No user found');
-  } else {
-    returnJsonMessage(200, '');
-  }
+    if ($RSallowDebug) {
+        returnJsonMessage(200, 'No user found');
+    } else {
+        returnJsonMessage(200, '');
+    }
 }
 
 $ID = mysqli_fetch_assoc($result)['ID'];
@@ -49,8 +49,8 @@ returnJsonResponse($response);
 
 function verifyBodyContent($body)
 {
-  checkIsJsonObject($body);
-  checkBodyContains($body, 'clientID');
-  checkBodyContains($body, 'login');
-  checkBodyContains($body, 'password');
+    checkIsJsonObject($body);
+    checkBodyContains($body, 'clientID');
+    checkBodyContains($body, 'login');
+    checkBodyContains($body, 'password');
 }

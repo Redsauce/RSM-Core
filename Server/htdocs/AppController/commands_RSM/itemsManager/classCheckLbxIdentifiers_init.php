@@ -10,7 +10,7 @@ $clientID       = $GLOBALS[$cstRS_POST]['clientID'      ];
 
 switch ($identifierType) {
 
-    case 'identifier' :
+    case 'identifier':
         // get referred item type ID
         $referredItemTypeID = getClientPropertyReferredItemType($propertyID, $clientID);
 
@@ -19,7 +19,7 @@ switch ($identifierType) {
         $data[0]['itemTypeID'] = $referredItemTypeID;
         break;
 
-    case 'identifiers' :
+    case 'identifiers':
         // get referred item type ID
         $referredItemTypeID = getClientPropertyReferredItemType($propertyID, $clientID);
 
@@ -28,7 +28,7 @@ switch ($identifierType) {
         $data[0]['itemTypeID'] = $referredItemTypeID;
         break;
 
-    case 'identifier2itemtype' :
+    case 'identifier2itemtype':
         // get item types
         $itemTypes = getClientItemTypes($clientID);
 
@@ -38,7 +38,7 @@ switch ($identifierType) {
         }
         break;
 
-    case 'identifier2property' :
+    case 'identifier2property':
         // get properties
         $properties = getAllVisibleProperties($clientID, $RSuserID, true);
 
@@ -46,6 +46,9 @@ switch ($identifierType) {
         foreach ($properties as $property) {
             $data[] = array('ID' => $property['ID'], 'mainValue' => $property['name']);
         }
+        break;
+    default:
+        // Other values require no action.
         break;
 }
 

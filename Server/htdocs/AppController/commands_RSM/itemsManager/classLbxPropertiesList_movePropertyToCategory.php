@@ -15,10 +15,10 @@ $categoryID = $GLOBALS[$cstRS_POST][$cstCategoryID];
 $clientID   = $GLOBALS[$cstRS_POST][$cstClientID];
 
 // We need to check if the user has permissions for accessing to the property
-if (isPropertyVisible($RSuserID, $propertyID, $clientID)){
-    
-    // The actual category and the final category must belong to the same itemtype  
-    if (getClientCategoryItemType($categoryID, $clientID) == getClientCategoryItemType(getClientPropertyCategory($propertyID, $clientID), $clientID)){
+if (isPropertyVisible($RSuserID, $propertyID, $clientID)) {
+
+    // The actual category and the final category must belong to the same itemtype
+    if (getClientCategoryItemType($categoryID, $clientID) == getClientCategoryItemType(getClientPropertyCategory($propertyID, $clientID), $clientID)) {
         // Make the movement
         $theQuery = 'UPDATE rs_item_properties SET RS_CATEGORY_ID = '.$categoryID.' WHERE RS_CLIENT_ID = '.$clientID.' AND RS_PROPERTY_ID = '.$propertyID;
 
@@ -26,19 +26,19 @@ if (isPropertyVisible($RSuserID, $propertyID, $clientID)){
         $result = RSQuery($theQuery);
 
         // Query error?
-        if ($result){
+        if ($result) {
             $results['result'] = "OK";
-        }else{
+        } else {
             $results['result'     ] = "NOK";
-            $results['description'] = "QUERY ERROR";   
+            $results['description'] = "QUERY ERROR";
         }
-           
-    }else{
+
+    } else {
         $results['result'     ] = "NOK";
         $results['description'] = "CATEGORIES BELONGING TO DIFFERENT ITEMTYPES";
     }
-    
-}else{
+
+} else {
     $results['result'     ] = "NOK";
     $results['description'] = "USER " . $RSuserID . " HAS NOT ACCESS TO THE PROPERTY";
 }

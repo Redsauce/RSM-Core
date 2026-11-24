@@ -20,10 +20,10 @@ if (empty($clientID)) {
         WHERE
 
         RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "'";
-    
-} else { 
+
+} else {
     $theQuery = "SELECT RS_USER_ID as 'ID' FROM rs_users WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
-    
+
 }
 
 // Write back the XML Response

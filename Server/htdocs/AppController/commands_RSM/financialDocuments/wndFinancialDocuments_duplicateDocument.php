@@ -25,40 +25,40 @@ if ($docITID == getClientItemTypeID_RelatedWith_byName($definitions['invoiceClie
     // Clear the invoice date
     $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientInvoiceDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
-    
+
     // Clear the direct debit date
     $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientDebitDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
-    
+
     // Clear the payment date
     $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientPaymentDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
-    
+
     // Clear the sent date
     $invoiceDatePID = getClientPropertyID_RelatedWith_byName($definitions['invoiceClientSentDate'], $clientID);
     setPropertyValueByID($invoiceDatePID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
 }
 
 // Clear the related operations
-$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $docTypeID, $clientID);    
+$relatedOperationsPID = getPropertyValue($definitions['financialDocumentsRelatedOperationIDs'], $docTypeID, $clientID);
 setPropertyValueByID($relatedOperationsPID, $docITID, $newDocID, $clientID, '', '', $RSuserID);
-    
+
 // Now we must duplicate the associated concepts, if they exist.
 $conceptsITID      = getPropertyValue($definitions['financialDocumentsConceptID'            ], $docTypeID, $clientID);
-	$parentDocumentPID = getPropertyValue($definitions['financialDocumentsConceptFilterCriteria'], $docTypeID, $clientID);
- 
+$parentDocumentPID = getPropertyValue($definitions['financialDocumentsConceptFilterCriteria'], $docTypeID, $clientID);
+
 if ($conceptsITID != '') {
     // Get a list of the associated concepts
     $returnProperties   = array();
     $filterProperties   = array();
     $filterProperties[] = array('ID' => $parentDocumentPID, 'value' => $docID, 'mode' => "=");
-    
+
     $concepts = getFilteredItemsIDs($conceptsITID, $clientID, $filterProperties, $returnProperties, $orderBy = '', $translateIds = false, $limit = '', $ids = '');
- 
+
     foreach ($concepts as $concept) {
         // Duplicate the concept
         $newConceptID = duplicateItem($conceptsITID, $concept['ID'], $clientID);
-                
+
         // Set the parent of the new concept to the new document
         setPropertyValueByID($parentDocumentPID, $conceptsITID, $newConceptID, $clientID, $newDocID, '', $RSuserID);
     }

@@ -21,7 +21,7 @@ $inactiveStatus = getValue(getClientListValueID_RelatedWith(getAppListValueID('s
 // build filter properties array
 $filterProperties = array();
 if ($onlyActive == '1') {
-	$filterProperties[] = array('ID' => $personStatusPropertyID, 'value' => $inactiveStatus, 'mode' => '<>');
+    $filterProperties[] = array('ID' => $personStatusPropertyID, 'value' => $inactiveStatus, 'mode' => '<>');
 }
 
 // build return properties array

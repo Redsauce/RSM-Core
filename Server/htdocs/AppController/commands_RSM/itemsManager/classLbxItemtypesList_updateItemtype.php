@@ -10,5 +10,7 @@ try {
 } catch (Throwable $exception) {
     $saved = false;
 }
-if (!$saved) RSReturnError('ERROR WHILE UPDATING ITEMTYPE', '15');
+if (!$saved) {
+    RSReturnError('ERROR WHILE UPDATING ITEMTYPE', '15');
+}
 RSReturnArrayResults(array('result' => 'OK', 'name' => $name, 'itemtypeIcon' => $icon));

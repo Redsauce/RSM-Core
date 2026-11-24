@@ -4,7 +4,8 @@ require_once "RSconfiguration.php";
 /*
  * Get Feed Info (newsType)
  */
-function getNewsType($token, $tema) {
+function getNewsType($token, $tema)
+{
     global $RSMapiURL;
     $ch = curl_init($RSMapiURL . "api_getItems.php");
     $propertiesId = "newsType.description,newsType.language,newsType.URL";
@@ -27,7 +28,8 @@ function getNewsType($token, $tema) {
 
 }
 
-function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, $filterJoining) {
+function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, $filterJoining)
+{
     global $RSMapiURL;
 
     $newsType = getNewsType($token, $RSStitle);

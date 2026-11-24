@@ -8,13 +8,13 @@ global $cstRS_POST, $cstClientID, $cstUserID;
 isset($GLOBALS[$cstRS_POST][$cstClientID]) ? $clientID = $GLOBALS[$cstRS_POST][$cstClientID] : dieWithError(400);
 isset($GLOBALS[$cstRS_POST][$cstUserID  ]) ? $userID   = $GLOBALS[$cstRS_POST][$cstUserID  ] : dieWithError(400);
 
-if ($clientID != 0){
+if ($clientID != 0) {
     // We check if the user exists into the client
     $theQuery_userValidation = "SELECT RS_USER_ID FROM rs_users WHERE RS_USER_ID ='". $userID ."' AND RS_CLIENT_ID=".$clientID;
 
     $resultUserOK = RSQuery($theQuery_userValidation);
 
-    if ( $resultUserOK->num_rows != 0){
+    if ($resultUserOK->num_rows != 0) {
         $results = array();
 
         //The users exists, so perform the action
@@ -24,7 +24,7 @@ if ($clientID != 0){
 
         if ($result->num_rows>0) {
 
-            while($row=$result->fetch_assoc()){
+            while ($row=$result->fetch_assoc()) {
                 $results[$row['RS_ID']]=array();
                 $results[$row['RS_ID']]['ID'         ] = $row['RS_ID'];
                 $results[$row['RS_ID']]['action'     ] = $row['RS_NAME'];
@@ -32,27 +32,35 @@ if ($clientID != 0){
                 $results[$row['RS_ID']]['description'] = $row['RS_DESCRIPTION'];
                 $results[$row['RS_ID']]['logo'       ] = bin2hex($row['RS_APPLICATION_LOGO']);
 
-                $clientItemTypeID  = getClientItemTypeID_RelatedWith_byName ($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
-                $clientName        = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
-                $clientDescription = getPropertyValue                       ($row['RS_CONFIGURATION_ITEMTYPE'].'.description', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
-                $propertyID        = getClientPropertyID_RelatedWith_byName ($row['RS_CONFIGURATION_ITEMTYPE'].'.logo', $clientID);
-                $clientLogo        = getItemDataPropertyValue               ($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID);
+                $clientItemTypeID  = getClientItemTypeID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'], $clientID);
+                $clientName        = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.name', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                $clientDescription = getPropertyValue($row['RS_CONFIGURATION_ITEMTYPE'].'.description', $row['RS_CONFIGURATION_ITEM_ID'], $clientID);
+                $propertyID        = getClientPropertyID_RelatedWith_byName($row['RS_CONFIGURATION_ITEMTYPE'].'.logo', $clientID);
+                $clientLogo        = getItemDataPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID);
 
-                if($clientName        != '') $results[$row['RS_ID']]['name'       ] = $clientName;
-                if($clientDescription != '') $results[$row['RS_ID']]['description'] = $clientDescription;
-                if($clientLogo        != '') $results[$row['RS_ID']]['logo'       ] = $clientLogo;
+                if ($clientName        != '') {
+                    $results[$row['RS_ID']]['name'       ] = $clientName;
+                }
+                if ($clientDescription != '') {
+                    $results[$row['RS_ID']]['description'] = $clientDescription;
+                }
+                if ($clientLogo        != '') {
+                    $results[$row['RS_ID']]['logo'       ] = $clientLogo;
+                }
 
                 $additionalProperties = getAppItemTypeProperties(getAppItemTypeIDByName($row['RS_CONFIGURATION_ITEMTYPE']));
-                foreach($additionalProperties as $additionalProperty){
+                foreach ($additionalProperties as $additionalProperty) {
                     $propertyID   = getClientPropertyID_RelatedWith_byName($additionalProperty['propertyName'], $clientID);
 
                     //continue proccessing only if the property exists (app_property is related)
-                    if($propertyID != 0){
-                      $propertyType = getPropertyType($propertyID, $clientID);
+                    if ($propertyID != 0) {
+                        $propertyType = getPropertyType($propertyID, $clientID);
 
-                      if($propertyType == 'image'||$propertyType=='file'){
-                          $results[$row['RS_ID']][$additionalProperty['propertyName']]=getItemDataPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID, $propertyType);
-                      } else $results[$row['RS_ID']][$additionalProperty['propertyName']]=getItemPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID, $propertyType);
+                        if ($propertyType == 'image'||$propertyType=='file') {
+                            $results[$row['RS_ID']][$additionalProperty['propertyName']]=getItemDataPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID, $propertyType);
+                        } else {
+                            $results[$row['RS_ID']][$additionalProperty['propertyName']]=getItemPropertyValue($row['RS_CONFIGURATION_ITEM_ID'], $propertyID, $clientID, $propertyType);
+                        }
                     }
                 }
             }
@@ -61,8 +69,12 @@ if ($clientID != 0){
         RSReturnArrayQueryResults($results);
         return;
 
-    } else $results["result"] = "NOK";
+    } else {
+        $results["result"] = "NOK";
+    }
 
-} else $results["result"] = "NOK";
+} else {
+    $results["result"] = "NOK";
+}
 
 RSReturnArrayResults($results);

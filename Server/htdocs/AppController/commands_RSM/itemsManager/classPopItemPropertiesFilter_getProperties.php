@@ -13,7 +13,7 @@ $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $userID = $GLOBALS[$cstRS_POST][$cstUserID];
 
-$results = getUserProperties($userID,$clientID,$itemTypeID);
+$results = getUserProperties($userID, $clientID, $itemTypeID);
 
-// And return XML response back to application			
+// And return XML response back to application
 RSReturnArrayQueryResults($results);

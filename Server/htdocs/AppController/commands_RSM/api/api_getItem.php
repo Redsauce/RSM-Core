@@ -23,7 +23,9 @@ $recordGetItemMemory = function ($phase, $rowCount = 0) use (&$getItemMemoryPhas
 $recordGetItemMemory('entry');
 register_shutdown_function(function () use (&$getItemMemoryPhases, &$getItemMemoryContext, $recordGetItemMemory) {
     if (empty($GLOBALS['RSallowDebug'])
-        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) {
+        return;
+    }
     $recordGetItemMemory('response_finished');
     error_log('RSM get item memory phases: ' . json_encode(array(
         'context' => $getItemMemoryContext, 'phases' => $getItemMemoryPhases)));
@@ -43,8 +45,10 @@ isset($GLOBALS[$cstRS_POST][$cstItemTypeID]) ? $itemTypeID = $GLOBALS[$cstRS_POS
 isset($GLOBALS[$cstRS_POST][$cstRStoken]) ? $RStoken    = $GLOBALS[$cstRS_POST][$cstRStoken] : $RStoken = "";
 
 $translateIDs = false;
-        if (isset($GLOBALS[$cstRS_POST]['translateIDs'])) {
-            if ($GLOBALS[$cstRS_POST]['translateIDs'] == "true") $translateIDs = true;
+if (isset($GLOBALS[$cstRS_POST]['translateIDs'])) {
+    if ($GLOBALS[$cstRS_POST]['translateIDs'] == "true") {
+        $translateIDs = true;
+    }
 }
 
 $itemTypeID = ParseITID($itemTypeID, $clientID);
@@ -80,8 +84,8 @@ foreach ($properties as $property) {
               'related' => getAppPropertyName_RelatedWith($property['id'], $clientID),
               'name' => html_entity_decode($property['name'], ENT_COMPAT, "UTF-8"),
               'value' => $value, 'type' => $property['type'],
-              'filename' => array_key_exists(0,$attributes)?$attributes[0]:'',
-              'filesize' => array_key_exists(1,$attributes)?$attributes[1]:''
+              'filename' => array_key_exists(0, $attributes)?$attributes[0]:'',
+              'filesize' => array_key_exists(1, $attributes)?$attributes[1]:''
               );
 
         } elseif ($translateIDs && $property['type'] == 'identifier') {

@@ -37,6 +37,7 @@ function checkType($data, $type)
                 return '0000-00-00';
             }
 
+            // no break
         case 'datetime':
             if (isValidSqlDatetime($data)) {
                 return date('Y-m-d H:i:s', strtotime($data));
@@ -44,6 +45,7 @@ function checkType($data, $type)
                 return '0000-00-00 00:00:00';
             }
 
+            // no break
         case 'integer':
             return intval($data);
 
@@ -73,6 +75,9 @@ function checkType($data, $type)
         case 'variant':
             return $data;
             // TODO: implementar
+        default:
+            // Other values require no action.
+            break;
     }
 }
 
@@ -83,7 +88,7 @@ function getFinalDate($startDate, $totalHours, $hoursPerDay)
         $myTimeStamp = getNextWorkableDate($myTimeStamp + 86400);
         $totalHours -= $hoursPerDay;
     }
-    return (date("Y-m-d", $myTimeStamp));
+    return date("Y-m-d", $myTimeStamp);
 }
 
 function getNextWorkableDate($myTimeStamp)
@@ -91,7 +96,7 @@ function getNextWorkableDate($myTimeStamp)
     while (date("w", $myTimeStamp) <= 0 || date("w", $myTimeStamp) >= 6) {
         $myTimeStamp += 86400;
     }
-    return ($myTimeStamp);
+    return $myTimeStamp;
 }
 
 // Return true if $startDate is before $endDate (Sql dates)
@@ -466,7 +471,7 @@ function sumTime($time1, $time2)
     $sumTimeMins = floor(floor(($sumTimeTotalSeconds % 3600)) / 60);
     $sumTimeSecs = floor(floor(($sumTimeTotalSeconds % 3600)) % 60);
 
-    return ($sumTimeHours . ":" . $sumTimeMins . ":" . $sumTimeSecs);
+    return $sumTimeHours . ":" . $sumTimeMins . ":" . $sumTimeSecs;
 }
 
 // Convert a duration to time (for example: 1.75 - one hour and 3/4 - ---> 1:45 - one hour and 45 minutes)
@@ -639,14 +644,16 @@ function getRequestBody()
             returnJsonMessage(400, "");
         }
     }
-    
+
     return $body;
 }
 
 function returnJsonMessage($code, $message)
 {
     global $clientID;
-    if (!empty($clientID)) checkTriggeredEvents($clientID);
+    if (!empty($clientID)) {
+        checkTriggeredEvents($clientID);
+    }
 
     $json = "";
     if ($message != "") {
@@ -663,7 +670,9 @@ function returnJsonMessage($code, $message)
 function returnJsonResponse($response)
 {
     global $clientID;
-    if (!empty($clientID)) checkTriggeredEvents($clientID);
+    if (!empty($clientID)) {
+        checkTriggeredEvents($clientID);
+    }
 
     header('Content-Type: application/json', true, 200);
     header("Content-Length: " . strlen($response));

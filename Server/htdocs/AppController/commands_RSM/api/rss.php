@@ -5,7 +5,9 @@ require_once "../utilities/RSMfeeds.php";
 $search  = array("'", "\"");
 $replace = array("" , ""  );
 
-foreach ($_GET as $key => $value) $GLOBALS["RS_GET"][$key] = str_replace($search, $replace, $value);
+foreach ($_GET as $key => $value) {
+    $GLOBALS["RS_GET"][$key] = str_replace($search, $replace, $value);
+}
 
 if (!isset($GLOBALS["RS_GET"][$cstRStoken])) {
     http_response_code(400);

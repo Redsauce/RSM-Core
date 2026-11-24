@@ -33,7 +33,8 @@ Header("Content-Length: " . strlen($response));
 echo $response;
 
 // Function to check the database connectivity
-function checkDatabaseConnectivityStatus($RShost, $RSuser, $RSpassword, $RSdatabase){
+function checkDatabaseConnectivityStatus($RShost, $RSuser, $RSpassword, $RSdatabase)
+{
     $result = array(
         'success' => true,
         'message' => 'connection alive'

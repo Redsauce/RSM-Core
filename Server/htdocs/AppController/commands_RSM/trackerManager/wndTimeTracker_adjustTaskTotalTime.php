@@ -35,13 +35,13 @@ $subTasksTree = getItemsTree($tasksGroupItemTypeID, $clientID, $tasksGroupParent
 $totalTimeDiff= adjustTasksTotalTime($subTasksTree, $taskID, $taskTotalTime)-$taskTotalTime; // adjust tasks total time and get difference from previous total time
 
 //apply time difference to ancestors until root
-if($totalTimeDiff != 0){
+if ($totalTimeDiff != 0) {
     $parentID = getItemPropertyValue($taskID, $tasksGroupParentPropertyID, $clientID);
-    
-    while($parentID > 0){
+
+    while ($parentID > 0) {
         // add total time difference to parent
         setPropertyValueByID($tasksGroupTotalTimePropertyID, $tasksGroupItemTypeID, $parentID, $clientID, getItemPropertyValue($parentID, $tasksGroupTotalTimePropertyID, $clientID) + $totalTimeDiff, '', $RSuserID);
-        
+
         $parentID = getItemPropertyValue($parentID, $tasksGroupParentPropertyID, $clientID);
     }
 }
@@ -52,12 +52,13 @@ $results['result'] = 'OK';
 RSReturnArrayResults($results);
 
 // A function to adjust the tasks total time of a tasks tree
-function adjustTasksTotalTime($tree, $taskID, $totalTime) {
+function adjustTasksTotalTime($tree, $taskID, $totalTime)
+{
     global $RSuserID, $tasksItemTypeID, $tasksTotalTimePropertyID, $tasksParentPropertyID, $tasksProjectPropertyID, $tasksGroupItemTypeID, $tasksGroupTotalTimePropertyID, $clientID;
-    
+
     $oldTotalTime=$totalTime;
     $totalTime = 0;
-    
+
     if (isset($tree[$taskID])) {
         // the task has childs
         foreach ($tree[$taskID] as $child) {
@@ -65,25 +66,25 @@ function adjustTasksTotalTime($tree, $taskID, $totalTime) {
             $totalTime += adjustTasksTotalTime($tree, $child['ID'], $child['totalTime']);
         }
     }
-    
+
     // get child tasks
     // build filter properties array
     $filterProperties   = array();
     $filterProperties[] = array('ID' => $tasksParentPropertyID,  'value' => $taskID   );
-    
+
     // build return properties array
     $returnProperties   = array();
     $returnProperties[] = array('ID' => $tasksTotalTimePropertyID, 'name' => 'totalTime');
-    
+
     // get tasks
-    $subTasks = getFilteredItemsIDs($tasksItemTypeID, $clientID, $filterProperties, $returnProperties); 
+    $subTasks = getFilteredItemsIDs($tasksItemTypeID, $clientID, $filterProperties, $returnProperties);
 
     //add total time from all child tasks
     foreach ($subTasks as $subTask) {
         $totalTime += $subTask['totalTime'];
     }
-    
-    if($totalTime != $oldTotalTime) {
+
+    if ($totalTime != $oldTotalTime) {
         // change the value into the database
         setPropertyValueByID($tasksGroupTotalTimePropertyID, $tasksGroupItemTypeID, $taskID, $clientID, $totalTime, '', $RSuserID);
     }

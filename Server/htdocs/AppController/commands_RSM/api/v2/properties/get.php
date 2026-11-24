@@ -72,19 +72,19 @@ foreach ($results as $item) {
             'id' => $item['id'],
             'type' => $item['type']
         );
-        
+
         if (!empty($ID)) {
             $property['value'] = html_entity_decode($item['value']) ?: '';
             $property['realValue'] = $item['realValue'] ?: '';
         }
-        
+
         $responseArray[$category][] = $property;
     }
 }
 $response = json_encode($responseArray);
 returnJsonResponse($response);
 
-    
+
 function verifyBodyContent($body)
 {
     checkIsJsonObject($body);

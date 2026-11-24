@@ -13,7 +13,7 @@
 //  v1.3: ACCESS DENIED error code has been changed to -3
 //  v1.4: Includes information about new versions of the app
 //  v1.5: Uses the generic rs_users table instead of a custom one
-//  v1.6: Added a badge for each user/client    
+//  v1.6: Added a badge for each user/client
 //***************************************************//
 //Input:
 // Option 1: POST

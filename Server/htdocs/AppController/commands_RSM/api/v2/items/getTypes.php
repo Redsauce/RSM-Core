@@ -177,7 +177,9 @@ if (!empty($responseArray)) {
 function verifyBodyContent($body)
 {
     checkIsJsonObject($body);
-    if (property_exists($body, 'IDs')) checkIsArray($body->IDs);
+    if (property_exists($body, 'IDs')) {
+        checkIsArray($body->IDs);
+    }
 }
 
 // Fetch descriptions only on request, scoped to the authenticated client and type.
@@ -195,7 +197,9 @@ function getItemTypePropertyDescriptions($itemTypeID, $clientID)
     if ($result) {
         while ($row = $result->fetch_assoc()) {
             $descriptions[$row['RS_PROPERTY_ID']] = html_entity_decode(
-                $row['RS_DESCRIPTION'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'
+                $row['RS_DESCRIPTION'] ?? '',
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
             );
         }
     }

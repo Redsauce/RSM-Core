@@ -147,10 +147,10 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
 
         //recalculate parent task dates if required
         if ($updateTaskDates == 1) {
-            $startDate = explode(' ',trim($RelatedWS['start']))[0];
+            $startDate = explode(' ', trim($RelatedWS['start']))[0];
 
             //Check if WS start date lower than stored
-            if($realStartDate == "" || isBefore($startDate, $realStartDate)){
+            if ($realStartDate == "" || isBefore($startDate, $realStartDate)) {
                 $realStartDate = $startDate;
             }
 
@@ -160,7 +160,7 @@ if ((count($result) == 0) || ((count($result) == 1) && ($result[0]['ID'] == $wsI
             $endDate = date_format($endDateObj, 'Y-m-d');
 
             //Check if WS end date higher than stored
-            if($realEndDate == "" || isAfter($endDate, $realEndDate)){
+            if ($realEndDate == "" || isAfter($endDate, $realEndDate)) {
                 $realEndDate = $endDate;
             }
         }

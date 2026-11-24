@@ -8,12 +8,12 @@ require_once "../utilities/RSMfiltersManagement.php";
 $clientID         =             $GLOBALS[$cstRS_POST]['clientID'        ];
 $itemTypeID       =             $GLOBALS[$cstRS_POST]['itemTypeID'      ];
 $count            =             $GLOBALS[$cstRS_POST]['count'           ];
-$itemIDs          = explode(",",$GLOBALS[$cstRS_POST]['itemIDs'         ]);
+$itemIDs          = explode(",", $GLOBALS[$cstRS_POST]['itemIDs'         ]);
 $allowedItemTypes =             $GLOBALS[$cstRS_POST]['allowedItemTypes'];
 
 //Disable recursive multiplication until it's fixed
 // TO DO: fix recursive itemtypes multiplication
-isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(';',  $GLOBALS[$cstRS_POST]['descendants']) : $descendants = false;
+isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(';', $GLOBALS[$cstRS_POST]['descendants']) : $descendants = false;
 //$descendants = array();
 
 if ($allowedItemTypes != '') {
@@ -22,10 +22,10 @@ if ($allowedItemTypes != '') {
     $allowedItemTypes = array();
 }
 
-if ($clientID != 0 && $clientID != ""){
-	if ($itemTypeID != 0 && $itemTypeID != ""){
-		if (count($itemIDs) > 0 && $itemIDs[0] != "" && $itemIDs[0] != 0){
-			if ($count > 0) {
+if ($clientID != 0 && $clientID != "") {
+    if ($itemTypeID != 0 && $itemTypeID != "") {
+        if (count($itemIDs) > 0 && $itemIDs[0] != "" && $itemIDs[0] != 0) {
+            if ($count > 0) {
                 // organize descendants by parent itemtype
                 $descendantsForItemtype = array();
 
@@ -33,10 +33,10 @@ if ($clientID != 0 && $clientID != ""){
                 if ($descendants === false) {
                     // Chech if there are any descendant items and request for descendants selection in that case (continue otherwise)
                     //get all descendants of this itemtype
-                    $subDescendants=getDescendantsLevel($clientID,$itemTypeID,$allowedItemTypes);
+                    $subDescendants=getDescendantsLevel($clientID, $itemTypeID, $allowedItemTypes);
 
-                    foreach($itemIDs as $itemID){
-                        foreach($subDescendants as $subDescendant){
+                    foreach ($itemIDs as $itemID) {
+                        foreach ($subDescendants as $subDescendant) {
                             // build filter
                             $filterProperties = array();
                             $filterProperties[] = array('ID' => $subDescendant['propertyID'], 'value' => $itemID);
@@ -45,7 +45,7 @@ if ($clientID != 0 && $clientID != ""){
 
                             // get items pertaining to the parent passed
                             $subResult = getFilteredItemsIDs($subDescendant['itemTypeID'], $clientID, $filterProperties, $returnProperties);
-                            if(count($subResult)>0){
+                            if (count($subResult)>0) {
                                 $hasUnproccessedChilds=1;
                                 break 2;
                             }
@@ -56,7 +56,7 @@ if ($clientID != 0 && $clientID != ""){
                         $descendant = explode(',', $descendants[$i]);
                         if (count($descendant) == 2) {
                             //check recursive itemtype
-                            if($descendant[1] == '0'){
+                            if ($descendant[1] == '0') {
                                 $descendantParent=$descendant[0];
                                 $descendant[1]=getRecursivePropertyID($descendant[0], $clientID);
                             } else {
@@ -70,49 +70,49 @@ if ($clientID != 0 && $clientID != ""){
                     }
                 }
 
-                if($hasUnproccessedChilds == 0) {
-       				//begin transaction
-       				$mysqli->begin_transaction();
-       				$resultIDs=array();
-       				foreach($itemIDs as $itemID){
-       					//duplicate Item
-       					$newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $count, $descendantsForItemtype);
+                if ($hasUnproccessedChilds == 0) {
+                    //begin transaction
+                    $mysqli->begin_transaction();
+                    $resultIDs=array();
+                    foreach ($itemIDs as $itemID) {
+                        //duplicate Item
+                        $newItemIDs = duplicateItem($itemTypeID, $itemID, $clientID, $count, $descendantsForItemtype);
 
-       					if (is_array($newItemIDs)) {
-       						$resultIDs = array_merge($resultIDs, $newItemIDs);
-       					} elseif ($newItemIDs > 0) {
-       						$resultIDs[] = $newItemIDs;
-       					} else {
-       						//rollback transaction
-       						$mysqli->rollback();
-       						$results['result'     ] = "NOK";
-       						$results['description'] = "ERROR CREATING ITEMS";
-       					}
-       				}
+                        if (is_array($newItemIDs)) {
+                            $resultIDs = array_merge($resultIDs, $newItemIDs);
+                        } elseif ($newItemIDs > 0) {
+                            $resultIDs[] = $newItemIDs;
+                        } else {
+                            //rollback transaction
+                            $mysqli->rollback();
+                            $results['result'     ] = "NOK";
+                            $results['description'] = "ERROR CREATING ITEMS";
+                        }
+                    }
 
-       				//commit transaction
-       				$mysqli->commit();
-       				$results['itemIDs'] = implode(",",$resultIDs);
-       				$results['result' ] = 'OK';
+                    //commit transaction
+                    $mysqli->commit();
+                    $results['itemIDs'] = implode(",", $resultIDs);
+                    $results['result' ] = 'OK';
                 } else {
                     $results['result'     ] = 'NOK';
                     $results['description'] = 'RECURSIVE COPY REQUIRED';
                 }
-			}else{
-				$results['result'     ] = "NOK";
-				$results['description'] = "INVALID NUMBER OF COPIES";
-			}
-		}else{
-			$results['result'     ] = "NOK";
-			$results['description'] = "INVALID ITEM";
-		}
-	}else{
-		$results['result'     ] = "NOK";
-		$results['description'] = "INVALID ITEMTYPE";
-	}
-}else{
-	$results['result'] = "NOK";
-	$results['description'] = "INVALID CLIENT";
+            } else {
+                $results['result'     ] = "NOK";
+                $results['description'] = "INVALID NUMBER OF COPIES";
+            }
+        } else {
+            $results['result'     ] = "NOK";
+            $results['description'] = "INVALID ITEM";
+        }
+    } else {
+        $results['result'     ] = "NOK";
+        $results['description'] = "INVALID ITEMTYPE";
+    }
+} else {
+    $results['result'] = "NOK";
+    $results['description'] = "INVALID CLIENT";
 }
 
 // Return results

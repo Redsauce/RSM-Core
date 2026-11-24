@@ -18,7 +18,9 @@ $RStoken  = $GLOBALS[$cstRS_POST]['token'   ];
 
 $managedToken = RSgetTokenMetadata($RStoken, $clientID);
 $tokenID = RSgetEffectivePermissionTokenID($RStoken, true);
-if (is_null($managedToken) || $tokenID <= 0) dieWithError(400);
+if (is_null($managedToken) || $tokenID <= 0) {
+    dieWithError(400);
+}
 
 // Obtain the properties from table tokens_permissions and their number of assigned permissions
 $properties = RSQuery("SELECT RS_PROPERTY_ID, COUNT(RS_PERMISSION) AS numPermissions FROM rs_token_permissions WHERE RS_CLIENT_ID = " . $clientID . " AND RS_TOKEN_ID = " . $tokenID . " GROUP BY RS_PROPERTY_ID");

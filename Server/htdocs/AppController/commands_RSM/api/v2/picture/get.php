@@ -51,19 +51,19 @@ array_key_exists("adj", $parameters) ? $adj = $parameters["adj"] : $adj = "";
 
 // Check token permissions
 if (!RShasREADTokenPermission($RStoken, $propertyID)) {
-    $RSallowDebug ? returnJsonMessage(403, "Token has no permissions to get this picture" ) : returnJsonMessage(403, "");
+    $RSallowDebug ? returnJsonMessage(403, "Token has no permissions to get this picture") : returnJsonMessage(403, "");
 }
 // Check if asked property is image
 if (getPropertyType($propertyID, $clientID) != 'image') {
-    $RSallowDebug ? returnJsonMessage(404, "Property is not an image" ) : returnJsonMessage(404, "");
+    $RSallowDebug ? returnJsonMessage(404, "Property is not an image") : returnJsonMessage(404, "");
 }
 // Check if item exists
 $itemTypeID = getItemTypeIDFromProperties([$propertyID], $clientID);
 if (!verifyItemExists($ID, $itemTypeID, $clientID)) {
-    $RSallowDebug ? returnJsonMessage(404, "Item doesn't exist" ) : returnJsonMessage(404, "");
+    $RSallowDebug ? returnJsonMessage(404, "Item doesn't exist") : returnJsonMessage(404, "");
 }
 if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $ID)) {
-    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this picture" ) : returnJsonMessage(403, "");
+    $RSallowDebug ? returnJsonMessage(403, "Token customer scope does not allow access to this picture") : returnJsonMessage(403, "");
 }
 
 $directory = $RSimageCache . "/" . $clientID . "/" . $propertyID . "/";
@@ -130,13 +130,13 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
     }
 
     if ($imageOriginal == '') {
-        $RSallowDebug ? returnJsonMessage(404, "No image found" ) : returnJsonMessage(404, "");
+        $RSallowDebug ? returnJsonMessage(404, "No image found") : returnJsonMessage(404, "");
     }
 
     if ($extension !== "jpg" && $extension !== "jpeg" && $extension !== "gif" && $extension !== "png" && $extension !== "svg" && $extension !== "webp") {
         RSError("api_getPicture: Unknown extension: " . $extension);
 
-        $RSallowDebug ? returnJsonMessage(400, "Unknown extension" ) : returnJsonMessage(400, "");
+        $RSallowDebug ? returnJsonMessage(400, "Unknown extension") : returnJsonMessage(400, "");
     }
 
     if ($extension == "svg") {
@@ -156,12 +156,14 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
             $webp_data = resizeWebpPicture($imageOriginal, $w, $h, $adj);
         } catch (RuntimeException $exception) {
             RSError("api_getPicture: " . $exception->getMessage());
-            $RSallowDebug ? returnJsonMessage(500, "WebP processing is unavailable" ) : returnJsonMessage(500, "");
+            $RSallowDebug ? returnJsonMessage(500, "WebP processing is unavailable") : returnJsonMessage(500, "");
         }
 
         Header("Content-type: image/webp");
         if ($w != '' || $h != '') {
-            if ($enable_image_cache) saveWebpPictureCache($webp_data, $image_string, $image_name);
+            if ($enable_image_cache) {
+                saveWebpPictureCache($webp_data, $image_string, $image_name);
+            }
         }
         echo $webp_data;
     } else {
@@ -171,7 +173,7 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
         if ($originalImage === false) {
             // The original image is not valid
             RSError("api_getPicture: not a valid image: " . $imageOriginal);
-            $RSallowDebug ? returnJsonMessage(400, "Not a valid image" ) : returnJsonMessage(400, "");
+            $RSallowDebug ? returnJsonMessage(400, "Not a valid image") : returnJsonMessage(400, "");
         } else {
             // Valid image, continue processing it
             $ow = imagesx($originalImage);
@@ -305,8 +307,8 @@ if ($enable_image_cache && !empty($nombres_archivo)) {
                         break;
 
                     default:
-                    returnJsonMessage(400, "");
-                    break;
+                        returnJsonMessage(400, "");
+                        break;
                 }
             } else {
                 // Return the original image
@@ -506,12 +508,20 @@ function validateRequestParams($parameters)
  */
 function resizeWebpPicture($imageData, $w, $h, $adj)
 {
-    if ($w === '' && $h === '') return $imageData;
-    if (!isAnimatedWebp($imageData)) return resizeStaticWebpPicture($imageData, $w, $h, $adj);
-    if (!class_exists('Imagick')) throw new RuntimeException('Animated WebP support requires the Imagick PHP extension');
+    if ($w === '' && $h === '') {
+        return $imageData;
+    }
+    if (!isAnimatedWebp($imageData)) {
+        return resizeStaticWebpPicture($imageData, $w, $h, $adj);
+    }
+    if (!class_exists('Imagick')) {
+        throw new RuntimeException('Animated WebP support requires the Imagick PHP extension');
+    }
 
     $image = new Imagick();
-    if (!$image->readImageBlob($imageData)) throw new RuntimeException('Unable to read WebP image');
+    if (!$image->readImageBlob($imageData)) {
+        throw new RuntimeException('Unable to read WebP image');
+    }
     $frames = $image->coalesceImages();
     $result = new Imagick();
     $result->setFormat('webp');
@@ -551,7 +561,9 @@ function resizeWebpPicture($imageData, $w, $h, $adj)
     $frames->destroy();
     $image->clear();
     $image->destroy();
-    if ($encoded === false || $encoded === '') throw new RuntimeException('Unable to encode WebP image');
+    if ($encoded === false || $encoded === '') {
+        throw new RuntimeException('Unable to encode WebP image');
+    }
     return $encoded;
 }
 
@@ -561,7 +573,9 @@ function resizeStaticWebpPicture($imageData, $w, $h, $adj)
         throw new RuntimeException('WebP support requires PHP GD with WebP enabled');
     }
     $originalImage = imagecreatefromstring($imageData);
-    if ($originalImage === false) throw new RuntimeException('Unable to read WebP image');
+    if ($originalImage === false) {
+        throw new RuntimeException('Unable to read WebP image');
+    }
     $ow = imagesx($originalImage);
     $oh = imagesy($originalImage);
     $dimensions = calculateWebpDimensions($ow, $oh, $w, $h, $adj);
@@ -573,19 +587,25 @@ function resizeStaticWebpPicture($imageData, $w, $h, $adj)
     imagecopyresampled($canvas, $originalImage, $dimensions['destX'], $dimensions['destY'], 0, 0, $dimensions['dw'], $dimensions['dh'], $ow, $oh);
     ob_start();
     $encoded = imagewebp($canvas, null, 85) ? ob_get_clean() : false;
-    if ($encoded === false || $encoded === '') throw new RuntimeException('Unable to encode WebP image');
+    if ($encoded === false || $encoded === '') {
+        throw new RuntimeException('Unable to encode WebP image');
+    }
     return $encoded;
 }
 
 function isAnimatedWebp($imageData)
 {
-    if (substr($imageData, 0, 12) !== 'RIFF' . substr($imageData, 4, 4) . 'WEBP') return false;
+    if (substr($imageData, 0, 12) !== 'RIFF' . substr($imageData, 4, 4) . 'WEBP') {
+        return false;
+    }
     $offset = 12;
     $length = strlen($imageData);
     while ($offset + 8 <= $length) {
         $chunkType = substr($imageData, $offset, 4);
         $chunkLength = unpack('V', substr($imageData, $offset + 4, 4))[1];
-        if ($chunkType === 'ANIM') return true;
+        if ($chunkType === 'ANIM') {
+            return true;
+        }
         $offset += 8 + $chunkLength + ($chunkLength % 2);
     }
     return false;
@@ -593,23 +613,43 @@ function isAnimatedWebp($imageData)
 
 function calculateWebpDimensions($ow, $oh, $w, $h, $adj)
 {
-    if ($w !== '') $nw = (int)$w;
-    elseif ($h === '') $nw = $ow;
-    else $nw = (($adj === 's') || ($adj === 'h')) ? (int)($ow * ($h / $oh)) : $ow;
-    if ($h !== '') $nh = (int)$h;
-    elseif ($w === '') $nh = $oh;
-    else $nh = (($adj === 's') || ($adj === 'w')) ? (int)($oh * ($w / $ow)) : $oh;
+    if ($w !== '') {
+        $nw = (int)$w;
+    } elseif ($h === '') {
+        $nw = $ow;
+    } else {
+        $nw = (($adj === 's') || ($adj === 'h')) ? (int)($ow * ($h / $oh)) : $ow;
+    }
+    if ($h !== '') {
+        $nh = (int)$h;
+    } elseif ($w === '') {
+        $nh = $oh;
+    } else {
+        $nh = (($adj === 's') || ($adj === 'w')) ? (int)($oh * ($w / $ow)) : $oh;
+    }
 
     $xscale = $nw / $ow;
     $yscale = $nh / $oh;
     if ((($xscale < $yscale) && ($adj === 's')) || (($xscale > $yscale) && ($adj === 'f')) || ($adj === 'w')) {
-        $dw = $nw; $dh = (int)($oh * $xscale); $destX = 0; $destY = (int)(($nh - $dh) / 2);
+        $dw = $nw;
+        $dh = (int)($oh * $xscale);
+        $destX = 0;
+        $destY = (int)(($nh - $dh) / 2);
     } elseif ((($xscale > $yscale) && ($adj === 's')) || (($xscale < $yscale) && ($adj === 'f')) || ($adj === 'h')) {
-        $dw = (int)($ow * $yscale); $dh = $nh; $destX = (int)(($nw - $dw) / 2); $destY = 0;
+        $dw = (int)($ow * $yscale);
+        $dh = $nh;
+        $destX = (int)(($nw - $dw) / 2);
+        $destY = 0;
     } elseif ($adj === 'c') {
-        $dw = $ow; $dh = $oh; $destX = (int)(($nw - $dw) / 2); $destY = (int)(($nh - $dh) / 2);
+        $dw = $ow;
+        $dh = $oh;
+        $destX = (int)(($nw - $dw) / 2);
+        $destY = (int)(($nh - $dh) / 2);
     } else {
-        $dw = $nw; $dh = $nh; $destX = 0; $destY = 0;
+        $dw = $nw;
+        $dh = $nh;
+        $destX = 0;
+        $destY = 0;
     }
     return array('nw' => max(1, $nw), 'nh' => max(1, $nh), 'dw' => max(1, $dw), 'dh' => max(1, $dh), 'destX' => $destX, 'destY' => $destY);
 }
@@ -617,6 +657,8 @@ function calculateWebpDimensions($ow, $oh, $w, $h, $adj)
 function saveWebpPictureCache($imageData, $imagePath, $imageName)
 {
     global $directory;
-    if (!file_exists($directory) && !mkdir($directory, 0775, true)) RSError('api_getPicture: Could not create directory');
+    if (!file_exists($directory) && !mkdir($directory, 0775, true)) {
+        RSError('api_getPicture: Could not create directory');
+    }
     return file_put_contents($imagePath . '_' . rawurlencode(base64_encode($imageName)) . '.webp', $imageData) !== false;
 }

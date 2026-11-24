@@ -60,14 +60,16 @@ while ($row = $accountsQueryResults->fetch_assoc()) {
 $filterProperties = array();
 if (count($accounts) > 1) {
     $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => implode(',', $accounts), 'mode' => '<-IN');
-} else
+} else {
     $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['subAccountAccountID'], $clientID), 'value' => $accounts[0]);
+}
 
 $subAccountsQueryResults = IQ_getFilteredItemsIDs($subAccountsItemTypeID, $clientID, $filterProperties, array());
 
 $subAccounts = array();
-while ($row = $subAccountsQueryResults->fetch_assoc())
+while ($row = $subAccountsQueryResults->fetch_assoc()) {
     $subAccounts[] = $row['ID'];
+}
 
 if (count($subAccounts) > 0) {
 
@@ -108,13 +110,15 @@ if (count($subAccounts) > 0) {
         // get current year's operations for the account
         $operationsQuery = IQ_getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, array());
 
-        if ($operationsQuery->num_rows > 0)
-            while ($row = $operationsQuery->fetch_assoc())
+        if ($operationsQuery->num_rows > 0) {
+            while ($row = $operationsQuery->fetch_assoc()) {
                 if ($row['ID'] != $operationID) {
                     $results['check'] = 'NOK';
                     $results['duplicateID'] = $operationOperationID;
                     break;
                 }
+            }
+        }
     }
 }
 

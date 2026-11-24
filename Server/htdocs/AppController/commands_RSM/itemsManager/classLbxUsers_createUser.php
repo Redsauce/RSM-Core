@@ -11,7 +11,7 @@ $password =               $GLOBALS[$cstRS_POST][$cstPassword] ;
 $staffID  =               $GLOBALS[$cstRS_POST][$cstStaffID] ;
 
 if ($clientID != "") {
-    
+
     // Generate a badge if needed
     if ($badge == "") {
         $badge = RScreateBadge($clientID);
@@ -28,7 +28,7 @@ if ($clientID != "") {
 
     if ($result->num_rows > 0) {
         RSReturnError("QUERY ERROR CREATING USER. USER ALREADY EXISTS.", "2");
-    } 
+    }
 
     // If the user creation request does not have an associated staff, we create a new staff element.
     if (empty($staffID)) {
@@ -50,10 +50,10 @@ if ($clientID != "") {
 
     // Execute the query
     if ($result = RSQuery($theQueryUser)) {
-        
+
         $createdUser['userID' ] = $newID;
         $createdUser['staffID'] = $staffID;
-        
+
         // And write XML Response back to the application
         RSReturnArrayResults($createdUser);
 
@@ -64,4 +64,3 @@ if ($clientID != "") {
 } else {
     RSReturnError("ERROR CREATING USER. INVALID CLIENTID.", "4");
 }
-

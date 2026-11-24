@@ -13,9 +13,9 @@ isset($GLOBALS[$cstRS_POST]['parentID'  ]) ? $parentID   =               $GLOBAL
 isset($GLOBALS[$cstRS_POST]['parentType']) ? $parentType =               $GLOBALS[$cstRS_POST]['parentType']  : dieWithError(400);
 
 if ($tasks == '') {
-	// ERROR: no tasks selected
-	RSReturnArrayResults(array('result' => 'no tasks selected'));
-	exit;
+    // ERROR: no tasks selected
+    RSReturnArrayResults(array('result' => 'no tasks selected'));
+    exit;
 }
 
 // get item type
@@ -36,31 +36,35 @@ $parentPropertyType    = getPropertyType($parentPropertyID, $clientID);
 
 // get tasks properties
 $tasksArray = getFilteredItemsIDs(
-	$tasksItemTypeID,
-	$clientID,
-	array(),
-	array(
-		array('ID' => $projectPropertyID    , 'name' => 'projectID'  ),
-		array('ID' => $descriptionPropertyID, 'name' => 'description'),
-		array('ID' => $startDatePropertyID  , 'name' => 'startDate'  ),
-		array('ID' => $endDatePropertyID    , 'name' => 'endDate'    ),
-		array('ID' => $staffPropertyID      , 'name' => 'staff'      ),
-		array('ID' => $currentTimePropertyID, 'name' => 'currentTime'),
-		array('ID' => $totalTimePropertyID  , 'name' => 'totalTime'  )
-	),'', false, '', $tasks
+    $tasksItemTypeID,
+    $clientID,
+    array(),
+    array(
+        array('ID' => $projectPropertyID    , 'name' => 'projectID'  ),
+        array('ID' => $descriptionPropertyID, 'name' => 'description'),
+        array('ID' => $startDatePropertyID  , 'name' => 'startDate'  ),
+        array('ID' => $endDatePropertyID    , 'name' => 'endDate'    ),
+        array('ID' => $staffPropertyID      , 'name' => 'staff'      ),
+        array('ID' => $currentTimePropertyID, 'name' => 'currentTime'),
+        array('ID' => $totalTimePropertyID  , 'name' => 'totalTime'  )
+    ),
+    '',
+    false,
+    '',
+    $tasks
 );
 
 
 if (count($tasksArray) == 0) {
-	// ERROR: no tasks found
-	RSReturnArrayResults(array('result' => 'no tasks found'));
-	exit;
+    // ERROR: no tasks found
+    RSReturnArrayResults(array('result' => 'no tasks found'));
+    exit;
 }
 
 // save tasks list
 $tasksList = $tasksArray[0]['ID'];
 for ($i = 1; $i < count($tasksArray); $i++) {
-	$tasksList .= ','.$tasksArray[$i]['ID'];
+    $tasksList .= ','.$tasksArray[$i]['ID'];
 }
 
 // adjust values for new task
@@ -72,29 +76,29 @@ $currentTime = $tasksArray[0]['currentTime'];
 $totalTime   = $tasksArray[0]['totalTime'  ];
 
 for ($i = 1; $i < count($tasksArray); $i++) {
-	// update description
-	$description .= '; '.$tasksArray[$i]['description'];
-	
-	// update start date
-	if (isBefore($tasksArray[$i]['startDate'], $startDate)) {
-		$startDate = $tasksArray[$i]['startDate'];
-	}
-	
-	// update end date
-	if (isAfter($tasksArray[$i]['endDate'], $endDate)) {
-		$endDate = $tasksArray[$i]['endDate'];
-	}
-	
-	// update staff
-	if ($tasksArray[$i]['staff'] != '') {
+    // update description
+    $description .= '; '.$tasksArray[$i]['description'];
+
+    // update start date
+    if (isBefore($tasksArray[$i]['startDate'], $startDate)) {
+        $startDate = $tasksArray[$i]['startDate'];
+    }
+
+    // update end date
+    if (isAfter($tasksArray[$i]['endDate'], $endDate)) {
+        $endDate = $tasksArray[$i]['endDate'];
+    }
+
+    // update staff
+    if ($tasksArray[$i]['staff'] != '') {
         $staff .= ','.$tasksArray[$i]['staff'];
     }
-    
-	// update current time
-	$currentTime += $tasksArray[$i]['currentTime'];
-	
-	// update total time
-	$totalTime += $tasksArray[$i]['totalTime'];
+
+    // update current time
+    $currentTime += $tasksArray[$i]['currentTime'];
+
+    // update total time
+    $totalTime += $tasksArray[$i]['totalTime'];
 }
 
 // format values correctly
@@ -108,12 +112,12 @@ $worksessionsTaskPropertyID   = getClientPropertyID_RelatedWith_byName($definiti
 $worksessionsTaskPropertyType = getPropertyType($worksessionsTaskPropertyID, $clientID);
 
 $worksArray = getFilteredItemsIDs(
-	$worksessionsItemTypeID,
-	$clientID,
-	array(
-		array('ID' => $worksessionsTaskPropertyID, 'value' => $tasksList, 'mode' => '<-IN')
-	),
-	array()
+    $worksessionsItemTypeID,
+    $clientID,
+    array(
+        array('ID' => $worksessionsTaskPropertyID, 'value' => $tasksList, 'mode' => '<-IN')
+    ),
+    array()
 );
 
 $status = getValue(getClientListValueID_RelatedWith(getAppListValueID("taskStatusOpen"), $clientID), $clientID);
@@ -144,7 +148,7 @@ if ($newTaskID <= 0) {
 
 // change worksessions parent task (now they pertain to the new task)
 foreach ($worksArray as $ws) {
-	setPropertyValueByID($worksessionsTaskPropertyID, $worksessionsItemTypeID, $ws['ID'], $clientID, $newTaskID, $worksessionsTaskPropertyType, $RSuserID);	
+    setPropertyValueByID($worksessionsTaskPropertyID, $worksessionsItemTypeID, $ws['ID'], $clientID, $newTaskID, $worksessionsTaskPropertyType, $RSuserID);
 }
 
 // delete old tasks

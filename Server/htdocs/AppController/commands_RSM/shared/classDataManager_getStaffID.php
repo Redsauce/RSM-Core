@@ -13,10 +13,9 @@ if ($password === "") {
 
 } else {
     // Verification with a username and password.
-    $theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";  
+    $theQuery = "SELECT RS_ITEM_ID as 'ID' FROM `rs_users` WHERE RS_LOGIN = '" . $login . "' AND RS_PASSWORD = '" . $password . "' AND RS_CLIENT_ID = '" . $clientID . "'";
 
 }
 
 // Write back the XML Response to the application without compression
 RSReturnQueryResults(RSQuery($theQuery));
-

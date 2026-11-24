@@ -9,7 +9,7 @@ require_once "../utilities/RStools.php";
 isset($GLOBALS[$cstRS_POST]['clientID'   ]) ? $clientID     =               $GLOBALS[$cstRS_POST]['clientID'   ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['itemTypeID' ]) ? $itemTypeID   =               $GLOBALS[$cstRS_POST]['itemTypeID' ]  : dieWithError(400);
 isset($GLOBALS[$cstRS_POST]['items'      ]) ? $items        =               $GLOBALS[$cstRS_POST]['items'      ]  : dieWithError(400);
-isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(',',  $GLOBALS[$cstRS_POST]['descendants']) : $descendants = array();
+isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(',', $GLOBALS[$cstRS_POST]['descendants']) : $descendants = array();
 
 // organize descendants by parent itemtype
 $descendantsForItemtype = array();
@@ -25,14 +25,14 @@ for ($i = 0; $i < count($descendants); $i++) {
 }
 
 if ($items != '') {
-	if (count(getUserVisiblePropertiesIDs($itemTypeID, $clientID, $RSuserID)) > 0) {
-		// the user can delete the items
-		if (strpos($items, ',') === false) {
-			deleteItem($itemTypeID, $items, $clientID);
-		} else {
-			deleteItems($itemTypeID, $clientID, $items);
-		}
-	}
+    if (count(getUserVisiblePropertiesIDs($itemTypeID, $clientID, $RSuserID)) > 0) {
+        // the user can delete the items
+        if (strpos($items, ',') === false) {
+            deleteItem($itemTypeID, $items, $clientID);
+        } else {
+            deleteItems($itemTypeID, $clientID, $items);
+        }
+    }
 }
 
 

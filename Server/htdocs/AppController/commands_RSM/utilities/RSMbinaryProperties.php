@@ -50,7 +50,9 @@ function RSsendBinaryStatementData($statement, $parameterIndex, $data)
 {
     $offset = 0;
     do {
-        if (!$statement->send_long_data($parameterIndex, substr($data, $offset, 65536))) return false;
+        if (!$statement->send_long_data($parameterIndex, substr($data, $offset, 65536))) {
+            return false;
+        }
         $offset += 65536;
     } while ($offset < strlen($data));
     return true;
@@ -61,21 +63,33 @@ function RSstoreBinaryPropertyValue($operation, $clientID, $itemTypeID, $itemID,
     global $mysqli, $propertiesTables, $RSmaxBinaryPropertyBytes;
     if (!in_array($operation, array('INSERT', 'REPLACE'), true)
         || !in_array($propertyType, array('file', 'image'), true)
-        || strlen($data) > ($RSmaxBinaryPropertyBytes ?? (32 * 1024 * 1024))) return false;
-    return RSexecutePreparedUploadWrite($operation . ' INTO ' . $propertiesTables[$propertyType]
+        || strlen($data) > ($RSmaxBinaryPropertyBytes ?? (32 * 1024 * 1024))) {
+        return false;
+    }
+    return RSexecutePreparedUploadWrite(
+        $operation . ' INTO ' . $propertiesTables[$propertyType]
         . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_NAME, RS_SIZE, RS_DATA) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        'iiiisib', array($clientID, $itemTypeID, $itemID, $propertyID, $parsed['name'], strlen($data), null), array(6 => $data));
+        'iiiisib',
+        array($clientID, $itemTypeID, $itemID, $propertyID, $parsed['name'], strlen($data), null),
+        array(6 => $data)
+    );
 }
 
 function RSinsertBinaryPropertyAudit($clientID, $itemTypeID, $itemID, $propertyID, $propertyType, $userID, $token, $parsed, $data)
 {
     global $mysqli, $auditTrailPropertiesTables;
-    if (!in_array($propertyType, array('file', 'image'), true)) return false;
-    return RSexecutePreparedUploadWrite('INSERT INTO ' . $auditTrailPropertiesTables[$propertyType]
+    if (!in_array($propertyType, array('file', 'image'), true)) {
+        return false;
+    }
+    return RSexecutePreparedUploadWrite(
+        'INSERT INTO ' . $auditTrailPropertiesTables[$propertyType]
         . ' (RS_CLIENT_ID, RS_ITEMTYPE_ID, RS_ITEM_ID, RS_PROPERTY_ID, RS_USER_ID, RS_TOKEN, RS_CHANGED_DATE,'
         . ' RS_INITIAL_NAME, RS_INITIAL_SIZE, RS_INITIAL_VALUE, RS_FINAL_NAME, RS_FINAL_SIZE, RS_FINAL_VALUE)'
-        . " VALUES (?, ?, ?, ?, ?, ?, ?, '', 0, '', ?, ?, ?)", 'iiiiisssib',
-        array($clientID, $itemTypeID, $itemID, $propertyID, $userID, (string)$token, date('Y-m-d H:i:s'), $parsed['name'], strlen($data), null), array(9 => $data));
+        . " VALUES (?, ?, ?, ?, ?, ?, ?, '', 0, '', ?, ?, ?)",
+        'iiiiisssib',
+        array($clientID, $itemTypeID, $itemID, $propertyID, $userID, (string)$token, date('Y-m-d H:i:s'), $parsed['name'], strlen($data), null),
+        array(9 => $data)
+    );
 }
 
 // SQL is supplied only by trusted storage helpers, never by request parameters.
@@ -84,24 +98,36 @@ function RSexecutePreparedUploadWrite($sql, $types, $values, $binaryValues = arr
     global $mysqli, $RSmaxBinaryPropertyBytes;
     foreach ($binaryValues as $index => $data) {
         if (!is_string($data) || !isset($types[$index]) || $types[$index] !== 'b'
-            || strlen($data) > ($RSmaxBinaryPropertyBytes ?? (32 * 1024 * 1024))) return false;
+            || strlen($data) > ($RSmaxBinaryPropertyBytes ?? (32 * 1024 * 1024))) {
+            return false;
+        }
     }
     $statement = null;
     try {
         $statement = $mysqli->prepare($sql);
-        if (!$statement) return false;
+        if (!$statement) {
+            return false;
+        }
         $arguments = array($types);
-        foreach ($values as $index => &$value) $arguments[] = &$value;
+        foreach ($values as $index => &$value) {
+            $arguments[] = &$value;
+        }
         unset($value);
-        if (!call_user_func_array(array($statement, 'bind_param'), $arguments)) return false;
+        if (!call_user_func_array(array($statement, 'bind_param'), $arguments)) {
+            return false;
+        }
         foreach ($binaryValues as $index => $data) {
-            if (!RSsendBinaryStatementData($statement, $index, $data)) return false;
+            if (!RSsendBinaryStatementData($statement, $index, $data)) {
+                return false;
+            }
         }
         return $statement->execute();
     } catch (mysqli_sql_exception $exception) {
         error_log('RSM: prepared upload write failed');
         return false;
     } finally {
-        if ($statement) $statement->close();
+        if ($statement) {
+            $statement->close();
+        }
     }
 }

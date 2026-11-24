@@ -64,11 +64,11 @@ $returnProperties = array();
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 
 if (count($result) > 0) {
-  //another workssesion occupies part of this worksession's time
-  $results['result'] = "NOK";
-  $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
+    //another workssesion occupies part of this worksession's time
+    $results['result'] = "NOK";
+    $results['description'] = "WORKSESSION SLOT NOT AVAILABLE";
 
-  RSReturnArrayResults($results);
+    RSReturnArrayResults($results);
 }
 
 //check not existing worksessions beginning before this time and lasting until inside this time
@@ -132,10 +132,10 @@ $returnProperties = array();
 // get worksessions
 $result = getFilteredItemsIDs($itemTypeID, $clientID, $filterProperties, $returnProperties, '', true);
 if (count($result) > 1) {
-  // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
-  for($i=0;$i<count($result)-1;$i++){
-    deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
-  }
+    // Another workssesion(s) for the same user starts at the same time so delete the old one(s)
+    for ($i=0;$i<count($result)-1;$i++) {
+        deleteItem($itemTypeID, $result[$i]['ID'], $clientID);
+    }
 }
 
 // Set worksession creation date
@@ -199,12 +199,12 @@ if ($updateTaskDates == 1) {
     $parentStartDate = getItemPropertyValue($task, $tasksStartDatePropertyID, $clientID);
     $parentEndDate = getItemPropertyValue($task, $tasksEndDatePropertyID, $clientID);
 
-    if ($startDate == "" || isBefore(explode(' ',trim($startDate))[0], $parentStartDate)) {
+    if ($startDate == "" || isBefore(explode(' ', trim($startDate))[0], $parentStartDate)) {
         // change the value into the database
         setPropertyValueByID($tasksStartDatePropertyID, $tasksItemTypeID, $task, $clientID, $startDate, '', $RSuserID);
     }
 
-    if ($endDate == "" || isAfter(explode(' ',trim($endDate))[0], $parentEndDate)) {
+    if ($endDate == "" || isAfter(explode(' ', trim($endDate))[0], $parentEndDate)) {
         // change the value into the database
         setPropertyValueByID($tasksEndDatePropertyID, $tasksItemTypeID, $task, $clientID, $endDate, '', $RSuserID);
     }

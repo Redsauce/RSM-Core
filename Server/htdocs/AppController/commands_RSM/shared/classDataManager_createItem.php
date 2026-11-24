@@ -11,9 +11,10 @@ $properties = isset($GLOBALS[$cstRS_POST]['properties'])? $GLOBALS[$cstRS_POST][
 // prepare the propertiesValues array
 $propertiesValues = array();
 $propertiesIDs = array();
+$invalidProperties = array('result' => 'NOK', 'description' => 'Invalid properties format', 'itemID' => 0);
 
 if (!is_string($properties)) {
-    RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Invalid properties format', 'itemID' => 0));
+    RSReturnArrayResults($invalidProperties);
     exit();
 }
 
@@ -22,11 +23,13 @@ if ($properties != '') {
 
     foreach ($properties as $property) {
         // Ignore empty separators, including a trailing comma from legacy clients.
-        if ($property === '') continue;
+        if ($property === '') {
+            continue;
+        }
         $propertiesArr = explode(';', $property);
         // An empty encoded value is valid ("ID;"); a missing separator is not.
         if (count($propertiesArr) < 2 || $propertiesArr[0] === '') {
-            RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Invalid properties format', 'itemID' => 0));
+            RSReturnArrayResults($invalidProperties);
             exit();
         }
 
@@ -34,12 +37,14 @@ if ($properties != '') {
         $propertiesValues[] = array('ID' => $propertiesArr[0], 'value' => base64_decode($propertiesArr[1]));
         $propertiesIDs[] = $propertiesArr[0];
     }
-    if (count($propertiesValues) === 0) {
-        RSReturnArrayResults(array('result' => 'NOK', 'description' => 'Invalid properties format', 'itemID' => 0));
+    if (empty($propertiesValues)) {
+        RSReturnArrayResults($invalidProperties);
         exit();
     }
     //get itemType if missing
-    if($itemTypeID == '') $itemTypeID = getItemTypeIDFromProperties($propertiesIDs, $clientID);
+    if ($itemTypeID == '') {
+        $itemTypeID = getItemTypeIDFromProperties($propertiesIDs, $clientID);
+    }
 
     // Create the item
     $itemID = createItem($clientID, $propertiesValues);

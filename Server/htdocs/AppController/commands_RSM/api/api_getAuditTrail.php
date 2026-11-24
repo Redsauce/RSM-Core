@@ -16,16 +16,16 @@ $results = array();
 
 // Check if the token or the user have access to the requested propertyID
 if ((!RShasREADTokenPermission($RStoken, $propertyID)) && (!isPropertyVisible($RSuserID, $propertyID, $clientID))) {
-  $results['result'] = 'NOK';
-  $results['description'] = 'THIS TOKEN DOES NOT HAVE PERMISSIONS TO AUDIT THIS ITEM';
-  RSReturnArrayQueryResults($results);
+    $results['result'] = 'NOK';
+    $results['description'] = 'THIS TOKEN DOES NOT HAVE PERMISSIONS TO AUDIT THIS ITEM';
+    RSReturnArrayQueryResults($results);
 }
 
 $itemTypeID = getItemTypeIDFromProperties(array($propertyID), $clientID);
 if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
-  $results['result'] = 'NOK';
-  $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
-  RSReturnArrayQueryResults($results);
+    $results['result'] = 'NOK';
+    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THIS ITEM';
+    RSReturnArrayQueryResults($results);
 }
 
 // Process response

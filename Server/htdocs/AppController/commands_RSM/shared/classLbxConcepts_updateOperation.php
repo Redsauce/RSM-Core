@@ -31,13 +31,13 @@ $VAT = 0;
 $deduction = 0;
 
 while ($row = $concepts->fetch_assoc()) {
-	$base += $row['price'] * $row['units'];
-	$VAT += ($row['price'] * $row['units'] * $row['VAT']) / 100;
-	$deduction += ($row['price'] * $row['units'] * $row['deduction']) / 100;
+    $base += $row['price'] * $row['units'];
+    $VAT += ($row['price'] * $row['units'] * $row['VAT']) / 100;
+    $deduction += ($row['price'] * $row['units'] * $row['deduction']) / 100;
 }
 $total = $base + $VAT - $deduction;
 
- 
+
 
 // set the operation properties values
 setItemPropertyValue($definitions['operationBase'], $operationsItemTypeID, $operationID, $clientID, round($base, 2), $RSuserID);

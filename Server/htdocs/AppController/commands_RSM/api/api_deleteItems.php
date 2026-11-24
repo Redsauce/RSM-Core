@@ -27,18 +27,18 @@ $itemTypeID = ParseITID($itemTypeID, $clientID);
 $propertiesList = getClientItemTypePropertiesId($itemTypeID, $clientID);
 
 if ((RShasTokenPermissions($RStoken, $propertiesList, "DELETE")) || (arePropertiesVisible($RSuserID, $propertiesList, $clientID))) {
-  if ($itemIDs != '' && !RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDs)) {
-    $results['result'] = 'NOK';
-    $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THESE ITEMS';
-  } elseif ($itemIDs != '') {
-    deleteItems($itemTypeID, $clientID, $itemIDs);
-    $results['result'] = 'OK';
-  } else {
-    $results['result'] = 'OK';
-  }
+    if ($itemIDs != '' && !RSitemsMatchTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemIDs)) {
+        $results['result'] = 'NOK';
+        $results['description'] = 'TOKEN CUSTOMER SCOPE DOES NOT ALLOW ACCESS TO THESE ITEMS';
+    } elseif ($itemIDs != '') {
+        deleteItems($itemTypeID, $clientID, $itemIDs);
+        $results['result'] = 'OK';
+    } else {
+        $results['result'] = 'OK';
+    }
 } else {
-  $results['result'] = 'NOK';
-  $results['description'] = 'YOU DONT HAVE PERMISSIONS TO DELETE THIS ITEM';
+    $results['result'] = 'NOK';
+    $results['description'] = 'YOU DONT HAVE PERMISSIONS TO DELETE THIS ITEM';
 }
 
 // And write XML Response back to the application without compression

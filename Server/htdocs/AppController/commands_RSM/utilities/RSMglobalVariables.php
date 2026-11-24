@@ -1,10 +1,12 @@
 <?php
 
-function setGlobalVariable() {
+function setGlobalVariable()
+{
 
 }
 
-function getGlobalVariableValue($variableName, $clientID) {
+function getGlobalVariableValue($variableName, $clientID)
+{
     // Escapar el nombre de la variable para prevenir inyección SQL
     $escapedVariableName = mysqli_real_escape_string($GLOBALS['mysqli'], $variableName);
 
@@ -31,13 +33,14 @@ function getGlobalVariableValue($variableName, $clientID) {
     return $result['value'] ?? ""; // Devolver valor o cadena vacía si no existe
 }
 
-function getGlobalVariables($clientID) {
-	// execute query
-	$result = RSquery('SELECT RS_NAME AS "name", RS_VALUE AS "value", RS_IMAGE AS "image" FROM rs_globals WHERE RS_CLIENT_ID = '.$clientID.' ORDER BY RS_NAME');
+function getGlobalVariables($clientID)
+{
+    // execute query
+    $result = RSquery('SELECT RS_NAME AS "name", RS_VALUE AS "value", RS_IMAGE AS "image" FROM rs_globals WHERE RS_CLIENT_ID = '.$clientID.' ORDER BY RS_NAME');
 
-	$results = array();
+    $results = array();
 
-	if (is_bool($result) && !$result) {
+    if (is_bool($result) && !$result) {
         return $results;
     }
 
@@ -45,16 +48,15 @@ function getGlobalVariables($clientID) {
         return $results;
     }
 
-	while ($row = $result->fetch_assoc()) {
-		if ($row['image'] == '1') {
-			// convert binary value to hexadecimal
-			$row['value'] = bin2hex($row['value']);
-		}
+    while ($row = $result->fetch_assoc()) {
+        if ($row['image'] == '1') {
+            // convert binary value to hexadecimal
+            $row['value'] = bin2hex($row['value']);
+        }
 
-		// add entry to the results
-		$results[] = $row;
-	}
+        // add entry to the results
+        $results[] = $row;
+    }
 
-	return $results;
+    return $results;
 }
-

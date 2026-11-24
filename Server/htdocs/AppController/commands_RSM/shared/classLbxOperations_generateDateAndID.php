@@ -76,14 +76,24 @@ $date = date('Y-m-d');
 $subAccountPropertyID = getClientPropertyID_RelatedWith_byName($definitions['operationSubAccountID'], $clientID);
 $yearScope = array('propertyID' => $invoiceDatePropertyID, 'type' => getPropertyType($invoiceDatePropertyID, $clientID), 'year' => intval(substr($date, 0, 4)));
 $seriesScope = array('propertyID' => $subAccountPropertyID, 'type' => getPropertyType($subAccountPropertyID, $clientID), 'values' => $subAccounts);
-$nextID = RSallocateNextIntegerPropertyValue($clientID, $itemTypeID, $operationIDPropertyID,
+$nextID = RSallocateNextIntegerPropertyValue(
+    $clientID,
+    $itemTypeID,
+    $operationIDPropertyID,
     function ($next) use ($clientID, $itemTypeID, $operationID, $operationIDPropertyID, $invoiceDatePropertyID, $date, $RSuserID) {
         // Keep this command's existing number/date rules inside the allocation lock.
         if (getItemPropertyValue($operationID, $operationIDPropertyID, $clientID) > 0
-            || getItemPropertyValue($operationID, $invoiceDatePropertyID, $clientID) != '') return false;
-        if (setPropertyValueByID($operationIDPropertyID, $itemTypeID, $operationID, $clientID, $next, '', $RSuserID) !== 0) return false;
+            || getItemPropertyValue($operationID, $invoiceDatePropertyID, $clientID) != '') {
+            return false;
+        }
+        if (setPropertyValueByID($operationIDPropertyID, $itemTypeID, $operationID, $clientID, $next, '', $RSuserID) !== 0) {
+            return false;
+        }
         return setPropertyValueByID($invoiceDatePropertyID, $itemTypeID, $operationID, $clientID, $date, '', $RSuserID) === 0;
-    }, $yearScope, $seriesScope);
+    },
+    $yearScope,
+    $seriesScope
+);
 if ($nextID === false) {
     $results['result'] = 'NOK';
     $results['description'] = 'ERROR ASSIGNING NUMBER AND DATE';

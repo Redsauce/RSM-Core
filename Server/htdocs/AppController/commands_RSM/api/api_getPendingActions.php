@@ -23,7 +23,9 @@ $recordPendingActionsMemory = function ($phase, $rowCount = 0) use (&$pendingAct
 $recordPendingActionsMemory('entry');
 register_shutdown_function(function () use (&$pendingActionsMemoryPhases, &$pendingActionsMemoryContext, $recordPendingActionsMemory) {
     if (empty($GLOBALS['RSallowDebug'])
-        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) return;
+        || max(memory_get_peak_usage(), memory_get_peak_usage(true)) <= 50 * 1048576) {
+        return;
+    }
     $recordPendingActionsMemory('response_finished');
     error_log('RSM pending actions memory phases: ' . json_encode(array(
         'context' => $pendingActionsMemoryContext, 'phases' => $pendingActionsMemoryPhases)));
@@ -94,7 +96,7 @@ $recordPendingActionsMemory('allowed_event_ids_built', count($allowedEventIds));
 // Construct filterProperties array
 $filterProperties  = array(
     array('ID' => parsePID("scheduledEvents.node", $clientID), 'value' => "0", 'mode' => "="),
-    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => join(',',$allowedEventIds), 'mode' => "<-IN")
+    array('ID' => parsePID("scheduledEvents.event", $clientID), 'value' => join(',', $allowedEventIds), 'mode' => "<-IN")
 );
 
 // Construct returnProperties array

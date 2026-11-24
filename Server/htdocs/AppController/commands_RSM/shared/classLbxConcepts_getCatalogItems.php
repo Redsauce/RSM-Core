@@ -17,12 +17,12 @@ $itemIDs = explode(",", $itemIDs);
 $results = array();
 
 foreach ($itemIDs as $itemID) {
-	$result = array();
-	
-$result["name" ] = getPropertyValue("catalogItem.name" , $itemID, $clientID);
-	$result["price"] = getPropertyValue("catalogItem.price", $itemID, $clientID);
-	
-	$results[] = $result;
+    $result = array();
+
+    $result["name" ] = getPropertyValue("catalogItem.name", $itemID, $clientID);
+    $result["price"] = getPropertyValue("catalogItem.price", $itemID, $clientID);
+
+    $results[] = $result;
 }
 
 RSReturnArrayQueryResults($results);

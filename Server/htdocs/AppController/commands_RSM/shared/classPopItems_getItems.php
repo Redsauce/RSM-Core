@@ -7,6 +7,6 @@ $itemTypeID = $GLOBALS[$cstRS_POST][$cstItemTypeID];
 $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 
 $results = IQ_getItems($itemTypeID, $clientID);
-	
-// Return data			
+
+// Return data
 RSReturnQueryResults($results);

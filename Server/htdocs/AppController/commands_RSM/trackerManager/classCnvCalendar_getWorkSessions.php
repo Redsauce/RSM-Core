@@ -24,7 +24,7 @@ $wsDescriptionPropertyID = getClientPropertyID_RelatedWith_byName($definitions['
 $filterProperties = array();
 $filterProperties[] = array('ID' => $wsUserPropertyID, 'value' => $user);
 $filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $startDate, 'mode' => 'SAME_OR_AFTER');
-$filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $endDate, 'mode' => 'BEFORE');  
+$filterProperties[] = array('ID' => $wsStartDatePropertyID, 'value' => $endDate, 'mode' => 'BEFORE');
 
 // build return properties array
 $returnProperties = array();

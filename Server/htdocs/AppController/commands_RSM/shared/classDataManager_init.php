@@ -27,10 +27,10 @@ if ($itemTypeID <= 0) {
     RSReturnError("PROPERTIES MUST PERTAIN TO THE SAME ITEM TYPE", 0);
 }
 
-$itemTypeName        = getClientItemTypeName         ($itemTypeID    , $clientID);
-$itemTypeIcon        = getClientItemTypeIcon         ($itemTypeID    , $clientID);
-$mainPropertyID      = getMainPropertyID             ($itemTypeID    , $clientID);
-$mainPropertyName    = getClientPropertyName         ($mainPropertyID, $clientID);
+$itemTypeName        = getClientItemTypeName($itemTypeID, $clientID);
+$itemTypeIcon        = getClientItemTypeIcon($itemTypeID, $clientID);
+$mainPropertyID      = getMainPropertyID($itemTypeID, $clientID);
+$mainPropertyName    = getClientPropertyName($mainPropertyID, $clientID);
 $mainPropertyAppName = getAppPropertyName_RelatedWith($mainPropertyID, $clientID);
 
 // prepare results array
@@ -50,11 +50,13 @@ $visibleProperties = getUserVisiblePropertiesIDs($itemTypeID, $clientID, $RSuser
 $appProperties  = array();
 $userProperties = array();
 
-foreach ($sysProperties as $sysProperty) is_numeric($sysProperty)? $userProperties[] = $sysProperty : $appProperties[] = $sysProperty;
+foreach ($sysProperties as $sysProperty) {
+    is_numeric($sysProperty)? $userProperties[] = $sysProperty : $appProperties[] = $sysProperty;
+}
 
 // Get properties required
-$propertiesUser = getPropertyIDs             ($userProperties, $clientID);
-$propertiesApp  = getPropertyIDs_usingSysName($appProperties , $clientID);
+$propertiesUser = getPropertyIDs($userProperties, $clientID);
+$propertiesApp  = getPropertyIDs_usingSysName($appProperties, $clientID);
 
 // Merge the properties
 $properties = array();
@@ -63,7 +65,9 @@ $properties = array_merge($propertiesApp, $propertiesUser);
 // Return the properties that are required and visible
 foreach ($properties as $property) {
 
-    if (!in_array($property["ID"], $visibleProperties)) continue; // property is not visible
+    if (!in_array($property["ID"], $visibleProperties)) {
+        continue;
+    } // property is not visible
 
     // Add the propertyName in the results, if found
     $property["appName"] = getAppPropertyName_RelatedWith($property["ID"], $clientID);
@@ -98,11 +102,13 @@ foreach ($properties as $property) {
                 // get property referred item type
                 $filterProperties   = array();
                 $returnProperties   = array();
-                $referredItemTypeID = getClientPropertyReferredItemType($property['ID']    , $clientID);
-                $returnProperties[] = array('ID' => getMainPropertyID  ($referredItemTypeID, $clientID), 'name' => 'mainValue');
-                $referredItems      = IQ_getFilteredItemsIDs           ($referredItemTypeID, $clientID , $filterProperties, $returnProperties, 'mainValue');
+                $referredItemTypeID = getClientPropertyReferredItemType($property['ID'], $clientID);
+                $returnProperties[] = array('ID' => getMainPropertyID($referredItemTypeID, $clientID), 'name' => 'mainValue');
+                $referredItems      = IQ_getFilteredItemsIDs($referredItemTypeID, $clientID, $filterProperties, $returnProperties, 'mainValue');
 
-                while ($row = $referredItems->fetch_assoc()) $results[] = $row;
+                while ($row = $referredItems->fetch_assoc()) {
+                    $results[] = $row;
+                }
 
             } elseif (isIdentifier2itemtype($property['type'])) {
 

@@ -13,9 +13,9 @@ $propertyID = parsePID($propertyID, $clientID);
 
 // First, check if the user has access to this property
 if (!isPropertyVisible($RSuserID, $propertyID, $clientID)) {
-   // There were no permissions
-   $results = array('propertyId' => '-1');
-   RSReturnArrayQueryResults($results);
+    // There were no permissions
+    $results = array('propertyId' => '-1');
+    RSReturnArrayQueryResults($results);
 }
 
 $results = getAuditTrail($clientID, $propertyID, $itemID);

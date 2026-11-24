@@ -26,23 +26,36 @@
 //*****************************************************************************
 
 // Check if the current application is compatible with the current database
-function RSCheckCompatibleDB($serviceMode) {
+function RSCheckCompatibleDB($serviceMode)
+{
     global $cstRS_POST;
-    if (!isset($GLOBALS[$cstRS_POST]['RSbuild'   ])) return -1;
-    if (!isset($GLOBALS[$cstRS_POST]['RSplatform'])) return -1;
-    if (!isset($GLOBALS[$cstRS_POST]['RSappName' ])) return -1;
+    if (!isset($GLOBALS[$cstRS_POST]['RSbuild'   ])) {
+        return -1;
+    }
+    if (!isset($GLOBALS[$cstRS_POST]['RSplatform'])) {
+        return -1;
+    }
+    if (!isset($GLOBALS[$cstRS_POST]['RSappName' ])) {
+        return -1;
+    }
 
     $theQuery = "SELECT `RS_ID` FROM `rs_versions` WHERE `RS_BUILD`='" . $GLOBALS[$cstRS_POST]['RSbuild'] . "' AND `RS_OS`= '" . $GLOBALS[$cstRS_POST]['RSplatform'] . "' AND `RS_NAME` ='" . $GLOBALS[$cstRS_POST]['RSappName'] . "'";
 
-    if ($serviceMode == 0) $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
+    if ($serviceMode == 0) {
+        $theQuery = $theQuery . " AND `RS_PUBLIC`=1";
+    }
 
     $versions = RSQuery($theQuery);
 
     // Check the results
-    if (!$versions) return -1;
+    if (!$versions) {
+        return -1;
+    }
 
     // There was an error executing the query
-    if ($versions->num_rows == 0) return 0;
+    if ($versions->num_rows == 0) {
+        return 0;
+    }
 
     // The application version is not registered against the database so it is incompatible
 
@@ -52,11 +65,12 @@ function RSCheckCompatibleDB($serviceMode) {
 
 
 // Check if the current user has access to work with the selected database
-function RSCheckUserAccess() {
+function RSCheckUserAccess()
+{
     // If we return -1: The input is invalid or there was an error executing the query
     // If we return 0: RSM could not match the provided data to a single user in a single customer
     // If we return an integer: This is the ID of the user for the passed clientID
-    
+
     global $cstRS_POST;
     global $cstClientID;
     global $mysqli;
@@ -119,16 +133,21 @@ function RSCheckUserAccess() {
 
 
 // Get the staff associated with a customer's user.
-function getUserStaffID($userID, $clientID) {
+function getUserStaffID($userID, $clientID)
+{
 
     $theQuery = "SELECT `RS_ITEM_ID` FROM `rs_users` WHERE `RS_USER_ID`=" . $userID . " AND `RS_CLIENT_ID` = " . $clientID;
     $users = RSQuery($theQuery);
 
     // Check the results
-    if (!$users) return -1;
+    if (!$users) {
+        return -1;
+    }
 
     // User not found
-    if ($users->num_rows != 1) return 0;
+    if ($users->num_rows != 1) {
+        return 0;
+    }
 
     // A single user was found with the userID
     $row = $users->fetch_assoc();
