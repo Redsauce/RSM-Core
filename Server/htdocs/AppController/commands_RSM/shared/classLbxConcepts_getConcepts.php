@@ -10,15 +10,15 @@ $operationID = $GLOBALS[$cstRS_POST]['operationID'];
 // get the item type and the properties
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['concepts'], $clientID);
 
-$stockItemPropertyID	 = getClientPropertyID_RelatedWith_byName($definitions['conceptStockItemID'], $clientID);
-$namePropertyID			 = getClientPropertyID_RelatedWith_byName($definitions['conceptName'], $clientID);
-$projectPropertyID		 = getClientPropertyID_RelatedWith_byName($definitions['conceptProjectID'], $clientID);
-$unitsPropertyID		 = getClientPropertyID_RelatedWith_byName($definitions['conceptUnits'], $clientID);
-$IVAPropertyID			 = getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID);
-$pricePropertyID		 = getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID);
-$deductionPropertyID	 = getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID);
-$operationPropertyID	 = getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID);
-$pendingStockPropertyID	 = getClientPropertyID_RelatedWith_byName($definitions['conceptPendingStockID'], $clientID);
+$stockItemPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptStockItemID'], $clientID);
+$namePropertyID             = getClientPropertyID_RelatedWith_byName($definitions['conceptName'], $clientID);
+$projectPropertyID         = getClientPropertyID_RelatedWith_byName($definitions['conceptProjectID'], $clientID);
+$unitsPropertyID         = getClientPropertyID_RelatedWith_byName($definitions['conceptUnits'], $clientID);
+$IVAPropertyID             = getClientPropertyID_RelatedWith_byName($definitions['conceptIVA'], $clientID);
+$pricePropertyID         = getClientPropertyID_RelatedWith_byName($definitions['conceptPrice'], $clientID);
+$deductionPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptDeduction'], $clientID);
+$operationPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID);
+$pendingStockPropertyID     = getClientPropertyID_RelatedWith_byName($definitions['conceptPendingStockID'], $clientID);
 
 // build filter properties array
 $filterProperties = array();

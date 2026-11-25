@@ -45,13 +45,13 @@ $mysqli->query("COMMIT");
 // Assign a badget for each user
 function RSupdateAllBadgeUsers($RSclientID = null)
 {
-    $theQuery_users = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
+    $usersQuery = "SELECT RS_USER_ID, RS_CLIENT_ID FROM rs_users";
 
     if ($RSclientID != null) {
-        $theQuery_users .= " WHERE RS_CLIENT_ID = '$RSclientID'";
+        $usersQuery .= " WHERE RS_CLIENT_ID = '$RSclientID'";
     }
 
-    $resultUsers = RSQuery($theQuery_users);
+    $resultUsers = RSQuery($usersQuery);
 
     while ($row=$resultUsers->fetch_assoc()) {
         RSupdateBadgeForUser($row['RS_USER_ID'], $row['RS_CLIENT_ID']);

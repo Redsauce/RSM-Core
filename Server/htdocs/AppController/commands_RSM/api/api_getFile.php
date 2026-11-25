@@ -49,7 +49,7 @@ $file_path = $directory . $file_name;
 //check file in cache
 $nombres_archivo = glob($file_path . "_*");
 
-if ($enable_file_cache && count($nombres_archivo) > 0) {
+if ($enable_file_cache && !empty($nombres_archivo)) {
 
     // The file exists in cache
     $nombre_archivo = $nombres_archivo[0];

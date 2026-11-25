@@ -70,7 +70,7 @@ function adjustTasksTotalTime($tree, $taskID, $totalTime)
     // get child tasks
     // build filter properties array
     $filterProperties   = array();
-    $filterProperties[] = array('ID' => $tasksParentPropertyID,  'value' => $taskID   );
+    $filterProperties[] = array('ID' => $tasksParentPropertyID,  'value' => $taskID);
 
     // build return properties array
     $returnProperties   = array();

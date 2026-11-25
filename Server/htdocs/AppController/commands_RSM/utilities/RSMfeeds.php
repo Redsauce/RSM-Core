@@ -28,23 +28,23 @@ function getNewsType($token, $tema)
 
 }
 
-function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, $filterJoining)
+function getRSS($rssTitle, $token, $propertyIDs, $filterRules, $extFilterRules, $filterJoining)
 {
     global $RSMapiURL;
 
-    $newsType = getNewsType($token, $RSStitle);
+    $newsType = getNewsType($token, $rssTitle);
 
     if ($newsType[0] != "NOK") {
-        $RSSdescription = $newsType[1];
-        $RSSlanguage    = $newsType[2];
-        $RSSlink        = $newsType[3];
+        $rssDescription = $newsType[1];
+        $rssLanguage    = $newsType[2];
+        $rssLink        = $newsType[3];
     } else {
-        $RSSdescription = "";
-        $RSSlanguage = "";
-        $RSSlink = "";
+        $rssDescription = "";
+        $rssLanguage = "";
+        $rssLink = "";
     }
 
-    // Get News	 Info
+    // Get News     Info
     $ch = curl_init($RSMapiURL . "api_getItems.php");
     $data = "RStoken=" . $token . "&propertyIDs=" . $propertyIDs . "&filterRules=" . $filterRules . "&extFilterRules=" . $extFilterRules . "&filterJoining=" . $filterJoining;
 
@@ -68,10 +68,10 @@ function getRSS($RSStitle, $token, $propertyIDs, $filterRules, $extFilterRules, 
     $pChannel = $pDom -> createElement('channel');
     $pRSS -> appendChild($pChannel);
 
-    $pChannel -> appendChild($pDom -> createElement('title', $RSStitle));
-    $pChannel -> appendChild($pDom -> createElement('link', $RSSlink));
-    $pChannel -> appendChild($pDom -> createElement('description', $RSSdescription));
-    $pChannel -> appendChild($pDom -> createElement('language', $RSSlanguage));
+    $pChannel -> appendChild($pDom -> createElement('title', $rssTitle));
+    $pChannel -> appendChild($pDom -> createElement('link', $rssLink));
+    $pChannel -> appendChild($pDom -> createElement('description', $rssDescription));
+    $pChannel -> appendChild($pDom -> createElement('language', $rssLanguage));
 
     foreach ($xml->rows->row as $row) {
         $pItem = $pDom -> createElement('item');

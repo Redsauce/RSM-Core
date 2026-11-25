@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Generate date and ID for an operation
+//    Generate date and ID for an operation
 // --> updated for the v.3.10
 //***************************************************
 

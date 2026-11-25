@@ -1,7 +1,7 @@
 <?php
 //***********************************************************
 //Description:
-//	marks an invoice as sent, adding the today's date
+//    marks an invoice as sent, adding the today's date
 // --> updated for the v.3.10
 //***********************************************************
 

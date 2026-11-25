@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/RSMqueryText.php';
+require_once __DIR__ . '/RSMexceptions.php';
 // Functions in this file related with the use of tokens in RSM
 // - RSclientFromToken
 // - RSisTokenEnabled
@@ -37,32 +39,32 @@ function RSrequireTokenManagementAccess()
         || !is_numeric($GLOBALS[$cstRS_POST][$cstClientID])
         || intval($GLOBALS[$cstRS_POST][$cstClientID]) <= 0) {
         error_log('RSrequireTokenManagementAccess: clientID is missing or invalid');
-        RSReturnError('ACCESS DENIED', -5);
+        RSReturnError(\RSMresponseText::ACCESS_DENIED, -5);
     }
 
     $clientID = intval($GLOBALS[$cstRS_POST][$cstClientID]);
     $userID = RSCheckUserAccess();
     if ($userID <= 0) {
         error_log('RSrequireTokenManagementAccess: RSM user authentication failed for clientID ' . $clientID);
-        RSReturnError('ACCESS DENIED', -5);
+        RSReturnError(\RSMresponseText::ACCESS_DENIED, -5);
     }
 
     $actionName = 'rsm.mainpanel.api.access';
     try {
         $stmt = $mysqli->prepare("SELECT 1
-					FROM rs_actions a
-					INNER JOIN rs_actions_clients ac
-						ON ac.RS_ACTION_ID = a.RS_ID
-					INNER JOIN rs_actions_groups ag
-						ON ag.RS_ACTION_CLIENT_ID = ac.RS_ID
-						AND ag.RS_CLIENT_ID = ac.RS_CLIENT_ID
-					INNER JOIN rs_users_groups ug
-						ON ug.RS_GROUP_ID = ag.RS_GROUP_ID
-						AND ug.RS_CLIENT_ID = ag.RS_CLIENT_ID
-					WHERE a.RS_NAME = ?
-					AND ac.RS_CLIENT_ID = ?
-					AND ug.RS_USER_ID = ?
-					LIMIT 1");
+\t\t\t\t\tFROM rs_actions a
+\t\t\t\t\tINNER JOIN rs_actions_clients ac
+\t\t\t\t\t\tON ac.RS_ACTION_ID = a.RS_ID
+\t\t\t\t\tINNER JOIN rs_actions_groups ag
+\t\t\t\t\t\tON ag.RS_ACTION_CLIENT_ID = ac.RS_ID
+\t\t\t\t\t\tAND ag.RS_CLIENT_ID = ac.RS_CLIENT_ID
+\t\t\t\t\tINNER JOIN rs_users_groups ug
+\t\t\t\t\t\tON ug.RS_GROUP_ID = ag.RS_GROUP_ID
+\t\t\t\t\t\tAND ug.RS_CLIENT_ID = ag.RS_CLIENT_ID
+\t\t\t\t\tWHERE a.RS_NAME = ?
+\t\t\t\t\tAND ac.RS_CLIENT_ID = ?
+\t\t\t\t\tAND ug.RS_USER_ID = ?
+\t\t\t\t\tLIMIT 1");
         $stmt->bind_param('sii', $actionName, $clientID, $userID);
         $stmt->execute();
         $stmt->store_result();
@@ -75,7 +77,7 @@ function RSrequireTokenManagementAccess()
 
     if (!$hasAccess) {
         error_log('RSrequireTokenManagementAccess: userID ' . intval($userID) . ' has no rsm.mainpanel.api.access action for clientID ' . $clientID);
-        RSReturnError('ACCESS DENIED', -5);
+        RSReturnError(\RSMresponseText::ACCESS_DENIED, -5);
     }
     return $clientID;
 }
@@ -86,7 +88,7 @@ function RSrequireTokenOwnedByClient($RStoken, $clientID)
     $metadata = RSgetTokenMetadata($RStoken, $clientID);
     if (is_null($metadata)) {
         error_log('RSrequireTokenOwnedByClient: token does not belong to clientID ' . intval($clientID));
-        RSReturnError('ACCESS DENIED', -5);
+        RSReturnError(\RSMresponseText::ACCESS_DENIED, -5);
     }
     return $metadata;
 }
@@ -123,22 +125,22 @@ function RSgetTokenMetadata($RStoken, $clientID = null)
 
     $clientFilter = is_null($clientID) ? '' : ' AND token.RS_CLIENT_ID = ' . intval($clientID);
     $results = RSQuery("SELECT token.RS_ID AS tokenID,
-							 token.RS_CLIENT_ID AS clientID,
-							 token.RS_ENABLED AS enabled,
-							 token.RS_MASTER_TEMPLATE AS isMasterTemplate,
-							 token.RS_PARENT_MASTER_TOKEN AS parentMasterTokenID,
-							 token.RS_CUSTOMER_ITEM_TYPE_ID AS customerItemTypeID,
-							 token.RS_CUSTOMER_ITEM_ID AS customerItemID,
-							 parent.RS_ID AS parentTokenID,
-							 parent.RS_ENABLED AS parentEnabled,
-							 parent.RS_MASTER_TEMPLATE AS parentIsMasterTemplate,
-							 parent.RS_PARENT_MASTER_TOKEN AS parentParentMasterTokenID
-					FROM rs_tokens token
-					LEFT JOIN rs_tokens parent
-					  ON parent.RS_CLIENT_ID = token.RS_CLIENT_ID
-					 AND parent.RS_ID = token.RS_PARENT_MASTER_TOKEN
-					WHERE token.RS_TOKEN = '" . $mysqli->real_escape_string($RStoken) . "'" . $clientFilter . "
-					LIMIT 1");
+\t\t\t\t\t\t\t token.RS_CLIENT_ID AS clientID,
+\t\t\t\t\t\t\t token.RS_ENABLED AS enabled,
+\t\t\t\t\t\t\t token.RS_MASTER_TEMPLATE AS isMasterTemplate,
+\t\t\t\t\t\t\t token.RS_PARENT_MASTER_TOKEN AS parentMasterTokenID,
+\t\t\t\t\t\t\t token.RS_CUSTOMER_ITEM_TYPE_ID AS customerItemTypeID,
+\t\t\t\t\t\t\t token.RS_CUSTOMER_ITEM_ID AS customerItemID,
+\t\t\t\t\t\t\t parent.RS_ID AS parentTokenID,
+\t\t\t\t\t\t\t parent.RS_ENABLED AS parentEnabled,
+\t\t\t\t\t\t\t parent.RS_MASTER_TEMPLATE AS parentIsMasterTemplate,
+\t\t\t\t\t\t\t parent.RS_PARENT_MASTER_TOKEN AS parentParentMasterTokenID
+\t\t\t\t\tFROM rs_tokens token
+\t\t\t\t\tLEFT JOIN rs_tokens parent
+\t\t\t\t\t  ON parent.RS_CLIENT_ID = token.RS_CLIENT_ID
+\t\t\t\t\t AND parent.RS_ID = token.RS_PARENT_MASTER_TOKEN
+\t\t\t\t\tWHERE token.RS_TOKEN = '" . $mysqli->real_escape_string($RStoken) . "'" . $clientFilter . "
+\t\t\t\t\tLIMIT 1");
 
     if (!$results || $results->num_rows == 0) {
         return null;
@@ -175,10 +177,10 @@ function RSgetTokenMetadataByID($tokenID, $clientID)
 {
     global $mysqli;
     $results = RSQuery("SELECT RS_TOKEN AS token
-						FROM rs_tokens
-						WHERE RS_ID = " . intval($tokenID) . "
-						AND RS_CLIENT_ID = " . intval($clientID) . "
-						LIMIT 1");
+\t\t\t\t\t\tFROM rs_tokens
+\t\t\t\t\t\tWHERE RS_ID = " . intval($tokenID) . "
+\t\t\t\t\t\tAND RS_CLIENT_ID = " . intval($clientID) . "
+\t\t\t\t\t\tLIMIT 1");
     if (!$results || $results->num_rows == 0) {
         return null;
     }
@@ -230,9 +232,9 @@ function RSgetEffectivePermissionTokenID($RStoken, $managementContext = false)
 function RStokenHasChildren($tokenID, $clientID)
 {
     $results = RSQuery("SELECT 1 FROM rs_tokens
-						WHERE RS_CLIENT_ID = " . intval($clientID) . "
-						AND RS_PARENT_MASTER_TOKEN = " . intval($tokenID) . "
-						LIMIT 1");
+\t\t\t\t\t\tWHERE RS_CLIENT_ID = " . intval($clientID) . "
+\t\t\t\t\t\tAND RS_PARENT_MASTER_TOKEN = " . intval($tokenID) . "
+\t\t\t\t\t\tLIMIT 1");
     return $results && $results->num_rows > 0;
 }
 
@@ -379,20 +381,20 @@ function RSdeleteTokenSafely($RStoken, $clientID)
     $mysqli->begin_transaction();
     try {
         $lockedToken = RSQuery("SELECT RS_ID FROM rs_tokens
-								WHERE RS_CLIENT_ID = " . intval($clientID) . "
-								AND RS_ID = " . intval($metadata['tokenID']) . "
-								FOR UPDATE");
+\t\t\t\t\t\t\t\tWHERE RS_CLIENT_ID = " . intval($clientID) . "
+\t\t\t\t\t\t\t\tAND RS_ID = " . intval($metadata['tokenID']) . "
+\t\t\t\t\t\t\t\tFOR UPDATE");
         if (!$lockedToken || $lockedToken->num_rows != 1) {
-            throw new Exception('Unable to lock token');
+            throw new RSMtokenWriteException('Unable to lock token');
         }
         if ($metadata['isMasterTemplate'] && RStokenHasChildren($metadata['tokenID'], $clientID)) {
-            throw new Exception('Master token has children');
+            throw new RSMtokenWriteException('Master token has children');
         }
         if (!RSdeleteTokenProperties($metadata['tokenID'], $clientID)) {
-            throw new Exception('Unable to delete token permissions');
+            throw new RSMtokenWriteException('Unable to delete token permissions');
         }
         if (!RSdeleteTokens($RStoken, $clientID)) {
-            throw new Exception('Unable to delete token');
+            throw new RSMtokenWriteException('Unable to delete token');
         }
         $mysqli->commit();
         return true;
@@ -407,13 +409,13 @@ function RSdeleteTokenSafely($RStoken, $clientID)
 function RStokensFromClient($clientID)
 {
     $results = RSQuery("SELECT  RS_ID AS 'ID',
-	                     RS_TOKEN AS  'token',
+\t                     RS_TOKEN AS  'token',
                          RS_ENABLED       AS  'enabled',
                          RS_CUSTOMER_ITEM_TYPE_ID AS 'customerItemTypeID',
                          RS_CUSTOMER_ITEM_ID AS 'customerItemID',
                          RS_TOKEN_ALIAS AS 'tokenAlias',
-						 RS_MASTER_TEMPLATE AS 'isMasterTemplate',
-						 RS_PARENT_MASTER_TOKEN AS 'parentMasterTokenID'
+\t\t\t\t\t\t RS_MASTER_TEMPLATE AS 'isMasterTemplate',
+\t\t\t\t\t\t RS_PARENT_MASTER_TOKEN AS 'parentMasterTokenID'
                          FROM rs_tokens
                          WHERE RS_CLIENT_ID = '" . $clientID . "'");
     return $results;
@@ -423,8 +425,8 @@ function RStokensFromClient($clientID)
 function RScountToken($RStoken)
 {
     $results = RSQuery("SELECT COUNT('RS_TOKEN') as total
-	                    FROM rs_tokens
-	                    WHERE RS_TOKEN = '" . $RStoken . "'");
+\t                    FROM rs_tokens
+\t                    WHERE RS_TOKEN = '" . $RStoken . "'");
     return $results;
 }
 
@@ -458,32 +460,32 @@ function RScreateToken($RStoken, $clientID, $customerItemTypeID = 0, $customerIt
     try {
         if ($parentMasterTokenID > 0) {
             $parent = RSQuery("SELECT RS_MASTER_TEMPLATE, RS_PARENT_MASTER_TOKEN
-							 FROM rs_tokens
-							 WHERE RS_CLIENT_ID = " . $clientID . "
-							 AND RS_ID = " . $parentMasterTokenID . "
-							 FOR UPDATE");
+\t\t\t\t\t\t\t FROM rs_tokens
+\t\t\t\t\t\t\t WHERE RS_CLIENT_ID = " . $clientID . "
+\t\t\t\t\t\t\t AND RS_ID = " . $parentMasterTokenID . "
+\t\t\t\t\t\t\t FOR UPDATE");
             if (!$parent || $parent->num_rows != 1) {
-                throw new Exception('Invalid master token');
+                throw new RSMtokenWriteException('Invalid master token');
             }
             $parentRow = $parent->fetch_assoc();
             if (intval($parentRow['RS_MASTER_TEMPLATE']) !== 1 || intval($parentRow['RS_PARENT_MASTER_TOKEN']) !== 0) {
-                throw new Exception('Invalid master token relationship');
+                throw new RSMtokenWriteException('Invalid master token relationship');
             }
         }
 
         $results = RSQuery("INSERT INTO rs_tokens (RS_ID, RS_TOKEN, RS_CLIENT_ID, RS_CUSTOMER_ITEM_TYPE_ID, RS_CUSTOMER_ITEM_ID, RS_ENABLED, RS_MASTER_TEMPLATE, RS_PARENT_MASTER_TOKEN)
-							SELECT COALESCE(MAX(RS_ID), 0)+1,
-								'" . $mysqli->real_escape_string($RStoken) . "',
-								'" . $clientID . "',
-								" . $customerItemTypeValue . ",
-								" . $customerItemValue . ",
-								'0',
-								'" . ($isMasterTemplate ? 1 : 0) . "',
-								'" . $parentMasterTokenID . "'
-							FROM rs_tokens
-							WHERE RS_CLIENT_ID = " . $clientID);
+\t\t\t\t\t\t\tSELECT COALESCE(MAX(RS_ID), 0)+1,
+\t\t\t\t\t\t\t\t'" . $mysqli->real_escape_string($RStoken) . "',
+\t\t\t\t\t\t\t\t'" . $clientID . "',
+\t\t\t\t\t\t\t\t" . $customerItemTypeValue . ",
+\t\t\t\t\t\t\t\t" . $customerItemValue . ",
+\t\t\t\t\t\t\t\t'0',
+\t\t\t\t\t\t\t\t'" . ($isMasterTemplate ? 1 : 0) . "',
+\t\t\t\t\t\t\t\t'" . $parentMasterTokenID . "'
+\t\t\t\t\t\t\tFROM rs_tokens
+\t\t\t\t\t\t\tWHERE RS_CLIENT_ID = " . $clientID);
         if (!$results) {
-            throw new Exception('Unable to create token');
+            throw new RSMtokenWriteException('Unable to create token');
         }
         $mysqli->commit();
         return $results;
@@ -511,7 +513,7 @@ function RSeditToken($RStoken, $clientID, $customerItemTypeID = null, $customerI
         $updates[] = "RS_TOKEN_ALIAS = '" . $mysqli->real_escape_string($tokenAlias) . "'";
     }
 
-    if (count($updates) == 0) {
+    if (empty($updates)) {
         return true;
     }
 
@@ -545,11 +547,11 @@ function RScreateTokenPermission($tokenID, $clientID, $propertyID, $permission)
         return false;
     }
     $results = RSQuery("INSERT INTO rs_token_permissions (
-						RS_CLIENT_ID  ,
-						RS_TOKEN_ID   ,
-						RS_PROPERTY_ID,
-						RS_PERMISSION )
-				    VALUES ('" . $clientID . "', " . "'" . $tokenID . "', " . "'" . $propertyID . "', " . "'" . $permission . "')");
+\t\t\t\t\t\tRS_CLIENT_ID  ,
+\t\t\t\t\t\tRS_TOKEN_ID   ,
+\t\t\t\t\t\tRS_PROPERTY_ID,
+\t\t\t\t\t\tRS_PERMISSION )
+\t\t\t\t    VALUES ('" . $clientID . "', " . "'" . $tokenID . "', " . "'" . $propertyID . "', " . "'" . $permission . "')");
     return $results;
 }
 
@@ -563,9 +565,7 @@ function RSgetTokenPermissions($RStoken, $propertyId)
 
     $theQuery = "SELECT RS_PERMISSION AS 'permission', RS_PROPERTY_ID as 'propertyID' FROM rs_token_permissions WHERE RS_TOKEN_ID = " . $tokenID . " AND RS_PROPERTY_ID= " . $propertyId;
 
-    $results = RSQuery($theQuery);
-
-    return $results;
+    return RSQuery($theQuery);
 }
 
 function RShasREADTokenPermission($RStoken, $propertyId)
@@ -615,7 +615,7 @@ function RShasTokenPermission($RStoken, $propertyId, $permission)
         if ($propertyType == "identifier" || $propertyType == "identifiers") {
             //Get the main property of the referred itemtype
             $mainPropertyID = getMainPropertyID(getClientPropertyReferredItemType($propertyId, RSclientFromToken($RStoken)), RSclientFromToken($RStoken));
-            if (RShasTokenPermission($RStoken, $mainPropertyID, $permission) == false) {
+            if (!RShasTokenPermission($RStoken, $mainPropertyID, $permission)) {
                 return false;
             }
         }

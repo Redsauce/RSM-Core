@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Returns all actions for the RSM application
+//    Returns all actions for the RSM application
 // ---> updated for the v.3.10
 //***************************************************
 

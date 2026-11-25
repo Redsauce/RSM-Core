@@ -14,7 +14,7 @@ $allowedItemTypes =             $GLOBALS[$cstRS_POST]['allowedItemTypes'];
 //Disable recursive multiplication until it's fixed
 // TO DO: fix recursive itemtypes multiplication
 isset($GLOBALS[$cstRS_POST]['descendants']) ? $descendants  = explode(';', $GLOBALS[$cstRS_POST]['descendants']) : $descendants = false;
-//$descendants = array();
+
 
 if ($allowedItemTypes != '') {
     $allowedItemTypes = explode(",", $allowedItemTypes);
@@ -24,7 +24,7 @@ if ($allowedItemTypes != '') {
 
 if ($clientID != 0 && $clientID != "") {
     if ($itemTypeID != 0 && $itemTypeID != "") {
-        if (count($itemIDs) > 0 && $itemIDs[0] != "" && $itemIDs[0] != 0) {
+        if (!empty($itemIDs) && $itemIDs[0] != "" && $itemIDs[0] != 0) {
             if ($count > 0) {
                 // organize descendants by parent itemtype
                 $descendantsForItemtype = array();

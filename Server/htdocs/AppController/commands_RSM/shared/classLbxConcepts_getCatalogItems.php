@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get the passed operation concepts
+//    Get the passed operation concepts
 // --> updated for the v.3.10
 //***************************************************
 

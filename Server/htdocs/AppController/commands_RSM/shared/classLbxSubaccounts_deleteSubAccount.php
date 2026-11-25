@@ -32,7 +32,7 @@ if (getPropertyValue($definitions['accountType'], $accountID, $clientID) == '430
         $users[] = $row['ID'];
     }
 
-    if (count($users) > 0) {
+    if (!empty($users)) {
         // delete concepts
         deleteItems($usersItemTypeID, $clientID, implode(',', $users));
     }
@@ -68,7 +68,7 @@ while ($row = $operationsQueryResults->fetch_assoc()) {
     }
 }
 
-if (count($operations) > 0) {
+if (!empty($operations)) {
     // get operations concepts
     $filterProperties = array();
     $filterProperties[] = array('ID' => getClientPropertyID_RelatedWith_byName($definitions['conceptOperationID'], $clientID), 'value' => implode(',', $operations), 'mode' => '<-IN');
@@ -80,7 +80,7 @@ if (count($operations) > 0) {
         $concepts[] = $row['ID'];
     }
 
-    if (count($concepts) > 0) {
+    if (!empty($concepts)) {
         // delete concepts
         deleteItems($conceptsItemTypeID, $clientID, implode(',', $concepts));
     }

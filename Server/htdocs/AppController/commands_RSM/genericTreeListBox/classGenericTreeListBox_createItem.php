@@ -17,10 +17,8 @@ if ($parentItemID == 0 && $parentPID === "") {
 $filterID = (($GLOBALS[$cstRS_POST]['filterID'] == "") ? ("0") : ($GLOBALS[$cstRS_POST]['filterID']));
 
 $allowedItemTypes = array();
-if (isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) {
-    if ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != 0) {
-        $allowedItemTypes = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']);
-    }
+if ((isset($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'])) && ($GLOBALS[$cstRS_POST]['allowedItemTypeIDs'] != 0)) {
+    $allowedItemTypes = explode(",", $GLOBALS[$cstRS_POST]['allowedItemTypeIDs']);
 }
 
 if ($clientID != 0 && $clientID != "") {
@@ -110,7 +108,7 @@ if ($clientID != 0 && $clientID != "") {
                 $results['parentPropertyID'  ] = $parentPID;
                 $results['parentItemType'    ] = $parentItemTypeID;
                 $results['extraColumns'      ] = $additionalProps;
-                //$results['filtered'] = $filtered;
+
 
             } else {
                 $results['result'] = "NOK";

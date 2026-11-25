@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get client custom itemType name related with received appItemTypeName
+//    Get client custom itemType name related with received appItemTypeName
 //***************************************************
 
 // Database connection startup

@@ -79,18 +79,18 @@ $transactionStarted = false;
 $createdBefore = $RSMcreatedItemIDs;
 try {
     if (!$mysqli->begin_transaction()) {
-        throw new RuntimeException('Unable to start creation transaction');
+        throw new RSMitemWriteException('Unable to start creation transaction');
     }
     $transactionStarted = true;
     foreach ($propertiesToCreate as $properties) {
         $newID = RScreateItemInTransaction($clientID, $properties);
         if ($newID <= 0) {
-            throw new RuntimeException('Unable to create item');
+            throw new RSMitemWriteException('Unable to create item');
         }
         $responseArray[] = array('ID' => $newID);
     }
     if (!$mysqli->commit()) {
-        throw new RuntimeException('Unable to commit creation transaction');
+        throw new RSMitemWriteException('Unable to commit creation transaction');
     }
 } catch (Throwable $exception) {
     if ($transactionStarted) {

@@ -1,7 +1,7 @@
 <?php
 //*****************************************************************************
 //Description:
-//	Retrieves an item of the specified itemType with the associated values
+//    Retrieves an item of the specified itemType with the associated values
 //
 //  PARAMETERS:
 //    clientID: the client ID

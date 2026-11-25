@@ -63,10 +63,8 @@ try {
 }
 
 // Keep historical limit-only validation when offset is absent/empty.
-if ($pagination === null && $limit != "") {
-    if (!ctype_digit($limit)) {
-        dieWithError(400);
-    }
+if (($pagination === null && $limit != "") && (!ctype_digit($limit))) {
+    dieWithError(400);
 }
 
 $translateIDs = false;

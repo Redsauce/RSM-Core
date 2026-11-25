@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	updates the item properties
+//    updates the item properties
 //***************************************************
 
 // Database connection startup

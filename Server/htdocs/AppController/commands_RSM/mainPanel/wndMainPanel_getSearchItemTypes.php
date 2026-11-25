@@ -1,7 +1,7 @@
 <?php
 //***************************************************//
 //Description:
-//	This PHP receives a textFilter and returns an array with the names.
+//    This PHP receives a textFilter and returns an array with the names.
 //  and identifiers of the itemTypes where the textFilter appears,
 //  and the number of occurrences.
 //  Only the allowed item types for the user are returned.
@@ -15,7 +15,7 @@ isset($GLOBALS[$cstRS_POST]["clientID"  ]) ? $clientID   = $GLOBALS[$cstRS_POST]
 isset($GLOBALS[$cstRS_POST]["textFilter"]) ? $textFilter = $GLOBALS[$cstRS_POST]["textFilter"] : dieWithError(400);
 
 //First of all, we need to check if the variable clientID does not have the value 0
-if ($clientID != 0 and $RSuserID != 0) {
+if ($clientID != 0 && $RSuserID != 0) {
     $filteredResults = getItemTypeIDs_usingFilter($RSuserID, $clientID, $textFilter);
 
     // Write XML Response back to the application

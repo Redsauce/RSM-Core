@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../../utilities/RSMqueryText.php';
 //***************************************************************************************
 // Description:
 //   Duplica un item raiz y, opcionalmente, sus items dependientes mediante duplicateItem().
@@ -174,7 +175,7 @@ $failureLog = null;
 try {
     $failureStage = 'starting transaction';
     if (!$mysqli->begin_transaction()) {
-        throw new RuntimeException('Unable to start duplication transaction');
+        throw new RSMitemWriteException('Unable to start duplication transaction');
     }
     $transactionStarted = true;
     // 2. Bloquear los contadores de IDs en orden estable y cargar los metadatos
@@ -184,14 +185,14 @@ try {
     foreach ($typeIDs as $typeID => $_) {
         $failureStage = 'locking item type ' . $typeID;
         if (!RSlockItemTypeForDuplication($typeID, $clientID)) {
-            throw new RuntimeException('Unable to lock item type');
+            throw new RSMitemWriteException('Unable to lock item type');
         }
         $failureStage = 'reading properties of item type ' . $typeID;
         $itemTypeProperties[$typeID] = getClientItemTypeProperties($typeID, $clientID, 1, true);
     }
     if (!verifyItemExists($itemID, $itemTypeID, $clientID)) {
         $failureCode = 404;
-        throw new RuntimeException('Source item no longer exists');
+        throw new RSMitemWriteException('Source item no longer exists');
     }
 
     // 3. Comprobar que cada propiedad pertenece al hijo y obtener su tipo padre.
@@ -202,7 +203,7 @@ try {
         if (!$property || !in_array($property['type'], array('identifier', 'identifiers'), true)) {
             $failureCode = 400;
             $failureMessage = 'Dependency must be an eligible relation belonging to the descendant type';
-            throw new RuntimeException($failureMessage);
+            throw new RSMitemWriteException($failureMessage);
         }
         $edge['parentTypeID'] = intval(getClientPropertyReferredItemType($edge['dependencyPropertyID'], $clientID));
     }
@@ -214,7 +215,7 @@ try {
         if ($recursiveID && !in_array($recursiveID, array_column($itemTypeProperties[$edge['itemTypeID']], 'id'))) {
             $failureCode = 400;
             $failureMessage = 'Recursive dependency must be eligible for duplication';
-            throw new RuntimeException($failureMessage);
+            throw new RSMitemWriteException($failureMessage);
         }
     }
 
@@ -235,14 +236,14 @@ try {
                 }
             }
         }
-        if (count($deniedChecks) > 0) {
+        if (!empty($deniedChecks)) {
             $failureCode = 403;
             // Numeric context only; never expose the Authorization credential.
             // The response below discloses this detail only when debug is enabled.
             $failureMessage = 'No permission to duplicate all eligible properties'
                 . ' (clientID=' . intval($clientID) . ', itemTypeID=' . $itemTypeID
-                . ', propertyID=' . intval($propertyID) . ', failed=' . implode(',', $deniedChecks) . ')';
-            throw new RuntimeException($failureMessage);
+                . \RSMmediaText::PROPERTY_LOG . intval($propertyID) . ', failed=' . implode(',', $deniedChecks) . ')';
+            throw new RSMitemWriteException($failureMessage);
         }
     }
     $reachable = array($itemTypeID => true);
@@ -258,7 +259,7 @@ try {
         if (!isset($reachable[$edge['parentTypeID']])) {
             $failureCode = 400;
             $failureMessage = 'Every dependency must be reachable from the root type';
-            throw new RuntimeException($failureMessage);
+            throw new RSMitemWriteException($failureMessage);
         }
     }
 
@@ -275,7 +276,7 @@ try {
                 || !(RShasTokenPermission($RStoken, $propertyID, 'CREATE') || isPropertyVisible($RSuserID, $propertyID, $clientID))) {
                 $failureCode = 403;
                 $failureMessage = 'No permission to duplicate all eligible properties';
-                throw new RuntimeException($failureMessage);
+                throw new RSMitemWriteException($failureMessage);
             }
         }
         if (RSisCustomerScopedToken($RStoken)) {
@@ -283,7 +284,7 @@ try {
             if (!$dependencyID || !in_array($dependencyID, array_column($properties, 'id'))) {
                 $failureCode = 403;
                 $failureMessage = 'Customer dependency cannot be excluded from the copy';
-                throw new RuntimeException($failureMessage);
+                throw new RSMitemWriteException($failureMessage);
             }
         }
     }
@@ -298,7 +299,7 @@ try {
     if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $itemTypeID, $itemID)) {
         $failureCode = 403;
         $failureMessage = 'Source item is outside token customer scope';
-        throw new RuntimeException($failureMessage);
+        throw new RSMitemWriteException($failureMessage);
     }
     $failureStage = 'copying item and descendants';
     $copiedItems = array();
@@ -309,12 +310,12 @@ try {
             || !RSitemMatchesTokenCustomerScope($RStoken, $clientID, $typeID, $sharedItemID)) {
             $failureCode = 403;
             $failureMessage = 'No permission to update shared child relation';
-            throw new RuntimeException($failureMessage);
+            throw new RSMitemWriteException($failureMessage);
         }
     };
     $newItemID = duplicateItem($itemTypeID, $itemID, $clientID, 1, $descendants, $copiedItems, $itemTypeProperties, $validateSharedItem);
     if (!is_int($newItemID) || $newItemID <= 0) {
-        throw new RuntimeException('Copy failed');
+        throw new RSMitemWriteException('Copy failed');
     }
     // 5. Verificar el ambito de todos los origenes y destinos antes de confirmar.
     //    Un rechazo aqui tambien revierte las escrituras realizadas por el copiador.
@@ -325,7 +326,7 @@ try {
             if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $typeID, $sourceID)) {
                 $failureCode = 403;
                 $failureMessage = 'Source item is outside token customer scope';
-                throw new RuntimeException($failureMessage);
+                throw new RSMitemWriteException($failureMessage);
             }
             $copies[] = array('itemTypeID' => intval($typeID), 'sourceItemID' => intval($sourceID), 'newItemID' => $newIDs[0]);
         }
@@ -335,13 +336,13 @@ try {
         if (!RSitemMatchesTokenCustomerScope($RStoken, $clientID, $copy['itemTypeID'], $copy['newItemID'])) {
             $failureCode = 403;
             $failureMessage = 'Copied item is outside token customer scope';
-            throw new RuntimeException($failureMessage);
+            throw new RSMitemWriteException($failureMessage);
         }
     }
     $newItemID = $copiedItems[$itemTypeID][$itemID][0];
     $failureStage = 'committing copies';
     if (!$mysqli->commit()) {
-        throw new RuntimeException('Unable to commit copy');
+        throw new RSMitemWriteException('Unable to commit copy');
     }
     $transactionStarted = false;
 } catch (Throwable $exception) {

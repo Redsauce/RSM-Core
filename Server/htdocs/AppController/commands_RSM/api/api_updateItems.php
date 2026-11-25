@@ -128,7 +128,6 @@ if ($results['result'] != 'NOK') {
                     $results['result'] = "NOK";
                     $results['description'] = "CODE ERROR " . $result;
                     $results['propertyID'] = $propertyIDkey . " (PID: " . $id . ")";
-                    continue;
                 }
 
             }

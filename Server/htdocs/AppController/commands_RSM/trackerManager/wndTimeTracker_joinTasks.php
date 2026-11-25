@@ -40,13 +40,13 @@ $tasksArray = getFilteredItemsIDs(
     $clientID,
     array(),
     array(
-        array('ID' => $projectPropertyID    , 'name' => 'projectID'  ),
+        array('ID' => $projectPropertyID    , 'name' => 'projectID'),
         array('ID' => $descriptionPropertyID, 'name' => 'description'),
-        array('ID' => $startDatePropertyID  , 'name' => 'startDate'  ),
-        array('ID' => $endDatePropertyID    , 'name' => 'endDate'    ),
-        array('ID' => $staffPropertyID      , 'name' => 'staff'      ),
+        array('ID' => $startDatePropertyID  , 'name' => 'startDate'),
+        array('ID' => $endDatePropertyID    , 'name' => 'endDate'),
+        array('ID' => $staffPropertyID      , 'name' => 'staff'),
         array('ID' => $currentTimePropertyID, 'name' => 'currentTime'),
-        array('ID' => $totalTimePropertyID  , 'name' => 'totalTime'  )
+        array('ID' => $totalTimePropertyID  , 'name' => 'totalTime')
     ),
     '',
     false,
@@ -55,7 +55,7 @@ $tasksArray = getFilteredItemsIDs(
 );
 
 
-if (count($tasksArray) == 0) {
+if (empty($tasksArray)) {
     // ERROR: no tasks found
     RSReturnArrayResults(array('result' => 'no tasks found'));
     exit;
@@ -124,14 +124,14 @@ $status = getValue(getClientListValueID_RelatedWith(getAppListValueID("taskStatu
 
 // create new task after joining the others
 $values = array();
-$values[] = array('ID' => $namePropertyID       , 'value' => $newName    );
+$values[] = array('ID' => $namePropertyID       , 'value' => $newName);
 $values[] = array('ID' => $descriptionPropertyID, 'value' => $description);
-$values[] = array('ID' => $startDatePropertyID  , 'value' => $startDate  );
-$values[] = array('ID' => $endDatePropertyID    , 'value' => $endDate    );
-$values[] = array('ID' => $staffPropertyID      , 'value' => $staff      );
+$values[] = array('ID' => $startDatePropertyID  , 'value' => $startDate);
+$values[] = array('ID' => $endDatePropertyID    , 'value' => $endDate);
+$values[] = array('ID' => $staffPropertyID      , 'value' => $staff);
 $values[] = array('ID' => $currentTimePropertyID, 'value' => $currentTime);
-$values[] = array('ID' => $totalTimePropertyID  , 'value' => $totalTime  );
-$values[] = array('ID' => $statusPropertyID     , 'value' => $status  );
+$values[] = array('ID' => $totalTimePropertyID  , 'value' => $totalTime);
+$values[] = array('ID' => $statusPropertyID     , 'value' => $status);
 
 if ($parentType == 'project') {
     $values[] = array('ID' => $projectPropertyID    , 'value' => $parentID);

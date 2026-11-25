@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Get client custom property name related with received appPropertyName
+//    Get client custom property name related with received appPropertyName
 //***************************************************
 
 // Database connection startup

@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Create a relationship between two operations
+//    Create a relationship between two operations
 // --> updated for the v.3.10
 //***************************************************
 
@@ -11,10 +11,10 @@ require_once "../utilities/RSMitemsManagement.php";
 require_once "../utilities/RSMlistsManagement.php";
 
 // definitions
-$clientID 		= $GLOBALS[$cstRS_POST]['clientID'	];
-$operation_1 	= $GLOBALS[$cstRS_POST]['operation_1'	];  // a bank statement
-$operation_2 	= $GLOBALS[$cstRS_POST]['operation_2'	];  // an invoice
-$setPayDate 	= $GLOBALS[$cstRS_POST]['setPayDate'	];
+$clientID         = $GLOBALS[$cstRS_POST]['clientID'    ];
+$operation_1     = $GLOBALS[$cstRS_POST]['operation_1'    ];  // a bank statement
+$operation_2     = $GLOBALS[$cstRS_POST]['operation_2'    ];  // an invoice
+$setPayDate     = $GLOBALS[$cstRS_POST]['setPayDate'    ];
 
 // get operations item type
 $itemTypeID = getClientItemTypeID_RelatedWith_byName($definitions['operations'], $clientID);

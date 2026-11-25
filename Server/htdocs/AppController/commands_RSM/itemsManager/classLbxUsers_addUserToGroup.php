@@ -1,7 +1,7 @@
 <?php
 //***************************************************
 //Description:
-//	Add a user to a group
+//    Add a user to a group
 //  ---> updated for the v.3.10
 //***************************************************
 
@@ -20,7 +20,7 @@ if ($GLOBALS[$cstRS_POST][$cstClientID] != 0) {
     $resultUserOK = RSQuery($theQuery_userValidation);
     $resultGroupOK = RSQuery($theQuery_groupValidation);
 
-    if (($resultUserOK->num_rows != 0) and ($resultGroupOK->num_rows != 0)) {
+    if (($resultUserOK->num_rows != 0) && ($resultGroupOK->num_rows != 0)) {
         //The users exists, so perform the action
         $results["result"] = addUserToGroup($GLOBALS[$cstRS_POST][$cstUserID], $GLOBALS[$cstRS_POST][$cstClientID], $GLOBALS[$cstRS_POST][$cstGroupID]);
     } else {

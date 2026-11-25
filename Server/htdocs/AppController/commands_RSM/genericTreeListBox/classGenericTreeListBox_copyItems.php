@@ -58,7 +58,7 @@ if ($clientID!=0&&$clientID!="") {
                                 $parentPropertyType = getPropertyType($parentPropertyID, $clientID);
                                 /*if (isMultiIdentifier($parentPropertyType)){
                                     $result=addIdentifier($parentID, $itemTypeID, $newItemID, $parentPropertyID, $clientID, $RSuserID);
-                                    if($result==false){
+                                    if(!$result){
                                         $results['description'] = 'ERROR UPDATING PARENT PROPERTY';
                                     }
                                 } else {*/
@@ -86,7 +86,7 @@ if ($clientID!=0&&$clientID!="") {
                                 /*}*/
                             }
 
-                            if ($result==false) {
+                            if (!$result) {
                                 //rollback transaction and exit foreach loop
                                 $mysqli->rollback();
                                 $results['result'] = 'NOK';

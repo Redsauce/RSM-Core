@@ -38,10 +38,7 @@ queueAction($itemTypeID . "," . $itemID, $actionID, $clientID, 0, 0, $personID);
 
 // If the passed item type is a system property, get the numeric ID
 // This function will return an ID also if an ID is passed
-/*$itemTypeID = parseITID($itemTypeID, $clientID);
 
-$results = getPropertiesExtendedForItemAndUser($itemTypeID, $itemID, $clientID, $RSuserID);
-*/
 
 $results = array();
 $results['result'] = "OK";

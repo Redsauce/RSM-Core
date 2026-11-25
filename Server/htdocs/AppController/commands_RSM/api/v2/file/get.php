@@ -22,7 +22,7 @@ require_once "../../../utilities/RSMcacheManagement.php";
 // Definitions and validations
 $parameters = getRequestParams();
 
-//verifyRequestParams($parameters);
+
 
 $RStoken =  getRStoken();
 $clientID = RSclientFromToken(RStoken: $RStoken);

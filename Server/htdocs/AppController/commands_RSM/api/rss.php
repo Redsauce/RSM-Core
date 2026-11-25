@@ -3,7 +3,7 @@ require_once "../utilities/RSMfeeds.php";
 
 // Clean GET data in order to avoid SQL injections
 $search  = array("'", "\"");
-$replace = array("" , ""  );
+$replace = array("" , "");
 
 foreach ($_GET as $key => $value) {
     $GLOBALS["RS_GET"][$key] = str_replace($search, $replace, $value);

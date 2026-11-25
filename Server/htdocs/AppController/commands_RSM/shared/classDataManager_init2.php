@@ -1,11 +1,11 @@
 <?php
 //***************************************************
 // Description:
-//	Init
+//    Init
 //
 // parameters:
-// clientID   	  => the client ID
-// itemType   	  => the item type system name or the client item type ID
+// clientID         => the client ID
+// itemType         => the item type system name or the client item type ID
 // getSetOfValues => '0' if the list values or identifiers are not required, '1' elsewhere
 //***************************************************
 

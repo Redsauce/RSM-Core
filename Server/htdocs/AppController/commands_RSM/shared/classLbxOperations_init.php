@@ -149,24 +149,24 @@ $results['closedStatus'] = getValue(getClientListValueID_RelatedWith(getAppListV
 
 
 // return the columns names
-$results['SubAccountID'		] = getClientPropertyName($subAccountPropertyID, $clientID).'::'.$subAccountAllowed;  // fix me: separator used -> ::
-$results['OperationID'		] = getClientPropertyName($operationPropertyID, $clientID).'::'.$operationAllowed;
-$results['SendDate'			] = getClientPropertyName($sendDatePropertyID, $clientID).'::'.$sendDateAllowed;
-$results['PayDate'			] = getClientPropertyName($payDatePropertyID, $clientID).'::'.$payDateAllowed;
-$results['ValueDate'		] = getClientPropertyName($valueDatePropertyID, $clientID).'::'.$valueDateAllowed;
-$results['InvoiceDate'		] = getClientPropertyName($invoiceDatePropertyID, $clientID).'::'.$invoiceDateAllowed;
-$results['DomicilyDate'		] = getClientPropertyName($domicilyDatePropertyID, $clientID).'::'.$domicilyDateAllowed;
-$results['Base'				] = getClientPropertyName($basePropertyID, $clientID).'::'.$baseAllowed;
-$results['IVA'				] = getClientPropertyName($IVAPropertyID, $clientID).'::'.$IVAAllowed;
-$results['Deduction'		] = getClientPropertyName($deductionPropertyID, $clientID).'::'.$deductionAllowed;
-$results['Total'			] = getClientPropertyName($totalPropertyID, $clientID).'::'.$totalAllowed;
-$results['Description'		] = getClientPropertyName($descriptionPropertyID, $clientID).'::'.$descriptionAllowed;
-$results['PayMethod'		] = getClientPropertyName($payMethodPropertyID, $clientID).'::'.$payMethodAllowed;
-$results['BankAccount'		] = getClientPropertyName($bankAccountPropertyID, $clientID).'::'.$bankAccountAllowed;
-$results['Note'				] = getClientPropertyName($notePropertyID, $clientID).'::'.$noteAllowed;
-$results['ShowNote'			] = getClientPropertyName($showNotePropertyID, $clientID).'::'.$showNoteAllowed;
+$results['SubAccountID'        ] = getClientPropertyName($subAccountPropertyID, $clientID).'::'.$subAccountAllowed;  // fix me: separator used -> ::
+$results['OperationID'        ] = getClientPropertyName($operationPropertyID, $clientID).'::'.$operationAllowed;
+$results['SendDate'            ] = getClientPropertyName($sendDatePropertyID, $clientID).'::'.$sendDateAllowed;
+$results['PayDate'            ] = getClientPropertyName($payDatePropertyID, $clientID).'::'.$payDateAllowed;
+$results['ValueDate'        ] = getClientPropertyName($valueDatePropertyID, $clientID).'::'.$valueDateAllowed;
+$results['InvoiceDate'        ] = getClientPropertyName($invoiceDatePropertyID, $clientID).'::'.$invoiceDateAllowed;
+$results['DomicilyDate'        ] = getClientPropertyName($domicilyDatePropertyID, $clientID).'::'.$domicilyDateAllowed;
+$results['Base'                ] = getClientPropertyName($basePropertyID, $clientID).'::'.$baseAllowed;
+$results['IVA'                ] = getClientPropertyName($IVAPropertyID, $clientID).'::'.$IVAAllowed;
+$results['Deduction'        ] = getClientPropertyName($deductionPropertyID, $clientID).'::'.$deductionAllowed;
+$results['Total'            ] = getClientPropertyName($totalPropertyID, $clientID).'::'.$totalAllowed;
+$results['Description'        ] = getClientPropertyName($descriptionPropertyID, $clientID).'::'.$descriptionAllowed;
+$results['PayMethod'        ] = getClientPropertyName($payMethodPropertyID, $clientID).'::'.$payMethodAllowed;
+$results['BankAccount'        ] = getClientPropertyName($bankAccountPropertyID, $clientID).'::'.$bankAccountAllowed;
+$results['Note'                ] = getClientPropertyName($notePropertyID, $clientID).'::'.$noteAllowed;
+$results['ShowNote'            ] = getClientPropertyName($showNotePropertyID, $clientID).'::'.$showNoteAllowed;
 $results['RelatedOperations'] = getClientPropertyName($relatedOperationsPropertyID, $clientID).'::'.$relatedOperationsAllowed;
-$results['Status'			] = getClientPropertyName($statusPropertyID, $clientID).'::'.$statusAllowed;
+$results['Status'            ] = getClientPropertyName($statusPropertyID, $clientID).'::'.$statusAllowed;
 
 // And write XML Response back to the application
 RSReturnArrayResults($results);

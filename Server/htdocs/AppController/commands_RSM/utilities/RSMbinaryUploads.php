@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/RSMqueryText.php';
 require_once 'RSMbinaryProperties.php';
 
 function RSpositiveUploadID($value)
@@ -89,24 +90,24 @@ function RSsaveGlobalVariables($clientID, $updates, $inserts, $deletes)
     $started = false;
     try {
         if (!$mysqli->begin_transaction()) {
-            throw new RuntimeException('Unable to start global transaction');
+            throw new RSMbinaryUploadException('Unable to start global transaction');
         }
         $started = true;
         foreach ($variables as $variable) {
             $statement = $mysqli->prepare('SELECT RS_NAME FROM rs_globals WHERE RS_CLIENT_ID = ? AND RS_NAME = ? FOR UPDATE');
             if (!$statement) {
-                throw new RuntimeException('Unable to read globals');
+                throw new RSMbinaryUploadException('Unable to read globals');
             }
             try {
                 $name = $variable['name'];
                 $existingName = null;
                 if (!$statement->bind_param('is', $clientID, $name) || !$statement->execute()) {
-                    throw new RuntimeException('Unable to read globals');
+                    throw new RSMbinaryUploadException('Unable to read globals');
                 }
                 $statement->bind_result($existingName);
                 $found = $statement->fetch();
                 if ($found === false) {
-                    throw new RuntimeException('Unable to fetch global');
+                    throw new RSMbinaryUploadException('Unable to fetch global');
                 }
             } finally {
                 $statement->close();
@@ -117,7 +118,7 @@ function RSsaveGlobalVariables($clientID, $updates, $inserts, $deletes)
         }
         foreach ($oldNames as $name) {
             if (!RSexecutePreparedUploadWrite('DELETE FROM rs_globals WHERE RS_CLIENT_ID = ? AND RS_NAME = ?', 'is', array($clientID, $name))) {
-                throw new RuntimeException('Unable to remove old globals');
+                throw new RSMbinaryUploadException('Unable to remove old globals');
             }
         }
         foreach ($variables as $variable) {
@@ -128,11 +129,11 @@ function RSsaveGlobalVariables($clientID, $updates, $inserts, $deletes)
                 array($clientID, $variable['name'], $isImage ? null : $variable['value'], $variable['type']),
                 $isImage ? array(2 => $variable['value']) : array()
             )) {
-                throw new RuntimeException('Unable to insert global');
+                throw new RSMbinaryUploadException('Unable to insert global');
             }
         }
         if (!$mysqli->commit()) {
-            throw new RuntimeException('Unable to commit globals');
+            throw new RSMbinaryUploadException('Unable to commit globals');
         }
         $started = false;
         return array('result' => 'OK');
@@ -189,23 +190,23 @@ function RSimportItemsWithProperties($clientID, $itemTypeID, $itemIDs, $property
     $failure = 'ERROR3';
     try {
         if (!$mysqli->begin_transaction()) {
-            throw new RuntimeException('Unable to start import');
+            throw new RSMbinaryUploadException('Unable to start import');
         }
         $started = true;
         if (!RSlockItemTypeForDuplication($itemTypeID, $clientID)) {
-            throw new RuntimeException('Unable to lock import type');
+            throw new RSMbinaryUploadException('Unable to lock import type');
         }
         if (!$itemIDs) {
             $nextID = getNextIdentification('rs_items', 'RS_ITEM_ID', $clientID, array('RS_ITEMTYPE_ID' => $itemTypeID));
             if ($nextID <= 0) {
-                throw new RuntimeException('Unable to allocate import IDs');
+                throw new RSMbinaryUploadException('Unable to allocate import IDs');
             }
             $itemIDs = range($nextID, $nextID + count($rows) - 1);
         } elseif (!$overwrite) {
-            $existing = RSQuery('SELECT RS_ITEM_ID FROM rs_items WHERE RS_CLIENT_ID = ' . $clientID . ' AND RS_ITEMTYPE_ID = ' . $itemTypeID
+            $existing = RSQuery('SELECT RS_ITEM_ID FROM rs_items WHERE RS_CLIENT_ID = ' . $clientID . \RSMsql::AND_ITEM_TYPE_ID . $itemTypeID
                 . ' AND RS_ITEM_ID IN (' . implode(',', $itemIDs) . ') LIMIT 1');
             if (!$existing) {
-                throw new RuntimeException('Unable to check import IDs');
+                throw new RSMbinaryUploadException('Unable to check import IDs');
             }
             if ($existing->num_rows > 0) {
                 return array('result' => 'ERROR1');
@@ -218,14 +219,14 @@ function RSimportItemsWithProperties($clientID, $itemTypeID, $itemIDs, $property
                 'iii',
                 array($itemTypeID, $itemID, $clientID)
             )) {
-                throw new RuntimeException('Unable to insert imported item');
+                throw new RSMbinaryUploadException('Unable to insert imported item');
             }
             $failure = 'ERROR0';
             foreach ($writes[$index] as $write) {
                 $property = $write['property'];
                 // The CSV endpoint historically did not create audit rows.
                 if (!_dbInsertItemPropertyValue($itemTypeID, $itemID, $property['id'], $property['type'], $write['value'], $clientID, $overwrite, false)) {
-                    throw new RuntimeException('Unable to insert imported property');
+                    throw new RSMbinaryUploadException('Unable to insert imported property');
                 }
             }
             $failure = 'ERROR3';
@@ -235,10 +236,10 @@ function RSimportItemsWithProperties($clientID, $itemTypeID, $itemIDs, $property
             'iii',
             array(max($itemIDs), $clientID, $itemTypeID)
         )) {
-            throw new RuntimeException('Unable to update import counter');
+            throw new RSMbinaryUploadException('Unable to update import counter');
         }
         if (!$mysqli->commit()) {
-            throw new RuntimeException('Unable to commit import');
+            throw new RSMbinaryUploadException('Unable to commit import');
         }
         $started = false;
         foreach ($itemIDs as $index => $itemID) {
