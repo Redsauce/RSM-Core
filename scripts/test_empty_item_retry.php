@@ -1,7 +1,7 @@
 <?php
 // Run the production allocator against deterministic query failures, without a DB.
 $source = file_get_contents(dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php');
-$start = strpos($source, 'function createEmptyItem(');
+$start = strpos($source, 'function RScreateEmptyItemInTransaction(');
 $function = '';
 $depth = 0;
 $started = false;
@@ -61,7 +61,7 @@ foreach ($cases as $index => $case) {
     $actualID = null;
     $failure = null;
     try {
-        $actualID = createEmptyItem(50, 7, $strict);
+        $actualID = RScreateEmptyItemInTransaction(50, 7, $strict);
     } catch (RuntimeException $exception) {
         $failure = $exception->getMessage();
     }

@@ -9,28 +9,7 @@ $clientID = $GLOBALS[$cstRS_POST][$cstClientID];
 $categoryID = $GLOBALS[$cstRS_POST][$cstCategoryID];
 
 
-// get category properties
-$propertiesList = getClientCategoryProperties($categoryID, $clientID);
-
-// delete properties
-foreach ($propertiesList as $property) {
-    // delete values
-    if (RSQuery('DELETE FROM '.$propertiesTables[$property['type']].' WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID) && ($property['type'] == 'image' || $property['type'] == 'file')) {
-        deleteMediaProperty($clientID, $property['id']);
-    }
-
-    // delete property definition
-    RSQuery('DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);
-
-    // delete property relationships
-    RSQuery('DELETE FROM rs_property_app_relations WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);
-    RSQuery('DELETE FROM rs_properties_lists WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);
-    RSQuery('DELETE FROM rs_properties_groups WHERE RS_PROPERTY_ID = '.$property['id'].' AND RS_CLIENT_ID = '.$clientID);
-}
-
-// finally delete category
-RSQuery('DELETE FROM rs_categories WHERE RS_CATEGORY_ID = '.$categoryID.' AND RS_CLIENT_ID = '.$clientID);
-
+deleteClientCategory($categoryID, $clientID);
 
 $results['result'] = 'OK';
 

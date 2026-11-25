@@ -32,7 +32,13 @@ class ScopeResult {
     }
     public function fetch_assoc() { return array_shift($this->rows); }
 }
-class ScopeEscaper { public function real_escape_string($s) { return SQLite3::escapeString($s); } }
+class ScopeEscaper {
+    public function real_escape_string($s) { return SQLite3::escapeString($s); }
+    public function begin_transaction() { return $GLOBALS['db']->exec('BEGIN'); }
+    public function commit() { return $GLOBALS['db']->exec('COMMIT'); }
+    public function rollback() { return $GLOBALS['db']->exec('ROLLBACK'); }
+}
+require_once dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/utilities/RSMwriteTransactions.php';
 class ScopeResponse extends Exception {
     public $body;
     public function __construct($body, $status = 200) { parent::__construct('', $status); $this->body = $body; }

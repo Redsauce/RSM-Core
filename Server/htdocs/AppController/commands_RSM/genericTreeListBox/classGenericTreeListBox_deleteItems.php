@@ -6,6 +6,7 @@
 // Database connection startup
 include_once "../utilities/RSdatabase.php";
 include_once "../utilities/RSMitemsManagement.php";
+require_once __DIR__ . "/../utilities/RSMwriteTransactions.php";
 include_once "../utilities/RSMfiltersManagement.php";
 
 function deleteDescendants($clientID, $parentID, $parentItemTypeID, $allowedItemPath, $userID, $counter=100)
@@ -125,102 +126,98 @@ if (isset($_POST['recursiveDelete'])&&isset($_POST['newParentID'])) {
         if ($itemTypeID!=0&&$itemTypeID != '') {
             if (count($itemIDs)>0&&$itemIDs[0]!='') {
                 if (count(getUserVisiblePropertiesIDs($itemTypeID, $clientID, $RSuserID))>0) {
-                    //the user can delete the items
-                    //begin transaction
-                    $mysqli->begin_transaction();
+                    $recursiveDelete = $recursiveDelete ?? 0;
+                    $newParentID = $newParentID ?? '';
+                    $allowedItemPaths = $allowedItemPaths ?? array();
+                    try {
+                        RSwithItemWriteTransaction(function () use ($clientID, $itemTypeID, $itemIDs, $RSuserID, $recursiveDelete, $newParentID, $allowedItemPaths, &$results) {
+                            $result = true;
 
+                            if (isset($_POST['recursiveDelete'])&&$recursiveDelete==1) {
+                                foreach ($itemIDs as $itemID) {
+                                    foreach ($allowedItemPaths as $allowedItemPath) {
+                                        $result=deleteDescendants($clientID, $itemID, $itemTypeID, explode(";", $allowedItemPath), $RSuserID);
+                                        if (!$result) {
+                                            $results['result'] = 'NOK';
+                                            $results['description'] = 'NOT ENOUGH PERMISSIONS TO DELETE DESCENDANTS';
+                                            break 2;
+                                        }
+                                    }
+                                }
 
-                    if (isset($_POST['recursiveDelete'])&&$recursiveDelete==1) {
-                        foreach ($itemIDs as $itemID) {
-                            foreach ($allowedItemPaths as $allowedItemPath) {
-                                $result=deleteDescendants($clientID, $itemID, $itemTypeID, explode(";", $allowedItemPath), $RSuserID);
-                                if (!$result) {
+                            } elseif (isset($_POST['newParentID'])&&$newParentID!='') {
+                                foreach ($itemIDs as $itemID) {
+                                    $moveResult=relocateDescendants($clientID, $itemID, $itemTypeID, $newParentID, array(), $RSuserID);
+                                    if ($moveResult<0) {
+                                        $results['result'] = 'NOK';
+                                        switch ($moveResult) {
+                                            case -1:
+                                                $results['description'] = 'RECURSIVE MOVE NOT ALLOWED';
+                                                break;
+                                            case -2:
+                                                $results['description'] = 'INVALID USER';
+                                                break;
+                                            case -3:
+                                                $results['description'] = 'ERROR MOVING DESCENDANTS';
+                                                break;
+                                            case -4:
+                                                $results['description'] = 'NOT ENOUGH PERMISSIONS TO MOVE DESCENDANTS';
+                                                break;
+                                            default:
+                                                // Other values require no action.
+                                                break;
+                                        }
+                                        $result=false;
+                                        break;
+                                    }
+                                }
+
+                            } else {
+                                $hasChilds=0;
+                                //get all descendants of this itemtype
+                                $subDescendants=getDescendantsLevel($clientID, $itemTypeID, array());
+
+                                foreach ($itemIDs as $itemID) {
+                                    foreach ($subDescendants as $subDescendant) {
+                                        // build filter
+                                        $filterProperties = array();
+                                        $filterProperties[] = array('ID' => $subDescendant['propertyID'], 'value' => $itemID);
+
+                                        $returnProperties = array();
+
+                                        // get items pertaining to the parent passed
+                                        $subResult = getFilteredItemsIDs($subDescendant['itemTypeID'], $clientID, $filterProperties, $returnProperties);
+                                        if (count($subResult)>0) {
+                                            $hasChilds=1;
+                                            break;
+                                        }
+                                    }
+                                    if ($hasChilds==1) {
+                                        break;
+                                    }
+                                }
+                                if ($hasChilds==1) {
                                     //rollback transaction
-                                    $mysqli->rollback();
+                                    $result=false;
                                     $results['result'] = 'NOK';
-                                    $results['description'] = 'NOT ENOUGH PERMISSIONS TO DELETE DESCENDANTS';
-                                    break;
+                                    $results['description'] = 'RECURSIVE DELETION REQUIRED';
+                                } else {
+                                    //no childs, continue with deleting
+                                    $result=true;
                                 }
                             }
-                        }
-                        //no errors in recursive deleting, continue with deleting
-                        $result=true;
 
-                    } elseif (isset($_POST['newParentID'])&&$newParentID!='') {
-                        foreach ($itemIDs as $itemID) {
-                            $result=relocateDescendants($clientID, $itemID, $itemTypeID, $newParentID, array(), $RSuserID);
-                            if ($result<0) {
-                                //rollback transaction
-                                $mysqli->rollback();
-                                $results['result'] = 'NOK';
-                                switch ($result) {
-                                    case -1:
-                                        $results['description'] = 'RECURSIVE MOVE NOT ALLOWED';
-                                        break;
-                                    case -2:
-                                        $results['description'] = 'INVALID USER';
-                                        break;
-                                    case -3:
-                                        $results['description'] = 'ERROR MOVING DESCENDANTS';
-                                        break;
-                                    case -4:
-                                        $results['description'] = 'NOT ENOUGH PERMISSIONS TO MOVE DESCENDANTS';
-                                        break;
-                                    default:
-                                        // Other values require no action.
-                                        break;
-                                }
-                                $result=false;
-                                break;
+                            if (!$result) {
+                                throw new RuntimeException('Tree deletion was rejected');
                             }
-                        }
-                        //no errors relocating, continue with deleting
-                        $result=true;
-
-                    } else {
-                        $hasChilds=0;
-                        //get all descendants of this itemtype
-                        $subDescendants=getDescendantsLevel($clientID, $itemTypeID, array());
-
-                        foreach ($itemIDs as $itemID) {
-                            foreach ($subDescendants as $subDescendant) {
-                                // build filter
-                                $filterProperties = array();
-                                $filterProperties[] = array('ID' => $subDescendant['propertyID'], 'value' => $itemID);
-
-                                $returnProperties = array();
-
-                                // get items pertaining to the parent passed
-                                $subResult = getFilteredItemsIDs($subDescendant['itemTypeID'], $clientID, $filterProperties, $returnProperties);
-                                if (count($subResult)>0) {
-                                    $hasChilds=1;
-                                    break;
-                                }
+                            foreach ($itemIDs as $itemID) {
+                                deleteItem($itemTypeID, $itemID, $clientID);
                             }
-                            if ($hasChilds==1) {
-                                break;
-                            }
-                        }
-                        if ($hasChilds==1) {
-                            //rollback transaction
-                            $result=false;
-                            $mysqli->rollback();
-                            $results['result'] = 'NOK';
-                            $results['description'] = 'RECURSIVE DELETION REQUIRED';
-                        } else {
-                            //no childs, continue with deleting
-                            $result=true;
-                        }
-                    }
-
-                    if ($result) {
-                        foreach ($itemIDs as $itemID) {
-                            deleteItem($itemTypeID, $itemID, $clientID);
-                        }
-
-                        //commit transaction
-                        $mysqli->commit();
+                        });
                         $results['result'] = 'OK';
+                    } catch (Throwable $exception) {
+                        $results['result'] = 'NOK';
+                        $results['description'] = $results['description'] ?? 'Unable to delete items';
                     }
                 } else {
                     $results['result'] = 'NOK';

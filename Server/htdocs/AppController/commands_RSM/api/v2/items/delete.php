@@ -66,11 +66,16 @@ foreach ($requestBody as $itemType) {
         }
     }
 }
-foreach ($requestBody as $itemType) {
-    if (empty($itemType->IDs)) {
-        continue;
-    }
-    deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
+try {
+    RSwithItemWriteTransaction(function () use ($requestBody, $clientID) {
+        foreach ($requestBody as $itemType) {
+            if (!empty($itemType->IDs)) {
+                deleteItems($itemType->parsedItemTypeID, $clientID, implode(',', $itemType->IDs));
+            }
+        }
+    });
+} catch (Throwable $exception) {
+    returnJsonMessage(500, $RSallowDebug ? 'Unable to delete items; no changes were committed' : '');
 }
 
 $RSallowDebug ? returnJsonMessage(200, 'Deleted') : returnJsonMessage(200, '');

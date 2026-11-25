@@ -2,6 +2,7 @@
 // Load the writer directly: properties management may still be an older version
 // during a staged deployment and must not control this dependency.
 require_once __DIR__ . '/RSMbinaryProperties.php';
+require_once __DIR__ . '/RSMwriteTransactions.php';
 require_once 'RSMpropertiesManagement.php';
 require_once 'RSMidentificationFunctions.php';
 require_once 'RSMdefinitions.php';
@@ -1262,7 +1263,36 @@ function isIdentifier2property($propertyType)
 }
 
 // Delete a client property from the db (all relationships also will be deleted)
+function deleteClientCategory($categoryID, $clientID)
+{
+    return RSwithItemWriteTransaction(function () use ($categoryID, $clientID) {
+        foreach (getClientCategoryProperties($categoryID, $clientID, 0, true) as $property) {
+            deleteClientProperty($property['id'], $clientID);
+        }
+        RSQuery('DELETE FROM rs_categories WHERE RS_CATEGORY_ID = ' . intval($categoryID) . ' AND RS_CLIENT_ID = ' . intval($clientID));
+    });
+}
+
+function deleteClientItemType($itemTypeID, $clientID)
+{
+    return RSwithItemWriteTransaction(function () use ($itemTypeID, $clientID) {
+        deleteItems($itemTypeID, $clientID);
+        foreach (getClientItemTypeCategories($itemTypeID, $clientID, true) as $category) {
+            deleteClientCategory($category['id'], $clientID);
+        }
+        RSQuery('DELETE FROM rs_item_types WHERE RS_ITEMTYPE_ID = ' . intval($itemTypeID) . ' AND RS_CLIENT_ID = ' . intval($clientID));
+        RSQuery('DELETE FROM rs_item_type_app_relations WHERE RS_ITEMTYPE_ID = ' . intval($itemTypeID) . ' AND RS_CLIENT_ID = ' . intval($clientID));
+    });
+}
+
 function deleteClientProperty($propertyID, $clientID)
+{
+    return RSwithItemWriteTransaction(function () use ($propertyID, $clientID) {
+        return RSDeleteClientPropertyInTransaction($propertyID, $clientID);
+    });
+}
+
+function RSDeleteClientPropertyInTransaction($propertyID, $clientID)
 {
     global $propertiesTables;
 
@@ -1272,7 +1302,10 @@ function deleteClientProperty($propertyID, $clientID)
     $propertyType = getClientPropertyType($propertyID, $clientID);
 
 
-    if (RSQuery("DELETE FROM " . $propertiesTables[$propertyType] . " WHERE RS_PROPERTY_ID = " . $propertyID . " AND RS_CLIENT_ID = " . $clientID) && ($propertyType == 'image' || $propertyType == 'file')) {
+    foreach (array_unique(array_values($propertiesTables)) as $table) {
+        RSQuery('DELETE FROM ' . $table . ' WHERE RS_PROPERTY_ID = ' . intval($propertyID) . ' AND RS_CLIENT_ID = ' . intval($clientID));
+    }
+    if ($propertyType === 'image' || $propertyType === 'file') {
         deleteMediaProperty($clientID, $propertyID);
     }
     RSQuery("DELETE FROM rs_item_properties WHERE RS_PROPERTY_ID = "        . $propertyID . " AND RS_CLIENT_ID = " . $clientID);
@@ -1705,6 +1738,19 @@ function inSubTree($itemID, $subtree)
 // Create a new item in blank
 function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
 {
+    if ($failOnError) {
+        return RScreateEmptyItemInTransaction($itemTypeID, $clientID, true);
+    }
+    return RSwithItemWriteTransaction(function () use ($itemTypeID, $clientID) {
+        if (!RSlockItemTypeForDuplication($itemTypeID, $clientID)) {
+            throw new RuntimeException('Unable to lock item type');
+        }
+        return RScreateEmptyItemInTransaction($itemTypeID, $clientID, true);
+    });
+}
+
+function RScreateEmptyItemInTransaction($itemTypeID, $clientID, $failOnError = true)
+{
     global $mysqli;
     // Capture immediately: the ID lookup/retry and rollback can clear the error.
     // These diagnostics are only used for fixed SQL containing numeric item IDs.
@@ -1753,7 +1799,7 @@ function createEmptyItem($itemTypeID, $clientID, $failOnError = false)
     }
 
     // Update the item type with the latest ID created for the item
-    $counterUpdated = RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = ' . $newID . ' WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID, !$failOnError);
+    $counterUpdated = RSquery('UPDATE rs_item_types SET RS_LAST_ITEM_ID = GREATEST(RS_LAST_ITEM_ID, ' . $newID . ') WHERE    RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID, !$failOnError);
     if ($failOnError && !$counterUpdated) {
         throw $creationFailure('update_item_counter');
     }
@@ -2118,15 +2164,26 @@ function in_array_recursive($needle, $haystack)
 // Delete an item and all of his defined properties
 function deleteItem($itemTypeID, $itemID, $clientID, $descendants = array())
 {
+    return RSwithItemWriteTransaction(function () use ($itemTypeID, $itemID, $clientID, $descendants) {
+        return RSDeleteItemInTransaction($itemTypeID, $itemID, $clientID, $descendants);
+    });
+}
+
+function RSDeleteItemInTransaction($itemTypeID, $itemID, $clientID, $descendants = array())
+{
     global $definitions;
 
     // delete item from rs_items table
     RSQuery("DELETE FROM rs_items WHERE RS_ITEMTYPE_ID = " . $itemTypeID . " AND RS_ITEM_ID = " . $itemID . " AND RS_CLIENT_ID = " . $clientID);
 
-    // delete all item properties values
+    RSdeleteStoredItemValues($itemTypeID, $clientID, (string)$itemID);
+
+    // Invalidate media caches for the known definitions.
     $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID);
     foreach ($propertiesList as $property) {
-        deleteItemPropertyValue($itemTypeID, $itemID, $property['id'], $clientID, $property['type']);
+        if ($property['type'] === 'image' || $property['type'] === 'file') {
+            deleteMediaFile($clientID, $itemID, $property['id']);
+        }
     }
 
     $removedProperties = array();
@@ -2207,6 +2264,13 @@ function deleteItem($itemTypeID, $itemID, $clientID, $descendants = array())
 // Delete items and all of their defined properties
 function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array())
 {
+    return RSwithItemWriteTransaction(function () use ($itemTypeID, $clientID, $ids, $descendants) {
+        return RSDeleteItemsInTransaction($itemTypeID, $clientID, $ids, $descendants);
+    });
+}
+
+function RSDeleteItemsInTransaction($itemTypeID, $clientID, $ids = '', $descendants = array())
+{
     global $definitions, $propertiesTables;
 
     if ($ids != '') {
@@ -2218,11 +2282,13 @@ function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array())
     // delete items from rs_items table
     RSQuery('DELETE FROM rs_items WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' ' . $inClause);
 
-    // delete all items properties values
+    RSdeleteStoredItemValues($itemTypeID, $clientID, $ids);
+
+    // Invalidate media caches for the known definitions.
     $propertiesList = getClientItemTypeProperties($itemTypeID, $clientID);
 
     foreach ($propertiesList as $property) {
-        if (RSQuery('DELETE FROM ' . $propertiesTables[$property['type']] . ' WHERE RS_ITEMTYPE_ID = ' . $itemTypeID . ' AND RS_CLIENT_ID = ' . $clientID . ' AND RS_PROPERTY_ID = ' . $property['id'] . ' ' . $inClause) && ($property['type'] == 'image' || $property['type'] == 'file')) {
+        if ($property['type'] == 'image' || $property['type'] == 'file') {
             $itemIDs = explode(",", $ids);
             foreach ($itemIDs as $itemID) {
                 deleteMediaFile($clientID, $itemID, $property['id']);

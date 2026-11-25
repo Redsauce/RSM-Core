@@ -164,6 +164,7 @@ function dieWithError($status, $message = null) { throw new BinaryResponse($stat
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
 set_include_path($root . 'utilities' . PATH_SEPARATOR . get_include_path());
 require_once $root . 'utilities/RSMbinaryProperties.php';
+require_once $root . 'utilities/RSMwriteTransactions.php';
 if (in_array('--legacy-properties', $argv, true)) {
     eval(substr(binaryBaselineSource('c284da4', 'Server/htdocs/AppController/commands_RSM/utilities/RSMpropertiesManagement.php'), 5));
 } else {
@@ -182,6 +183,7 @@ if (in_array('--legacy-manager', $argv, true)) {
 $creationFunctions = array('createEmptyItem', 'createItem', '_dbInsertItemPropertyValue', 'setDataPropertyValueByID', 'deleteItemPropertyValue', 'RSlockItemTypeForDuplication');
 if (!in_array('--legacy-manager', $argv, true)) {
     $creationFunctions[] = 'RScreateItemInTransaction';
+    $creationFunctions[] = 'RScreateEmptyItemInTransaction';
     $creationFunctions[] = 'RSallocateNextIntegerPropertyValue';
 }
 foreach ($creationFunctions as $name) {
@@ -211,6 +213,7 @@ function binaryReset() {
     global $binaryDb, $mysqli, $RSallowDebug, $RSmaxBinaryPropertyBytes, $RSuserID, $RStoken, $RSimageCache, $RSfileCache;
     $binaryDb = new SQLite3(':memory:');
     $binaryDb->enableExceptions(true);
+    $binaryDb->createFunction('GREATEST', function ($a, $b) { return max($a, $b); }, 2);
     $mysqli = new BinaryConnection();
     $RSallowDebug = true; $RSmaxBinaryPropertyBytes = 32 * 1024 * 1024;
     $RSuserID = 3; $RStoken = "token'quoted";

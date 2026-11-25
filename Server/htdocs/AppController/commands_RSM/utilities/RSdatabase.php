@@ -928,6 +928,9 @@ function RSQuery($theQuery, $registerError = true)
 
     try {
         $result = $mysqli->query($theQuery);
+        if ($result === false && $registerError && !empty($GLOBALS['RSrequireItemWriteQueries'])) {
+            throw new RuntimeException('Required item write query failed');
+        }
 
         if (($RSallowDebug && $RSdebug)) {
             usleep(1);
@@ -939,6 +942,9 @@ function RSQuery($theQuery, $registerError = true)
         return $result;
 
     } catch (mysqli_sql_exception $e) {
+        if ($registerError && !empty($GLOBALS['RSrequireItemWriteQueries'])) {
+            throw new RuntimeException('Required item write query failed', 0, $e);
+        }
         if ($registerError) {
             RSerror("RSdatabase: failed query: " . $theQuery);
             RSerror("RSdatabase: failed query: error:" . $e);
