@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Execute the affected production blocks without a production connection.
 function readAssert($condition, $message) { if (!$condition) throw new RuntimeException($message); }
 set_error_handler(function ($severity, $message) {
@@ -27,7 +28,7 @@ foreach (array(true, false) as $allowed) {
 }
 readAssert(function_exists('imagecreatefromstring'), 'Enable GD for the image regression');
 class ReadResponse extends RuntimeException { }
-function RSError($message) { $GLOBALS['readLog'] = $message; }
+function RSerror($message) { $GLOBALS['readLog'] = $message; }
 function dieWithError($status) { throw new ReadResponse('', $status); }
 $source = file_get_contents($root . 'api/api_getPicture.php');
 $start = strpos($source, '$originalImage = @imagecreatefromstring');

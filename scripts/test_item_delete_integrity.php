@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Execute the production functions against an isolated SQLite database. Inject
 // failures after earlier writes, including metadata failures, to verify rollback.
 function integrityExtract($source, $name)
@@ -65,15 +66,15 @@ class IntegrityConnection
 }
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/utilities/';
 require $root . 'RSMwriteTransactions.php';
-eval(integrityExtract(file_get_contents($root . 'RSdatabase.php'), 'RSQuery'));
+eval(integrityExtract(file_get_contents($root . 'RSdatabase.php'), 'RSquery'));
 $source = file_get_contents($root . 'RSMitemsManagement.php');
-foreach (array('deleteItem', 'RSDeleteItemInTransaction', 'deleteItems', 'RSDeleteItemsInTransaction',
-    'deleteClientProperty', 'RSDeleteClientPropertyInTransaction', 'deleteClientCategory', 'deleteClientItemType',
-    'createEmptyItem', 'RScreateEmptyItemInTransaction', 'RSlockItemTypeForDuplication',
+foreach (array('deleteItem', 'RSdeleteItemInTransaction', 'deleteItems', 'RSdeleteItemsInTransaction',
+    'deleteClientProperty', 'RSdeleteClientPropertyInTransaction', 'deleteClientCategory', 'deleteClientItemType',
+    'createEmptyItem', 'RSretryEmptyItemInsert', 'RScreateEmptyItemInTransaction', 'RSlockItemTypeForDuplication',
     'getClientItemTypeCategories', 'getClientCategoryProperties', 'getClientItemTypeProperties') as $name) {
     eval(integrityExtract($source, $name));
 }
-function RSError($message) { }
+function RSerror($message) { }
 function getClientItemTypes($client) { return array(); }
 function getClientItemTypeID_RelatedWith_byName($name, $client) { return -1; }
 function getClientPropertyItemType($property, $client) { return 50; }
@@ -194,7 +195,7 @@ class IntegrityResponse extends Exception {
     public $body;
     public function __construct($body) { $this->body = $body; parent::__construct('response'); }
 }
-function RSReturnArrayResults($body) { throw new IntegrityResponse($body); }
+function RSreturnArrayResults($body) { throw new IntegrityResponse($body); }
 function getUserVisiblePropertiesIDs($type, $client, $user) { return $type == 50 ? array(100) : array(); }
 function getDescendantsLevel($client, $type, $allowed) {
     return $GLOBALS['treeMode'] === 'move' ? array(array('propertyID' => 101, 'itemTypeID' => 51)) : array();

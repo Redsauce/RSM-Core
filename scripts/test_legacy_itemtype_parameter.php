@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 
 function legacyItemTypeAssert($condition, $message)
 {
@@ -52,7 +53,7 @@ class LegacyItemTypeResult
 }
 
 $queryResults = array();
-function RSQuery($query)
+function RSquery($query)
 {
     global $queryResults;
     return array_shift($queryResults);

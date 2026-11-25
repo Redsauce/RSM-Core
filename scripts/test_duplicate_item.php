@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMexceptions.php';
 // Behavioral endpoint tests using the real duplicateItem implementation and an
 // in-memory SQL adapter. No bootstrap credentials or running server are needed.
 function duplicateAssert($condition, $message) {
@@ -31,7 +33,7 @@ class DuplicateMemoryDb {
     public function commit() { if ($GLOBALS['copyFail'] === 'commit') return false; $this->commits++; return true; }
     public function rollback() { $GLOBALS['copyRows'] = $this->snapshot; $this->rollbacks++; return true; }
 }
-function RSQuery($sql) {
+function RSquery($sql) {
     global $copyRows, $copyFail;
     if (strpos($sql, 'SELECT RS_LAST_ITEM_ID') === 0) return (object)array('num_rows' => 1);
     if (strpos($sql, 'UPDATE rs_item_types') === 0) {
@@ -94,7 +96,7 @@ function RSitemMatchesTokenCustomerScope($token, $client, $type, $item) {
     if (in_array("$type:$item", $GLOBALS['copyScopeDenied'], true)) return false;
     return !$GLOBALS['copyScoped'] || (($GLOBALS['copyRows']['rs_property_identifiers']["$client:$type:$item:104"]['RS_DATA'] ?? '') === '99');
 }
-function RSError($message) { $GLOBALS['copyRows']['errors'][] = $message; }
+function RSerror($message) { $GLOBALS['copyRows']['errors'][] = $message; }
 function returnJsonMessage($code, $message) { throw new DuplicateResponse($code, $message); }
 function returnJsonResponse($json) { throw new DuplicateResponse(200, json_decode($json, true)); }
 

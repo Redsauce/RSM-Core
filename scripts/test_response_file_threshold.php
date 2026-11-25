@@ -1,12 +1,14 @@
 <?php
 // Isolate response helpers from the database/security bootstrap. Run with PHP CLI.
 namespace ResponseThresholdTest;
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
+
 
 require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSconfiguration.php';
 require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
-foreach (array('RSGetResponseFileFieldThreshold', '_predictNumberOfFields',
-    'RSReturnArrayQueryResults', 'RSReturnQueryResults', 'gzCompressFile',
+foreach (array('RSgetResponseFileFieldThreshold', '_predictNumberOfFields',
+    'RSreturnArrayQueryResults', 'RSreturnQueryResults', 'RSMcopyFileToGzip', 'gzCompressFile',
     'checkCompressionVersion', 'removeTmpFile') as $name) {
     if (!preg_match('/^function ' . $name . '\(.*?^\}/ms', $source, $match)) {
         throw new \RuntimeException('Cannot extract ' . $name);
@@ -19,9 +21,9 @@ foreach (array('RSGetResponseFileFieldThreshold', '_predictNumberOfFields',
 }
 
 function header($value) { $GLOBALS['responseHeaders'][] = $value; }
-function RSCreateResponseTempFile($directory) {
+function RScreateResponseTempFile($directory) {
     if ($GLOBALS['failTempFile']) return false;
-    $path = \RSCreateResponseTempFile($directory);
+    $path = \RScreateResponseTempFile($directory);
     $GLOBALS['createdFiles'][] = $path;
     return $path;
 }
@@ -70,7 +72,7 @@ $cases = array(
 );
 $count = 0;
 try {
-    foreach (array('RSReturnArrayQueryResults', 'RSReturnQueryResults') as $responder) {
+    foreach (array('RSreturnArrayQueryResults', 'RSreturnQueryResults') as $responder) {
         foreach ($cases as $case) {
             foreach (array('plain', 'compressed', 'compression failure', 'file failure') as $mode) {
                 list($label, $threshold, $rows, $disk) = $case;
@@ -81,7 +83,7 @@ try {
                 $createdFiles = $removedFiles = $responseHeaders = array();
                 // A request parameter must not override the server configuration.
                 $GLOBALS[$cstRS_POST] = array('RSresponseFileFieldThreshold' => 0);
-                $input = $responder === 'RSReturnQueryResults'
+                $input = $responder === 'RSreturnQueryResults'
                     ? new Result($rows) : array_fill(0, $rows, array('value' => 'sample'));
                 ob_start();
                 $function = __NAMESPACE__ . '\\' . $responder;

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Run with PHP sqlite3 and mbstring enabled. Reuse the isolated SQLite endpoint
 // fixture: no server, production credentials or database changes are required.
 ob_start(); // Keep fixture output buffered while endpoints set HTTP headers.
@@ -7,9 +8,9 @@ require_once $root . 'utilities/RSresponseTempFiles.php';
 loadProductionFunctions($root . 'utilities/RSMitemsManagement.php', array(
     'RSstreamFilteredItemsPropertiesToXML', 'RSfilteredItemsArrayToXML'
 ));
-function RSReturnError($message, $code) { throw new ScopeResponse($message, 400); }
+function RSreturnError($message, $code) { throw new ScopeResponse($message, 400); }
 function getUserVisiblePropertiesIDs($type, $client, $user) { return array(100, 400, 401); }
-function RSReturnFileResults($file, $compressed = true) {
+function RSreturnFileResults($file, $compressed = true) {
     $xml = simplexml_load_file($file, 'SimpleXMLElement', LIBXML_NOCDATA);
     $rows = array();
     foreach ($xml->rows->row as $row) {
@@ -17,7 +18,7 @@ function RSReturnFileResults($file, $compressed = true) {
         foreach ($row->column as $column) $item[(string)$column['name']] = (string)$column;
         $rows[] = $item;
     }
-    RSDeleteResponseTempFile($file);
+    RSdeleteResponseTempFile($file);
     throw new ScopeResponse($rows);
 }
 function applyExternalFilters($type, $client, $rows, $rules) {
@@ -133,12 +134,12 @@ foreach (array(false,true) as $fileOutput) {
     $GLOBALS['externalFilterCalls']=0;
     $rows=getFilteredItemsIDs(54,7,array(),array(array('ID'=>400,'name'=>'400')),'',false,'','','AND',0,$fileOutput,'external-fixture',false,array('offset'=>1,'limit'=>2));
     if (is_string($rows)) {
-        try { RSReturnFileResults($rows); } catch (ScopeResponse $response) { $rows=$response->body; }
+        try { RSreturnFileResults($rows); } catch (ScopeResponse $response) { $rows=$response->body; }
     }
     expect(array_map('intval',array_column($rows,'ID')) === array(1002,1004), 'slice surviving external results');
     expect($GLOBALS['externalFilterCalls'] === 1, 'external filter runs once');
 }
-RSCleanupResponseTempFiles();
+RScleanupResponseTempFiles();
 foreach (array('../shared/classDataManager_getItems.php','api_getItems.php','v2/items/get.php') as $endpoint) {
     $source=file_get_contents($root . 'api/' . $endpoint);
     if ($endpoint === 'v2/items/get.php') {

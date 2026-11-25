@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Exercise the production guard without loading configuration or a database.
 $source = file_get_contents(dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
 $guard = substr($source, 5, strpos($source, 'require_once') - 5);

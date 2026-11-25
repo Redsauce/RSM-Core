@@ -8,6 +8,8 @@
       "requires": [],
       "instructions": "Copy in listed order. These files add helpers; existing routes are not switched to them by this stage.",
       "files": [
+        "utilities/RSMqueryText.php",
+        "utilities/RSMexceptions.php",
         "utilities/RSMbinaryProperties.php",
         "utilities/RSMbinaryUploads.php"
       ]

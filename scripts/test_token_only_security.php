@@ -1,14 +1,15 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Exercise the production security branch without a database or credentials.
 class TokenSecurityDenied extends RuntimeException {}
-function RSCheckUserAccess() {
+function RScheckUserAccess() {
     $GLOBALS['userChecks']++;
     return $GLOBALS['testUserID'];
 }
 function RSisTokenEnabled($token) { return $token === 'enabled'; }
 function RSClientFromToken($token) { return 7; }
-function RSCheckCompatibleDB($mode) { return 1; }
-function RSReturnError($message, $code) { throw new TokenSecurityDenied($message, $code); }
+function RScheckCompatibleDB($mode) { return 1; }
+function RSreturnError($message, $code) { throw new TokenSecurityDenied($message, $code); }
 
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSsecurityCheck.php');
 $start = strpos($source, '$RSuserID =');

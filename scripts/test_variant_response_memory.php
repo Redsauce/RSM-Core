@@ -1,20 +1,23 @@
 <?php
 // Run with: php -d memory_limit=32M scripts/test_variant_response_memory.php
 namespace VariantResponseMemoryTest;
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 
+
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMexceptions.php';
 require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php');
 foreach (array('getFilteredItemsIDs', 'RSstreamFilteredItemsPropertiesToXML') as $name) {
     if (!preg_match('/^function ' . $name . '\(.*?^\}/ms', $source, $match)) {
         throw new \RuntimeException('Cannot extract ' . $name);
     }
-    eval('namespace ' . __NAMESPACE__ . '; use XMLWriter; use RuntimeException;' . $match[0]);
+    eval('namespace ' . __NAMESPACE__ . '; use XMLWriter; use RuntimeException; use RSMresponseWriteException;' . $match[0]);
 }
 
 function check($condition, $message) {
     if (!$condition) throw new \RuntimeException($message);
 }
-function RSGetResponseFileFieldThreshold() { return $GLOBALS['variantThreshold']; }
+function RSgetResponseFileFieldThreshold() { return $GLOBALS['variantThreshold']; }
 function RSMgetFilteredPropertyType(...$arguments) { return 'variant'; }
 class Result {
     public $num_rows;
@@ -34,8 +37,8 @@ function RShydrateFilteredItemsProperties($items, ...$arguments) {
     }
     return $items;
 }
-function RSCreateResponseTempFile($directory) {
-    return $GLOBALS['failTemp'] ? false : \RSCreateResponseTempFile($directory);
+function RScreateResponseTempFile($directory) {
+    return $GLOBALS['failTemp'] ? false : \RScreateResponseTempFile($directory);
 }
 
 $RStempPath = sys_get_temp_dir() . '/rsm-variant-memory-' . bin2hex(random_bytes(8));
@@ -72,7 +75,7 @@ try {
             check(is_string($smallFile) && is_file($smallFile), 'Variants must use a file regardless of row count or threshold');
             $xml = file_get_contents($smallFile);
             check(substr_count($xml, '<row>') === $rowCount, 'Small variant response must preserve every row');
-            \RSDeleteResponseTempFile($smallFile);
+            \RSdeleteResponseTempFile($smallFile);
         }
     }
     $GLOBALS['failTemp'] = true;
@@ -85,8 +88,8 @@ try {
     check($failed, 'A file failure must not fall back to an unbounded archive read');
     echo 'PASS: 1201 rows, ' . filesize($file) . ' XML bytes, peak ' . memory_get_peak_usage(true) . " bytes; disk failure fails closed\n";
 } finally {
-    \RSCleanupResponseTempFiles();
-    if ($file && is_file($file)) \RSDeleteResponseTempFile($file);
+    \RScleanupResponseTempFiles();
+    if ($file && is_file($file)) \RSdeleteResponseTempFile($file);
     foreach (glob($RStempPath . '/*') as $remaining) unlink($remaining);
     rmdir($RStempPath);
 }

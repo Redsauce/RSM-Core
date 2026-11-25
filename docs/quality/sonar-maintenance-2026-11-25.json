@@ -1,0 +1,234 @@
+{
+  "date": "2026-11-25",
+  "project": "RSM-Core-develop",
+  "source": "https://sonarqube.redsauce.net/project/issues?issueStatuses=OPEN%2CCONFIRMED&id=RSM-Core-develop&s=TYPE_SEVERITY",
+  "baseline_commit": "55ad409",
+  "baseline_total": 696,
+  "baseline_types": {
+    "BUG": 0,
+    "CODE_SMELL": 696
+  },
+  "baseline_severities": {
+    "CRITICAL": 57,
+    "MAJOR": 189,
+    "MINOR": 431,
+    "INFO": 19
+  },
+  "status": "partial-local-remediation-not-reanalyzed",
+  "note": "Baseline counts are Sonar observations, not counts of resolved issues. No issues have been manually closed, accepted or suppressed. No deployment, commit or push was performed.",
+  "rules": [
+    {
+      "name": "String literals should not be duplicated",
+      "baseline_count": 85,
+      "status": "partial",
+      "work": "76 named constants replace 545 occurrences with identical values. Two multiline SQL fragment families retain distinct whitespace and still need query-level refactoring."
+    },
+    {
+      "name": "Function names should comply with a naming convention",
+      "baseline_count": 74,
+      "status": "partial",
+      "work": "21 declaration spellings normalized using PHP case-insensitive callable identity. Underscore and digit renames remain pending to preserve legacy callers."
+    },
+    {
+      "name": "Generic exceptions should not be thrown",
+      "baseline_count": 61,
+      "status": "implemented-awaiting-analysis",
+      "work": "Domain exceptions preserve the original RuntimeException/Exception inheritance and existing catch behavior."
+    },
+    {
+      "name": "Source code should comply with formatting standards",
+      "baseline_count": 61,
+      "status": "partial",
+      "work": "Horizontal parenthesis spacing, for/foreach separators and merged conditions cleaned up. Remaining multiline argument layout needs analyzer verification."
+    },
+    {
+      "name": "Local variable and function parameter names should comply with a naming convention",
+      "baseline_count": 58,
+      "status": "partial",
+      "work": "Token-based variable renames applied across the reported modules. Legacy verifyItemExists($ID, ...) is preserved."
+    },
+    {
+      "name": "Cognitive Complexity of functions should not be too high",
+      "baseline_count": 56,
+      "status": "partial",
+      "work": "Extracted allocator collision retry, binary filename splitting, trigger action merging and gzip copying. Large query, tree, media and duplication functions remain pending."
+    },
+    {
+      "name": "Functions should not contain too many return statements",
+      "baseline_count": 55,
+      "status": "partial",
+      "work": "Reduced returns in the six group writers, checkType, time comparisons and gzip compression. Security guards and other legacy functions remain pending."
+    },
+    {
+      "name": "Tabulation characters should not be used",
+      "baseline_count": 45,
+      "status": "implemented-awaiting-analysis",
+      "work": "Whitespace/comment tabs expanded. Literal tabs escaped while retaining the exact decoded string values."
+    },
+    {
+      "name": "empty() should be used to test for emptiness",
+      "baseline_count": 37,
+      "status": "implemented-awaiting-analysis",
+      "work": "Reported array count comparisons changed to empty/nonempty checks."
+    },
+    {
+      "name": "Mergeable if statements should be combined",
+      "baseline_count": 20,
+      "status": "implemented-awaiting-analysis",
+      "work": "Merged all 20 reported nested conditions with short-circuit order retained."
+    },
+    {
+      "name": "Track uses of TODO tags",
+      "baseline_count": 19,
+      "status": "partial",
+      "work": "Three unreachable placeholders in checkType replaced with documented pass-through behavior. Product decisions and feature/optimization tasks remain explicit."
+    },
+    {
+      "name": "Functions should not have too many parameters",
+      "baseline_count": 18,
+      "status": "pending-refactor",
+      "work": "Requires compatibility-preserving internal APIs; positional/reference/named callers must be reviewed per function."
+    },
+    {
+      "name": "Sections of code should not be commented out",
+      "baseline_count": 17,
+      "status": "implemented-awaiting-analysis",
+      "work": "Removed 17 reported disabled-code sections (21 comment tokens)."
+    },
+    {
+      "name": "&& and || should be used",
+      "baseline_count": 16,
+      "status": "implemented-awaiting-analysis",
+      "work": "All 16 reported operators were inside conditions; replaced without changing assignment precedence."
+    },
+    {
+      "name": "Local variables should not be declared and then immediately returned or thrown",
+      "baseline_count": 16,
+      "status": "implemented-awaiting-analysis",
+      "work": "Direct return expressions replace temporary bindings."
+    },
+    {
+      "name": "Unused local variables should be removed",
+      "baseline_count": 15,
+      "status": "implemented-awaiting-analysis",
+      "work": "Removed unused bindings; retained metadata calls that can have effects or errors."
+    },
+    {
+      "name": "Boolean literals should not be redundant",
+      "baseline_count": 13,
+      "status": "implemented-awaiting-analysis",
+      "work": "Removed loose truthiness comparisons; strict false checks retain their semantics."
+    },
+    {
+      "name": "Unused assignments should be removed",
+      "baseline_count": 7,
+      "status": "implemented-awaiting-analysis",
+      "work": "Removed six overwritten write results and the redundant tree-path assignment."
+    },
+    {
+      "name": "Unused function parameters should be removed",
+      "baseline_count": 5,
+      "status": "partial",
+      "work": "Removed buildRootNode client/order parameters and the unused internal deleteDescendants parent type. cURL callback position and the public binary writer parameter remain for compatibility."
+    },
+    {
+      "name": "Lines should not end with trailing whitespaces",
+      "baseline_count": 4,
+      "status": "implemented-awaiting-analysis",
+      "work": "Token-preserving whitespace cleanup and git diff --check pass."
+    },
+    {
+      "name": "Jump statements should not be redundant",
+      "baseline_count": 3,
+      "status": "partial",
+      "work": "Removed the final redundant continue in the v1 update route. Two property reader fallbacks are now explicit return null for consistent value returns."
+    },
+    {
+      "name": "Regular expression quantifiers and character classes should be used concisely",
+      "baseline_count": 3,
+      "status": "implemented-awaiting-analysis",
+      "work": "Reported ASCII digit character classes replaced by equivalent digit escapes."
+    },
+    {
+      "name": "Functions should use return consistently",
+      "baseline_count": 2,
+      "status": "implemented-awaiting-analysis",
+      "work": "Property readers explicitly return null on empty/error paths."
+    },
+    {
+      "name": "Redundant pairs of parentheses should be removed",
+      "baseline_count": 2,
+      "status": "implemented-awaiting-analysis",
+      "work": "Removed the reported double wrappers in query debug and legacy item filtering."
+    },
+    {
+      "name": "switch statements should have at least 3 case clauses",
+      "baseline_count": 1,
+      "status": "implemented-awaiting-analysis",
+      "work": "The user lookup switch is now an equivalent if/else."
+    },
+    {
+      "name": "Functions should not have too many lines of code",
+      "baseline_count": 1,
+      "status": "pending-refactor",
+      "work": "duplicateItem needs staged extraction with descendant/shared-child behavior tests."
+    },
+    {
+      "name": "Methods should not be empty",
+      "baseline_count": 1,
+      "status": "implemented-awaiting-analysis",
+      "work": "Documented the intentionally reserved legacy setGlobalVariable entry point."
+    },
+    {
+      "name": "Two branches should not have exactly the same implementation",
+      "baseline_count": 1,
+      "status": "implemented-awaiting-analysis",
+      "work": "Grouped identifier/identifiers initialization cases."
+    }
+  ],
+  "validation": {
+    "regression_scripts_passed": 17,
+    "additional_legacy_binary_variants_passed": 2,
+    "syntax_files_checked": 305,
+    "php_compatibility_scan": "passed",
+    "compatibility_suite_overall": "failed-version-precondition-only",
+    "php_available": "8.5.0",
+    "php_suite_minimum": "8.5.1",
+    "remote_http_smoke": "not configured",
+    "response_memory": {
+      "rows": 1201,
+      "xml_bytes": 78936094,
+      "peak_bytes": 2097152
+    },
+    "new_behavioral_checks": 79,
+    "binary_test_fixture_fix": "Added the already-required RS_INITIAL_VALUE column to the isolated text audit table; the previous fixture failure also reproduced on the baseline."
+  },
+  "pending_examples": [
+    {
+      "file": "utilities/RSMitemsManagement.php",
+      "function": "duplicateItem",
+      "baseline_cognitive_complexity": 183,
+      "work": "Extract copy allocation, stored-value copy, descendant discovery, shared-child reuse and relationship updates with existing behavior coverage."
+    },
+    {
+      "file": "utilities/RSMitemsManagement.php",
+      "function": "IQ_getFilteredItemIDsOnly",
+      "baseline_cognitive_complexity": 105,
+      "work": "Separate filter normalization, predicate building and ordering/pagination without changing SQL/authorization."
+    },
+    {
+      "file": "utilities/RSMitemsManagement.php",
+      "function": "IQ_getFilteredItemsIDs",
+      "baseline_cognitive_complexity": 99,
+      "work": "Legacy translated joins require differential SQL and response fixtures."
+    },
+    {
+      "file": "qr/launchAction.php",
+      "work": "Existing TODOs require defined encrypted transport and access-control behavior; do not remove them cosmetically."
+    },
+    {
+      "file": "itemsManager/classLbxFilteredItemProperties_getProperties.php",
+      "work": "Retain the itemtypeID compatibility fallback until its advertised removal point is agreed."
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 
 // Focused tests for next-integer sequence calculation and locking. The real
 // item-manager functions are exercised against a small mysqli statement double.
@@ -250,7 +251,7 @@ echo "next integer endpoint tests passed\n";
 
 // Exercise persistence, conflict detection, rollback, and release without a server.
 function getPropertyType($propertyID, $clientID) { return array(101 => 'date', 102 => 'text')[$propertyID] ?? 'integer'; }
-function RSError($message) { }
+function RSerror($message) { }
 function getItemPropertyValue($itemID, $propertyID, $clientID) {
     if ($itemID === null || $propertyID === null) return null;
     return $GLOBALS['allocationValues'][$itemID][$propertyID] ?? null;
@@ -305,8 +306,8 @@ class InvoiceNumberResponse extends Exception {
     public $result;
     public function __construct($result) { parent::__construct('response'); $this->result = $result; }
 }
-function RSReturnArrayResults($result) { throw new InvoiceNumberResponse($result); }
-function RSCheckUserAccess() { return 1; }
+function RSreturnArrayResults($result) { throw new InvoiceNumberResponse($result); }
+function RScheckUserAccess() { return 1; }
 function dieWithError($code) { throw new RuntimeException('Unexpected HTTP ' . $code); }
 function getClientItemTypeID_RelatedWith_byName($name, $clientID) { return 8; }
 function getClientPropertyID_RelatedWith_byName($name, $clientID) {
@@ -316,7 +317,7 @@ function getClientPropertyID_RelatedWith_byName($name, $clientID) {
 class InvoiceGlobalResult {
     public function fetch_assoc() { return array('value' => $GLOBALS['invoiceResetYear']); }
 }
-function RSQuery($query) { return new InvoiceGlobalResult(); }
+function RSquery($query) { return new InvoiceGlobalResult(); }
 function runInvoiceNumberCommand($source) {
     global $mysqli, $cstRS_POST;
     try { eval($source); } catch (InvoiceNumberResponse $response) { return $response->result; }

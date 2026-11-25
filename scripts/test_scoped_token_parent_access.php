@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // Prueba las funciones y las API del proyecto con una base de datos temporal en memoria.
 // Requiere las extensiones sqlite3 y mbstring de PHP. No usa la base de datos del servidor.
 if (!class_exists('SQLite3')) throw new RuntimeException('Enable the sqlite3 extension to run these tests.');
@@ -51,7 +52,7 @@ $db->createFunction('FIND_IN_SET', function ($needle, $haystack) {
 }, 2);
 $mysqli = new ScopeEscaper();
 $queries = array();
-function RSQuery($sql) {
+function RSquery($sql) {
     global $db, $queries;
     $queries[] = $sql;
     return new ScopeResult($db->query($sql));
@@ -77,7 +78,7 @@ foreach (array(1,10) as $owner) foreach (array(100,101,102,200,300) as $property
 }
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
 require_once $root . 'utilities/RSMbinaryProperties.php';
-loadProductionFunctions($root . 'utilities/RSdatabase.php', array('RSGetResponseFileFieldThreshold'));
+loadProductionFunctions($root . 'utilities/RSdatabase.php', array('RSgetResponseFileFieldThreshold'));
 loadProductionFunctions($root . 'utilities/RSMtokensManagement.php', array(
     'RSgetTokenMetadata','RSisTokenEnabled','RSgetEffectivePermissionTokenID','RSgetTokenCustomerScope',
     'RSisCustomerScopedToken','RSisTokenCustomerScopeValid','RSgetTokenCustomerItemTypeID','RSgetTokenCustomerItemID',
@@ -99,7 +100,7 @@ function getClientPropertyDefaultValue($id, $client) { return ''; }
 function getItemTypeIDFromProperties($ids, $client) { global $db; return (int) $db->querySingle('SELECT c.RS_ITEMTYPE_ID FROM rs_categories c JOIN rs_item_properties p USING (RS_CLIENT_ID,RS_CATEGORY_ID) WHERE p.RS_PROPERTY_ID=' . (int) $ids[0]); }
 function getClientItemTypes($client) { return array(array('ID'=>50),array('ID'=>51),array('ID'=>52)); }
 function getClientItemTypeProperties($type, $client) {
-    $result = RSQuery('SELECT p.RS_PROPERTY_ID AS id, p.RS_TYPE AS type, "name" AS name FROM rs_item_properties p JOIN rs_categories c USING (RS_CLIENT_ID,RS_CATEGORY_ID) WHERE c.RS_ITEMTYPE_ID=' . (int) $type . ' AND c.RS_CLIENT_ID=' . (int) $client);
+    $result = RSquery('SELECT p.RS_PROPERTY_ID AS id, p.RS_TYPE AS type, "name" AS name FROM rs_item_properties p JOIN rs_categories c USING (RS_CLIENT_ID,RS_CATEGORY_ID) WHERE c.RS_ITEMTYPE_ID=' . (int) $type . ' AND c.RS_CLIENT_ID=' . (int) $client);
     $rows = array(); while ($row = $result->fetch_assoc()) $rows[] = $row; return $rows;
 }
 function getClientItemTypePropertiesId($type, $client) { return array_column(getClientItemTypeProperties($type,$client),'id'); }
@@ -202,8 +203,8 @@ function checkBodyContains($value,$key) { if (!property_exists($value,$key)) thr
 function checkStringIsInteger($value) { if (!ctype_digit((string)$value)) throw new ScopeResponse('invalid integer',400); }
 function returnJsonMessage($status,$message) { throw new ScopeResponse($message,$status); }
 function returnJsonResponse($body) { throw new ScopeResponse(json_decode($body,true)); }
-function RSReturnArrayResults($body,$compress=false) { throw new ScopeResponse($body); }
-function RSReturnArrayQueryResults($body,$compress=false) { throw new ScopeResponse($body); }
+function RSreturnArrayResults($body,$compress=false) { throw new ScopeResponse($body); }
+function RSreturnArrayQueryResults($body,$compress=false) { throw new ScopeResponse($body); }
 function dieWithError($status,$message='') { throw new ScopeResponse($message,$status); }
 function isBase64($value) { return base64_decode($value,true) !== false; }
 function replaceUtf8Characters($value) { return $value; }

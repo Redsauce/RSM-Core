@@ -1,6 +1,9 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSresponseTempFiles.php';
 $source = file_get_contents(__DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
+preg_match('/^function RSMcopyFileToGzip\(.*?^\}/ms', $source, $helperMatch);
+eval($helperMatch[0]);
 preg_match('/^function gzCompressFile\(.*?^\}/ms', $source, $match);
 eval($match[0]);
 
@@ -42,9 +45,9 @@ if (isset($argv[1]) && $argv[1] === '--child') {
         }
         exit(2); // Must fail during serialization, not silently return.
     }
-    $file = RSCreateResponseTempFile($argv[2]);
+    $file = RScreateResponseTempFile($argv[2]);
     $handle = fopen($file, 'wb');
-    RSRegisterResponseTempFile($file, $handle);
+    RSregisterResponseTempFile($file, $handle);
     fwrite($handle, str_repeat('x', 1024 * 1024));
     switch ($argv[3]) {
         case 'exit-during-send':
@@ -93,16 +96,16 @@ try {
     $count++;
 
     // Inject read and write failures into the actual compressor via a namespaced copy.
-    eval('namespace CompressionFailureTest;' . $match[0]);
+    eval('namespace CompressionFailureTest;' . $helperMatch[0] . $match[0]);
     eval('namespace CompressionFailureTest;
         function fread($handle, $length) { return $GLOBALS["failRead"] ? false : \\fread($handle, $length); }
         function gzwrite($handle, $data) { return false; }');
     foreach (array(true, false) as $failRead) {
-        $file = RSCreateResponseTempFile($directory);
+        $file = RScreateResponseTempFile($directory);
         file_put_contents($file, 'source');
         verify(CompressionFailureTest\gzCompressFile($file) === false, 'Injected compression failure');
         verify(!file_exists($file . '.gz'), 'Partial gzip remained');
-        RSDeleteResponseTempFile($file);
+        RSdeleteResponseTempFile($file);
         $count++;
     }
 
@@ -122,20 +125,20 @@ try {
     }
     stream_wrapper_register('rsmdelete', 'FailedDeleteStream');
     $virtual = 'rsmdelete://response';
-    RSRegisterResponseTempFile($virtual);
+    RSregisterResponseTempFile($virtual);
     FailedDeleteStream::$failures = 0;
-    verify(RSDeleteResponseTempFile($virtual), 'Successful deletion');
+    verify(RSdeleteResponseTempFile($virtual), 'Successful deletion');
     verify(FailedDeleteStream::$attempts === 1, 'Successful deletion must attempt once');
     $count++;
     FailedDeleteStream::$exists = true;
     FailedDeleteStream::$failures = 3;
     FailedDeleteStream::$attempts = 0;
-    RSRegisterResponseTempFile($virtual);
+    RSregisterResponseTempFile($virtual);
     $previousLog = ini_get('error_log');
     ini_set('error_log', $directory . '/error.log');
-    verify(!RSDeleteResponseTempFile($virtual), 'Persistent failure must return false');
+    verify(!RSdeleteResponseTempFile($virtual), 'Persistent failure must return false');
     verify(strpos(file_get_contents($directory . '/error.log'), $virtual) !== false, 'Failure must be logged');
-    RSCleanupResponseTempFiles();
+    RScleanupResponseTempFiles();
     verify(FailedDeleteStream::$exists, 'Failed deletion must not be retried at shutdown');
     verify(FailedDeleteStream::$attempts === 1, 'Failed deletion must attempt once only');
     ini_set('error_log', $previousLog);
@@ -144,7 +147,7 @@ try {
     stream_wrapper_unregister('rsmdelete');
 
 } finally {
-    RSCleanupResponseTempFiles();
+    RScleanupResponseTempFiles();
     if (file_exists($directory . '/normal-completion')) unlink($directory . '/normal-completion');
     rmdir($directory);
 }

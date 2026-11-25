@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 
 // Focused utility tests for master-token behavior. The production utility is
-// loaded against a small in-memory RSQuery double so these tests need no DB.
+// loaded against a small in-memory RSquery double so these tests need no DB.
 
 class MasterTokenFakeResult {
     private $rows;
@@ -101,7 +102,7 @@ function masterTokenRowByID($id, $clientID) {
     return null;
 }
 
-function RSQuery($query, $registerError = true) {
+function RSquery($query, $registerError = true) {
     global $masterTokenRows, $masterTokenPermissions;
 
     if (strpos($query, 'FROM rs_tokens token') !== false) {

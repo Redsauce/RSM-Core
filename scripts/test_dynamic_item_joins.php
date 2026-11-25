@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 
 // Regression tests for the dynamic item join optimization. These tests run the
 // real helper functions extracted from RSMitemsManagement.php against lightweight
@@ -41,7 +42,7 @@ function extractFunctionSource($source, $functionName) {
 }
 
 $databaseSource = file_get_contents($root . '/Server/htdocs/AppController/commands_RSM/utilities/RSdatabase.php');
-eval(extractFunctionSource($databaseSource, 'RSGetResponseFileFieldThreshold'));
+eval(extractFunctionSource($databaseSource, 'RSgetResponseFileFieldThreshold'));
 $getFilteredSource = extractFunctionSource($source, 'getFilteredItemsIDs');
 $cachedPropertyTypeSource = extractFunctionSource($source, 'RSMgetFilteredPropertyType');
 $cachedPropertyDefaultSource = extractFunctionSource($source, 'RSMgetFilteredPropertyDefaultValue');
@@ -98,7 +99,7 @@ $dynamicJoinTranslated = false;
 $dynamicJoinPropertyTypeCalls = array();
 $dynamicJoinHydrationBatchSizes = array();
 
-function RSQuery($query, $registerError = true) {
+function RSquery($query, $registerError = true) {
     global $dynamicJoinQueries, $dynamicJoinRows;
     $dynamicJoinQueries[] = $query;
     return new DynamicJoinFakeResult($dynamicJoinRows);

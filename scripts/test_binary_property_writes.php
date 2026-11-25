@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
 // SEC-02: run the production writers and API endpoints against SQLite prepared
 // statements. This does not exercise the MySQL wire protocol or row locking.
 if (!class_exists('SQLite3')) throw new RuntimeException('Enable sqlite3 to run these tests.');
@@ -113,7 +114,7 @@ class BinaryConnection {
     }
     public function rollback() { $this->rollbacks++; return $GLOBALS['binaryDb']->exec('ROLLBACK'); }
 }
-function RSQuery($sql, $registerError = true) {
+function RSquery($sql, $registerError = true) {
     if ($GLOBALS['binaryFail'] !== '' && strpos($sql, $GLOBALS['binaryFail']) !== false) return false;
     $sql = str_replace(' FOR UPDATE', '', $sql);
     if (strpos($sql, 'SELECT ') === 0) return new BinaryRows($GLOBALS['binaryDb']->query($sql));
@@ -132,7 +133,7 @@ function getGenericNext($table, $column, $conditions) {
     return 1 + (int)$GLOBALS['binaryDb']->querySingle("SELECT MAX($column) FROM $table WHERE RS_CLIENT_ID=$client");
 }
 function getUserVisiblePropertiesIDs($type, $client, $user) { return array_diff($GLOBALS['binaryProperties'], $GLOBALS['binaryDenied']); }
-function RSReturnError($message, $code) { throw new BinaryResponse(400, array('result' => 'NOK', 'description' => $message, 'code' => $code)); }
+function RSreturnError($message, $code) { throw new BinaryResponse(400, array('result' => 'NOK', 'description' => $message, 'code' => $code)); }
 function getPropertyType($id, $client) { return $GLOBALS['binaryTypes'][(int)$id] ?? ''; }
 function getClientItemTypeProperties($type, $client, $exclude = 0, $failOnError = false) {
     if ($GLOBALS['binaryFail'] === 'metadata') throw new RuntimeException('Metadata unavailable');
@@ -158,7 +159,7 @@ function setPropertyValueByID($id, $type, $item, $client, $value, $propertyType)
 function deleteMediaFile($client, $item, $property) { }
 function returnJsonMessage($code, $message) { throw new BinaryResponse($code, $message); }
 function returnJsonResponse($json) { throw new BinaryResponse(200, json_decode($json, true)); }
-function RSReturnArrayResults($body, $compress = false) { throw new BinaryResponse(200, $body); }
+function RSreturnArrayResults($body, $compress = false) { throw new BinaryResponse(200, $body); }
 function dieWithError($status, $message = null) { throw new BinaryResponse($status, $message); }
 
 $root = dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/';
@@ -183,6 +184,7 @@ if (in_array('--legacy-manager', $argv, true)) {
 $creationFunctions = array('createEmptyItem', 'createItem', '_dbInsertItemPropertyValue', 'setDataPropertyValueByID', 'deleteItemPropertyValue', 'RSlockItemTypeForDuplication');
 if (!in_array('--legacy-manager', $argv, true)) {
     $creationFunctions[] = 'RScreateItemInTransaction';
+    $creationFunctions[] = 'RSretryEmptyItemInsert';
     $creationFunctions[] = 'RScreateEmptyItemInTransaction';
     $creationFunctions[] = 'RSallocateNextIntegerPropertyValue';
 }
@@ -235,7 +237,7 @@ function binaryReset() {
     foreach (array('rs_audit_trail_property_files', 'rs_audit_trail_property_images') as $table) {
         $binaryDb->exec("CREATE TABLE $table (RS_CLIENT_ID,RS_ITEMTYPE_ID,RS_ITEM_ID,RS_PROPERTY_ID,RS_USER_ID,RS_TOKEN,RS_CHANGED_DATE,RS_INITIAL_NAME,RS_INITIAL_SIZE,RS_INITIAL_VALUE BLOB,RS_FINAL_NAME,RS_FINAL_SIZE,RS_FINAL_VALUE BLOB)");
     }
-    $binaryDb->exec('CREATE TABLE rs_audit_trail_property_text (RS_ITEMTYPE_ID,RS_ITEM_ID,RS_PROPERTY_ID,RS_CLIENT_ID,RS_USER_ID,RS_TOKEN,RS_CHANGED_DATE,RS_FINAL_VALUE)');
+    $binaryDb->exec('CREATE TABLE rs_audit_trail_property_text (RS_ITEMTYPE_ID,RS_ITEM_ID,RS_PROPERTY_ID,RS_CLIENT_ID,RS_USER_ID,RS_TOKEN,RS_CHANGED_DATE,RS_INITIAL_VALUE,RS_FINAL_VALUE)');
     $binaryDb->exec("INSERT INTO rs_property_files VALUES(9,50,1,101,'foreign',3,x'616263')");
 }
 function binaryEndpoint($name, $body) {
@@ -291,7 +293,7 @@ function RSgetNextIntegerLockName($client, $property, $year, $series) { return '
 function RSacquireNextIntegerLock($name) { return true; }
 function RSreleaseNextIntegerLock($name) { $GLOBALS['binaryReleasedSequenceLock'] = true; }
 function RSgetNextIntegerPropertyValue($client, $type, $property, $year, $series) { return 2; }
-function RSError($message) { }
+function RSerror($message) { }
 
 $testLog = tempnam(sys_get_temp_dir(), 'rsm-binary-test-');
 ini_set('error_log', $testLog);

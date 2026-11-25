@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMqueryText.php';
+require_once __DIR__ . '/../Server/htdocs/AppController/commands_RSM/utilities/RSMexceptions.php';
 // Run the production allocator against deterministic query failures, without a DB.
 $source = file_get_contents(dirname(__DIR__) . '/Server/htdocs/AppController/commands_RSM/utilities/RSMitemsManagement.php');
 $start = strpos($source, 'function RScreateEmptyItemInTransaction(');
@@ -21,9 +23,12 @@ foreach (token_get_all('<?php ' . substr($source, $start)) as $token) {
     }
 }
 eval($function);
+$helperStart = strpos($source, 'function RSretryEmptyItemInsert(');
+$helperEnd = strpos($source, 'function RScreateEmptyItemInTransaction(', $helperStart);
+eval(substr($source, $helperStart, $helperEnd - $helperStart));
 function getNextItemTypeIdentification($type, $client) { return 10; }
 function getNextIdentification($table, $column, $client, $filters) { return 11; }
-function RSQuery($query, $reportErrors = true)
+function RSquery($query, $reportErrors = true)
 {
     global $steps, $queries, $mysqli;
     $queries[] = array($query, $reportErrors);
