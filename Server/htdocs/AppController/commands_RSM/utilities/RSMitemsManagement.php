@@ -1288,7 +1288,7 @@ function deleteClientItemType($itemTypeID, $clientID)
 function deleteClientProperty($propertyID, $clientID)
 {
     return RSwithItemWriteTransaction(function () use ($propertyID, $clientID) {
-        return RSDeleteClientPropertyInTransaction($propertyID, $clientID);
+        RSDeleteClientPropertyInTransaction($propertyID, $clientID);
     });
 }
 
@@ -2165,7 +2165,7 @@ function in_array_recursive($needle, $haystack)
 function deleteItem($itemTypeID, $itemID, $clientID, $descendants = array())
 {
     return RSwithItemWriteTransaction(function () use ($itemTypeID, $itemID, $clientID, $descendants) {
-        return RSDeleteItemInTransaction($itemTypeID, $itemID, $clientID, $descendants);
+        RSDeleteItemInTransaction($itemTypeID, $itemID, $clientID, $descendants);
     });
 }
 
@@ -2265,7 +2265,7 @@ function RSDeleteItemInTransaction($itemTypeID, $itemID, $clientID, $descendants
 function deleteItems($itemTypeID, $clientID, $ids = '', $descendants = array())
 {
     return RSwithItemWriteTransaction(function () use ($itemTypeID, $clientID, $ids, $descendants) {
-        return RSDeleteItemsInTransaction($itemTypeID, $clientID, $ids, $descendants);
+        RSDeleteItemsInTransaction($itemTypeID, $clientID, $ids, $descendants);
     });
 }
 
